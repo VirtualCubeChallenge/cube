@@ -1674,6 +1674,24 @@
       pointer-events: none;
     }
 
+    /* --- OLL/ZBLL/PLL を全部非表示にしたとき (ボタン配置画面の設定) ---
+       alg-row が空になって帯だけ残るので、その帯ごと畳んで回転記号ボタン
+       (face-grid) に空間を回す。tap-mode 中は alg-row が💡ヘルプボタンを
+       表示する場所として使われているので、この畳み込みは対象外。 */
+    body.all-alg-hidden:not(.tap-mode) .alg-row {
+      display: none;
+    }
+    body.all-alg-hidden:not(.tap-mode) .face-grid {
+      grid-template-rows: 62px 100px 62px;
+      gap: 10px;
+    }
+    body.all-alg-hidden:not(.tap-mode) .face-letter {
+      font-size: 23px;
+    }
+    body.all-alg-hidden:not(.tap-mode) .edge-hint {
+      font-size: 14px;
+    }
+
 
     /* --- 💡 ヘルプ（タップキューブモード専用） -------------------------
        タップ操作中は OLL / ZBLL / PLL の3つを隠し、空いた同じ場所に
@@ -3312,6 +3330,19 @@
       body.tap-mode .tap-hint {
         display: none;
       }
+      body.all-alg-hidden:not(.tap-mode) #controls .face-grid {
+        grid-template-rows:
+          clamp(40px, 13vh, 62px)
+          clamp(60px, 20vh, 100px)
+          clamp(40px, 13vh, 62px);
+        gap: clamp(6px, 1.5vh, 10px);
+      }
+      body.all-alg-hidden:not(.tap-mode) #controls .face-letter {
+        font-size: clamp(16px, 4.5vh, 23px);
+      }
+      body.all-alg-hidden:not(.tap-mode) #controls .edge-hint {
+        font-size: clamp(10px, 2.5vh, 14px);
+      }
     }
 
     /* --- Tablets (iPad, etc.) ---
@@ -3364,6 +3395,17 @@
       }
       .mode-indicator {
         font-size: 13px;
+      }
+      body.all-alg-hidden:not(.tap-mode) .face-grid {
+        grid-template-rows: 94px 154px 94px;
+        gap: 18px;
+        max-width: 720px;
+      }
+      body.all-alg-hidden:not(.tap-mode) .face-letter {
+        font-size: 36px;
+      }
+      body.all-alg-hidden:not(.tap-mode) .edge-hint {
+        font-size: 19px;
       }
     }
 
