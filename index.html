@@ -301,6 +301,14 @@
       <h2 data-i18n="layoutTitle">ボタン配置</h2>
 
       <div class="settings-toggle-row">
+        <span class="settings-toggle-label" data-i18n="doubleTap180">ダブルタップで180°回転</span>
+        <button class="toggle-switch" id="double-tap-toggle" role="switch" aria-checked="false" data-i18n-aria="doubleTap180" aria-label="ダブルタップで180°回転">
+          <span class="toggle-knob"></span>
+        </button>
+      </div>
+      <p class="settings-hint toggle-hint" data-i18n="doubleTap180Hint">ONにすると、ボタンの2回押しで180°回転（U2など）できます。</p>
+
+      <div class="settings-toggle-row">
         <span class="settings-toggle-label" data-i18n="edgeArrow">ボタンに矢印を表示</span>
         <button class="toggle-switch on" id="edge-arrow-toggle" role="switch" aria-checked="true" data-i18n-aria="edgeArrow" aria-label="ボタンに矢印を表示">
           <span class="toggle-knob"></span>
@@ -1977,6 +1985,31 @@
     frontViewToggle.classList.toggle('on', frontViewEnabled);
     frontViewToggle.setAttribute('aria-checked', String(frontViewEnabled));
 
+    // --- ダブルタップで180°回転 (ボタン配置画面、一番上) -------------------
+    // 通常のスライド操作(90°)とは別に、面ボタンを素早く2回タップすると
+    // その面を180°(90°を2回)回せるようにするオプション。誤操作を避ける
+    // ため既定はOFF。実際の判定は attachSlideControl() 側の finish() で行う。
+    const DOUBLE_TAP_KEY = 'rubiks-cube-double-tap-180';
+    const doubleTapToggle = document.getElementById('double-tap-toggle');
+    let doubleTapEnabled = false;
+    try {
+      const saved = localStorage.getItem(DOUBLE_TAP_KEY);
+      if (saved !== null) doubleTapEnabled = saved === '1';
+    } catch (err) {
+      // Storage unavailable -- use the default (OFF).
+    }
+
+    function applyDoubleTapMode() {
+      doubleTapToggle.classList.toggle('on', doubleTapEnabled);
+      doubleTapToggle.setAttribute('aria-checked', String(doubleTapEnabled));
+    }
+    doubleTapToggle.addEventListener('click', () => {
+      doubleTapEnabled = !doubleTapEnabled;
+      applyDoubleTapMode();
+      try { localStorage.setItem(DOUBLE_TAP_KEY, doubleTapEnabled ? '1' : '0'); } catch (err) { /* unavailable */ }
+    });
+    applyDoubleTapMode();
+
     // --- Edge-arrow hint (button layout screen) ---
     // Small ‹ › hints on each rotation button showing which way a slide
     // turns that face. ON by default; this toggle lets the face-letter
@@ -2196,6 +2229,16 @@
       // has been down for at least this long before the slide commits.
       const ZAP_HOLD_MS = 1500;
 
+      // --- ダブルタップで180°回転 --------------------------------------
+      // 「スライドせずに素早く離した」タップだけを対象にする。しきい値を
+      // 超えて動いた指は普通のスライド操作(finish内の別分岐)として扱われる
+      // ので、ここでは触らない。TAP_MAX_MOVE/TAP_MAX_MS は「これはタップ」
+      // と見なす条件、DOUBLE_TAP_MS は2回目のタップまでの許容間隔。
+      const TAP_MAX_MOVE = 12;
+      const TAP_MAX_MS = 400;
+      const DOUBLE_TAP_MS = 350;
+      let lastTapTime = 0;
+
       function updatePreview() {
         const clamped = Math.max(-SLIDE_MAX, Math.min(SLIDE_MAX, delta));
         letterEl.style.transform = vertical
@@ -2260,6 +2303,22 @@
             else zap(card, 'dir-left', 15, 50);
           }
           onCommit(FLIP_LETTERS.has(getLetter()) ? 'cw' : 'ccw');
+        } else if (
+          doubleTapEnabled &&
+          Math.abs(delta) < TAP_MAX_MOVE &&
+          (Date.now() - pressStartTime) < TAP_MAX_MS
+        ) {
+          // スライドと判定されなかった短いタップ。ダブルタップ設定がONの
+          // ときだけ、直前のタップとの間隔を見て180°回転を判定する。
+          const now = Date.now();
+          if (now - lastTapTime <= DOUBLE_TAP_MS) {
+            lastTapTime = 0;
+            triggerHaptics(18);
+            onCommit('cw');
+            onCommit('cw');
+          } else {
+            lastTapTime = now;
+          }
         }
         reset();
         delta = 0;
