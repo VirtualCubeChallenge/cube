@@ -2116,6 +2116,11 @@
         const stateLabel = btn.querySelector('.alg-vis-state');
         if (stateLabel) stateLabel.textContent = visible ? t('visShown') : t('visHidden');
       });
+      // OLL/ZBLL/PLL を全部隠すと alg-row が空になり、回転記号ボタン(face-grid)
+      // の上に何もない帯だけが残ってしまう。そのときは alg-row 自体を畳んで、
+      // 空いた分だけ回転記号ボタンを大きく・押しやすくする。
+      const allAlgHidden = !algVisibility.oll && !algVisibility.zbll && !algVisibility.pll;
+      document.body.classList.toggle('all-alg-hidden', allAlgHidden);
     }
     Object.keys(algVisButtons).forEach((key) => {
       const btn = algVisButtons[key];
