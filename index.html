@@ -1859,12 +1859,27 @@
     // (=より下)を採用する。getBoundingClientRect で揃えるのは、2つの要素が
     // 別々の position:absolute 基準を持っていても、画面上の実ピクセル位置
     // さえ合わせれば重なりを確実に避けられるため。
+    // ドロワー(.menu-actions)の中身は「🏆 記録」「⚙️ 設定」の2行だけなので、
+    // ドロワーの真下という前提が保たれている限り --shuffle-top は
+    // せいぜい 300px 前後にしかならないはず。ところが Android Chrome では
+    // .menu-actions が visibility:hidden のまま持っている「箱としての高さ」
+    // の実測値 (offsetTop / offsetHeight) が他ブラウザよりはるかに大きく
+    // 出てしまうことがあり(78vw の min-width や折り返しの計測タイミングが
+    // 絡むと思われる)、その値をそのまま採用するとつまみが画面中ほどまで
+    // 落ちてOLL/ZBLL/PLLの列に重なってしまう。ドロワーが実際に何行あって
+    // も現実的にここまでは伸びない、という上限値でクランプし、異常値を
+    // 無視する安全弁にする。お手本パネル(#demo-panel)表示中だけはキューブ
+    // 領域の下端まで正当に伸びる必要があるため、このクランプの対象外にする。
+    const SHUFFLE_TOP_SAFE_MAX = 320;
     function positionShuffleSlider() {
       if (!menuActions || !shuffleSlider) return;
       const drawerBottom = menuActions.offsetTop + menuActions.offsetHeight;
       // .shuffle-slider の CSS 側は `top: var(--shuffle-top, 210px);` なので、
       // ここで --shuffle-top を書き換えるだけで反映される。
       let top = drawerBottom + SHUFFLE_BELOW_DRAWER_MARGIN;
+      // 上記の異常値クランプ。お手本パネルぶんの底上げ判定より前に適用し、
+      // ベースとなるドロワー基準の値だけを正常化しておく。
+      top = Math.min(top, SHUFFLE_TOP_SAFE_MAX);
       const demoPanelEl = document.getElementById('demo-panel');
       if (demoPanelEl && demoPanelEl.classList.contains('show')) {
         const demoRect = demoPanelEl.getBoundingClientRect();
