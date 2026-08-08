@@ -1047,36 +1047,6 @@
        body.tap-mode #help-btn { display:flex } と詳細度が同じため、
        定義順に関係なく確実に勝たせるよう !important を付ける。 */
     body.hide-help-btn #help-btn { display: none !important; }
-
-    /* --- ボタン配置画面のコンパクト化 -------------------------------------
-       説明文を削ったぶん、残った要素の間隔も詰めて 1 画面に収まりやすく
-       する。#layout-overlay 配下だけに効かせているので、設定パネル本体の
-       余白はこれまで通り。 */
-    #layout-overlay h2 {
-      margin-bottom: 8px;
-    }
-    #layout-overlay .settings-toggle-row {
-      margin-bottom: 10px;
-    }
-    #layout-overlay .settings-hint {
-      margin-bottom: 18px;
-    }
-    #layout-overlay .help-visibility-grid {
-      margin: 4px 0 20px;
-    }
-    #layout-overlay .alg-visibility-grid {
-      gap: 8px;
-      margin: 4px 0 20px;
-    }
-    #layout-overlay .alg-vis-btn {
-      height: 46px;
-    }
-    #layout-overlay .help-vis-btn {
-      height: 44px;
-    }
-    #layout-overlay .help-vis-btn .help-vis-icon {
-      font-size: 19px;
-    }
     .size-row {
       display: flex;
       align-items: center;
@@ -3262,6 +3232,12 @@
          (positionShuffleSlider) が入れ直すので、そちらに任せる。 */
       .shuffle-slider {
         height: 88px;
+        /* Android Chrome ではヘッダーの実測高さが他ブラウザよりわずかに
+           大きく出ることがあり、operationパネル(右カラム)の上端の
+           OLL/ZBLL/PLL ボタンにシャッフルのつまみがわずかにかぶって
+           見えることがあった。--shuffle-top(JS計算値)はそのままに、
+           ここで少しだけ上へ逃がして重なりを避ける。 */
+        top: calc(var(--shuffle-top, 210px) - 10px);
       }
       #canvas-container {
         grid-area: canvas;
