@@ -1785,6 +1785,11 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
+      /* マスコットぶん横幅が減ったので、「白いクロス」とのこり手数が
+         同じ行に収まらない言語・端末では素直に2行に折り返させる。
+         どちらも消したくない情報なので、省略(…)よりは折り返しを選ぶ。 */
+      flex-wrap: wrap;
+      row-gap: 3px;
     }
     .demo-phase {
       font-size: 11px;
@@ -1835,40 +1840,91 @@
     .demo-move-badge.grip .demo-move { color: #7fd7ff; font-size: clamp(16px, 4.8vw, 22px); }
     .demo-move-badge.done { background: #163a24; border-color: #3ecf76; }
     .demo-move-badge.done .demo-move { color: #6bffa0; }
-    .demo-move-desc {
-      text-align: center;
-      font-size: 11px;
-      font-weight: 600;
-      color: #dcdce6;
-      min-height: 1.1em;
+    /* 回転記号の下にあった説明文（「白の面を時計回りに…」）は画面から廃止。
+       どの面をどちらに回すかは、バッジの色と ↻ / ↺ ですでに伝わっている。
+       要素自体は読み上げ用に残すので display:none ではなく視覚的にだけ隠す。 */
+    .demo-move-desc,
+    .demo-note:not(.good) {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      border: 0;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
     }
 
-    /* 下段: 状態メッセージ。赤文字1本に頼らず、アイコン付きの帯（バナー）
-       にして「注意」か「順調」かを色と形の両方で伝える。 */
+    /* 完成時の CLEAR TIME / NEW RECORD だけは帯として表に出す。
+       （進行中の案内文はマスコットの表情が代わりになっている） */
     .demo-note {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
+      justify-content: center;
       gap: 5px;
       font-size: 11px;
       line-height: 1.4;
-      color: #dcdce6;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      border-radius: 9px;
-      padding: 5px 8px;
-    }
-    .demo-note-icon { flex: 0 0 auto; font-size: 14px; line-height: 1.3; }
-    .demo-note-text { flex: 1; }
-    .demo-note.warn {
-      color: #ffd6d6;
-      background: rgba(255, 60, 60, 0.16);
-      border-color: rgba(255, 90, 90, 0.55);
-    }
-    .demo-note.good {
+      font-weight: 700;
       color: #cdf9de;
       background: rgba(60, 207, 118, 0.18);
-      border-color: rgba(80, 220, 140, 0.55);
+      border: 1px solid rgba(80, 220, 140, 0.55);
+      border-radius: 9px;
+      padding: 4px 8px;
     }
+    .demo-note-icon { flex: 0 0 auto; font-size: 14px; line-height: 1.3; }
+    .demo-note-text { flex: 0 1 auto; }
+
+    /* --- ゆるキャラ（キューブくん） -----------------------------------
+       文章ではなく表情で状態を伝える。4枚のSVGを重ねておき、
+       親の data-state で見せる1枚を選ぶ。差し替えにレイアウトが
+       動かないよう、全枚を同じグリッドセルに重ねている。 */
+    .demo-mascot {
+      flex: 0 0 auto;
+      align-self: center;
+      display: grid;
+      width: max(60px, min(21vw, 14vh, 96px));
+      aspect-ratio: 200 / 220;
+      transform-origin: 50% 85%;
+    }
+    .mascot-art {
+      grid-area: 1 / 1;
+      width: 100%;
+      height: 100%;
+      visibility: hidden;
+      opacity: 0;
+      transform: scale(0.86);
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .demo-mascot[data-state="ok"]     .mascot-art[data-mascot="ok"],
+    .demo-mascot[data-state="miss"]   .mascot-art[data-mascot="miss"],
+    .demo-mascot[data-state="almost"] .mascot-art[data-mascot="almost"],
+    .demo-mascot[data-state="clear"]  .mascot-art[data-mascot="clear"] {
+      visibility: visible;
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* 状態ごとの動き。色・表情・動きの3つで区別する。 */
+    @keyframes mascot-bob   { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4%); } }
+    @keyframes mascot-shake { 0%,100% { transform: translateX(0); }
+                              20% { transform: translateX(-6%) rotate(-3deg); }
+                              40% { transform: translateX(5%) rotate(3deg); }
+                              60% { transform: translateX(-4%) rotate(-2deg); }
+                              80% { transform: translateX(3%) rotate(1deg); } }
+    @keyframes mascot-hop   { 0%,100% { transform: translateY(0) scale(1); }
+                              45% { transform: translateY(-11%) scale(1.05, 0.96); }
+                              70% { transform: translateY(0) scale(0.97, 1.03); } }
+    @keyframes mascot-pop   { 0% { transform: scale(1); } 45% { transform: scale(1.16); } 100% { transform: scale(1); } }
+
+    .demo-mascot[data-state="ok"]     { animation: mascot-bob 2.6s ease-in-out infinite; }
+    .demo-mascot[data-state="miss"]   { animation: mascot-shake .5s ease-in-out 1; }
+    .demo-mascot[data-state="almost"] { animation: mascot-hop 1s ease-in-out infinite;
+                                        filter: drop-shadow(0 0 7px rgba(255, 190, 60, 0.55)); }
+    .demo-mascot[data-state="clear"]  { animation: mascot-hop .62s ease-in-out infinite;
+                                        filter: drop-shadow(0 0 9px rgba(90, 240, 170, 0.6)); }
+    /* 合っていた瞬間のひと跡ね。進行中のループより優先させる。 */
+    .demo-mascot.pop { animation: mascot-pop .34s cubic-bezier(.34, 1.56, .64, 1) 1 !important; }
 
     #demo-close {
       position: absolute;
@@ -1886,6 +1942,7 @@
     }
     @media (max-height: 620px) {
       #demo-canvas-wrap { width: max(68px, min(22vw, 18vh, 96px)); height: max(68px, min(22vw, 18vh, 96px)); }
+      .demo-mascot { width: max(56px, min(19vw, 15vh, 86px)); }
       .demo-phase, .demo-remain, .demo-move-desc, .demo-note { font-size: 10px; }
       .demo-move-badge { height: 34px; padding: 0 10px; }
       .demo-move { font-size: clamp(16px, 5.6vw, 22px); }
@@ -2056,7 +2113,10 @@
       #demo-panel.thrill-zone,
       .demo-remain.thrill-zone,
       #demo-panel.final-move,
-      .demo-remain.final-move { animation: none !important; }
+      .demo-remain.final-move,
+      .demo-mascot,
+      .demo-mascot.pop { animation: none !important; }
+      .mascot-art { transition: none !important; }
     }
 
     /* --- 💡 吸い込み演出（Genie / Suck-in effect） ---------------------
@@ -2621,12 +2681,30 @@
 
     /* Tap-cube mode: the rotation buttons come off the screen entirely so
        the cube can take the space, but OLL/PLL stay reachable. */
+    /* 操作説明は文章をやめてピクトグラムにしたので、行として並べる。
+       色は currentColor 経由でSVG側に届くので、ここを変えれば両方変わる。 */
     .tap-hint {
       display: none;
       color: #00ffcc;
     }
     body.tap-mode .tap-hint {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 4px;
+      opacity: .9;
+    }
+    .tap-hint-art {
+      width: auto;
+      height: clamp(30px, 5.4vh, 42px);
+      flex: 0 0 auto;
+    }
+    .tap-hint-sep {
+      width: 1px;
+      height: clamp(16px, 3vh, 22px);
+      background: currentColor;
+      opacity: .35;
     }
     body.tap-mode .controls-label:not(.tap-hint),
     body.tap-mode #face-grid {

@@ -147,18 +147,156 @@
         <div class="demo-move-badge" id="demo-move-badge">
           <span class="demo-move" id="demo-move">—</span>
         </div>
+        <!-- 説明文は画面からは廃止し、状態はマスコットの表情で伝える。
+             ただし文言自体はスクリーンリーダー向けに残してあり（CSSで視覚的にだけ隠す）、
+             完成時の CLEAR TIME / NEW RECORD だけは帯として表に出る。 -->
         <div class="demo-move-desc" id="demo-move-desc"></div>
         <div class="demo-note" id="demo-note">
-          <span class="demo-note-icon" id="demo-note-icon">👉</span>
-          <span class="demo-note-text" id="demo-note-text" data-i18n="demoNoteDefault">お手本と同じ面を、同じ向きに回してね</span>
+          <span class="demo-note-icon" id="demo-note-icon"></span>
+          <span class="demo-note-text" id="demo-note-text"></span>
         </div>
+      </div>
+      <!-- ゆるキャラ(キューブくん)。文章のかわりに表情で状態を伝える。
+           state: ok = お手本どおり / miss = ちがう手 / almost = のこり20手以下
+                  clear = 完成。JS(setMascot)が data-state を差し替えるだけで
+           切り替わるので、表示ロジックはCSS側に閉じている。 -->
+      <div class="demo-mascot" id="demo-mascot" data-state="ok" aria-hidden="true">
+
+        <!-- OK: お手本どおりに進んでいる -->
+        <svg class="mascot-art" data-mascot="ok" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="82" cy="196" rx="16" ry="12" fill="#ffd9b3"/>
+          <ellipse cx="118" cy="196" rx="16" ry="12" fill="#ffd9b3"/>
+          <ellipse cx="38" cy="130" rx="15" ry="13" fill="#ffd9b3" transform="rotate(-14 38 130)"/>
+          <ellipse cx="162" cy="130" rx="15" ry="13" fill="#ffd9b3" transform="rotate(14 162 130)"/>
+          <rect x="40" y="42" width="120" height="120" rx="30" fill="#7fbfff"/>
+          <g stroke="#3f7fb0" stroke-width="2.2" opacity=".45" fill="none">
+            <path d="M40 82h120M40 122h120M80 42v120M120 42v120"/>
+          </g>
+          <ellipse cx="100" cy="108" rx="52" ry="42" fill="#fff"/>
+          <circle cx="82" cy="102" r="9" fill="#4a3325"/>
+          <circle cx="84.5" cy="99" r="3" fill="#fff"/>
+          <circle cx="118" cy="102" r="9" fill="#4a3325"/>
+          <circle cx="120.5" cy="99" r="3" fill="#fff"/>
+          <circle cx="72" cy="120" r="10" fill="#ffb3b3" opacity=".6"/>
+          <circle cx="128" cy="120" r="10" fill="#ffb3b3" opacity=".6"/>
+          <path d="M84 118 Q100 132 116 118" stroke="#4a3325" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <circle cx="158" cy="52" r="26" fill="#4fe0a8" stroke="#fff" stroke-width="4"/>
+          <path d="M147 53l7 7 15-16" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+
+        <!-- MISS: お手本とちがう手が入った -->
+        <svg class="mascot-art" data-mascot="miss" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="82" cy="196" rx="16" ry="12" fill="#ffd9b3"/>
+          <ellipse cx="118" cy="196" rx="16" ry="12" fill="#ffd9b3"/>
+          <ellipse cx="38" cy="130" rx="15" ry="13" fill="#ffd9b3" transform="rotate(-10 38 130)"/>
+          <ellipse cx="162" cy="130" rx="15" ry="13" fill="#ffd9b3" transform="rotate(10 162 130)"/>
+          <rect x="40" y="42" width="120" height="120" rx="30" fill="#ffa96b"/>
+          <g stroke="#c06a2f" stroke-width="2.2" opacity=".45" fill="none">
+            <path d="M40 82h120M40 122h120M80 42v120M120 42v120"/>
+          </g>
+          <ellipse cx="100" cy="108" rx="52" ry="42" fill="#fff"/>
+          <circle cx="82" cy="104" r="8" fill="#4a3325"/>
+          <circle cx="84" cy="101.5" r="2.6" fill="#fff"/>
+          <circle cx="118" cy="104" r="8" fill="#4a3325"/>
+          <circle cx="120" cy="101.5" r="2.6" fill="#fff"/>
+          <path d="M72 92 Q82 88 90 94" stroke="#4a3325" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M128 92 Q118 88 110 94" stroke="#4a3325" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <circle cx="74" cy="120" r="9" fill="#ffb3b3" opacity=".55"/>
+          <circle cx="126" cy="120" r="9" fill="#ffb3b3" opacity=".55"/>
+          <path d="M88 124 Q100 118 112 124" stroke="#4a3325" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <path d="M138 88 q5 8 0 14 q-5-2-5-7 0-4 5-7z" fill="#7fc9ff"/>
+          <!-- バッジは実際には10px前後でしか見えないので、細い矢印ではなく太い×にする -->
+          <circle cx="158" cy="52" r="26" fill="#ff7a7a" stroke="#fff" stroke-width="4"/>
+          <path d="M148 42l20 20M168 42l-20 20" stroke="#fff" stroke-width="5.5" stroke-linecap="round"/>
+        </svg>
+
+        <!-- ALMOST: のこり20手以下。文字を使わず「もう少しで一周する輪」で表す -->
+        <svg class="mascot-art" data-mascot="almost" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="82" cy="196" rx="16" ry="12" fill="#ffd9b3"/>
+          <ellipse cx="118" cy="196" rx="16" ry="12" fill="#ffd9b3"/>
+          <ellipse cx="38" cy="130" rx="15" ry="13" fill="#ffd9b3" transform="rotate(-10 38 130)"/>
+          <ellipse cx="162" cy="130" rx="15" ry="13" fill="#ffd9b3" transform="rotate(10 162 130)"/>
+          <rect x="40" y="42" width="120" height="120" rx="30" fill="#ffdd6b"/>
+          <g stroke="#c0a02f" stroke-width="2.2" opacity=".45" fill="none">
+            <path d="M40 82h120M40 122h120M80 42v120M120 42v120"/>
+          </g>
+          <ellipse cx="100" cy="108" rx="52" ry="42" fill="#fff"/>
+          <circle cx="82" cy="102" r="8.5" fill="#4a3325"/>
+          <circle cx="84.5" cy="99.5" r="2.8" fill="#fff"/>
+          <circle cx="118" cy="102" r="8.5" fill="#4a3325"/>
+          <circle cx="120.5" cy="99.5" r="2.8" fill="#fff"/>
+          <circle cx="74" cy="120" r="9" fill="#ffb3b3" opacity=".55"/>
+          <circle cx="126" cy="120" r="9" fill="#ffb3b3" opacity=".55"/>
+          <path d="M87 122 Q100 128 113 122" stroke="#4a3325" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <!-- 文字のバッジだと多言語で崩れるので、「もうひと頑張り」を炎の絵で表す -->
+          <circle cx="158" cy="52" r="26" fill="#ff9f2e" stroke="#fff" stroke-width="4"/>
+          <path d="M158 34c6.2 8.8 2.7 13.2 6.2 16.7 2.2-2.2 2.6-5.7 2.6-5.7 4.8 5.7 6.6 11 6.6 15.4a15.4 15.4 0 0 1-30.8 0c0-7 5.3-11.9 9.7-16.7 2.6-3.1 4.8-6.2 5.7-9.7z" fill="#fff"/>
+          <path d="M40 38l2.5 6 6 2.5-6 2.5-2.5 6-2.5-6-6-2.5 6-2.5z" fill="#fff" opacity=".85"/>
+        </svg>
+
+        <!-- CLEAR: そろった -->
+        <svg class="mascot-art" data-mascot="clear" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="82" cy="196" rx="16" ry="12" fill="#ffd9b3"/>
+          <ellipse cx="118" cy="196" rx="16" ry="12" fill="#ffd9b3"/>
+          <ellipse cx="34" cy="116" rx="15" ry="13" fill="#ffd9b3" transform="rotate(-40 34 116)"/>
+          <ellipse cx="166" cy="116" rx="15" ry="13" fill="#ffd9b3" transform="rotate(40 166 116)"/>
+          <rect x="40" y="42" width="120" height="120" rx="30" fill="#6fe3b0"/>
+          <g stroke="#2f9b74" stroke-width="2.2" opacity=".45" fill="none">
+            <path d="M40 82h120M40 122h120M80 42v120M120 42v120"/>
+          </g>
+          <ellipse cx="100" cy="108" rx="52" ry="42" fill="#fff"/>
+          <path d="M72 106 Q82 93 92 106" stroke="#4a3325" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <path d="M108 106 Q118 93 128 106" stroke="#4a3325" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <circle cx="70" cy="122" r="10" fill="#ffb3b3" opacity=".65"/>
+          <circle cx="130" cy="122" r="10" fill="#ffb3b3" opacity=".65"/>
+          <path d="M84 118 Q100 140 116 118 Z" fill="#4a3325"/>
+          <path d="M92 130 Q100 138 108 130 Z" fill="#ff8fa0"/>
+          <circle cx="158" cy="52" r="26" fill="#ffd76b" stroke="#fff" stroke-width="4"/>
+          <path d="M158 32l5.3 12.7 13-1.1-10.4 9 3.2 13.4-11.1-7.2-11.8 7.2 3.2-13.4-10.4-9 13.7-1.1z" fill="#fff"/>
+          <path d="M36 40l2.6 6.4 6.4 2.6-6.4 2.6-2.6 6.4-2.6-6.4-6.4-2.6 6.4-2.6z" fill="#fff" opacity=".9"/>
+          <path d="M172 150l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#fff" opacity=".8"/>
+        </svg>
       </div>
       <button id="demo-close" data-i18n-aria="demoClose" aria-label="ヘルプを終了">×</button>
     </div>
   </div>
 
   <div id="controls">
-    <div class="controls-label tap-hint" data-i18n="tapHint">キューブの面を指でなぞって回転　／　背景をなぞると全体が回転</div>
+    <!-- 操作説明は文章をやめて絵（ピクトグラム）にした。
+         左: 面をなぞる→その層が回る。右: 背景をなぞる→全体が回る。
+         読み上げ用の文言は aria-label に残してある。 -->
+    <div class="controls-label tap-hint" role="img"
+         data-i18n-aria="tapHint"
+         aria-label="キューブの面を指でなぞって回転　／　背景をなぞると全体が回転">
+      <!-- 左: 面の上をなぞる → その列が回る -->
+      <svg class="tap-hint-art" viewBox="0 0 54 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="5" y="7" width="29" height="27" rx="4" fill="currentColor" fill-opacity=".10"
+              stroke="currentColor" stroke-width="2"/>
+        <path d="M6 12.5a3 3 0 0 1 3-3h21a3 3 0 0 1 3 3v3.5H6z" fill="currentColor" fill-opacity=".38"/>
+        <g stroke="currentColor" stroke-width="1.7" fill="none" opacity=".8">
+          <path d="M5 16h29M5 25h29M14.7 7v27M24.3 7v27"/>
+        </g>
+        <path d="M14 12.5H43" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/>
+        <path d="M48 12.5l-8-4.6v9.2z" fill="currentColor"/>
+        <circle cx="14" cy="12.5" r="4.4" fill="currentColor"/>
+      </svg>
+      <span class="tap-hint-sep" aria-hidden="true"></span>
+      <!-- 右: 背景（破線の枠）をなぞる → キューブ全体が回る -->
+      <svg class="tap-hint-art" viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="1.5" y="2.5" width="61" height="35" rx="6" fill="currentColor" fill-opacity=".12"
+              stroke="currentColor" stroke-width="1.6" stroke-dasharray="3 3" stroke-opacity=".55"/>
+        <rect x="24" y="12" width="18" height="17" rx="3" fill="currentColor" fill-opacity=".1"
+              stroke="currentColor" stroke-width="2"/>
+        <g stroke="currentColor" stroke-width="1.6" fill="none" opacity=".8">
+          <path d="M30 12v17M36 12v17M24 17.7h18M24 23.4h18"/>
+        </g>
+        <path d="M20 9.5A19 15 0 0 1 46 9.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+        <path d="M47.8 12.8l1.4-8.4-7.7 3z" fill="currentColor"/>
+        <path d="M13 32h8" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/>
+        <path d="M26 32l-8-4.4v8.8z" fill="currentColor"/>
+        <circle cx="13" cy="32" r="4.4" fill="currentColor"/>
+      </svg>
+    </div>
     <div class="mode-indicator" id="mode-indicator" data-i18n="fixedColorMode">🎨 固定色モード（設定でON/OFFを切替できます）</div>
     <div class="alg-row">
       <button class="alg-btn" id="oll-btn" data-i18n-aria="openOll" aria-label="OLL 57種を開く">
@@ -6518,12 +6656,47 @@ const ZBLL_DATA = [
       const noteEl      = document.getElementById('demo-note');
       const noteIconEl  = document.getElementById('demo-note-icon');
       const noteTextEl  = document.getElementById('demo-note-text');
+      const mascotEl    = document.getElementById('demo-mascot');
       const closeEl     = document.getElementById('demo-close');
       if (!btn || !panel) return;
 
-      // 状態メッセージは常にアイコン付きの帯として出す。赤文字だけで
-      // 「注意」を伝えるのは見落としやすいので、色・アイコン・背景の
-      // 3つで違いを示す。kind: 'info'（通常）/ 'warn'（注意）/ 'good'（完了）。
+      // ゆるキャラの表情を切り替える。表示の出し分けは CSS 側の
+      // [data-state] セレクタに任せ、ここでは「今はどの状態か」だけを決める。
+      //   ok     = お手本どおりに進んでいる
+      //   miss   = お手本とちがう手が入った（もどす案内中）
+      //   almost = のこり20手以下（THRILL_THRESHOLD と同じ基準）
+      //   clear  = そろった
+      // replay=true のときは、同じ表情のままでもアニメを頭から流し直す。
+      // （ちがう手が続いたときに、毎回ちゃんと首を振ってくれるように）
+      function setMascot(state, replay) {
+        if (!mascotEl) return;
+        const changed = mascotEl.dataset.state !== state;
+        if (!changed && !replay) return;
+        if (!changed) {
+          mascotEl.removeAttribute('data-state');
+          void mascotEl.offsetWidth;   // 同じアニメを再生させるためのリフロー
+        }
+        mascotEl.dataset.state = state;
+      }
+
+      // 「いまの1手、合ってたよ」のひと跳ね。表情は変えずに重ねがけで出すだけなので、
+      // のこり手数に応じた ok / almost の使い分けをここで崩さない。
+      function popMascot() {
+        if (!mascotEl) return;
+        mascotEl.classList.remove('pop');
+        void mascotEl.offsetWidth;
+        mascotEl.classList.add('pop');
+      }
+      // 跳ね終わったら .pop を外す。外さないと !important が残って、
+      // このあとのふわふわ(bob)やぴょこん(hop)が二度と動かなくなる。
+      if (mascotEl) {
+        mascotEl.addEventListener('animationend', (e) => {
+          if (e.animationName === 'mascot-pop') mascotEl.classList.remove('pop');
+        });
+      }
+
+      // 状態メッセージ。画面には出さず（完成時の CLEAR TIME だけ帯で出る）、
+      // 読み上げ用に残してある。kind: 'info'（通常）/ 'warn'（注意）/ 'good'（完了）。
       function setNote(text, kind) {
         noteEl.classList.remove('warn', 'good', 'celebrate', 'new-record');
         if (kind === 'warn') noteEl.classList.add('warn');
@@ -7038,6 +7211,9 @@ const ZBLL_DATA = [
         const left = st.moves.length - st.i;
         const zone = left <= 1 ? 2 : (left <= THRILL_THRESHOLD ? 1 : 0);
         setThrillZone(zone);
+        // マスコットの表情はここで一本化して決める。
+        // 「ちがう手」が最優先、次に「のこり20手以下」、どちらでもなければ順調。
+        setMascot(st.wrong.length ? 'miss' : (zone >= 1 ? 'almost' : 'ok'));
         if (st.wrong.length) {
           phaseEl.textContent = t('phaseUndo');
           remainEl.innerHTML = t('wrongCount', { n: st.wrong.length });
@@ -7205,6 +7381,8 @@ const ZBLL_DATA = [
         st.wantCfg = null;
         syncDemo();
         setThrillZone(0);
+        setMascot('clear', true);
+        popMascot();
         panel.classList.add('celebrate');
         phaseEl.classList.add('celebrate-text');
         phaseEl.textContent = '🎉 COMPLETE! 🎉';
@@ -7249,6 +7427,7 @@ const ZBLL_DATA = [
           moveEl.style.color = '';
           moveEl.textContent = '—';
           moveDescEl.textContent = '';
+          setMascot('miss');
           setNote(t('solveFailed'), 'warn');
           return;
         }
@@ -7269,6 +7448,8 @@ const ZBLL_DATA = [
         st.wrong = [];
         st.done = false;
         st.locked = false;
+        setMascot('ok', true);
+        if (mascotEl) mascotEl.classList.remove('pop');
         // このソルブでヘルプを使ったので、記録はガイドあり側に付ける。
         usedHelpThisSolve = true;
         btn.classList.add('on');
@@ -7384,6 +7565,7 @@ const ZBLL_DATA = [
         phaseEl.classList.remove('celebrate-text');
         st.wantCfg = invertCfg(st.wrong[st.wrong.length - 1]);
         paintStep();
+        setMascot('miss', true);   // ちがう手が続いても毎回首を振る
         setNote(t('undoWrong', { n: st.wrong.length }), 'warn');
         startMoveLoop();
       }
@@ -7444,6 +7626,9 @@ const ZBLL_DATA = [
         // 通常モード: お手本と同じ手が入ったか判定。
         if (st.wantCfg && sameCfg(cfg, st.wantCfg)) {
           st.i++;
+          // 合っていた瞬間だけは必ずふっと跳ねてほめてくれる。
+          // （このあと startLoop→paintStep が、のこり手数に応じた表情に戻す）
+          popMascot();
           setNote(t('followExample'), 'info');
           if (st.i >= st.moves.length) { finish(); return; }
           startLoop();
