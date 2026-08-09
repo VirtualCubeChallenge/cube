@@ -2171,3 +2171,132 @@
     });
   });
 })();
+
+/* ============================================================
+   🛍️ ショップの文言（9言語ぶん）
+   ランクの文言と同じく、既存の I18N に上書きせず足すだけ。
+   辞書本体には一切手を入れていない。キーは20個。
+     menuShop / shopTitle / shopLead / shopThemes /
+     shopUsing / shopEquip / shopRedeem / shopShort / shopGot
+     ＋ 色の名前 shopColor*（11色）
+   色を足すときは index.html の THEMES に1行足して、ここに
+   shopColor<Id>（先頭大文字）を9言語ぶん書き足す。
+   ============================================================ */
+(function addShopStrings() {
+  const SHOP_I18N = {
+    "ja": {
+      menuShop:"🛍️ ショップ", shopTitle:"ショップ",
+      shopLead:"シャードでメインカラーを引き換えます",
+      shopThemes:"メインカラー",
+      shopUsing:"使用中", shopEquip:"この色にする", shopRedeem:"引き換える",
+      shopShort:"シャードが足りません", shopGot:"{name} を引き換えました！",
+      shopColorMint:"ミント", shopColorSky:"スカイ", shopColorLime:"ライム",
+      shopColorSunset:"サンセット", shopColorRose:"ローズ",
+      shopColorLavender:"ラベンダー", shopColorGold:"ゴールド",
+      shopColorIce:"アイス", shopColorMagenta:"マゼンタ",
+      shopColorEmber:"エンバー", shopColorPrism:"プリズム"
+    },
+    "en": {
+      menuShop:"🛍️ Shop", shopTitle:"Shop",
+      shopLead:"Redeem shards for a main color",
+      shopThemes:"Main color",
+      shopUsing:"In use", shopEquip:"Use this color", shopRedeem:"Redeem",
+      shopShort:"Not enough shards", shopGot:"{name} redeemed!",
+      shopColorMint:"Mint", shopColorSky:"Sky", shopColorLime:"Lime",
+      shopColorSunset:"Sunset", shopColorRose:"Rose",
+      shopColorLavender:"Lavender", shopColorGold:"Gold",
+      shopColorIce:"Ice", shopColorMagenta:"Magenta",
+      shopColorEmber:"Ember", shopColorPrism:"Prism"
+    },
+    "zh-CN": {
+      menuShop:"🛍️ 商店", shopTitle:"商店",
+      shopLead:"用碎片兑换主色调",
+      shopThemes:"主色调",
+      shopUsing:"使用中", shopEquip:"使用此颜色", shopRedeem:"兑换",
+      shopShort:"碎片不足", shopGot:"已兑换 {name}！",
+      shopColorMint:"薄荷", shopColorSky:"天蓝", shopColorLime:"青柠",
+      shopColorSunset:"落日", shopColorRose:"玫瑰",
+      shopColorLavender:"薰衣草", shopColorGold:"金色",
+      shopColorIce:"冰蓝", shopColorMagenta:"品红",
+      shopColorEmber:"余烬", shopColorPrism:"棱镜"
+    },
+    "zh-TW": {
+      menuShop:"🛍️ 商店", shopTitle:"商店",
+      shopLead:"用碎片兌換主色調",
+      shopThemes:"主色調",
+      shopUsing:"使用中", shopEquip:"使用此顏色", shopRedeem:"兌換",
+      shopShort:"碎片不足", shopGot:"已兌換 {name}！",
+      shopColorMint:"薄荷", shopColorSky:"天藍", shopColorLime:"青檸",
+      shopColorSunset:"落日", shopColorRose:"玫瑰",
+      shopColorLavender:"薰衣草", shopColorGold:"金色",
+      shopColorIce:"冰藍", shopColorMagenta:"洋紅",
+      shopColorEmber:"餘燼", shopColorPrism:"稜鏡"
+    },
+    "ko": {
+      menuShop:"🛍️ 상점", shopTitle:"상점",
+      shopLead:"조각으로 메인 색상을 교환합니다",
+      shopThemes:"메인 색상",
+      shopUsing:"사용 중", shopEquip:"이 색으로 변경", shopRedeem:"교환하기",
+      shopShort:"조각이 부족합니다", shopGot:"{name} 교환 완료!",
+      shopColorMint:"민트", shopColorSky:"스카이", shopColorLime:"라임",
+      shopColorSunset:"선셋", shopColorRose:"로즈",
+      shopColorLavender:"라벤더", shopColorGold:"골드",
+      shopColorIce:"아이스", shopColorMagenta:"마젠타",
+      shopColorEmber:"엠버", shopColorPrism:"프리즘"
+    },
+    "es": {
+      menuShop:"🛍️ Tienda", shopTitle:"Tienda",
+      shopLead:"Canjea fragmentos por un color principal",
+      shopThemes:"Color principal",
+      shopUsing:"En uso", shopEquip:"Usar este color", shopRedeem:"Canjear",
+      shopShort:"Fragmentos insuficientes", shopGot:"¡{name} canjeado!",
+      shopColorMint:"Menta", shopColorSky:"Cielo", shopColorLime:"Lima",
+      shopColorSunset:"Atardecer", shopColorRose:"Rosa",
+      shopColorLavender:"Lavanda", shopColorGold:"Oro",
+      shopColorIce:"Hielo", shopColorMagenta:"Magenta",
+      shopColorEmber:"Brasa", shopColorPrism:"Prisma"
+    },
+    "id": {
+      menuShop:"🛍️ Toko", shopTitle:"Toko",
+      shopLead:"Tukar serpihan jadi warna utama",
+      shopThemes:"Warna utama",
+      shopUsing:"Dipakai", shopEquip:"Pakai warna ini", shopRedeem:"Tukar",
+      shopShort:"Serpihan belum cukup", shopGot:"{name} berhasil ditukar!",
+      shopColorMint:"Mint", shopColorSky:"Langit", shopColorLime:"Limau",
+      shopColorSunset:"Senja", shopColorRose:"Mawar",
+      shopColorLavender:"Lavender", shopColorGold:"Emas",
+      shopColorIce:"Es", shopColorMagenta:"Magenta",
+      shopColorEmber:"Bara", shopColorPrism:"Prisma"
+    },
+    "ru": {
+      menuShop:"🛍️ Магазин", shopTitle:"Магазин",
+      shopLead:"Обменяйте осколки на основной цвет",
+      shopThemes:"Основной цвет",
+      shopUsing:"Используется", shopEquip:"Выбрать этот цвет", shopRedeem:"Обменять",
+      shopShort:"Осколков не хватает", shopGot:"{name} — обмен выполнен!",
+      shopColorMint:"Мята", shopColorSky:"Небо", shopColorLime:"Лайм",
+      shopColorSunset:"Закат", shopColorRose:"Роза",
+      shopColorLavender:"Лаванда", shopColorGold:"Золото",
+      shopColorIce:"Лёд", shopColorMagenta:"Пурпур",
+      shopColorEmber:"Уголёк", shopColorPrism:"Призма"
+    },
+    "pt-BR": {
+      menuShop:"🛍️ Loja", shopTitle:"Loja",
+      shopLead:"Troque fragmentos por uma cor principal",
+      shopThemes:"Cor principal",
+      shopUsing:"Em uso", shopEquip:"Usar esta cor", shopRedeem:"Trocar",
+      shopShort:"Fragmentos insuficientes", shopGot:"{name} trocado!",
+      shopColorMint:"Menta", shopColorSky:"Céu", shopColorLime:"Limão",
+      shopColorSunset:"Pôr do sol", shopColorRose:"Rosa",
+      shopColorLavender:"Lavanda", shopColorGold:"Ouro",
+      shopColorIce:"Gelo", shopColorMagenta:"Magenta",
+      shopColorEmber:"Brasa", shopColorPrism:"Prisma"
+    }
+  };
+  Object.keys(SHOP_I18N).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(SHOP_I18N[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = SHOP_I18N[lang][k];
+    });
+  });
+})();

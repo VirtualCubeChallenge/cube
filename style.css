@@ -3,6 +3,20 @@
    index.html から分離。<link rel="stylesheet" href="style.css">
    で読み込まれる。
    ============================================================ */
+    /* ============================================================
+       テーマカラー（ショップで引き換えるメインカラー）
+       これまで直書きしていた #00ffcc は、すべて var(--tc) と
+       rgba(var(--tc-rgb), a) に置き換えてある。ここの2つを書き
+       換えるだけで、ボタン・枠線・発光・スライダーまで画面全体の
+       アクセントが一度に切り替わる。
+       既定値はこれまでと同じミント (#00ffcc)。実際の値は
+       ショップ(Shop.applyTheme)が :root に上書きして流し込む。
+       --tc-rgb は rgba() の中で使うため、カンマ区切りの数値で持つ。
+       ============================================================ */
+    :root {
+      --tc: #00ffcc;
+      --tc-rgb: 0, 255, 204;
+    }
     * {
       box-sizing: border-box;
       margin: 0;
@@ -34,7 +48,7 @@
     .face-card:focus-visible,
     [tabindex]:focus-visible,
     input[type="range"]:focus-visible {
-      outline: 2px solid #00ffcc;
+      outline: 2px solid var(--tc);
       outline-offset: 2px;
     }
     html {
@@ -175,7 +189,7 @@
       font-size: 26px;
       font-weight: 700;
       font-family: monospace;
-      color: #00ffcc;
+      color: var(--tc);
       line-height: 1.15;
     }
     /* The only gray surface left in the header: a small badge just around
@@ -274,7 +288,7 @@
       right: 0;
       bottom: 0;
       height: 0;
-      background: linear-gradient(0deg, rgba(0, 255, 204, 0.40), rgba(0, 255, 204, 0.08));
+      background: linear-gradient(0deg, rgba(var(--tc-rgb), 0.40), rgba(var(--tc-rgb), 0.08));
       pointer-events: none;
     }
     .shuffle-slider.dragging .shuffle-slider-fill {
@@ -339,11 +353,11 @@
     /* 上げきった状態。ここから左へ倒せば発火、という「あと一手」を
        色でもはっきり伝える。 */
     .shuffle-slider.armed {
-      border-color: #00ffcc;
-      box-shadow: 0 0 14px rgba(0, 255, 204, 0.45);
+      border-color: var(--tc);
+      box-shadow: 0 0 14px rgba(var(--tc-rgb), 0.45);
     }
     .shuffle-slider.armed .shuffle-slider-hint {
-      color: #00ffcc;
+      color: var(--tc);
       animation: shuffleHintNudge 0.7s ease-in-out infinite;
     }
     @keyframes shuffleHintNudge {
@@ -375,8 +389,8 @@
       transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
     }
     .shuffle-slider.armed .shuffle-slider-thumb {
-      background: #00ffcc;
-      border-color: #00ffcc;
+      background: var(--tc);
+      border-color: var(--tc);
       color: #04120f;
     }
     /* 以前はドロワーが開いている間このつまみを opacity:0 で隠していたが、
@@ -432,21 +446,21 @@
     /* そろった瞬間: 逆にはっきり光らせて、次のシャッフルへ誘う。 */
     .shuffle-slider.celebrate {
       opacity: 1;
-      border-color: #00ffcc;
-      box-shadow: 0 0 12px rgba(0, 255, 204, 0.5), inset 0 0 10px rgba(0, 255, 204, 0.14);
+      border-color: var(--tc);
+      box-shadow: 0 0 12px rgba(var(--tc-rgb), 0.5), inset 0 0 10px rgba(var(--tc-rgb), 0.14);
       animation: shuffleSliderCelebrate 1.3s ease-in-out infinite;
     }
     .shuffle-slider.celebrate .shuffle-slider-thumb {
-      background: #00ffcc;
-      border-color: #00ffcc;
+      background: var(--tc);
+      border-color: var(--tc);
       color: #04120f;
     }
     .shuffle-slider.celebrate .shuffle-slider-hint {
-      color: #00ffcc;
+      color: var(--tc);
     }
     @keyframes shuffleSliderCelebrate {
-      0%, 100% { box-shadow: 0 0 12px rgba(0, 255, 204, 0.5), inset 0 0 10px rgba(0, 255, 204, 0.14); }
-      50% { box-shadow: 0 0 26px rgba(0, 255, 204, 0.95), inset 0 0 16px rgba(0, 255, 204, 0.3); }
+      0%, 100% { box-shadow: 0 0 12px rgba(var(--tc-rgb), 0.5), inset 0 0 10px rgba(var(--tc-rgb), 0.14); }
+      50% { box-shadow: 0 0 26px rgba(var(--tc-rgb), 0.95), inset 0 0 16px rgba(var(--tc-rgb), 0.3); }
     }
     @media (prefers-reduced-motion: reduce) {
       .shuffle-slider.celebrate { animation: none; }
@@ -471,9 +485,9 @@
       transition: color 0.15s, border-color 0.15s, background 0.15s;
     }
     .menu-toggle.open {
-      color: #00ffcc;
-      border-color: #00ffcc;
-      background: rgba(0, 255, 204, 0.12);
+      color: var(--tc);
+      border-color: var(--tc);
+      background: rgba(var(--tc-rgb), 0.12);
     }
     /* Three-line "drawer" icon that morphs into an X when the menu is
        open, so the button's own shape communicates open/closed state. */
@@ -574,8 +588,8 @@
       white-space: nowrap;
     }
     .menu-actions .action-btn:active {
-      background: rgba(0, 255, 204, 0.14);
-      color: #00ffcc;
+      background: rgba(var(--tc-rgb), 0.14);
+      color: var(--tc);
     }
     .action-btn {
       background: #2a2a32;
@@ -589,13 +603,13 @@
       white-space: nowrap;
     }
     .action-btn:active {
-      background: #00ffcc;
+      background: var(--tc);
       color: #000;
     }
     .action-btn.active {
-      background: #00ffcc;
+      background: var(--tc);
       color: #000;
-      border-color: #00ffcc;
+      border-color: var(--tc);
     }
     /* チュートリアルが記録/設定の説明中は、ボタン自体を押させない。
        押せてしまうと裏で記録/設定オーバーレイが開き、保持しているはずの
@@ -806,8 +820,8 @@
       /* 背面のテキストが透けて重なって見える不具合の修正:
          半透明(rgba)だった背景を完全不透明な単色に変更。 */
       background: #08080b;
-      border: 2px solid #00ffcc;
-      color: #00ffcc;
+      border: 2px solid var(--tc);
+      color: var(--tc);
       padding: 16px 24px;
       border-radius: 12px;
       font-size: 20px;
@@ -831,9 +845,9 @@
       animation-fill-mode: forwards;
     }
     @keyframes msgPop {
-      0% { transform: translate(-50%, -50%) scale(0.6); box-shadow: 0 0 0 rgba(0, 255, 204, 0); }
-      55% { transform: translate(-50%, -50%) scale(1.08); box-shadow: 0 0 40px rgba(0, 255, 204, 0.55); }
-      100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 20px rgba(0, 255, 204, 0.25); }
+      0% { transform: translate(-50%, -50%) scale(0.6); box-shadow: 0 0 0 rgba(var(--tc-rgb), 0); }
+      55% { transform: translate(-50%, -50%) scale(1.08); box-shadow: 0 0 40px rgba(var(--tc-rgb), 0.55); }
+      100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 20px rgba(var(--tc-rgb), 0.25); }
     }
     #settings-overlay {
       display: none;
@@ -871,7 +885,7 @@
       margin: 4px 0 14px;
     }
     .layout-link-arrow {
-      color: #00ffcc;
+      color: var(--tc);
       font-weight: 900;
       font-size: 16px;
     }
@@ -943,12 +957,12 @@
       transition: transform 0.18s cubic-bezier(.34, 1.56, .64, 1), background 0.15s;
     }
     .toggle-switch.on {
-      background: rgba(0, 255, 204, 0.18);
-      border-color: #00ffcc;
+      background: rgba(var(--tc-rgb), 0.18);
+      border-color: var(--tc);
     }
     .toggle-switch.on .toggle-knob {
       transform: translateX(20px);
-      background: #00ffcc;
+      background: var(--tc);
     }
     .settings-toggle-row.disabled {
       opacity: 0.4;
@@ -963,7 +977,7 @@
       cursor: default;
     }
     .settings-toggle-row.locked .settings-toggle-label {
-      color: #00ffcc;
+      color: var(--tc);
     }
     .toggle-hint {
       margin-top: -2px;
@@ -981,7 +995,7 @@
       margin: 2px 0 14px;
     }
     .alg-vis-btn {
-      --accent: #00ffcc;
+      --accent: var(--tc);
       width: 100%;
       height: 58px;
       border-radius: 14px;
@@ -1069,13 +1083,13 @@
       font-size: 13px;
       font-weight: 800;
       font-family: monospace;
-      color: #00ffcc;
+      color: var(--tc);
       min-width: 42px;
       text-align: right;
     }
     .size-slider {
       width: 100%;
-      accent-color: #00ffcc;
+      accent-color: var(--tc);
       height: 28px;
       touch-action: pan-y;
     }
@@ -1118,8 +1132,8 @@
       gap: 4px;
     }
     .slot-btn.selected {
-      box-shadow: 0 0 0 3px #00ffcc;
-      border-color: #00ffcc;
+      box-shadow: 0 0 0 3px var(--tc);
+      border-color: var(--tc);
     }
     /* The 3-slot spare bench: same tappable button, but dashed and a touch
        dimmer so it visibly reads as "parked here, not on the main screen"
@@ -1473,7 +1487,7 @@
       text-align: left;
       font-family: monospace;
       font-weight: 700;
-      color: #00ffcc;
+      color: var(--tc);
     }
     .record-badges {
       flex: 0 0 auto;
@@ -1495,9 +1509,9 @@
       padding: 2px 4px;
     }
     .record-badge.oll {
-      background: rgba(0, 255, 204, 0.15);
-      color: #00ffcc;
-      border: 1px solid rgba(0, 255, 204, 0.45);
+      background: rgba(var(--tc-rgb), 0.15);
+      color: var(--tc);
+      border: 1px solid rgba(var(--tc-rgb), 0.45);
     }
     .record-badge.pll {
       background: rgba(255, 140, 90, 0.15);
@@ -1551,7 +1565,7 @@
       pointer-events: none;
     }
     #fireworks-container.flash::before {
-      background: radial-gradient(circle at 50% 45%, rgba(0, 255, 204, 0.45), rgba(0, 255, 204, 0) 70%);
+      background: radial-gradient(circle at 50% 45%, rgba(var(--tc-rgb), 0.45), rgba(var(--tc-rgb), 0) 70%);
       animation: fw-flash 0.7s ease-out forwards;
     }
     #fireworks-container.flash-best::before {
@@ -1642,7 +1656,7 @@
       padding-top: 2px;
     }
     .alg-btn {
-      --accent: #00ffcc;
+      --accent: var(--tc);
       width: 56px;
       height: 56px;
       border-radius: 50%;
@@ -2325,8 +2339,8 @@
       transition: background 0.15s, color 0.15s, border-color 0.15s;
     }
     .alg-panel-close-x:active {
-      background: #00ffcc;
-      border-color: #00ffcc;
+      background: var(--tc);
+      border-color: var(--tc);
       color: #04120f;
     }
     .alg-panel h2 {
@@ -2335,7 +2349,7 @@
     }
     .oll-count {
       font-size: 11px;
-      color: #00ffcc;
+      color: var(--tc);
       font-weight: 600;
     }
     .oll-mode-row {
@@ -2368,7 +2382,7 @@
       gap: 3px;
     }
     .oll-case:active {
-      border-color: #00ffcc;
+      border-color: var(--tc);
       background: #2c2c38;
     }
     .oll-case-num {
@@ -2728,7 +2742,7 @@
        言語選択（いちばん最初の画面）
        9言語を「キューブの1面 (3×3)」に見立てて並べる。見た目の語彙は
        この画面より後ろの UI と完全に共通で、背景 #121214 / カードは
-       #1c1c22 + 2px #3a3a48 / 選択色は #00ffcc。新しい色は足さない。
+       #1c1c22 + 2px #3a3a48 / 選択色は var(--tc)（既定 #00ffcc）。新しい色は足さない。
        枠の中のすき間だけ暗くして、9枚のカードが「1つの面」に見えるよう
        にしている。
        ============================================================ */
@@ -2804,8 +2818,8 @@
       transform: scale(0.96);
     }
     .lang-cell.selected {
-      border-color: #00ffcc;
-      background: rgba(0, 255, 204, 0.09);
+      border-color: var(--tc);
+      background: rgba(var(--tc-rgb), 0.09);
     }
     .lang-name {
       font-size: 13px;
@@ -2914,8 +2928,8 @@
     /* 実行側だけを塗る。「やめる」が同じ強さで並ぶと、
        止めたいときほど押し間違えるため。 */
     .confirm-btn.primary {
-      border-color: #00ffcc;
-      background: #00ffcc;
+      border-color: var(--tc);
+      background: var(--tc);
       color: #04120f;
     }
     .confirm-btn.primary:active {
@@ -2951,7 +2965,7 @@
       text-transform: uppercase;
       margin-bottom: 14px;
       line-height: 1.15;
-      background: linear-gradient(90deg, #00ffcc, #4da6ff 45%, #ff3d81 100%);
+      background: linear-gradient(90deg, var(--tc), #4da6ff 45%, #ff3d81 100%);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -2962,7 +2976,7 @@
          comes out jagged/aliased on the very first screen the app shows.
          text-shadow gives the same glow and isn't affected by the
          transparent fill, so it sidesteps the bug entirely. */
-      text-shadow: 0 0 10px rgba(0, 255, 204, 0.45), 0 0 22px rgba(77, 166, 255, 0.25);
+      text-shadow: 0 0 10px rgba(var(--tc-rgb), 0.45), 0 0 22px rgba(77, 166, 255, 0.25);
     }
     .welcome-title {
       font-size: 19px;
@@ -3000,8 +3014,8 @@
       transform: scale(0.985);
     }
     .mode-card.selected {
-      border-color: #00ffcc;
-      background: rgba(0, 255, 204, 0.09);
+      border-color: var(--tc);
+      background: rgba(var(--tc-rgb), 0.09);
     }
     .mode-check {
       position: absolute;
@@ -3026,8 +3040,8 @@
       transition: opacity 0.15s;
     }
     .mode-card.selected .mode-check {
-      background: #00ffcc;
-      border-color: #00ffcc;
+      background: var(--tc);
+      border-color: var(--tc);
     }
     .mode-card.selected .mode-check::after {
       opacity: 1;
@@ -3048,7 +3062,7 @@
       font-size: 10px;
       font-weight: 800;
       color: #04120f;
-      background: #00ffcc;
+      background: var(--tc);
       border-radius: 999px;
       padding: 2px 7px;
       margin-top: 5px;
@@ -3070,11 +3084,14 @@
     .beginner-star-badge {
       display: inline-flex;
       align-items: center;
+      /* 中の★は fill/stroke を currentColor にしてあるので、
+         ここの color がテーマカラーの切り替えにそのまま追従する。 */
+      color: var(--tc);
       gap: 2px;
       padding: 3px 7px 3px 6px;
       border-radius: 999px;
-      background: rgba(0, 255, 204, 0.10);
-      border: 1.2px solid rgba(0, 255, 204, 0.45);
+      background: rgba(var(--tc-rgb), 0.10);
+      border: 1.2px solid rgba(var(--tc-rgb), 0.45);
     }
     .beginner-star-badge svg {
       display: block;
@@ -3171,7 +3188,7 @@
       animation: demoSwipe 2.6s ease-in-out infinite;
     }
     .demo-row.swipe i {
-      background: #00ffcc;
+      background: var(--tc);
     }
     @keyframes demoSwipe {
       0%, 22% { transform: translateX(0); }
@@ -3211,9 +3228,9 @@
       animation: demoPress 2.6s ease-in-out infinite;
     }
     @keyframes demoPress {
-      0%, 30% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 204, 0); }
-      42% { transform: scale(0.9); box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.55); }
-      60%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 204, 0); }
+      0%, 30% { transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--tc-rgb), 0); }
+      42% { transform: scale(0.9); box-shadow: 0 0 0 3px rgba(var(--tc-rgb), 0.55); }
+      60%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--tc-rgb), 0); }
     }
     /* One finger sprite, positioned per-demo, moving in time with the
        layer/button animation above so the gesture reads as cause + effect. */
@@ -3260,7 +3277,7 @@
       min-height: 54px;
       border: none;
       border-radius: 12px;
-      background: #00ffcc;
+      background: var(--tc);
       color: #04120f;
       font-size: 16px;
       font-weight: 800;
@@ -3275,7 +3292,7 @@
       cursor: not-allowed;
     }
     .welcome-start:disabled:active {
-      background: #00ffcc;
+      background: var(--tc);
     }
     .welcome-foot {
       font-size: 11.5px;
@@ -3554,7 +3571,7 @@
       border: 3px solid #5c5c6e;
       border-radius: 15px;
       box-shadow:
-        0 0 26px rgba(0, 255, 204, 0.28),
+        0 0 26px rgba(var(--tc-rgb), 0.28),
         inset 0 0 0 2px rgba(255, 255, 255, 0.04);
       transform-origin: center;
       animation: phoneFlip 2.8s cubic-bezier(.65, 0, .35, 1) infinite;
@@ -3564,7 +3581,7 @@
       position: absolute;
       inset: 8px 6px;
       border-radius: 8px;
-      background: linear-gradient(135deg, rgba(0, 255, 204, 0.22), rgba(77, 166, 255, 0.14));
+      background: linear-gradient(135deg, rgba(var(--tc-rgb), 0.22), rgba(77, 166, 255, 0.14));
     }
     .device-rotate-anim .phone::after {
       content: '';
@@ -3583,8 +3600,8 @@
       right: -6px;
       width: 40px;
       height: 40px;
-      color: #00ffcc;
-      filter: drop-shadow(0 0 6px rgba(0, 255, 204, 0.55));
+      color: var(--tc);
+      filter: drop-shadow(0 0 6px rgba(var(--tc-rgb), 0.55));
       transform-origin: 55% 55%;
       animation: arrowSwing 2.8s cubic-bezier(.65, 0, .35, 1) infinite;
     }
@@ -3606,11 +3623,11 @@
       font-weight: 900;
       letter-spacing: 0.5px;
       line-height: 1.4;
-      background: linear-gradient(90deg, #00ffcc, #4da6ff 55%, #ff3d81 100%);
+      background: linear-gradient(90deg, var(--tc), #4da6ff 55%, #ff3d81 100%);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 10px rgba(0, 255, 204, 0.35), 0 0 22px rgba(77, 166, 255, 0.2);
+      text-shadow: 0 0 10px rgba(var(--tc-rgb), 0.35), 0 0 22px rgba(77, 166, 255, 0.2);
       margin-bottom: 10px;
     }
     .orientation-sub {
@@ -3622,7 +3639,7 @@
       letter-spacing: 0.02em;
     }
     .orientation-sub b {
-      color: #00ffcc;
+      color: var(--tc);
       font-weight: 700;
     }
     /* prefers-reduced-motion のユーザーには回転アニメを止め、
@@ -4290,7 +4307,7 @@
   width: 0; height: 0;
   border-radius: 999px;
   box-shadow: 0 0 0 9999px rgba(8, 8, 14, 0.72);
-  border: 2px solid #00ffcc;
+  border: 2px solid var(--tc);
   opacity: 0;
   transition: opacity 0.28s ease, transform 0.28s ease;
   will-change: transform;
@@ -4301,7 +4318,7 @@
   position: absolute;
   inset: -8px;
   border-radius: inherit;
-  border: 2px solid rgba(0, 255, 204, 0.55);
+  border: 2px solid rgba(var(--tc-rgb), 0.55);
   animation: tut-pulse 1.6s ease-out infinite;
 }
 @keyframes tut-pulse {
@@ -4340,7 +4357,7 @@
   left: 0; top: 0;
   height: 6px;
   border-radius: 3px;
-  background: linear-gradient(90deg, rgba(0,255,204,0), rgba(0,255,204,0.75));
+  background: linear-gradient(90deg, rgba(var(--tc-rgb),0), rgba(var(--tc-rgb),0.75));
   transform-origin: 0 50%;
   opacity: 0;
   transition: opacity 0.2s ease;
@@ -4380,7 +4397,7 @@
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 1px;
-  color: #00ffcc;
+  color: var(--tc);
   margin: 0 0 4px;
 }
 #tut-title {
@@ -4397,7 +4414,7 @@
   color: #cfcfdd;
 }
 #tut-body b { color: #fff; }
-#tut-body .tut-em { color: #00ffcc; font-weight: 800; }
+#tut-body .tut-em { color: var(--tc); font-weight: 800; }
 #tut-body .tut-icon,
 #tut-guide .tut-icon { display: inline-flex; vertical-align: -3px; margin: 0 2px; }
 #tut-body .tut-icon svg,
@@ -4411,14 +4428,14 @@
   margin: 8px 0 0;
   padding: 7px 10px;
   border-radius: 10px;
-  background: rgba(0, 255, 204, 0.09);
-  border: 1px solid rgba(0, 255, 204, 0.28);
+  background: rgba(var(--tc-rgb), 0.09);
+  border: 1px solid rgba(var(--tc-rgb), 0.28);
   font-size: 13px;
   line-height: 1.5;
   color: #dff;
 }
 #tut-guide.on { display: block; }
-#tut-guide .tut-em { color: #00ffcc; font-weight: 800; }
+#tut-guide .tut-em { color: var(--tc); font-weight: 800; }
 
 /* 設定・記録・言語などの画面が前に出ている間は、ガイドをまるごと隠す。
    #tut-root は z-index:4000 でそれらより手前にあるため、隠さないと
@@ -4439,7 +4456,7 @@
   background: #3a3a4e;
   transition: background 0.2s ease, transform 0.2s ease;
 }
-#tut-dots i.done { background: #00ffcc; transform: scale(1.15); }
+#tut-dots i.done { background: var(--tc); transform: scale(1.15); }
 
 #tut-actions {
   display: flex;
@@ -4467,7 +4484,7 @@
   font-weight: 800;
   font-family: inherit;
   color: #08121a;
-  background: #00ffcc;
+  background: var(--tc);
   cursor: pointer;
   /* 表示されたら「ここを押せばいい」がひと目で分かるよう、しっかり脈打たせる。 */
   animation: tut-next-glow 1.3s ease-in-out infinite;
@@ -4475,8 +4492,8 @@
 #tut-next:active { transform: scale(0.97); }
 #tut-next[hidden] { display: none; }
 @keyframes tut-next-glow {
-  0%, 100% { box-shadow: 0 0 10px rgba(0, 255, 204, 0.5), 0 0 2px rgba(0, 255, 204, 0.6); }
-  50%      { box-shadow: 0 0 34px rgba(0, 255, 204, 1), 0 0 14px rgba(0, 255, 204, 0.85), 0 0 4px #fff; }
+  0%, 100% { box-shadow: 0 0 10px rgba(var(--tc-rgb), 0.5), 0 0 2px rgba(var(--tc-rgb), 0.6); }
+  50%      { box-shadow: 0 0 34px rgba(var(--tc-rgb), 1), 0 0 14px rgba(var(--tc-rgb), 0.85), 0 0 4px #fff; }
 }
 /* 最後の「スタート」だけは赤系にして、それまでの「つぎへ」と見分ける。 */
 #tut-next.tut-final {
@@ -4491,8 +4508,8 @@
 
 /* 4回まわし切った瞬間の「1周した」フラッシュ。 */
 #tut-card.cheer {
-  border-color: #00ffcc;
-  box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.25), 0 10px 30px rgba(0, 0, 0, 0.55);
+  border-color: var(--tc);
+  box-shadow: 0 0 0 3px rgba(var(--tc-rgb), 0.25), 0 10px 30px rgba(0, 0, 0, 0.55);
 }
 
 @media (max-width: 380px) {
@@ -4511,7 +4528,7 @@
   }
   #tut-hole::after { animation: none; opacity: 0.6; }
   #tut-card { transition: none; }
-  #tut-next { animation: none; box-shadow: 0 0 20px rgba(0, 255, 204, 0.75), 0 0 6px rgba(0, 255, 204, 0.6); }
+  #tut-next { animation: none; box-shadow: 0 0 20px rgba(var(--tc-rgb), 0.75), 0 0 6px rgba(var(--tc-rgb), 0.6); }
   #tut-next.tut-final { animation: none; box-shadow: 0 0 20px rgba(255, 59, 59, 0.75), 0 0 6px rgba(255, 59, 59, 0.6); }
 }
 /* === タップキューブ チュートリアル : CSS ここまで ======================== */
@@ -5017,3 +5034,255 @@
   .rank-fx-canvas{ display:none; }
 }
 /* === RANK FX : 節目ランクの演出 CSS ここまで ============================ */
+
+/* =========================================================================
+   === SHOP : CSS ここから =================================================
+   ドロワー「🏆 記録」の下の 🛍️ ショップ。
+   器の見た目は記録画面(#records-panel)に合わせてある。#1c1c22 の面に
+   #3a3a48 の枠、というアプリ共通の作りから外れないようにするため。
+   ここだけの新色は使わず、選択状態はテーマカラー(--tc)で示す。
+   ========================================================================= */
+#shop-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #08080b;
+  z-index: 30;
+  align-items: center;
+  justify-content: center;
+}
+#shop-overlay.show { display: flex; }
+
+#shop-panel {
+  background: #1c1c22;
+  border: 1px solid #3a3a48;
+  border-radius: 14px;
+  padding: 18px;
+  width: min(90vw, 360px);
+  max-height: 80vh;
+  max-height: 80dvh;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  position: relative;
+}
+
+/* ---- 見出し＋残高 -------------------------------------------------------
+   何を持っているかが分からないまま値段だけ見せても選べないので、
+   タイトルの真横に今の残高を出しておく。ヘッダーのピルと同じ数字。 */
+.shop-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.shop-header h2 {
+  font-size: 16px;
+  margin: 0;
+}
+.shop-wallets {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.shop-wallet {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 8px 3px 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid #3a3a48;
+  font-size: 11px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #dfe6f2;
+}
+.shop-wallet svg { display: block; }
+
+.shop-section-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-align: left;
+  color: #8a95a5;
+  margin: 10px 2px 8px;
+}
+
+/* ---- 一覧 ---------------------------------------------------------------
+   色そのものが商品なので、名前より先に色の面積が目に入るようにする。
+   1行2枚。3枚並べると見本が小さくなりすぎて色の違いが分からない。 */
+.shop-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  margin: 0 -4px;
+  padding: 0 4px;
+}
+.shop-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  /* 最後の行がスクロール端にぴったり張り付くと、下にまだ続くのか
+     終わりなのかが読めない。1行ぶんの余白を残して切れ際を作る。 */
+  padding-bottom: 6px;
+}
+.shop-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 8px 10px;
+  background: #23232c;
+  border: 1.4px solid #3a3a48;
+  border-radius: 12px;
+  color: #fff;
+  font-family: inherit;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.15s ease, background 0.15s ease,
+    transform 0.12s ease;
+}
+.shop-card:active { transform: scale(0.97); }
+
+/* 買ってあるがつけていない色は、枠だけ少し起こしておく。
+   「持っている／持っていない」が値段の有無だけでなく形でも分かるように。 */
+.shop-card.owned { border-color: #55556a; }
+/* 今つけている色。テーマカラーそのもので囲うので、見本と枠の色が一致する。 */
+.shop-card.equipped {
+  border-color: var(--tc);
+  background: rgba(var(--tc-rgb), 0.10);
+}
+/* シャードが足りない色は沈める。押せないのではなく、押すと理由が出る。 */
+.shop-card.short { opacity: 0.5; }
+.shop-card.asking {
+  border-color: var(--tc);
+  background: rgba(var(--tc-rgb), 0.14);
+}
+
+/* ---- 色見本 -------------------------------------------------------------
+   四角ではなくキューブの1マスに見えるよう、角丸＋斜めのハイライトを
+   のせてある。--sw に色を差し込むだけで塗り替わる。 */
+.shop-swatch {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--sw, #00ffcc);
+  box-shadow:
+    inset 0 -8px 12px rgba(0, 0, 0, 0.28),
+    inset 0 6px 10px rgba(255, 255, 255, 0.35),
+    0 0 14px rgba(0, 0, 0, 0.35);
+  position: relative;
+  flex: 0 0 auto;
+}
+.shop-swatch::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 5px;
+  width: 14px;
+  height: 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.5);
+  filter: blur(1px);
+}
+/* プリズムは1色に決まらない枠なので、見本のほうも回して見せる。
+   見本そのものを回すとマスが菱形になってしまうので、回すのは中の
+   色だけ。角丸で切り抜いた枠の内側でグラデーションを回転させる。 */
+.shop-swatch.is-prism { overflow: hidden; }
+.shop-swatch.is-prism::before {
+  content: '';
+  position: absolute;
+  /* 回転で角が欠けないよう、対角線ぶんまで広げてから回す。 */
+  inset: -45%;
+  background: conic-gradient(
+    #ff5f6d, #ffc371, #8fff8f, #5fe3ff, #a98bff, #ff5fd2, #ff5f6d);
+  animation: shopPrismSpin 6s linear infinite;
+}
+/* ハイライトは回さない。光の当たり方まで回ると立体感が壊れる。 */
+.shop-swatch.is-prism::after { z-index: 1; }
+@keyframes shopPrismSpin { to { transform: rotate(360deg); } }
+
+.shop-name {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #e8edf5;
+}
+
+/* ---- 値段と状態 --------------------------------------------------------- */
+.shop-price {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #b8c2d2;
+}
+/* シャードのアイコン。画像を増やさずに済むよう、財布のピルと同じ
+   結晶の形を CSS の clip-path だけで作る。 */
+.shop-shard {
+  width: 9px;
+  height: 13px;
+  clip-path: polygon(50% 0%, 100% 34%, 50% 100%, 0% 34%);
+  flex: 0 0 auto;
+}
+.shop-shard.cy { background: linear-gradient(180deg, #d9fbff, #5fd8f5); }
+.shop-shard.rb { background: linear-gradient(180deg, #fdfbff, #ffd7f0 50%, #c9e3ff); }
+
+.shop-state {
+  font-size: 11px;
+  font-weight: 800;
+  color: #9aa5b5;
+  line-height: 1.4;
+}
+.shop-state.on { color: var(--tc); }
+/* 「引き換える」= ここを押すと本当にシャードが減る、という最後の一歩。
+   値段の位置に出るので、押し間違いではなく選び直しに見えるようにする。 */
+.shop-state.ask {
+  color: #08080b;
+  background: var(--tc);
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+
+/* 引き換えた瞬間だけ、そのカードから光が広がる。 */
+.shop-card.just-got::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 13px;
+  border: 2px solid var(--tc);
+  animation: shopGotRing 0.9s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes shopGotRing {
+  0%   { opacity: 1; transform: scale(1);    box-shadow: 0 0 0 0 rgba(var(--tc-rgb), 0.6); }
+  100% { opacity: 0; transform: scale(1.18); box-shadow: 0 0 26px 8px rgba(var(--tc-rgb), 0); }
+}
+
+/* ---- 一言だけの通知 -----------------------------------------------------
+   足りない・引き換えた、の2つしか出ない。場所を固定しておかないと
+   一覧が上下にずれて押し間違いのもとになるので、高さは常に確保する。 */
+.shop-toast {
+  min-height: 16px;
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+.shop-toast.show { opacity: 1; }
+.shop-toast.good { color: var(--tc); }
+.shop-toast.warn { color: #ffb45a; }
+
+@media (prefers-reduced-motion: reduce) {
+  .shop-swatch.is-prism { animation: none; }
+  .shop-card.just-got::after { animation: none; opacity: 0; }
+  .shop-card:active { transform: none; }
+}
+/* === SHOP : CSS ここまで ================================================= */
