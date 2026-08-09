@@ -6632,7 +6632,6 @@ const PLL_DATA = {
       </div>
 
       <div class="rr-gain" id="rr-gain"></div>
-      <div class="rr-penalty" id="rr-penalty"></div>
 
       <button class="rr-close" id="rr-close" data-i18n="rankContinue">つづける</button>
     </div>
@@ -8273,7 +8272,7 @@ const RankResult = (function () {
   function bind() {
     ['rr','rr-scrim','rr-badge','rr-num','rr-rays','rr-ring','rr-sparks',
      'rr-rank-text','rr-bar','rr-fill','rr-exp-cur','rr-exp-need','rr-exp-left',
-     'rr-gain','rr-penalty','rr-close','rr-flash','rr-time',
+     'rr-gain','rr-close','rr-flash','rr-time',
      'rank-card-badge','rank-card-num','rank-card-rank','rank-card-fill','rank-card-sub']
       .forEach(function (id) { el[id] = document.getElementById(id); });
   }
@@ -8449,19 +8448,16 @@ const RankResult = (function () {
     setBar(start.exp, start.need, alreadyMax);
     el['rr-time'].textContent = opts.timeText || '';
     el['rr-gain'].classList.remove('show');
-    el['rr-penalty'].classList.remove('show');
     el['rr-close'].classList.remove('show');
+    /* ガイド使用時の -25% は計算には効いているが、画面には出さない。
+       減った理由を毎回突きつけると、クリアの余韻より罰の印象が残るため。 */
     el['rr-gain'].textContent = alreadyMax ? 'RANK 100 — MAX' : '+' + fmt(calc.gain) + ' EXP';
-    el['rr-penalty'].innerHTML = calc.usedGuide
-      ? '💡 <s>+' + fmt(calc.base) + '</s> ' + tr('rankGuide', null, 'ガイド使用 −25%')
-      : '';
 
     el['rr'].classList.add('open');
     el['rr'].setAttribute('aria-hidden', 'false');
     await wait(320);
 
     el['rr-gain'].classList.add('show');
-    if (calc.usedGuide) el['rr-penalty'].classList.add('show');
     await wait(360);
 
     /* ③ バーを伸ばし、必要なだけランクアップさせる */

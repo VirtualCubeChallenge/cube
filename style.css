@@ -4712,12 +4712,6 @@
   60% { opacity:1; transform:translateY(0) scale(1.12); }
   100%{ opacity:1; transform:translateY(0) scale(1); }
 }
-.rr-penalty{
-  margin-top:9px; font-size:12px; line-height:1.5; color:#ffb27a;
-  opacity:0; transition:opacity .3s ease .1s;
-}
-.rr-penalty.show{ opacity:1; }
-.rr-penalty s{ color:#8a95a5; text-decoration-color:rgba(255,255,255,.35); }
 .rr-close{
   margin-top:16px; width:100%; height:46px; border-radius:14px;
   border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.06);

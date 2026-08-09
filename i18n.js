@@ -2146,23 +2146,23 @@
 (function addRankStrings() {
   const RANK_I18N = {
     "ja":    { rankTitle:"ランク", rankNext:"次のランクまで {n}", rankMax:"最高ランク到達",
-               rankGuide:"ガイド使用 −25%", rankContinue:"つづける" },
+               rankContinue:"つづける" },
     "en":    { rankTitle:"Rank", rankNext:"{n} to next rank", rankMax:"Max rank reached",
-               rankGuide:"Guide used −25%", rankContinue:"Continue" },
+               rankContinue:"Continue" },
     "zh-CN": { rankTitle:"等级", rankNext:"距离下一等级还差 {n}", rankMax:"已达最高等级",
-               rankGuide:"使用提示 −25%", rankContinue:"继续" },
+               rankContinue:"继续" },
     "zh-TW": { rankTitle:"等級", rankNext:"距離下一等級還差 {n}", rankMax:"已達最高等級",
-               rankGuide:"使用提示 −25%", rankContinue:"繼續" },
+               rankContinue:"繼續" },
     "ko":    { rankTitle:"랭크", rankNext:"다음 랭크까지 {n}", rankMax:"최고 랭크 달성",
-               rankGuide:"가이드 사용 −25%", rankContinue:"계속하기" },
+               rankContinue:"계속하기" },
     "es":    { rankTitle:"Rango", rankNext:"{n} para el siguiente rango", rankMax:"Rango máximo alcanzado",
-               rankGuide:"Guía usada −25%", rankContinue:"Continuar" },
+               rankContinue:"Continuar" },
     "id":    { rankTitle:"Peringkat", rankNext:"{n} lagi ke peringkat berikutnya", rankMax:"Peringkat tertinggi tercapai",
-               rankGuide:"Panduan dipakai −25%", rankContinue:"Lanjutkan" },
+               rankContinue:"Lanjutkan" },
     "ru":    { rankTitle:"Ранг", rankNext:"До следующего ранга {n}", rankMax:"Максимальный ранг",
-               rankGuide:"Подсказки −25%", rankContinue:"Продолжить" },
+               rankContinue:"Продолжить" },
     "pt-BR": { rankTitle:"Rank", rankNext:"{n} para o próximo rank", rankMax:"Rank máximo alcançado",
-               rankGuide:"Guia usado −25%", rankContinue:"Continuar" }
+               rankContinue:"Continuar" }
   };
   Object.keys(RANK_I18N).forEach(function (lang) {
     if (!I18N[lang]) I18N[lang] = {};
