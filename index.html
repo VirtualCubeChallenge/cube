@@ -262,41 +262,9 @@
   </div>
 
   <div id="controls">
-    <!-- 操作説明は文章をやめて絵（ピクトグラム）にした。
-         左: 面をなぞる→その層が回る。右: 背景をなぞる→全体が回る。
-         読み上げ用の文言は aria-label に残してある。 -->
-    <div class="controls-label tap-hint" role="img"
-         data-i18n-aria="tapHint"
-         aria-label="キューブの面を指でなぞって回転　／　背景をなぞると全体が回転">
-      <!-- 左: 面の上をなぞる → その列が回る -->
-      <svg class="tap-hint-art" viewBox="0 0 54 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <rect x="5" y="7" width="29" height="27" rx="4" fill="currentColor" fill-opacity=".10"
-              stroke="currentColor" stroke-width="2"/>
-        <path d="M6 12.5a3 3 0 0 1 3-3h21a3 3 0 0 1 3 3v3.5H6z" fill="currentColor" fill-opacity=".38"/>
-        <g stroke="currentColor" stroke-width="1.7" fill="none" opacity=".8">
-          <path d="M5 16h29M5 25h29M14.7 7v27M24.3 7v27"/>
-        </g>
-        <path d="M14 12.5H43" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/>
-        <path d="M48 12.5l-8-4.6v9.2z" fill="currentColor"/>
-        <circle cx="14" cy="12.5" r="4.4" fill="currentColor"/>
-      </svg>
-      <span class="tap-hint-sep" aria-hidden="true"></span>
-      <!-- 右: 背景（破線の枠）をなぞる → キューブ全体が回る -->
-      <svg class="tap-hint-art" viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <rect x="1.5" y="2.5" width="61" height="35" rx="6" fill="currentColor" fill-opacity=".12"
-              stroke="currentColor" stroke-width="1.6" stroke-dasharray="3 3" stroke-opacity=".55"/>
-        <rect x="24" y="12" width="18" height="17" rx="3" fill="currentColor" fill-opacity=".1"
-              stroke="currentColor" stroke-width="2"/>
-        <g stroke="currentColor" stroke-width="1.6" fill="none" opacity=".8">
-          <path d="M30 12v17M36 12v17M24 17.7h18M24 23.4h18"/>
-        </g>
-        <path d="M20 9.5A19 15 0 0 1 46 9.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
-        <path d="M47.8 12.8l1.4-8.4-7.7 3z" fill="currentColor"/>
-        <path d="M13 32h8" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/>
-        <path d="M26 32l-8-4.4v8.8z" fill="currentColor"/>
-        <circle cx="13" cy="32" r="4.4" fill="currentColor"/>
-      </svg>
-    </div>
+    <!-- 操作説明の行は画面から廃止した（💡ヘルプの上に余計なマークを出さない）。
+         文言だけはスクリーンリーダー向けに残すので、CSSで視覚的にのみ隠している。 -->
+    <div class="controls-label tap-hint" data-i18n="tapHint">キューブの面を指でなぞって回転　／　背景をなぞると全体が回転</div>
     <div class="mode-indicator" id="mode-indicator" data-i18n="fixedColorMode">🎨 固定色モード（設定でON/OFFを切替できます）</div>
     <div class="alg-row">
       <button class="alg-btn" id="oll-btn" data-i18n-aria="openOll" aria-label="OLL 57種を開く">

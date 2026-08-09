@@ -1860,6 +1860,8 @@
        （進行中の案内文はマスコットの表情が代わりになっている） */
     .demo-note {
       display: flex;
+      align-self: center;      /* iPad では横に伸びきってしまうので中身の幅に合わせる */
+      max-width: 100%;
       align-items: center;
       justify-content: center;
       gap: 5px;
@@ -2000,14 +2002,22 @@
       -webkit-text-fill-color: transparent;
       animation: demo-rainbow-bg 2s linear infinite, demo-celebrate-pop 0.6s ease-out;
     }
+    /* 完成時の 🏆✨🎊 は、以前は高さ40pxのバッジの中に42〜68pxの絵文字を
+       入れていたので上下にはみ出し、上の COMPLETE! と下の CLEAR TIME 帯に
+       重なっていた。バッジ側を中身なりの高さにして、絵文字も1行に収まる
+       大きさまで落とす（お祝いの主役はマスコットとネオン帯に任せる）。 */
     .demo-move-badge.celebrate {
       background: transparent !important;
       border-color: transparent !important;
+      min-width: 0;
+      height: auto;
+      padding: 0;
       animation: demo-celebrate-shake 0.5s ease-in-out 4;
     }
     .demo-move-badge.celebrate .demo-move {
       font-family: 'Orbitron', sans-serif;
-      font-size: clamp(42px, 14vw, 68px) !important;
+      font-size: clamp(24px, 7vw, 34px) !important;
+      line-height: 1.15;
       animation: demo-rainbow-text 1.2s linear infinite;
     }
     .demo-note.celebrate {
@@ -2019,7 +2029,9 @@
       border-color: rgba(255, 255, 255, 0.55);
       animation: demo-rainbow-bg 2s linear infinite;
     }
-    .demo-note.celebrate .demo-note-text { white-space: nowrap; }
+    /* CLEAR TIME はマスコットぶん狭くなった幅に入りきらないことがあるので、
+       はみ出させずに折り返させる。 */
+    .demo-note.celebrate .demo-note-text { white-space: normal; text-align: center; }
 
     /* 自己ベスト更新: 通常の虹色セレブレートとは別に、ゴールドのネオン風
        点滅(グロー明滅)にして「これは特別」と一目でわかるようにする。 */
@@ -2036,13 +2048,14 @@
     .demo-note.new-record {
       color: #fff6d8;
       font-weight: 900;
-      font-size: 14px;
-      white-space: nowrap;
+      /* 狭い端末ではマスコットにかぶるので、幅なりに少しだけ縮める */
+      font-size: clamp(11px, 3.3vw, 14px);
+      white-space: normal;
       background: linear-gradient(90deg, rgba(255, 213, 74, 0.28), rgba(255, 159, 31, 0.28));
       border: 2px solid rgba(255, 213, 74, 0.85);
       animation: demo-neon-record 0.9s ease-in-out infinite;
     }
-    .demo-note.new-record .demo-note-text { white-space: nowrap; }
+    .demo-note.new-record .demo-note-text { white-space: nowrap; text-align: center; }
 
     /* --- 残り20手以下: 「ギリギリゾーン」スリル演出 ---
        正確な手数を隠しつつ、ゴールが近いことだけは伝える。パネルの枠と
@@ -2681,30 +2694,19 @@
 
     /* Tap-cube mode: the rotation buttons come off the screen entirely so
        the cube can take the space, but OLL/PLL stay reachable. */
-    /* 操作説明は文章をやめてピクトグラムにしたので、行として並べる。
-       色は currentColor 経由でSVG側に届くので、ここを変えれば両方変わる。 */
-    .tap-hint {
-      display: none;
-      color: #00ffcc;
-    }
+    /* 操作説明の行は画面には出さない。文言はスクリーンリーダー向けに残すので、
+       display:none ではなく「視覚的にだけ隠す」書き方にしてある。 */
+    .tap-hint,
     body.tap-mode .tap-hint {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 14px;
-      margin-bottom: 4px;
-      opacity: .9;
-    }
-    .tap-hint-art {
-      width: auto;
-      height: clamp(30px, 5.4vh, 42px);
-      flex: 0 0 auto;
-    }
-    .tap-hint-sep {
+      position: absolute;
       width: 1px;
-      height: clamp(16px, 3vh, 22px);
-      background: currentColor;
-      opacity: .35;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      border: 0;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
     }
     body.tap-mode .controls-label:not(.tap-hint),
     body.tap-mode #face-grid {
