@@ -2175,9 +2175,10 @@
 /* ============================================================
    🛍️ ショップの文言（9言語ぶん）
    ランクの文言と同じく、既存の I18N に上書きせず足すだけ。
-   辞書本体には一切手を入れていない。キーは20個。
+   辞書本体には一切手を入れていない。キーは24個。
      menuShop / shopTitle / shopLead / shopThemes /
-     shopUsing / shopEquip / shopRedeem / shopShort / shopGot
+     shopUsing / shopEquip / shopRedeem / shopShort / shopGot /
+     shopConfirmTitle / shopConfirmBody / shopShardCyan / shopShardRainbow
      ＋ 色の名前 shopColor*（11色）
    色を足すときは index.html の THEMES に1行足して、ここに
    shopColor<Id>（先頭大文字）を9言語ぶん書き足す。
@@ -2185,6 +2186,9 @@
 (function addShopStrings() {
   const SHOP_I18N = {
     "ja": {
+      shopConfirmTitle:"「{name}」を引き換えますか？",
+      shopConfirmBody:"{shard}を {cost} 使います。引き換えたあとの残りは {left} です。",
+      shopShardCyan:"水色シャード", shopShardRainbow:"虹シャード",
       menuShop:"🛍️ ショップ", shopTitle:"ショップ",
       shopLead:"シャードでメインカラーを引き換えます",
       shopThemes:"メインカラー",
@@ -2197,6 +2201,9 @@
       shopColorEmber:"エンバー", shopColorPrism:"プリズム"
     },
     "en": {
+      shopConfirmTitle:"Redeem {name}?",
+      shopConfirmBody:"This spends {cost} {shard}. You will have {left} left.",
+      shopShardCyan:"cyan shards", shopShardRainbow:"rainbow shards",
       menuShop:"🛍️ Shop", shopTitle:"Shop",
       shopLead:"Redeem shards for a main color",
       shopThemes:"Main color",
@@ -2209,6 +2216,9 @@
       shopColorEmber:"Ember", shopColorPrism:"Prism"
     },
     "zh-CN": {
+      shopConfirmTitle:"要兑换{name}吗？",
+      shopConfirmBody:"将消耗 {cost} 个{shard}，兑换后剩余 {left} 个。",
+      shopShardCyan:"水色碎片", shopShardRainbow:"彩虹碎片",
       menuShop:"🛍️ 商店", shopTitle:"商店",
       shopLead:"用碎片兑换主色调",
       shopThemes:"主色调",
@@ -2221,6 +2231,9 @@
       shopColorEmber:"余烬", shopColorPrism:"棱镜"
     },
     "zh-TW": {
+      shopConfirmTitle:"要兌換{name}嗎？",
+      shopConfirmBody:"將消耗 {cost} 個{shard}，兌換後剩餘 {left} 個。",
+      shopShardCyan:"水藍碎片", shopShardRainbow:"彩虹碎片",
       menuShop:"🛍️ 商店", shopTitle:"商店",
       shopLead:"用碎片兌換主色調",
       shopThemes:"主色調",
@@ -2233,6 +2246,9 @@
       shopColorEmber:"餘燼", shopColorPrism:"稜鏡"
     },
     "ko": {
+      shopConfirmTitle:"{name}(으)로 교환할까요?",
+      shopConfirmBody:"{shard} {cost}개를 사용합니다. 교환 후에는 {left}개가 남습니다.",
+      shopShardCyan:"하늘색 조각", shopShardRainbow:"무지개 조각",
       menuShop:"🛍️ 상점", shopTitle:"상점",
       shopLead:"조각으로 메인 색상을 교환합니다",
       shopThemes:"메인 색상",
@@ -2245,6 +2261,9 @@
       shopColorEmber:"엠버", shopColorPrism:"프리즘"
     },
     "es": {
+      shopConfirmTitle:"¿Canjear {name}?",
+      shopConfirmBody:"Gastarás {cost} {shard}. Te quedarán {left}.",
+      shopShardCyan:"fragmentos cian", shopShardRainbow:"fragmentos arcoíris",
       menuShop:"🛍️ Tienda", shopTitle:"Tienda",
       shopLead:"Canjea fragmentos por un color principal",
       shopThemes:"Color principal",
@@ -2257,6 +2276,9 @@
       shopColorEmber:"Brasa", shopColorPrism:"Prisma"
     },
     "id": {
+      shopConfirmTitle:"Tukar {name}?",
+      shopConfirmBody:"Ini memakai {cost} {shard}. Sisanya menjadi {left}.",
+      shopShardCyan:"serpihan biru", shopShardRainbow:"serpihan pelangi",
       menuShop:"🛍️ Toko", shopTitle:"Toko",
       shopLead:"Tukar serpihan jadi warna utama",
       shopThemes:"Warna utama",
@@ -2269,6 +2291,9 @@
       shopColorEmber:"Bara", shopColorPrism:"Prisma"
     },
     "ru": {
+      shopConfirmTitle:"Обменять на «{name}»?",
+      shopConfirmBody:"Будет потрачено {cost} ({shard}). Останется {left}.",
+      shopShardCyan:"голубые осколки", shopShardRainbow:"радужные осколки",
       menuShop:"🛍️ Магазин", shopTitle:"Магазин",
       shopLead:"Обменяйте осколки на основной цвет",
       shopThemes:"Основной цвет",
@@ -2281,6 +2306,9 @@
       shopColorEmber:"Уголёк", shopColorPrism:"Призма"
     },
     "pt-BR": {
+      shopConfirmTitle:"Trocar por {name}?",
+      shopConfirmBody:"Isso gasta {cost} {shard}. Restarão {left}.",
+      shopShardCyan:"fragmentos ciano", shopShardRainbow:"fragmentos arco-íris",
       menuShop:"🛍️ Loja", shopTitle:"Loja",
       shopLead:"Troque fragmentos por uma cor principal",
       shopThemes:"Cor principal",

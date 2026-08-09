@@ -8616,8 +8616,10 @@ RankFX.init();   // すでにランク100なら、起動時からUIを伝説仕�
      i18n には shopColor<Id> のキー（先頭大文字）を9言語ぶん足す。
    ・「所持リスト」と「今つけている色」は別々に保存してある。買った色は
      いつでも無料で付け替えられる（引き換えは1回きり）。
-   ・引き換えは2タップ方式。1回目で値段が「引き換える」に変わり、
-     もう1回押して初めてシャードが減る。誤タップで消えないようにするため。
+   ・引き換える前には必ず確認ダイアログを出す。ためたシャードが減る
+     操作は取り消せないので、色の名前・使う数・引き換え後の残りまで
+     読んでから決められるようにしてある。ダイアログは言語切り替えや
+     シャッフルの確認と同じ askConfirm() を使い回している。
    ========================================================================= */
 const Shop = (function () {
   'use strict';
@@ -8646,7 +8648,6 @@ const Shop = (function () {
   // <head> の先出しスクリプトが読む「今の色そのもの」。品揃えの表を
   // 読み込む前でも復元できるよう、id とは別にこちらも持っておく。
   const THEME_HEX_KEY = 'rubiks-cube-theme-hex';
-  const CONFIRM_MS   = 4000;   // 「引き換える」表示が元に戻るまで
   const TOAST_MS     = 2200;
 
   /* ---- 保存されているもの ---------------------------------------------- */
@@ -8772,7 +8773,7 @@ const Shop = (function () {
   /* ---- 画面 ------------------------------------------------------------ */
   let overlayEl = null, gridEl = null, toastEl = null;
   let cyanEl = null, rainbowEl = null;
-  let confirmId = null, confirmTimer = null, toastTimer = null;
+  let toastTimer = null;
 
   function ensureDom() {
     overlayEl = overlayEl || document.getElementById('shop-overlay');
@@ -8791,24 +8792,22 @@ const Shop = (function () {
   }
 
   function buildCard(theme) {
-    const has     = owned.indexOf(theme.id) !== -1;
-    const on      = theme.id === equipped;
-    const asking  = confirmId === theme.id;
-    const enough  = balance(theme.cur) >= theme.cost;
+    const has    = owned.indexOf(theme.id) !== -1;
+    const on     = theme.id === equipped;
+    const enough = balance(theme.cur) >= theme.cost;
 
     const card = document.createElement('button');
     card.type = 'button';
     card.className = 'shop-card' +
       (has ? ' owned' : '') + (on ? ' equipped' : '') +
-      (asking ? ' asking' : '') + (!has && !enough ? ' short' : '');
+      (!has && !enough ? ' short' : '');
     card.dataset.id = theme.id;
 
     let foot;
-    if (on)          foot = '<span class="shop-state on">' + t('shopUsing') + '</span>';
-    else if (has)    foot = '<span class="shop-state">' + t('shopEquip') + '</span>';
-    else if (asking) foot = '<span class="shop-state ask">' + t('shopRedeem') + '</span>';
-    else             foot = '<span class="shop-price">' + shardHtml(theme.cur) +
-                            fmt(theme.cost) + '</span>';
+    if (on)       foot = '<span class="shop-state on">' + t('shopUsing') + '</span>';
+    else if (has) foot = '<span class="shop-state">' + t('shopEquip') + '</span>';
+    else          foot = '<span class="shop-price">' + shardHtml(theme.cur) +
+                         fmt(theme.cost) + '</span>';
 
     card.innerHTML =
       swatchHtml(theme) +
@@ -8835,41 +8834,18 @@ const Shop = (function () {
     toastTimer = setTimeout(() => { toastEl.className = 'shop-toast'; }, TOAST_MS);
   }
 
-  function clearConfirm() {
-    clearTimeout(confirmTimer);
-    confirmId = null;
-  }
-
-  function onCardTap(theme) {
-    const has = owned.indexOf(theme.id) !== -1;
-
-    // すでに持っている色：その場で付け替え。取り消しも自由なので確認なし。
-    if (has) {
-      clearConfirm();
-      if (theme.id !== equipped) applyTheme(theme.id);
-      render();
-      return;
-    }
-
-    // 足りないときは、値段のままで理由だけ伝える。
+  /* ---- 引き換えの実行 ----------------------------------------------------
+     確認ダイアログで「引き換える」を押されたときだけ、ここまで来る。
+     ダイアログを開いてから決めるまでのあいだに残高が変わることは
+     ないはずだが、シャードが減る唯一の場所なので、ここでもう一度だけ
+     数えてから引く。 */
+  function buy(theme) {
+    if (owned.indexOf(theme.id) !== -1) return;
     if (balance(theme.cur) < theme.cost) {
-      clearConfirm();
       toast(t('shopShort'), 'warn');
       render();
       return;
     }
-
-    // 1タップ目：値段が「引き換える」に変わる。
-    if (confirmId !== theme.id) {
-      clearConfirm();
-      confirmId = theme.id;
-      confirmTimer = setTimeout(() => { confirmId = null; render(); }, CONFIRM_MS);
-      render();
-      return;
-    }
-
-    // 2タップ目：ここで初めてシャードが減る。
-    clearConfirm();
     spend(theme.cur, theme.cost);
     owned.push(theme.id);
     applyTheme(theme.id);
@@ -8882,17 +8858,49 @@ const Shop = (function () {
     }
   }
 
+  function onCardTap(theme) {
+    // すでに持っている色：その場で付け替え。何も減らず、押し直せば
+    // 元に戻せるので確認は挟まない。
+    if (owned.indexOf(theme.id) !== -1) {
+      if (theme.id !== equipped) applyTheme(theme.id);
+      render();
+      return;
+    }
+
+    // 足りないときは値段のまま、理由だけ伝える。
+    if (balance(theme.cur) < theme.cost) {
+      toast(t('shopShort'), 'warn');
+      return;
+    }
+
+    // ここから先はシャードが減る。何を・いくつ使って・残りいくつに
+    // なるかを見せてから決めてもらう。キャンセル・背景タップ・Esc は
+    // すべて「何もせずに閉じる」側に倒れる(askConfirm の作り)。
+    const shardName = t(theme.cur === 'rainbow' ? 'shopShardRainbow' : 'shopShardCyan');
+    const opts = {
+      title:  t('shopConfirmTitle', { name: label(theme) }),
+      body:   t('shopConfirmBody', {
+                shard: shardName,
+                cost:  fmt(theme.cost),
+                left:  fmt(balance(theme.cur) - theme.cost)
+              }),
+      ok:     t('shopRedeem'),
+      cancel: t('confirmCancel'),
+      onOk:   function () { buy(theme); }
+    };
+    if (typeof askConfirm === 'function') askConfirm(opts);
+    else buy(theme);   // ダイアログが無い環境でも詰まらないようにする保険
+  }
+
   function open() {
     ensureDom();
     if (!overlayEl) return;
-    clearConfirm();
     render();
     overlayEl.classList.add('show');
   }
   function close() {
     ensureDom();
     if (!overlayEl) return;
-    clearConfirm();
     overlayEl.classList.remove('show');
   }
 

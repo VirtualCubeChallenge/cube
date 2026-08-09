@@ -5157,10 +5157,6 @@
 }
 /* シャードが足りない色は沈める。押せないのではなく、押すと理由が出る。 */
 .shop-card.short { opacity: 0.5; }
-.shop-card.asking {
-  border-color: var(--tc);
-  background: rgba(var(--tc-rgb), 0.14);
-}
 
 /* ---- 色見本 -------------------------------------------------------------
    四角ではなくキューブの1マスに見えるよう、角丸＋斜めのハイライトを
@@ -5240,14 +5236,6 @@
   line-height: 1.4;
 }
 .shop-state.on { color: var(--tc); }
-/* 「引き換える」= ここを押すと本当にシャードが減る、という最後の一歩。
-   値段の位置に出るので、押し間違いではなく選び直しに見えるようにする。 */
-.shop-state.ask {
-  color: #08080b;
-  background: var(--tc);
-  border-radius: 999px;
-  padding: 2px 10px;
-}
 
 /* 引き換えた瞬間だけ、そのカードから光が広がる。 */
 .shop-card.just-got::after {
