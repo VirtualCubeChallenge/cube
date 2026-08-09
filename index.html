@@ -6609,7 +6609,7 @@ const PLL_DATA = {
       <div class="rr-eyebrow">Solved</div>
       <div class="rr-time" id="rr-time"></div>
 
-      <div class="rr-badge-wrap">
+      <div class="rr-badge-wrap" id="rr-badge-wrap">
         <div class="rr-rays" id="rr-rays"></div>
         <div class="rr-ring" id="rr-ring"></div>
         <div class="rr-badge dark-ink" id="rr-badge">
@@ -6638,6 +6638,24 @@ const PLL_DATA = {
     </div>
   </div>
   <div class="rr-flash" id="rr-flash"></div>
+
+  <!-- === RANK FX : 節目ランクの演出レイヤー ここから ===================
+       すべて pointer-events:none / position:fixed。ふだんは opacity:0 で
+       完全に透明なので、通常プレイには一切干渉しない。
+       =================================================================== -->
+  <div class="rank-fx" id="rank-fx" aria-hidden="true">
+    <div class="rfx-veil"    id="rfx-veil"></div>
+    <div class="rfx-pillar"  id="rfx-pillar"></div>
+    <div class="rfx-scan"    id="rfx-scan"></div>
+    <div class="rfx-halo"    id="rfx-halo"><i></i><i></i><i></i></div>
+    <div class="rfx-wash"    id="rfx-wash"></div>
+    <div class="rfx-telop"   id="rfx-telop">
+      <div class="rfx-telop-sub"  id="rfx-telop-sub"></div>
+      <div class="rfx-telop-main" id="rfx-telop-main"></div>
+    </div>
+  </div>
+  <canvas class="rank-fx-canvas" id="rank-fx-canvas" aria-hidden="true"></canvas>
+  <!-- === RANK FX : 節目ランクの演出レイヤー ここまで =================== -->
   <!-- === RANK / EXP システム : リザルト画面 ここまで ==================== -->
 
   <script>
@@ -7864,6 +7882,383 @@ const RankSystem = (function () {
 window.RankSystem = RankSystem;
 
 
+
+/* =========================================================================
+   === RANK FX : 節目ランクの演出 JS ここから =============================
+   ランクアップの瞬間に RankFX.celebrate(rank) を呼ぶだけ。
+   到達したランクが節目（2/10/30/50/100）なら段階に応じてレイヤーを重ね、
+   それ以外のランクは今までどおりの控えめな演出のまま。
+   粒子はDOMを増やさず1枚のcanvasにまとめて描くので、数百個出しても
+   スマホでコマ落ちしません。
+   ========================================================================= */
+const RankFX = (function () {
+  'use strict';
+
+  /* ---- 段階の定義（ここを書き換えるだけで節目を追加・変更できる） ------
+       tier … 1:小爆発 2:中爆発 3:大爆発 4:超大爆発 5:限界突破
+       sub / main … 画面に出すテロップ（英字はデザイン要素として固定表示） */
+  const MILESTONES = {
+    2:   { tier:1, sub:'',                 main:'RANK UP!' },
+    10:  { tier:2, sub:'✨ REACHED ✨',    main:'LEVEL 10' },
+    30:  { tier:3, sub:'OVERDRIVE',        main:'RANK 30' },
+    50:  { tier:4, sub:'AWAKENED',         main:'RANK 50' },
+    100: { tier:5, sub:'LEGEND',           main:'RANK 100' }
+  };
+
+  const PALETTE = {
+    cyan:    ['#d9fbff','#5fe3ff','#2ea8ff','#1b6cff'],
+    rainbow: ['#ff5f6d','#ffc371','#8fff8f','#5fe3ff','#a98bff','#ff5fd2'],
+    gold:    ['#fffdf3','#ffe9a8','#ffd76a','#e6ebf3','#d7b45a']
+  };
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const wait = (ms) => new Promise(r => setTimeout(r, ms));
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const pick = (arr) => arr[(Math.random() * arr.length) | 0];
+
+  /* =======================================================================
+     1. canvas パーティクルエンジン
+     ======================================================================= */
+  let cv = null, ctx = null, dpr = 1, W = 0, H = 0;
+  let parts = [], running = false;
+
+  function ensureCanvas() {
+    if (cv) return true;
+    cv = document.getElementById('rank-fx-canvas');
+    if (!cv) return false;
+    ctx = cv.getContext('2d');
+    resize();
+    window.addEventListener('resize', resize);
+    return true;
+  }
+  function resize() {
+    if (!cv) return;
+    dpr = Math.min(2, window.devicePixelRatio || 1);   // 2倍までで頭打ち＝負荷対策
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function add(p) {
+    /* 上限を決めておく。演出が重なっても端末が固まらないための安全弁。 */
+    if (parts.length > 900) return;
+    parts.push(p);
+  }
+  function spawn(o) {
+    add({
+      x:o.x, y:o.y, vx:o.vx, vy:o.vy,
+      g:  o.g  !== undefined ? o.g  : 0.24,
+      dr: o.dr !== undefined ? o.dr : 0.985,   // 空気抵抗
+      life:o.life, max:o.life,
+      size:o.size, color:o.color,
+      shape:o.shape || 'dot',
+      rot:rnd(0, Math.PI * 2), vr:rnd(-.22, .22),
+      trail: !!o.trail
+    });
+  }
+
+  function loop() {
+    if (!running) return;
+    ctx.clearRect(0, 0, W, H);
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i];
+      p.vx *= p.dr; p.vy = p.vy * p.dr + p.g;
+      p.x += p.vx;  p.y += p.vy;  p.rot += p.vr;
+      p.life--;
+      if (p.life <= 0 || p.y > H + 60) { parts.splice(i, 1); continue; }
+
+      const a = Math.min(1, p.life / (p.max * 0.55));
+      ctx.globalAlpha = a;
+      ctx.fillStyle = p.color;
+
+      if (p.shape === 'shard') {          // 六角クリスタル（バッジと同じ形）
+        ctx.save();
+        ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+        const s = p.size;
+        ctx.beginPath();
+        ctx.moveTo(0, -s); ctx.lineTo(s * .87, -s * .5); ctx.lineTo(s * .87, s * .5);
+        ctx.lineTo(0, s);  ctx.lineTo(-s * .87, s * .5); ctx.lineTo(-s * .87, -s * .5);
+        ctx.closePath(); ctx.fill();
+        ctx.globalAlpha = a * .45; ctx.fillStyle = '#fff';
+        ctx.beginPath(); ctx.moveTo(0, -s); ctx.lineTo(s * .5, -s * .2);
+        ctx.lineTo(0, s * .2); ctx.lineTo(-s * .5, -s * .2);
+        ctx.closePath(); ctx.fill();
+        ctx.restore();
+      } else if (p.trail) {               // 尾を引く光（横断する粒子）
+        ctx.save();
+        ctx.strokeStyle = p.color; ctx.lineWidth = p.size; ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - p.vx * 4, p.y - p.vy * 4);
+        ctx.stroke(); ctx.restore();
+      } else {                            // ただの光の粒
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
+    if (parts.length) requestAnimationFrame(loop);
+    else { running = false; ctx.clearRect(0, 0, W, H); }
+  }
+  function start() { if (!running && parts.length) { running = true; requestAnimationFrame(loop); } }
+
+  /* ---- 花火（tier1〜） -------------------------------------------------- */
+  function firework(x, y, count, colors, power, shape) {
+    for (let i = 0; i < count; i++) {
+      const a = (Math.PI * 2 * i) / count + rnd(-.15, .15);
+      const v = power * rnd(.55, 1.25);
+      spawn({ x:x, y:y, vx:Math.cos(a) * v, vy:Math.sin(a) * v,
+              life:rnd(38, 70), size:rnd(1.8, 3.6), color:pick(colors),
+              shape:shape || 'dot' });
+    }
+  }
+  /* ---- 画面を横切る光の粒子（tier2） ------------------------------------ */
+  function sweep(colors, count) {
+    const dir = Math.random() < .5 ? 1 : -1;
+    for (let i = 0; i < count; i++) {
+      const y = rnd(0, H);
+      spawn({ x: dir > 0 ? rnd(-160, -10) : rnd(W + 10, W + 160), y:y,
+              vx: dir * rnd(14, 26), vy: rnd(-1.2, 1.2), g:0, dr:1,
+              life:rnd(26, 46), size:rnd(1.5, 3.4), color:pick(colors), trail:true });
+    }
+  }
+  /* ---- シャードの飛散（tier3。通常の2倍の勢い） ------------------------- */
+  function shardBurst(x, y, count, colors, power) {
+    for (let i = 0; i < count; i++) {
+      const a = rnd(0, Math.PI * 2), v = power * rnd(.5, 1.4);
+      spawn({ x:x, y:y, vx:Math.cos(a) * v, vy:Math.sin(a) * v - 3,
+              g:.32, life:rnd(55, 100), size:rnd(4, 11),
+              color:pick(colors), shape:'shard' });
+    }
+  }
+  /* ---- 虹シャードの滝（tier5） ------------------------------------------ */
+  function rain(durationMs, perTick) {
+    const t0 = performance.now();
+    (function tick(now) {
+      if (now - t0 > durationMs) return;
+      for (let i = 0; i < perTick; i++) {
+        spawn({ x:rnd(0, W), y:rnd(-120, -10),
+                vx:rnd(-1.4, 1.4), vy:rnd(2, 6), g:.14, dr:.999,
+                life:rnd(120, 220), size:rnd(4, 12),
+                color:pick(PALETTE.rainbow), shape:'shard' });
+      }
+      start();
+      requestAnimationFrame(tick);
+    })(t0);
+  }
+
+  /* =======================================================================
+     2. 効果音（WebAudioで合成。音声ファイルは不要）
+        段階が上がるほど音数と余韻が増える。
+     ======================================================================= */
+  let ac = null;
+  function ensureAC() {
+    if (!RankFX.sound) return null;
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      if (ac.state === 'suspended') ac.resume();
+      return ac;
+    } catch (e) { return null; }
+  }
+  function note(freq, at, dur, type, vol) {
+    const c = ensureAC(); if (!c) return;
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'triangle'; o.frequency.value = freq;
+    const t0 = c.currentTime + at;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol, t0 + .015);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(c.destination);
+    o.start(t0); o.stop(t0 + dur + .03);
+  }
+  function noise(at, dur, vol) {          // 「シャッ」という空気の音
+    const c = ensureAC(); if (!c) return;
+    const len = Math.floor(c.sampleRate * dur);
+    const buf = c.createBuffer(1, len, c.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+    const s = c.createBufferSource(); s.buffer = buf;
+    const f = c.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 1400;
+    const g = c.createGain(); g.gain.value = vol;
+    s.connect(f); f.connect(g); g.connect(c.destination);
+    s.start(c.currentTime + at);
+  }
+  const CHORD = { M:[0,4,7,12], sus:[0,5,7,12] };
+  function arpeggio(root, steps, gap, dur, type, vol) {
+    steps.forEach((s, i) => note(root * Math.pow(2, s / 12), i * gap, dur, type, vol));
+  }
+  const SFX = {
+    1: function () { arpeggio(784, CHORD.M, .055, .30, 'triangle', .16); },
+    2: function () { arpeggio(784, [0,4,7,12,16], .05, .45, 'triangle', .17); noise(0, .35, .06); },
+    3: function () { arpeggio(523, [0,7,12,16,19,24], .045, .6, 'sawtooth', .10);
+                     note(130, 0, .9, 'sine', .22); noise(0, .5, .08); },
+    4: function () { note(65, 0, 1.6, 'sine', .28); noise(.05, .8, .10);
+                     arpeggio(523, [0,4,7,12,16,19,24], .075, 1.1, 'triangle', .15);
+                     note(1568, .62, 1.4, 'sine', .12); },
+    5: function () { note(49, 0, 2.6, 'sine', .3); noise(.05, 1.2, .12);
+                     arpeggio(523, [0,2,4,7,9,12,16,19,24,28], .07, 1.5, 'triangle', .15);
+                     [0,.35,.7].forEach(d => arpeggio(1047, CHORD.M, .04, 1.2, 'sine', .10 - d * .06)); }
+  };
+
+  /* =======================================================================
+     3. 段階ごとの演出シーケンス
+     ======================================================================= */
+  const $ = (id) => document.getElementById(id);
+  function flashLayer(id, cls) {
+    const n = $(id); if (!n) return null;
+    n.classList.remove(cls || 'go'); void n.offsetWidth; n.classList.add(cls || 'go');
+    return n;
+  }
+  function telop(tier, sub, main, holdMs) {
+    const box = $('rfx-telop'); if (!box) return;
+    box.className = 'rfx-telop t' + tier;
+    $('rfx-telop-sub').textContent  = sub || '';
+    $('rfx-telop-main').textContent = main || '';
+    void box.offsetWidth;
+    box.classList.add('go');
+    setTimeout(function () { box.classList.remove('go'); box.className = 'rfx-telop'; },
+               holdMs || 1600);
+  }
+  function badgeAura(on, ms) {
+    const wrap = $('rr-badge-wrap'); if (!wrap) return;
+    wrap.classList.toggle('aura', !!on);
+    if (on && ms) setTimeout(function () { wrap.classList.remove('aura'); }, ms);
+  }
+  function divine(ms) {
+    const b = $('rr-badge'); if (!b) return;
+    b.classList.remove('divine'); void b.offsetWidth; b.classList.add('divine');
+    setTimeout(function () { b.classList.remove('divine'); }, ms || 2900);
+  }
+  function haptic(pattern) {
+    if (typeof triggerHaptics === 'function') triggerHaptics(pattern);
+    else if (navigator.vibrate) { try { navigator.vibrate(pattern); } catch (e) {} }
+  }
+  /* バッジの画面上の位置。花火はここを中心に出すと「バッジが弾けた」に見える */
+  function badgeCenter() {
+    const b = $('rr-badge');
+    if (!b) return { x:W / 2, y:H / 2 };
+    const r = b.getBoundingClientRect();
+    return { x:r.left + r.width / 2, y:r.top + r.height / 2 };
+  }
+
+  /* 戻り値の Promise は「次に進んでよくなるまで」の待ち時間。
+     呼び出し側（levelUpBurst）はこれを await するだけでテンポが揃う。 */
+  async function celebrate(rank) {
+    const ms = MILESTONES[rank];
+    if (!ms) return 0;                       // 節目でなければ何もしない
+    ensureCanvas();
+    if (SFX[ms.tier]) SFX[ms.tier]();
+
+    if (reduce) {                            // 動きを減らす設定なら文字だけ
+      telop(ms.tier, ms.sub, ms.main, 1500);
+      if (rank >= 100) document.documentElement.classList.add('legend-mode');
+      return 900;
+    }
+
+    const c = badgeCenter();
+
+    /* ---- tier1（ランク2）小爆発 ------------------------------------- */
+    if (ms.tier === 1) {
+      telop(1, ms.sub, ms.main, 1500);
+      firework(c.x, c.y, 26, PALETTE.cyan, 7);
+      setTimeout(() => firework(c.x - 70, c.y - 50, 16, PALETTE.cyan, 5), 160);
+      setTimeout(() => firework(c.x + 74, c.y - 34, 16, PALETTE.gold, 5), 300);
+      start(); haptic([28, 24, 48]);
+      return 1100;
+    }
+
+    /* ---- tier2（ランク10）中爆発 ------------------------------------- */
+    if (ms.tier === 2) {
+      flashLayer('rr-flash');                       // 画面がわずかに光る
+      sweep(PALETTE.rainbow, 90);                   // 虹の粒子が横断
+      firework(c.x, c.y, 40, PALETTE.rainbow, 9);
+      start();
+      telop(2, ms.sub, ms.main, 1900);
+      badgeAura(true, 1700);
+      haptic([35, 25, 35, 25, 90]);
+      return 1500;
+    }
+
+    /* ---- tier3（ランク30）大爆発 ------------------------------------- */
+    if (ms.tier === 3) {
+      flashLayer('rfx-scan');                       // サイバーなスキャンライン
+      flashLayer('rfx-halo');                       // ネオンの光輪が3重に広がる
+      setTimeout(function () { const h = $('rfx-halo'); if (h) h.classList.remove('go'); }, 1400);
+      badgeAura(true, 2600);                        // オーラ＋残像
+      shardBurst(c.x, c.y, 80, PALETTE.cyan.concat(PALETTE.rainbow), 16); // 通常の2倍
+      sweep(PALETTE.cyan, 40);
+      start();
+      await wait(140);
+      telop(3, ms.sub, ms.main, 2000);
+      haptic([45, 25, 45, 25, 45, 30, 120]);
+      return 1900;
+    }
+
+    /* ---- tier4（ランク50）超・大爆発 --------------------------------- */
+    if (ms.tier === 4) {
+      flashLayer('rfx-veil');                       // ① 画面が暗転
+      haptic([60, 40, 60]);
+      await wait(420);                              // ② タメ
+      flashLayer('rfx-pillar');                     // ③ 光の柱が突き抜ける
+      await wait(220);
+      flashLayer('rr-flash');
+      divine(3000);                                 // ④ バッジが激しく明滅
+      badgeAura(true, 3200);
+      firework(c.x, c.y, 56, PALETTE.gold, 12);
+      shardBurst(c.x, c.y, 60, PALETTE.gold, 14);
+      sweep(PALETTE.gold, 60);
+      start();
+      haptic([80, 40, 80, 40, 200]);
+      await wait(180);
+      telop(4, ms.sub, ms.main, 2600);              // ⑤ 称号カットイン
+      return 2600;
+    }
+
+    /* ---- tier5（ランク100）限界突破 ---------------------------------- */
+    flashLayer('rfx-veil');
+    haptic([70, 40, 70, 40, 70]);
+    await wait(360);
+    flashLayer('rfx-pillar');
+    flashLayer('rr-flash');
+    flashLayer('rfx-wash');                         // 全画面レインボー
+    divine(4200);
+    badgeAura(true, 4200);
+    firework(c.x, c.y, 90, PALETTE.rainbow, 15);
+    shardBurst(c.x, c.y, 110, PALETTE.rainbow, 18);
+    sweep(PALETTE.rainbow, 120);
+    rain(3200, 5);                                  // 虹シャードの滝
+    start();
+    /* 花火を時間差で4連発。単発より「まだ終わらない」感が出る */
+    [420, 760, 1080, 1460].forEach(function (d, i) {
+      setTimeout(function () {
+        firework(rnd(W * .2, W * .8), rnd(H * .2, H * .55), 40, PALETTE.rainbow, 11);
+        start();
+        haptic([40, 30, 60]);
+      }, d);
+    });
+    await wait(240);
+    telop(5, ms.sub, ms.main, 3400);
+    document.documentElement.classList.add('legend-mode');   // UIを伝説仕様へ
+    return 3600;
+  }
+
+  /* 起動時：すでにランク100なら最初から伝説仕様のUIにしておく */
+  function init() {
+    try {
+      if (window.RankSystem && RankSystem.get().rank >= RankSystem.CFG.MAX_RANK) {
+        document.documentElement.classList.add('legend-mode');
+      }
+    } catch (e) {}
+  }
+
+  return { celebrate:celebrate, init:init, MILESTONES:MILESTONES,
+           /* 効果音。切りたいときは RankFX.sound = false; */
+           sound:true,
+           /* 動作確認用：RankFX.preview(50) でその段階だけ再生できる */
+           preview:function (rank) { return celebrate(rank); } };
+})();
+window.RankFX = RankFX;
+/* === RANK FX : 節目ランクの演出 JS ここまで ============================= */
+
+
 /* =========================================================================
    RankResult ― リザルト画面の演出
      RankResult.play({ isNewBest, usedGuide, timeText })
@@ -8009,9 +8404,12 @@ const RankResult = (function () {
       el['rr-badge'].classList.add('levelup');
       sparks(maxed ? 26 : 16);
     }
-    if (maxed) sfxMax(); else sfxLevel();
-    if (typeof triggerHaptics === 'function') {
-      triggerHaptics(maxed ? [50,40,50,40,50,40,160] : [30,25,60]);
+    /* 節目のランク(2/10/30/50/100)なら、専用の音と演出に丸ごと任せる。
+       ここで通常音を鳴らすと専用ファンファーレと濁るので鳴らさない。 */
+    const milestone = !!(window.RankFX && RankFX.MILESTONES[newRank]);
+    if (!milestone) {
+      if (maxed) sfxMax(); else sfxLevel();
+      if (typeof triggerHaptics === 'function') triggerHaptics([30,25,60]);
     }
     /* バッジがいちばん膨らむ瞬間（約0.23秒後）に数字と色を差し替えると、
        「光の中で進化した」ように見える。 */
@@ -8019,7 +8417,15 @@ const RankResult = (function () {
     el['rr-num'].textContent = newRank;
     el['rr-rank-text'].textContent = newRank;
     paint(newRank);
-    await wait(reduce ? 60 : 320);
+
+    if (milestone) {
+      /* 新しい色に変わりきった状態から爆発させる。
+         celebrate() は「次に進んでよくなるまでのミリ秒」を返す。 */
+      const hold = await RankFX.celebrate(newRank);
+      await wait(hold || 600);
+    } else {
+      await wait(reduce ? 60 : 320);
+    }
   }
 
   let busy = false;
@@ -8105,6 +8511,7 @@ const RankResult = (function () {
 })();
 window.RankResult = RankResult;
 RankResult.init();
+RankFX.init();   // すでにランク100なら、起動時からUIを伝説仕様にする
 /* === RANK / EXP システム : JS ここまで ================================== */
   </script>
 </body>
