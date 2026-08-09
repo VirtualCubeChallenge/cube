@@ -235,8 +235,8 @@
 
                 "tutMenuTitle": "メニューを開いてみよう",
                 "tutMenuBody": "右上の<span class=\"tut-em\">「≡」</span>をタップしてみてください。<br><br>記録の確認や各種設定は、ここから行えます！",
-                "tutMenuOpenTitle": "中身はこの2つだけ！",
-                "tutMenuOpenBody": "🏆 <b>記録</b> … ベストタイムが確認できます。<br>⚙️ <b>設定</b> … キューブの大きさや回転スピードなどを自由に調整できます。",
+                "tutMenuOpenTitle": "メニューの中身はこちら！",
+                "tutMenuOpenBody": "🏆 <b>記録</b> … ベストタイムを確認できます。<br>🛍️ <b>ショップ</b> … キューブのカラーやアイテムが手に入ります。<br>⚙️ <b>設定</b> … 操作感や表示などを自由に変更できます。",
 
                 "tutShuffleTitle": "キューブをまぜてみよう",
                 "tutShuffleBody": "右側のシャッフルボタン(<span class=\"tut-em tut-icon\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"16 3 21 3 21 8\"></polyline><line x1=\"4\" y1=\"20\" x2=\"21\" y2=\"3\"></line><polyline points=\"21 16 21 21 16 21\"></polyline><line x1=\"15\" y1=\"15\" x2=\"21\" y2=\"21\"></line><line x1=\"4\" y1=\"4\" x2=\"9\" y2=\"9\"></line></svg></span>)を、<br>① <b>上へ持ち上げる</b><br>② そのまま <b>左へスライド</b><br><span class=\"tut-em\">「逆L字」</span>を描くイメージで操作してみよう！",
@@ -477,8 +477,8 @@
 
                 "tutMenuTitle": "Open the menu",
                 "tutMenuBody": "Tap <span class=\"tut-em\">≡</span> at the top right.<br>Whenever you're stuck, this is the place to go.",
-                "tutMenuOpenTitle": "Just two things in here",
-                "tutMenuOpenBody": "🏆 <b>Records</b> — your best times. Solves that used 💡 Help go on <b>a separate board</b>, so use it freely!<br>⚙️ <b>Settings</b> — colours, view and language, all changeable later.",
+                "tutMenuOpenTitle": "Here's what's inside the menu!",
+                "tutMenuOpenBody": "🏆 <b>Records</b> … check your best times.<br>🛍️ <b>Shop</b> … get cube colours and items.<br>⚙️ <b>Settings</b> … freely adjust feel and display.",
 
                 "tutShuffleTitle": "Let's scramble it",
                 "tutShuffleBody": "Take the <span class=\"tut-em tut-icon\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"16 3 21 3 21 8\"></polyline><line x1=\"4\" y1=\"20\" x2=\"21\" y2=\"3\"></line><polyline points=\"21 16 21 21 16 21\"></polyline><line x1=\"15\" y1=\"15\" x2=\"21\" y2=\"21\"></line><line x1=\"4\" y1=\"4\" x2=\"9\" y2=\"9\"></line></svg></span> handle below ≡ and<br>① <b>lift it upward</b>, then<br>② <b>tip it slightly left</b>.<br>Think of drawing an <span class=\"tut-em\">L shape</span>.",
@@ -714,8 +714,8 @@
                 "tutViewDone": "看到了！🎉<br><br>基本操作只有这两种！<br>・滑动魔方 ＝ <b>只转动1层</b><br>・滑动背景 ＝ <b>整体旋转</b>",
                 "tutMenuTitle": "打开菜单看看",
                 "tutMenuBody": "请点击右上角的<span class=\"tut-em\">「≡」</span>。<br><br>在这里可以查看记录、进行各种设置！",
-                "tutMenuOpenTitle": "里面只有这两项！",
-                "tutMenuOpenBody": "🏆 <b>记录</b>…可以查看最佳成绩。使用💡辅助完成的成绩会记录在<b>单独的榜单</b>里，放心使用！<br>⚙️ <b>设置</b>…可以自由调整魔方大小、旋转速度等。",
+                "tutMenuOpenTitle": "菜单里有这些！",
+                "tutMenuOpenBody": "🏆 <b>记录</b>…可以查看最佳成绩。<br>🛍️ <b>商店</b>…可以获得魔方颜色和道具。<br>⚙️ <b>设置</b>…可以自由更改操作手感和显示等。",
                 "tutHelpTitle": "不知道怎么办就用「💡帮助」",
                 "tutHelpBody": "点击屏幕下方的<span class=\"tut-em\">「💡帮助」</span>，就能<b>一步步跟着示范</b>完成复原。<br><br>遇到困难时，随时使用吧！",
                 "tutHelpBodyOff": "现在 💡帮助 处于隐藏状态。<br>可以随时在 ⚙️设置 的「帮助功能」中重新显示。",
@@ -949,8 +949,8 @@
     "tutViewDone": "看到了！🎉<br><br>基本操作只有這兩種！<br>・滑動方塊 ＝ <b>只轉動1層</b><br>・滑動背景 ＝ <b>整體旋轉</b>",
     "tutMenuTitle": "打開選單看看",
     "tutMenuBody": "請點擊右上角的<span class=\"tut-em\">「≡」</span>。<br><br>在這裡可以查看紀錄、進行各種設定！",
-    "tutMenuOpenTitle": "裡面只有這兩項！",
-    "tutMenuOpenBody": "🏆 <b>紀錄</b>…可以查看最佳成績。使用💡輔助完成的成績會記錄在<b>另一份榜單</b>裡，放心使用！<br>⚙️ <b>設定</b>…可以自由調整方塊大小、轉動速度等。",
+    "tutMenuOpenTitle": "選單裡有這些！",
+    "tutMenuOpenBody": "🏆 <b>紀錄</b>…可以查看最佳成績。<br>🛍️ <b>商店</b>…可以取得方塊顏色和道具。<br>⚙️ <b>設定</b>…可以自由變更操作手感和顯示等。",
     "tutHelpTitle": "不知道怎麼辦就用「💡幫助」",
     "tutHelpBody": "點擊畫面下方的<span class=\"tut-em\">「💡幫助」</span>，就能<b>一步步跟著範例</b>完成復原。<br><br>遇到困難時，隨時使用吧！",
     "tutHelpBodyOff": "現在 💡幫助 處於隱藏狀態。<br>可以隨時在 ⚙️設定 的「輔助功能」中重新顯示。",
@@ -1184,8 +1184,8 @@
                 "tutViewDone": "보였어요! 🎉<br><br>기본 조작은 이 두 가지뿐이에요!<br>・큐브를 밀기 ＝ <b>한 층만 회전</b><br>・배경을 밀기 ＝ <b>전체가 회전</b>",
                 "tutMenuTitle": "메뉴를 열어볼까요",
                 "tutMenuBody": "오른쪽 위의 <span class=\"tut-em\">「≡」</span>를 탭해 보세요.<br><br>기록 확인이나 각종 설정을 여기서 할 수 있어요!",
-                "tutMenuOpenTitle": "안에는 이 두 가지뿐이에요!",
-                "tutMenuOpenBody": "🏆 <b>기록</b> … 최고 기록을 확인할 수 있어요. 💡도움말을 사용한 기록은 <b>별도의 목록</b>에 저장되니 편하게 사용하세요!<br>⚙️ <b>설정</b> … 큐브 크기나 회전 속도 등을 자유롭게 조정할 수 있어요.",
+                "tutMenuOpenTitle": "메뉴 안에는 이런 것들이!",
+                "tutMenuOpenBody": "🏆 <b>기록</b> … 최고 기록을 확인할 수 있어요.<br>🛍️ <b>상점</b> … 큐브 색상과 아이템을 얻을 수 있어요.<br>⚙️ <b>설정</b> … 조작감이나 화면 표시 등을 자유롭게 바꿀 수 있어요.",
                 "tutHelpTitle": "막히면 「💡도움말」",
                 "tutHelpBody": "화면 아래의 <span class=\"tut-em\">「💡도움말」</span>을 누르면 <b>예시를 보면서 한 수씩</b> 진행할 수 있어요.<br><br>막힐 때는 언제든 사용해 보세요!",
                 "tutHelpBodyOff": "지금은 💡도움말이 숨겨져 있어요.<br>⚙️설정의 「도움말 기능」에서 언제든 다시 표시할 수 있어요.",
@@ -1419,8 +1419,8 @@
             "tutViewDone": "¡Ahí está! 🎉<br><br>Solo hay dos cosas que aprender:<br>・Deslizar el cubo ＝ <b>gira una sola capa</b><br>・Deslizar el fondo ＝ <b>gira el cubo entero</b>",
             "tutMenuTitle": "Abre el menú",
             "tutMenuBody": "Toca el <span class=\"tut-em\">≡</span> de arriba a la derecha.<br><br>Desde ahí puedes ver tus récords y cambiar los ajustes.",
-            "tutMenuOpenTitle": "Aquí dentro solo hay dos cosas",
-            "tutMenuOpenBody": "🏆 <b>Récords</b> … tus mejores tiempos. Los tiempos hechos con 💡 Ayuda van a <b>una lista aparte</b>, así que úsala sin miedo.<br>⚙️ <b>Ajustes</b> … puedes cambiar libremente el tamaño del cubo, la velocidad de giro y más.",
+            "tutMenuOpenTitle": "¡Esto es lo que hay en el menú!",
+            "tutMenuOpenBody": "🏆 <b>Récords</b> … consulta tus mejores tiempos.<br>🛍️ <b>Tienda</b> … consigue colores para el cubo y objetos.<br>⚙️ <b>Ajustes</b> … cambia libremente la sensación de manejo y la pantalla.",
             "tutHelpTitle": "¿Atascado? Toca 💡 Ayuda",
             "tutHelpBody": "Con <span class=\"tut-em\">💡 Ayuda</span>, abajo en la pantalla, avanzas <b>movimiento a movimiento</b> siguiendo el ejemplo.<br><br>Cuando te atasques, ¡úsala sin dudarlo!",
             "tutHelpBodyOff": "Ahora mismo la 💡 Ayuda está oculta.<br>Puedes volver a mostrarla cuando quieras desde ⚙️ Ajustes.",
@@ -1654,8 +1654,8 @@
             "tutViewDone": "Kelihatan! 🎉<br><br>Dasar-dasarnya cuma dua ini!<br>・Geser kubus ＝ <b>satu lapisan saja yang berputar</b><br>・Geser latar belakang ＝ <b>seluruh kubus berputar</b>",
             "tutMenuTitle": "Coba buka menunya",
             "tutMenuBody": "Ketuk <span class=\"tut-em\">≡</span> di kanan atas.<br><br>Dari sini kamu bisa melihat rekor dan mengatur berbagai hal!",
-            "tutMenuOpenTitle": "Isinya cuma dua ini!",
-            "tutMenuOpenBody": "🏆 <b>Rekor</b> … tempat melihat waktu terbaikmu. Hasil yang memakai 💡 Bantuan masuk ke <b>daftar terpisah</b>, jadi pakai saja dengan bebas!<br>⚙️ <b>Pengaturan</b> … ukuran kubus, kecepatan putar, dan lainnya bisa diatur sesukamu.",
+            "tutMenuOpenTitle": "Inilah isi menunya!",
+            "tutMenuOpenBody": "🏆 <b>Rekor</b> … lihat waktu terbaikmu.<br>🛍️ <b>Toko</b> … dapatkan warna kubus dan item.<br>⚙️ <b>Pengaturan</b> … ubah sensasi kontrol dan tampilan sesukamu.",
             "tutHelpTitle": "Bingung? Pakai 💡 Bantuan",
             "tutHelpBody": "Kalau kamu menekan <span class=\"tut-em\">💡 Bantuan</span> di bagian bawah layar, kamu bisa maju <b>satu gerakan demi satu gerakan</b> sambil melihat contohnya.<br><br>Kalau sedang bingung, pakai saja kapan pun!",
             "tutHelpBodyOff": "Saat ini 💡 Bantuan sedang disembunyikan.<br>Kamu bisa memunculkannya lagi kapan saja lewat ⚙️ Pengaturan.",
@@ -1889,8 +1889,8 @@
             "tutViewDone": "Вот и она! 🎉<br><br>Основных действий всего два!<br>・Провести по кубику ＝ <b>поворот одного слоя</b><br>・Провести по фону ＝ <b>поворот всего кубика</b>",
             "tutMenuTitle": "Откроем меню",
             "tutMenuBody": "Нажмите <span class=\"tut-em\">≡</span> в правом верхнем углу.<br><br>Отсюда можно посмотреть рекорды и изменить настройки!",
-            "tutMenuOpenTitle": "Внутри всего два пункта!",
-            "tutMenuOpenBody": "🏆 <b>Рекорды</b> … здесь ваши лучшие результаты. Сборки с 💡 подсказкой попадают в <b>отдельный список</b>, так что пользуйтесь смело!<br>⚙️ <b>Настройки</b> … размер кубика, скорость вращения и многое другое можно менять как угодно.",
+            "tutMenuOpenTitle": "Вот что есть в меню!",
+            "tutMenuOpenBody": "🏆 <b>Рекорды</b> … посмотрите свои лучшие результаты.<br>🛍️ <b>Магазин</b> … получите новые цвета кубика и предметы.<br>⚙️ <b>Настройки</b> … свободно меняйте отклик управления и отображение.",
             "tutHelpTitle": "Застряли? Нажмите 💡",
             "tutHelpBody": "Если нажать <span class=\"tut-em\">💡 Подсказка</span> внизу экрана, можно продвигаться <b>по одному ходу</b>, глядя на образец.<br><br>Когда не знаете, что делать, пользуйтесь в любой момент!",
             "tutHelpBodyOff": "Сейчас 💡 Подсказка скрыта.<br>Вернуть её можно в любой момент в ⚙️ Настройках.",
@@ -2124,8 +2124,8 @@
             "tutViewDone": "Apareceu! 🎉<br><br>O básico são só estas duas coisas!<br>・Deslizar no cubo ＝ <b>gira só uma camada</b><br>・Deslizar no fundo ＝ <b>gira o cubo inteiro</b>",
             "tutMenuTitle": "Vamos abrir o menu",
             "tutMenuBody": "Toque no <span class=\"tut-em\">≡</span> no canto superior direito.<br><br>É por aqui que você vê os recordes e mexe nos ajustes!",
-            "tutMenuOpenTitle": "Aqui dentro só tem estas duas coisas!",
-            "tutMenuOpenBody": "🏆 <b>Recordes</b> … dá para ver os seus melhores tempos. As resoluções que usaram 💡 Ajuda vão para <b>uma lista separada</b>, então use à vontade!<br>⚙️ <b>Ajustes</b> … dá para ajustar livremente o tamanho do cubo, a velocidade dos giros e mais.",
+            "tutMenuOpenTitle": "Veja o que tem no menu!",
+            "tutMenuOpenBody": "🏆 <b>Recordes</b> … confira seus melhores tempos.<br>🛍️ <b>Loja</b> … consiga cores de cubo e itens.<br>⚙️ <b>Ajustes</b> … personalize a sensação de uso e a exibição à vontade.",
             "tutHelpTitle": "Travou? Toque em 💡 Ajuda",
             "tutHelpBody": "Tocando em <span class=\"tut-em\">💡 Ajuda</span> na parte de baixo da tela, você avança <b>um movimento por vez</b> seguindo o exemplo.<br><br>Quando travar, use sem medo!",
             "tutHelpBodyOff": "No momento a 💡 Ajuda está oculta.<br>Você pode mostrá-la de novo quando quiser pelos ⚙️ Ajustes.",
@@ -2168,6 +2168,163 @@
     if (!I18N[lang]) I18N[lang] = {};
     Object.keys(RANK_I18N[lang]).forEach(function (k) {
       if (I18N[lang][k] === undefined) I18N[lang][k] = RANK_I18N[lang][k];
+    });
+  });
+})();
+
+/* ============================================================
+   🛍️ ショップの文言（9言語ぶん）
+   ランクの文言と同じく、既存の I18N に上書きせず足すだけ。
+   辞書本体には一切手を入れていない。キーは24個。
+     menuShop / shopTitle / shopLead / shopThemes /
+     shopUsing / shopEquip / shopRedeem / shopShort / shopGot /
+     shopConfirmTitle / shopConfirmBody / shopShardCyan / shopShardRainbow
+     ＋ 色の名前 shopColor*（11色）
+   色を足すときは index.html の THEMES に1行足して、ここに
+   shopColor<Id>（先頭大文字）を9言語ぶん書き足す。
+   ============================================================ */
+(function addShopStrings() {
+  const SHOP_I18N = {
+    "ja": {
+      shopConfirmTitle:"「{name}」を引き換えますか？",
+      shopConfirmBody:"{shard}を {cost}使います。",
+      shopShardCyan:"水色シャード", shopShardRainbow:"虹シャード",
+      menuShop:"🛍️ ショップ", shopTitle:"ショップ",
+      shopLead:"シャードでメインカラーを引き換えます",
+      shopThemes:"メインカラー",
+      shopUsing:"使用中", shopEquip:"この色にする", shopRedeem:"引き換える",
+      shopShort:"シャードが足りません", shopGot:"{name} を引き換えました！",
+      shopColorMint:"ミント", shopColorSky:"スカイ", shopColorLime:"ライム",
+      shopColorSunset:"サンセット", shopColorRose:"ローズ",
+      shopColorLavender:"ラベンダー", shopColorGold:"ゴールド",
+      shopColorIce:"アイス", shopColorMagenta:"マゼンタ",
+      shopColorEmber:"エンバー", shopColorPrism:"プリズム"
+    },
+    "en": {
+      shopConfirmTitle:"Redeem {name}?",
+      shopConfirmBody:"This spends {cost} {shard}.",
+      shopShardCyan:"cyan shards", shopShardRainbow:"rainbow shards",
+      menuShop:"🛍️ Shop", shopTitle:"Shop",
+      shopLead:"Redeem shards for a main color",
+      shopThemes:"Main color",
+      shopUsing:"In use", shopEquip:"Use this color", shopRedeem:"Redeem",
+      shopShort:"Not enough shards", shopGot:"{name} redeemed!",
+      shopColorMint:"Mint", shopColorSky:"Sky", shopColorLime:"Lime",
+      shopColorSunset:"Sunset", shopColorRose:"Rose",
+      shopColorLavender:"Lavender", shopColorGold:"Gold",
+      shopColorIce:"Ice", shopColorMagenta:"Magenta",
+      shopColorEmber:"Ember", shopColorPrism:"Prism"
+    },
+    "zh-CN": {
+      shopConfirmTitle:"要兑换{name}吗？",
+      shopConfirmBody:"将消耗 {cost} 个{shard}。",
+      shopShardCyan:"水色碎片", shopShardRainbow:"彩虹碎片",
+      menuShop:"🛍️ 商店", shopTitle:"商店",
+      shopLead:"用碎片兑换主色调",
+      shopThemes:"主色调",
+      shopUsing:"使用中", shopEquip:"使用此颜色", shopRedeem:"兑换",
+      shopShort:"碎片不足", shopGot:"已兑换 {name}！",
+      shopColorMint:"薄荷", shopColorSky:"天蓝", shopColorLime:"青柠",
+      shopColorSunset:"落日", shopColorRose:"玫瑰",
+      shopColorLavender:"薰衣草", shopColorGold:"金色",
+      shopColorIce:"冰蓝", shopColorMagenta:"品红",
+      shopColorEmber:"余烬", shopColorPrism:"棱镜"
+    },
+    "zh-TW": {
+      shopConfirmTitle:"要兌換{name}嗎？",
+      shopConfirmBody:"將消耗 {cost} 個{shard}。",
+      shopShardCyan:"水藍碎片", shopShardRainbow:"彩虹碎片",
+      menuShop:"🛍️ 商店", shopTitle:"商店",
+      shopLead:"用碎片兌換主色調",
+      shopThemes:"主色調",
+      shopUsing:"使用中", shopEquip:"使用此顏色", shopRedeem:"兌換",
+      shopShort:"碎片不足", shopGot:"已兌換 {name}！",
+      shopColorMint:"薄荷", shopColorSky:"天藍", shopColorLime:"青檸",
+      shopColorSunset:"落日", shopColorRose:"玫瑰",
+      shopColorLavender:"薰衣草", shopColorGold:"金色",
+      shopColorIce:"冰藍", shopColorMagenta:"洋紅",
+      shopColorEmber:"餘燼", shopColorPrism:"稜鏡"
+    },
+    "ko": {
+      shopConfirmTitle:"{name}(으)로 교환할까요?",
+      shopConfirmBody:"{shard} {cost}개를 사용합니다.",
+      shopShardCyan:"하늘색 조각", shopShardRainbow:"무지개 조각",
+      menuShop:"🛍️ 상점", shopTitle:"상점",
+      shopLead:"조각으로 메인 색상을 교환합니다",
+      shopThemes:"메인 색상",
+      shopUsing:"사용 중", shopEquip:"이 색으로 변경", shopRedeem:"교환하기",
+      shopShort:"조각이 부족합니다", shopGot:"{name} 교환 완료!",
+      shopColorMint:"민트", shopColorSky:"스카이", shopColorLime:"라임",
+      shopColorSunset:"선셋", shopColorRose:"로즈",
+      shopColorLavender:"라벤더", shopColorGold:"골드",
+      shopColorIce:"아이스", shopColorMagenta:"마젠타",
+      shopColorEmber:"엠버", shopColorPrism:"프리즘"
+    },
+    "es": {
+      shopConfirmTitle:"¿Canjear {name}?",
+      shopConfirmBody:"Gastarás {cost} {shard}.",
+      shopShardCyan:"fragmentos cian", shopShardRainbow:"fragmentos arcoíris",
+      menuShop:"🛍️ Tienda", shopTitle:"Tienda",
+      shopLead:"Canjea fragmentos por un color principal",
+      shopThemes:"Color principal",
+      shopUsing:"En uso", shopEquip:"Usar este color", shopRedeem:"Canjear",
+      shopShort:"Fragmentos insuficientes", shopGot:"¡{name} canjeado!",
+      shopColorMint:"Menta", shopColorSky:"Cielo", shopColorLime:"Lima",
+      shopColorSunset:"Atardecer", shopColorRose:"Rosa",
+      shopColorLavender:"Lavanda", shopColorGold:"Oro",
+      shopColorIce:"Hielo", shopColorMagenta:"Magenta",
+      shopColorEmber:"Brasa", shopColorPrism:"Prisma"
+    },
+    "id": {
+      shopConfirmTitle:"Tukar {name}?",
+      shopConfirmBody:"Ini memakai {cost} {shard}.",
+      shopShardCyan:"serpihan biru", shopShardRainbow:"serpihan pelangi",
+      menuShop:"🛍️ Toko", shopTitle:"Toko",
+      shopLead:"Tukar serpihan jadi warna utama",
+      shopThemes:"Warna utama",
+      shopUsing:"Dipakai", shopEquip:"Pakai warna ini", shopRedeem:"Tukar",
+      shopShort:"Serpihan belum cukup", shopGot:"{name} berhasil ditukar!",
+      shopColorMint:"Mint", shopColorSky:"Langit", shopColorLime:"Limau",
+      shopColorSunset:"Senja", shopColorRose:"Mawar",
+      shopColorLavender:"Lavender", shopColorGold:"Emas",
+      shopColorIce:"Es", shopColorMagenta:"Magenta",
+      shopColorEmber:"Bara", shopColorPrism:"Prisma"
+    },
+    "ru": {
+      shopConfirmTitle:"Обменять на «{name}»?",
+      shopConfirmBody:"Будет потрачено {cost} ({shard}).",
+      shopShardCyan:"голубые осколки", shopShardRainbow:"радужные осколки",
+      menuShop:"🛍️ Магазин", shopTitle:"Магазин",
+      shopLead:"Обменяйте осколки на основной цвет",
+      shopThemes:"Основной цвет",
+      shopUsing:"Используется", shopEquip:"Выбрать этот цвет", shopRedeem:"Обменять",
+      shopShort:"Осколков не хватает", shopGot:"{name} — обмен выполнен!",
+      shopColorMint:"Мята", shopColorSky:"Небо", shopColorLime:"Лайм",
+      shopColorSunset:"Закат", shopColorRose:"Роза",
+      shopColorLavender:"Лаванда", shopColorGold:"Золото",
+      shopColorIce:"Лёд", shopColorMagenta:"Пурпур",
+      shopColorEmber:"Уголёк", shopColorPrism:"Призма"
+    },
+    "pt-BR": {
+      shopConfirmTitle:"Trocar por {name}?",
+      shopConfirmBody:"Isso gasta {cost} {shard}.",
+      shopShardCyan:"fragmentos ciano", shopShardRainbow:"fragmentos arco-íris",
+      menuShop:"🛍️ Loja", shopTitle:"Loja",
+      shopLead:"Troque fragmentos por uma cor principal",
+      shopThemes:"Cor principal",
+      shopUsing:"Em uso", shopEquip:"Usar esta cor", shopRedeem:"Trocar",
+      shopShort:"Fragmentos insuficientes", shopGot:"{name} trocado!",
+      shopColorMint:"Menta", shopColorSky:"Céu", shopColorLime:"Limão",
+      shopColorSunset:"Pôr do sol", shopColorRose:"Rosa",
+      shopColorLavender:"Lavanda", shopColorGold:"Ouro",
+      shopColorIce:"Gelo", shopColorMagenta:"Magenta",
+      shopColorEmber:"Brasa", shopColorPrism:"Prisma"
+    }
+  };
+  Object.keys(SHOP_I18N).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(SHOP_I18N[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = SHOP_I18N[lang][k];
     });
   });
 })();
