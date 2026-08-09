@@ -147,17 +147,123 @@
         <div class="demo-move-badge" id="demo-move-badge">
           <span class="demo-move" id="demo-move">—</span>
         </div>
+        <!-- 説明文は画面からは廃止し、状態はマスコットの表情で伝える。
+             ただし文言自体はスクリーンリーダー向けに残してあり（CSSで視覚的にだけ隠す）、
+             完成時の CLEAR TIME / NEW RECORD だけは帯として表に出る。 -->
         <div class="demo-move-desc" id="demo-move-desc"></div>
         <div class="demo-note" id="demo-note">
-          <span class="demo-note-icon" id="demo-note-icon">👉</span>
-          <span class="demo-note-text" id="demo-note-text" data-i18n="demoNoteDefault">お手本と同じ面を、同じ向きに回してね</span>
+          <span class="demo-note-icon" id="demo-note-icon"></span>
+          <span class="demo-note-text" id="demo-note-text"></span>
         </div>
+      </div>
+      <!-- ゆるキャラ(キューブくん)。文章のかわりに表情で状態を伝える。
+           state: ok = お手本どおり / miss = ちがう手 / almost = のこり20手以下
+                  clear = 完成。JS(setMascot)が data-state を差し替えるだけで
+           切り替わるので、表示ロジックはCSS側に閉じている。 -->
+      <div class="demo-mascot" id="demo-mascot" data-state="ok" aria-hidden="true">
+
+        <!-- OK: お手本どおりに進んでいる -->
+        <svg class="mascot-art" data-mascot="ok" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="82" cy="196" rx="16" ry="12" fill="#ffd9b3"/>
+          <ellipse cx="118" cy="196" rx="16" ry="12" fill="#ffd9b3"/>
+          <ellipse cx="38" cy="130" rx="15" ry="13" fill="#ffd9b3" transform="rotate(-14 38 130)"/>
+          <ellipse cx="162" cy="130" rx="15" ry="13" fill="#ffd9b3" transform="rotate(14 162 130)"/>
+          <rect x="40" y="42" width="120" height="120" rx="30" fill="#7fbfff"/>
+          <g stroke="#3f7fb0" stroke-width="2.2" opacity=".45" fill="none">
+            <path d="M40 82h120M40 122h120M80 42v120M120 42v120"/>
+          </g>
+          <ellipse cx="100" cy="108" rx="52" ry="42" fill="#fff"/>
+          <circle cx="82" cy="102" r="9" fill="#4a3325"/>
+          <circle cx="84.5" cy="99" r="3" fill="#fff"/>
+          <circle cx="118" cy="102" r="9" fill="#4a3325"/>
+          <circle cx="120.5" cy="99" r="3" fill="#fff"/>
+          <circle cx="72" cy="120" r="10" fill="#ffb3b3" opacity=".6"/>
+          <circle cx="128" cy="120" r="10" fill="#ffb3b3" opacity=".6"/>
+          <path d="M84 118 Q100 132 116 118" stroke="#4a3325" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <circle cx="158" cy="52" r="26" fill="#4fe0a8" stroke="#fff" stroke-width="4"/>
+          <path d="M147 53l7 7 15-16" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+
+        <!-- MISS: お手本とちがう手が入った -->
+        <svg class="mascot-art" data-mascot="miss" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="82" cy="196" rx="16" ry="12" fill="#ffd9b3"/>
+          <ellipse cx="118" cy="196" rx="16" ry="12" fill="#ffd9b3"/>
+          <ellipse cx="38" cy="130" rx="15" ry="13" fill="#ffd9b3" transform="rotate(-10 38 130)"/>
+          <ellipse cx="162" cy="130" rx="15" ry="13" fill="#ffd9b3" transform="rotate(10 162 130)"/>
+          <rect x="40" y="42" width="120" height="120" rx="30" fill="#ffa96b"/>
+          <g stroke="#c06a2f" stroke-width="2.2" opacity=".45" fill="none">
+            <path d="M40 82h120M40 122h120M80 42v120M120 42v120"/>
+          </g>
+          <ellipse cx="100" cy="108" rx="52" ry="42" fill="#fff"/>
+          <circle cx="82" cy="104" r="8" fill="#4a3325"/>
+          <circle cx="84" cy="101.5" r="2.6" fill="#fff"/>
+          <circle cx="118" cy="104" r="8" fill="#4a3325"/>
+          <circle cx="120" cy="101.5" r="2.6" fill="#fff"/>
+          <path d="M72 92 Q82 88 90 94" stroke="#4a3325" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M128 92 Q118 88 110 94" stroke="#4a3325" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <circle cx="74" cy="120" r="9" fill="#ffb3b3" opacity=".55"/>
+          <circle cx="126" cy="120" r="9" fill="#ffb3b3" opacity=".55"/>
+          <path d="M88 124 Q100 118 112 124" stroke="#4a3325" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <path d="M138 88 q5 8 0 14 q-5-2-5-7 0-4 5-7z" fill="#7fc9ff"/>
+          <!-- バッジは実際には10px前後でしか見えないので、細い矢印ではなく太い×にする -->
+          <circle cx="158" cy="52" r="26" fill="#ff7a7a" stroke="#fff" stroke-width="4"/>
+          <path d="M148 42l20 20M168 42l-20 20" stroke="#fff" stroke-width="5.5" stroke-linecap="round"/>
+        </svg>
+
+        <!-- ALMOST: のこり20手以下。文字を使わず「もう少しで一周する輪」で表す -->
+        <svg class="mascot-art" data-mascot="almost" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="82" cy="196" rx="16" ry="12" fill="#ffd9b3"/>
+          <ellipse cx="118" cy="196" rx="16" ry="12" fill="#ffd9b3"/>
+          <ellipse cx="38" cy="130" rx="15" ry="13" fill="#ffd9b3" transform="rotate(-10 38 130)"/>
+          <ellipse cx="162" cy="130" rx="15" ry="13" fill="#ffd9b3" transform="rotate(10 162 130)"/>
+          <rect x="40" y="42" width="120" height="120" rx="30" fill="#ffdd6b"/>
+          <g stroke="#c0a02f" stroke-width="2.2" opacity=".45" fill="none">
+            <path d="M40 82h120M40 122h120M80 42v120M120 42v120"/>
+          </g>
+          <ellipse cx="100" cy="108" rx="52" ry="42" fill="#fff"/>
+          <circle cx="82" cy="102" r="8.5" fill="#4a3325"/>
+          <circle cx="84.5" cy="99.5" r="2.8" fill="#fff"/>
+          <circle cx="118" cy="102" r="8.5" fill="#4a3325"/>
+          <circle cx="120.5" cy="99.5" r="2.8" fill="#fff"/>
+          <circle cx="74" cy="120" r="9" fill="#ffb3b3" opacity=".55"/>
+          <circle cx="126" cy="120" r="9" fill="#ffb3b3" opacity=".55"/>
+          <path d="M87 122 Q100 128 113 122" stroke="#4a3325" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <!-- 文字のバッジだと多言語で崩れるので、「もうひと頑張り」を炎の絵で表す -->
+          <circle cx="158" cy="52" r="26" fill="#ff9f2e" stroke="#fff" stroke-width="4"/>
+          <path d="M158 34c6.2 8.8 2.7 13.2 6.2 16.7 2.2-2.2 2.6-5.7 2.6-5.7 4.8 5.7 6.6 11 6.6 15.4a15.4 15.4 0 0 1-30.8 0c0-7 5.3-11.9 9.7-16.7 2.6-3.1 4.8-6.2 5.7-9.7z" fill="#fff"/>
+          <path d="M40 38l2.5 6 6 2.5-6 2.5-2.5 6-2.5-6-6-2.5 6-2.5z" fill="#fff" opacity=".85"/>
+        </svg>
+
+        <!-- CLEAR: そろった -->
+        <svg class="mascot-art" data-mascot="clear" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="82" cy="196" rx="16" ry="12" fill="#ffd9b3"/>
+          <ellipse cx="118" cy="196" rx="16" ry="12" fill="#ffd9b3"/>
+          <ellipse cx="34" cy="116" rx="15" ry="13" fill="#ffd9b3" transform="rotate(-40 34 116)"/>
+          <ellipse cx="166" cy="116" rx="15" ry="13" fill="#ffd9b3" transform="rotate(40 166 116)"/>
+          <rect x="40" y="42" width="120" height="120" rx="30" fill="#6fe3b0"/>
+          <g stroke="#2f9b74" stroke-width="2.2" opacity=".45" fill="none">
+            <path d="M40 82h120M40 122h120M80 42v120M120 42v120"/>
+          </g>
+          <ellipse cx="100" cy="108" rx="52" ry="42" fill="#fff"/>
+          <path d="M72 106 Q82 93 92 106" stroke="#4a3325" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <path d="M108 106 Q118 93 128 106" stroke="#4a3325" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <circle cx="70" cy="122" r="10" fill="#ffb3b3" opacity=".65"/>
+          <circle cx="130" cy="122" r="10" fill="#ffb3b3" opacity=".65"/>
+          <path d="M84 118 Q100 140 116 118 Z" fill="#4a3325"/>
+          <path d="M92 130 Q100 138 108 130 Z" fill="#ff8fa0"/>
+          <circle cx="158" cy="52" r="26" fill="#ffd76b" stroke="#fff" stroke-width="4"/>
+          <path d="M158 32l5.3 12.7 13-1.1-10.4 9 3.2 13.4-11.1-7.2-11.8 7.2 3.2-13.4-10.4-9 13.7-1.1z" fill="#fff"/>
+          <path d="M36 40l2.6 6.4 6.4 2.6-6.4 2.6-2.6 6.4-2.6-6.4-6.4-2.6 6.4-2.6z" fill="#fff" opacity=".9"/>
+          <path d="M172 150l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#fff" opacity=".8"/>
+        </svg>
       </div>
       <button id="demo-close" data-i18n-aria="demoClose" aria-label="ヘルプを終了">×</button>
     </div>
   </div>
 
   <div id="controls">
+    <!-- 操作説明の行は画面から廃止した（💡ヘルプの上に余計なマークを出さない）。
+         文言だけはスクリーンリーダー向けに残すので、CSSで視覚的にのみ隠している。 -->
     <div class="controls-label tap-hint" data-i18n="tapHint">キューブの面を指でなぞって回転　／　背景をなぞると全体が回転</div>
     <div class="mode-indicator" id="mode-indicator" data-i18n="fixedColorMode">🎨 固定色モード（設定でON/OFFを切替できます）</div>
     <div class="alg-row">
@@ -683,6 +789,10 @@
   <!-- 多言語辞書(9ヶ国語)。下の本体スクリプトが起動直後から I18N を
        参照するため、必ずこれより先に読み込む。 -->
   <script src="i18n.js"></script>
+  <!-- 大きな定数テーブルは index.html から切り出してある。どちらもトップレベルで
+       const を宣言しているだけなので、このあとのスクリプトから普通に参照できる。 -->
+  <script src="solver.js"></script>
+  <script src="zbll-data.js"></script>
 
   <script>
 
@@ -895,569 +1005,8 @@
     // (トップレベル)で宣言している。
     let usedHelpThisSolve = false;
 
-    /* =====================================================================
-       💡 ヘルプ用ソルバー (クロス → 1・2段目 → 上面の向き → 上面の入れかえ)
-       ---------------------------------------------------------------------
-       画面の3Dキューブ(cubies)から今の状態を読み取り、
-         白クロス → 1・2段目×4 → 上面の向き(OLL) → 上面の入れかえ(PLL)
-       の順に手順を組み立てて返す。手数を短くするための工夫は3つ:
-
-         1. 白クロスは4辺まとめて最短手。あらかじめ「あと何手でクロスが
-            できるか」の表(19万通り)を作っておき、それを手がかりに探索する
-            ので必ず最短(最大8手)になる。
-         2. 1・2段目は角と辺をペアにして一度に入れる。さらに毎回、
-            そのとき一番短くすむ場所から順にそろえる。
-         3. 1・2段目の入れ方を選ぶとき、手数だけでなく「上の段の辺の向き
-            (EO)」もそろうほうを優先する(エッジコントロール)。おかげで
-            1・2段目が終わった時点でだいたい上面の十字ができており、
-            OLLの辺の手順をまるごと省ける。
-         4. 上面は「回し合わせ + 定型手順 + 回し合わせ」の組み合わせを
-            すべて試し、一番手数が少ないものを選ぶ。
-
-       ランダム30手スクランブル + 0〜50手スクランブル計3000回超で全て
-       完解を確認済み(最長57ms / 平均約62手。1・2段目が終わった時点で
-       EOがそろっている割合は約95〜99%)。
-       表を作る最初の1回だけ +100ms ほどかかる。
-
-       注意: このアプリの盤面は白=U・黄=D だが、ソルバー側は「D面から
-       そろえる」実装なので、SW で U↔D / R↔L を入れ替えた座標系
-       (F-B軸まわりに180°回した見方)に変換して解いている。これにより
-       ソルバーの「D面クロス」＝このアプリの白クロスになる。
-       ===================================================================== */
-    const CubeSolverLBL = (function () {
-      // ===== Cubie model =====
-      // corners: URF0 UFL1 ULB2 UBR3 DFR4 DLF5 DBL6 DRB7
-      // edges:   UR0 UF1 UL2 UB3 DR4 DF5 DL6 DB7 FR8 FL9 BL10 BR11
-
-      const MOVE_DEF = {
-        U: { cp:[3,0,1,2,4,5,6,7], co:[0,0,0,0,0,0,0,0], ep:[3,0,1,2,4,5,6,7,8,9,10,11], eo:[0,0,0,0,0,0,0,0,0,0,0,0] },
-        R: { cp:[4,1,2,0,7,5,6,3], co:[2,0,0,1,1,0,0,2], ep:[8,1,2,3,11,5,6,7,4,9,10,0], eo:[0,0,0,0,0,0,0,0,0,0,0,0] },
-        F: { cp:[1,5,2,3,0,4,6,7], co:[1,2,0,0,2,1,0,0], ep:[0,9,2,3,4,8,6,7,1,5,10,11], eo:[0,1,0,0,0,1,0,0,1,1,0,0] },
-        D: { cp:[0,1,2,3,5,6,7,4], co:[0,0,0,0,0,0,0,0], ep:[0,1,2,3,5,6,7,4,8,9,10,11], eo:[0,0,0,0,0,0,0,0,0,0,0,0] },
-        L: { cp:[0,2,6,3,4,1,5,7], co:[0,1,2,0,0,2,1,0], ep:[0,1,10,3,4,5,9,7,8,2,6,11], eo:[0,0,0,0,0,0,0,0,0,0,0,0] },
-        B: { cp:[0,1,3,7,4,5,2,6], co:[0,0,1,2,0,0,2,1], ep:[0,1,2,11,4,5,6,10,8,9,3,7], eo:[0,0,0,1,0,0,0,1,0,0,1,1] },
-      };
-
-      const FACES = ['U','R','F','D','L','B'];
-      const MOVES = [];
-      for (const f of FACES) for (const s of ["","'","2"]) MOVES.push(f+s);
-
-      function solvedState(){ return { cp:[0,1,2,3,4,5,6,7], co:[0,0,0,0,0,0,0,0], ep:[0,1,2,3,4,5,6,7,8,9,10,11], eo:[0,0,0,0,0,0,0,0,0,0,0,0] }; }
-      function clone(s){ return { cp:s.cp.slice(), co:s.co.slice(), ep:s.ep.slice(), eo:s.eo.slice() }; }
-
-      function multiply(a, b){ // apply b after a
-        const cp=new Array(8), co=new Array(8), ep=new Array(12), eo=new Array(12);
-        for(let i=0;i<8;i++){ cp[i]=a.cp[b.cp[i]]; co[i]=(a.co[b.cp[i]]+b.co[i])%3; }
-        for(let i=0;i<12;i++){ ep[i]=a.ep[b.ep[i]]; eo[i]=(a.eo[b.ep[i]]+b.eo[i])%2; }
-        return {cp,co,ep,eo};
-      }
-
-      const MOVE_STATE = {};
-      for (const f of FACES){
-        const m = MOVE_DEF[f];
-        MOVE_STATE[f] = m;
-        MOVE_STATE[f+'2'] = multiply(m,m);
-        MOVE_STATE[f+"'"] = multiply(multiply(m,m),m);
-      }
-
-      function applyMove(s, mv){ return multiply(s, MOVE_STATE[mv]); }
-      function applyAlg(s, alg){ for(const mv of alg) s = applyMove(s, mv); return s; }
-      function parseAlg(str){ return str.trim().split(/\s+/).filter(Boolean); }
-
-      function isSolved(s){
-        for(let i=0;i<8;i++) if(s.cp[i]!==i||s.co[i]!==0) return false;
-        for(let i=0;i<12;i++) if(s.ep[i]!==i||s.eo[i]!==0) return false;
-        return true;
-      }
-      const C = { clone: clone, applyMove: applyMove, applyAlg: applyAlg, MOVES: MOVES, solvedState: solvedState, isSolved: isSolved };
-
-      // ---- face substitution: F->R->B->L->F (k times), U/D fixed ----
-      const CYCLE = ['F','R','B','L'];
-      function subFace(f,k){ const i=CYCLE.indexOf(f); return i<0 ? f : CYCLE[(i+k)%4]; }
-      function subMove(mv,k){ return subFace(mv[0],k) + mv.slice(1); }
-      function subAlg(alg,k){ return alg.map(m=>subMove(m,k)); }
-
-      // ---- piece tables ----
-      const CROSS_EDGE = [5,4,7,6];     // DF, DR, DB, DL
-      const SLOT_CORNER = [4,7,6,5];    // DFR, DRB, DBL, DLF
-      const SLOT_EDGE   = [8,11,10,9];  // FR, BR, BL, FL
-
-      const cornerSolved = (s,i)=> s.cp[i]===i && s.co[i]===0;
-      const edgeSolved   = (s,i)=> s.ep[i]===i && s.eo[i]===0;
-      const cornerPosOf  = (s,p)=> s.cp.indexOf(p);
-      const edgePosOf    = (s,p)=> s.ep.indexOf(p);
-      const inU_c = (s,p)=> cornerPosOf(s,p) < 4;
-      const inU_e = (s,p)=> edgePosOf(s,p) < 4;
-
-      function makeKeep(corners, edges){
-        return (s)=>{
-          for(const c of corners) if(!cornerSolved(s,c)) return false;
-          for(const e of edges)   if(!edgeSolved(s,e))   return false;
-          return true;
-        };
-      }
-
-      /* ---------- 1. 白クロス: 4辺まとめて最短手で ----------
-         D面の4辺(の位置と向き)だけを取り出した簡易状態は 190080 通りしか
-         ないので、そろった状態から幅優先で「あと何手で white cross が
-         できるか」の表を作っておける。あとはその表を下限値に使った
-         反復深化(IDA*)で常に最短のクロスが出る(最大8手)。 */
-      const CROSS_TABLE_SIZE = 24*24*24*24;
-      let crossDist = null;
-      const MOVE_INV_EP = {}, MOVE_ADD_EO = {};
-      for (const mv of MOVES){
-        const m = MOVE_STATE[mv];
-        const inv = new Array(12);
-        for (let i=0;i<12;i++) inv[m.ep[i]] = i;
-        MOVE_INV_EP[mv] = inv;
-        MOVE_ADD_EO[mv] = m.eo;
-      }
-      function crossIndex(sl, or){
-        return (((((sl[0]*2+or[0])*24 + sl[1]*2+or[1])*24) + sl[2]*2+or[2])*24) + sl[3]*2+or[3];
-      }
-      function buildCrossTable(){
-        // (位置,向き) をまとめて 0-23 の数にしておくと、1手ぶんの動きは
-        // 24個の対応表を引くだけで済む。表全体を作るのに数十ミリ秒。
-        const TRANS = {};
-        for (const mv of MOVES){
-          const inv = MOVE_INV_EP[mv], add = MOVE_ADD_EO[mv];
-          const t = new Uint8Array(24);
-          for (let sl=0; sl<12; sl++) for (let o=0;o<2;o++){
-            const n = inv[sl];
-            t[sl*2+o] = n*2 + ((o + add[n]) & 1);
-          }
-          TRANS[mv] = t;
-        }
-        const dist = new Uint8Array(CROSS_TABLE_SIZE).fill(255);
-        const start = ((( (4*2)*24 + (5*2) )*24 + (6*2) )*24 + (7*2));
-        dist[start] = 0;
-        let frontier = new Int32Array([start]);
-        for (let d=0; d<12 && frontier.length; d++){
-          const next = [];
-          for (let qi=0; qi<frontier.length; qi++){
-            let a = frontier[qi];
-            const p3 = a % 24; a = (a - p3) / 24;
-            const p2 = a % 24; a = (a - p2) / 24;
-            const p1 = a % 24; const p0 = (a - p1) / 24;
-            for (let mi=0; mi<MOVES.length; mi++){
-              const t = TRANS[MOVES[mi]];
-              const idx = (((t[p0]*24 + t[p1])*24 + t[p2])*24 + t[p3]);
-              if (dist[idx] === 255){ dist[idx] = d+1; next.push(idx); }
-            }
-          }
-          frontier = Int32Array.from(next);
-        }
-        return dist;
-      }
-      const OPP = {U:'D',D:'U',R:'L',L:'R',F:'B',B:'F'};
-      function solveCross(state){
-        if (!crossDist) crossDist = buildCrossTable();
-        const sl = new Array(4), or = new Array(4);
-        for (let k=0;k<4;k++){ const p = 4+k; const i = state.ep.indexOf(p); sl[k]=i; or[k]=state.eo[i]; }
-        const h0 = crossDist[crossIndex(sl,or)];
-        if (h0 === 0) return [];
-        const path = [];
-        function dfs(sl, or, depth, prev){
-          for (const mv of MOVES){
-            const f = mv[0];
-            if (f === prev) continue;
-            if (OPP[f] === prev && f > prev) continue;   // 同じ意味の並びを1通りに
-            const inv = MOVE_INV_EP[mv], add = MOVE_ADD_EO[mv];
-            const nsl = new Array(4), nor = new Array(4);
-            for (let k=0;k<4;k++){ const t = inv[sl[k]]; nsl[k]=t; nor[k]=(or[k]+add[t])&1; }
-            const h = crossDist[crossIndex(nsl,nor)];
-            if (h > depth-1) continue;
-            path.push(mv);
-            if (h === 0) return true;
-            if (dfs(nsl, nor, depth-1, f)) return true;
-            path.pop();
-          }
-          return false;
-        }
-        for (let d = h0; d <= 9; d++){
-          path.length = 0;
-          if (dfs(sl, or, d, '')) return path.slice();
-        }
-        return null;
-      }
-
-      /* ---------- 汎用: 手 or 定型手順(マクロ)の反復深化探索 ----------
-         見つかった中で一番浅いものを返す。同じ深さに複数あるときは
-         実際の手数(90°回し何回ぶんか)が一番少ないものを選ぶ。 */
-      function search(state, list, goal, maxDepth, rank, extraDepth){
-        if (goal(state)) return [];
-        // rank(そろった後の状態, 手数) が一番小さいものを選ぶ。省くと手数だけで選ぶ。
-        const scoreOf = rank || function(s, cost){ return cost; };
-        // extraDepth: 最初に見つかった深さから、あと何段ぶん深くまで
-        // 候補をさがすか。手数が少し増えても rank の良い入れ方を拾うため。
-        const extra = extraDepth || 0;
-        const path = [];
-        let best = null, bestScore = Infinity;
-        function dfs(s, depth, lastFace){
-          for (const it of list){
-            if (it.face && it.face === lastFace) continue;
-            const ns = multiply(s, it.st);
-            path.push(it.alg);
-            if (depth === 1){
-              if (goal(ns)){
-                const cand = [].concat.apply([], path);
-                const sc = scoreOf(ns, qtm(optMoves(cand)));
-                if (sc < bestScore){ bestScore = sc; best = cand; }
-              }
-            } else {
-              dfs(ns, depth-1, it.face || null);
-            }
-            path.pop();
-          }
-        }
-        let found = null, foundScore = Infinity, foundDepth = -1;
-        for (let d=1; d<=maxDepth; d++){
-          path.length = 0; best = null; bestScore = Infinity;
-          dfs(state, d, null);
-          if (best){
-            if (bestScore < foundScore){ foundScore = bestScore; found = best; }
-            if (foundDepth < 0) foundDepth = d;
-            if (d >= foundDepth + extra) break;
-          }
-        }
-        return found;
-      }
-
-      const SINGLES = MOVES.map(m=>({alg:[m], st:MOVE_STATE[m], face:m[0]}));
-
-      // 打ち消し合う手をまとめる (R R' は消す / R R は R2 に)。
-      // items は {m:手, ph:どの段階の手か}。まとめたときは先に出てきた
-      // 段階の名前を残すので、画面の「いま何をしているか」がズレない。
-      function optimize(items){
-        let arr = items.map(it=>({f:it.m[0], n: it.m.length===1?1:(it.m[1]==="'"?3:2), ph: it.ph}));
-        let changed = true;
-        while(changed){
-          changed = false;
-          for(let i=0;i<arr.length;i++){
-            if(arr[i].n===0) continue;
-            for(let j=i+1;j<arr.length;j++){
-              if(arr[j].n===0) continue;
-              if(arr[j].f===arr[i].f){
-                arr[i].n = (arr[i].n + arr[j].n) % 4; arr[j].n = 0; changed = true; break;
-              }
-              if(arr[j].f !== OPP[arr[i].f]) break;
-            }
-          }
-          arr = arr.filter(x=>x.n!==0);
-        }
-        return arr.map(x=> ({ m: x.f + (x.n===1?'':(x.n===2?'2':"'")), ph: x.ph }));
-      }
-      function qtm(moves){ let n=0; for(const m of moves) n += (m.length===2 && m[1]==='2') ? 2 : 1; return n; }
-      function optMoves(moves){ return optimize(moves.map(m=>({m:m, ph:null}))).map(x=>x.m); }
-
-      /* ---------- 最後の1段用: 「回し合わせ + 定型手順 + 回し合わせ」を
-         ぜんぶ試して、一番手数が少ないものを選ぶ ---------- */
-      const AUF_ALG = [[], ['U'], ["U'"], ['U2']];
-      const AUF_ST = AUF_ALG.map(a=>applyAlg(solvedState(), a));
-      function bestAlg(state, list, goal, allowTwo){
-        let best = null, bestCost = Infinity;
-        function consider(seq){
-          const o = optMoves(seq), c = qtm(o);
-          if (c < bestCost){ bestCost = c; best = seq; }
-        }
-        for (let i=0;i<4;i++){
-          const s1 = multiply(state, AUF_ST[i]);
-          for (const a of list){
-            const s2 = multiply(s1, a.st);
-            for (let j=0;j<4;j++){
-              const s3 = multiply(s2, AUF_ST[j]);
-              if (goal(s3)) consider(AUF_ALG[i].concat(a.alg, AUF_ALG[j]));
-            }
-          }
-        }
-        if (best || !allowTwo) return best;
-        for (let i=0;i<4;i++){
-          const s1 = multiply(state, AUF_ST[i]);
-          for (const a of list){
-            const s2 = multiply(s1, a.st);
-            for (let j=0;j<4;j++){
-              const s3 = multiply(s2, AUF_ST[j]);
-              for (const b of list){
-                const s4 = multiply(s3, b.st);
-                for (let k=0;k<4;k++){
-                  if (goal(multiply(s4, AUF_ST[k])))
-                    consider(AUF_ALG[i].concat(a.alg, AUF_ALG[j], b.alg, AUF_ALG[k]));
-                }
-              }
-            }
-          }
-        }
-        return best;
-      }
-
-      // 定型手順は1回ぶんの効果をあらかじめ1つの状態にまとめておく。
-      // 探索中は手を1つずつ回さずに済むので、10倍以上速くなる。
-      function macros(list, face){
-        return list.map(a=>{
-          const alg = typeof a==='string' ? parseAlg(a) : a;
-          return { alg: alg, st: applyAlg(solvedState(), alg), face: face||null };
-        });
-      }
-      const U_MACROS = macros(['U',"U'",'U2'], 'U');
-
-      /* ---------- 2. 1・2段目(F2L): 角と辺をペアで一度に入れる ----------
-         「R U R'」のような 3手の出し入れ(トリガー)と U だけを組み合わせて
-         角＋辺を同時にそろえる。角と辺をべつべつに入れるより明らかに短い。*/
-      const F2L_TRIG = ["R U R'", "R U' R'", "R U2 R'", "F' U' F", "F' U F", "F' U2 F"];
-
-      /* ---------- エッジコントロール(EO) ----------
-         同じ1組でも入れ方(どのトリガーを使うか)は何通りもあり、そのうち
-         F/B系のトリガーだけが「辺の向き」を変える。そこで1・2段目の入れ方を
-         選ぶときに、手数だけでなく「上の段の辺の向きがそろっているか」も
-         点数に入れる。こうすると1・2段目が終わった時点でだいたい EO が
-         そろい、上面の十字(OLLの辺)の手順をまるごと省ける。
-
-         EO_WEIGHT[round] … 向きちがいの辺1枚を「何手ぶんの損」とみなすか。
-                            後の組ほど強く効かせる(最後は多少長くてもそろえる)。
-         EO_EXTRA[round]  … 最短が見つかった深さから、あと何段ぶん深くまで
-                            候補をさがすか。0なら手数最短の中から選ぶだけ。 */
-      const EO_WEIGHT = [0.5, 0.8, 1.5, 4.0];
-      const EO_EXTRA  = [0,   0,   1,   2  ];
-      // 向きがくずれている辺の枚数(1・2段目が終わっていれば＝上の段の枚数)。
-      function badEdges(s){
-        let n = 0;
-        for (let i=0;i<12;i++) if (s.eo[i]) n++;
-        return n;
-      }
-      function eoRank(w){
-        if (!w) return null;
-        return function(x, cost){ return cost + w * badEdges(x); };
-      }
-      const F2L_MACRO = [], LIFT_MACRO = [];
-      for (let k=0;k<4;k++){
-        F2L_MACRO[k] = U_MACROS.concat(macros(F2L_TRIG.map(a=>subAlg(parseAlg(a),k))));
-        LIFT_MACRO[k] = macros(F2L_TRIG.map(a=>subAlg(parseAlg(a),k)));
-      }
-
-      /* ---------- 3. 最後の1段 ---------- */
-      // 上面の十字(辺の向き)。
-      const OLL_EDGE_ALGS = macros(["F R U R' U' F'", "F U R U' R' F'"]);
-      // 上面の角の向き。7通りすべてを1手順で片づけられるように並べてある。
-      const OLL_CORNER_ALGS = macros([
-        "R U R' U R U2 R'",              // スーン
-        "R U2 R' U' R U' R'",            // 逆スーン
-        "R U2 R2 U' R2 U' R2 U2 R",      // パイ
-        "R U R' U R U' R' U R U2 R'",    // H
-        "R U2 R' U' R U R' U' R U' R'",  // H(別)
-        "R U R' U' R' F R2 U R' U' F'",  // 角2つ
-        "R2 D R' U2 R D' R' U2 R'",      // 2つが同じ向きにねじれ
-        "L' U' L U' L' U2 L",            // 左まわりの版
-        "L U L' U L U2 L'",
-        "R' U2 R U R' U R"
-      ]);
-      // 上面ぞろえ(PLL)。ふつうは1手順＋回し合わせで終わる。
-      const PLL_RAW = macros([
-        "R U' R U R U R U' R' U' R2",                                  // Ua
-        "R2 U R U R' U' R' U' R' U R'",                                // Ub
-        "R' F R' B2 R F' R' B2 R2",                                    // Aa
-        "R2 B2 R F R' B2 R F' R",                                      // Ab
-        "R U R' U' R' F R2 U' R' U' R U R' F'",                        // T
-        "R' U L' U2 R U' R' U2 R L",                                   // Ja
-        "R U R' F' R U R' U' R' F R2 U' R' U'",                        // Jb
-        "F R U' R' U' R U R' F' R U R' U' R' F R F'",                  // Y
-        "R U' R' U' R U R D R' U' R D' R' U2 R'",                      // Ra
-        "R2 F R U R U' R' F' R U2 R' U2 R",                            // Rb
-        "R' U' F' R U R' U' R' F R2 U' R' U' R U R' U R",              // F
-        "R2 U R' U R' U' R U' R2 U' D R' U R D'",                      // Ga
-        "R' U' R U D' R2 U R' U R U' R U' R2 D",                       // Gb
-        "R2 U' R U' R U R' U R2 U D' R U' R' D",                       // Gc
-        "R U R' U' D R2 U' R U' R' U R' U R2 D'",                      // Gd
-        "R' U R U' R' F' U' F R U R' F R' F' R U' R",                  // Nb
-        "R U R' U R U R' F' R U R' U' R' F R2 U' R' U2 R U' R'"        // Na
-      ]);
-
-      function runStep(state, out, list, goal, ph, label){
-        const r = bestAlg(state, list, goal, true);
-        if (!r) throw new Error('search failed: ' + label);
-        let s = state;
-        for (const m of r){ s = applyMove(s, m); out.push({ m: m, ph: ph }); }
-        return s;
-      }
-
-      /* ---------- 1・2段目のスロットを1つそろえる ---------- */
-      const CORNER_SLOT_OF = {4:0, 7:1, 6:2, 5:3};
-      const EDGE_SLOT_OF   = {8:0, 11:1, 10:2, 9:3};
-
-      // eoW / extra は上の EO_WEIGHT / EO_EXTRA。0 を渡せば今までどおり手数最短。
-      function solveSlot(state, k, done, eoW, extra){
-        const corner = SLOT_CORNER[k], edge = SLOT_EDGE[k];
-        if (cornerSolved(state,corner) && edgeSolved(state,edge)) return [];
-        const keep = makeKeep(done.map(i=>SLOT_CORNER[i]), CROSS_EDGE.concat(done.map(i=>SLOT_EDGE[i])));
-        const rank = eoRank(eoW);
-        const out = [];
-        let s = state;
-        // 角がどこかのスロットに埋まっていたら、まず上の段へ出す
-        if (!cornerSolved(s,corner) && !inU_c(s,corner)){
-          const j = CORNER_SLOT_OF[cornerPosOf(s,corner)];
-          const goal = (x)=> inU_c(x,corner) && keep(x);
-          const r = search(s, LIFT_MACRO[j], goal, 2, rank) || search(s, SINGLES, goal, 4, rank);
-          if (!r) return null;
-          for (const m of r){ s = applyMove(s,m); out.push(m); }
-        }
-        // 辺も上の段へ(角は上に置いたまま)
-        if (!edgeSolved(s,edge) && !inU_e(s,edge)){
-          const j = EDGE_SLOT_OF[edgePosOf(s,edge)];
-          const goal = (x)=> inU_e(x,edge) && (inU_c(x,corner)||cornerSolved(x,corner)) && keep(x);
-          const r = search(s, LIFT_MACRO[j], goal, 2, rank) || search(s, SINGLES, goal, 4, rank);
-          if (!r) return null;
-          for (const m of r){ s = applyMove(s,m); out.push(m); }
-        }
-        // 角と辺をペアにして一度に入れる
-        const goal = (x)=> cornerSolved(x,corner) && edgeSolved(x,edge) && keep(x);
-        const r = search(s, F2L_MACRO[k], goal, 5, rank, extra) || search(s, F2L_MACRO[k], goal, 6, rank, extra);
-        if (!r) return null;
-        for (const m of r) out.push(m);
-        return out;
-      }
-
-      /* ---------- 全体の組み立て ---------- */
-      function solve(start){
-        let s = C.clone(start);
-        const out = [];
-
-        // 1. 白クロス(最短手)
-        const cr = solveCross(s);
-        if (!cr) throw new Error('cross failed');
-        for (const m of cr){ s = applyMove(s,m); out.push({ m: m, ph: 'cross' }); }
-
-        // 2. 1・2段目 ― そのとき一番短くすむ場所から順に。
-        //    ただし「手数 + EO_WEIGHT × 向きちがいの辺の枚数」で比べるので、
-        //    同じくらいの手数なら上の段の辺の向きがそろう入れ方を選ぶ。
-        const done = [];
-        for (let round=0; round<4; round++){
-          const eoW = EO_WEIGHT[round], extra = EO_EXTRA[round];
-          let best = null;
-          for (let k=0;k<4;k++){
-            if (done.indexOf(k) >= 0) continue;
-            const r = solveSlot(s, k, done, eoW, extra);
-            if (!r) continue;
-            let ns = s; for (const m of r) ns = applyMove(ns, m);
-            const score = qtm(r) + eoW * badEdges(ns);
-            if (!best || score < best.score) best = { k: k, moves: r, score: score };
-          }
-          if (!best) throw new Error('f2l failed');
-          for (const m of best.moves){ s = applyMove(s,m); out.push({ m: m, ph: 'f2l'+(round+1) }); }
-          done.push(best.k);
-        }
-
-        const keepF2L = makeKeep(SLOT_CORNER, CROSS_EDGE.concat(SLOT_EDGE));
-        const eoDone = (x)=> x.eo[0]===0 && x.eo[1]===0 && x.eo[2]===0 && x.eo[3]===0;
-        const coDone = (x)=> x.co[0]===0 && x.co[1]===0 && x.co[2]===0 && x.co[3]===0;
-        const cpDone = (x)=> x.cp[0]===0 && x.cp[1]===1 && x.cp[2]===2 && x.cp[3]===3;
-
-        // 3. 上の面をそろえる(OLL)
-        if (!eoDone(s)){
-          s = runStep(s, out, OLL_EDGE_ALGS, (x)=> eoDone(x) && keepF2L(x), 'ollEdge', 'oll-edge');
-        }
-        if (!coDone(s)){
-          s = runStep(s, out, OLL_CORNER_ALGS, (x)=> coDone(x) && eoDone(x) && keepF2L(x), 'ollCorner', 'oll-corner');
-        }
-        // 4. 上の段を入れかえる(PLL)
-        if (!isSolved(s)){
-          const ph = cpDone(s) ? 'pllEdge' : 'pllCorner';
-          s = runStep(s, out, PLL_RAW, isSolved, ph, 'pll');
-        }
-
-        if (!isSolved(s)) throw new Error('not solved at end');
-        const opt = optimize(out);
-        let chk = C.clone(start);
-        for (const it of opt) chk = applyMove(chk, it.m);
-        const final = isSolved(chk) ? opt : out;
-        return { moves: final.map(it=>it.m), labels: final.map(it=>it.ph) };
-      }
-
-      /* ---------- 3Dキュービーから論理状態を読み取る (this is what will ship in index.html) ---------- */
-      const FACEVEC = {R:[1,0,0], L:[-1,0,0], U:[0,1,0], D:[0,-1,0], F:[0,0,1], B:[0,0,-1]};
-      const SW = {U:'D', D:'U', R:'L', L:'R', F:'F', B:'B'};
-      const CORNER_ORDER = [['U','R','F'],['U','F','L'],['U','L','B'],['U','B','R'],
-                            ['D','F','R'],['D','L','F'],['D','B','L'],['D','R','B']];
-      const EDGE_ORDER = [['U','R'],['U','F'],['U','L'],['U','B'],['D','R'],['D','F'],
-                          ['D','L'],['D','B'],['F','R'],['F','L'],['B','L'],['B','R']];
-      const key = a => a.slice().sort().join('');
-      const CORNER_IDX = {}; CORNER_ORDER.forEach((t,i)=> CORNER_IDX[key(t)] = i);
-      const EDGE_IDX = {};   EDGE_ORDER.forEach((t,i)=> EDGE_IDX[key(t)] = i);
-      const vkey = v => Math.round(v[0])+','+Math.round(v[1])+','+Math.round(v[2]);
-      const LETTER_OF_VEC = {}; for(const [L,v] of Object.entries(FACEVEC)) LETTER_OF_VEC[vkey(v)] = L;
-
-      function readState(cubies, getPos, getInit, mapVec){
-        // colour currently sitting on each local direction (centres never lie)
-        const colourOfDir = {};
-        for(const c of cubies){
-          const ip = getInit(c);
-          if(ip.filter(v=>v!==0).length !== 1) continue;
-          colourOfDir[vkey(getPos(c))] = LETTER_OF_VEC[vkey(ip)];
-        }
-        const st = {cp:new Array(8), co:new Array(8), ep:new Array(12), eo:new Array(12)};
-        for(const c of cubies){
-          const ip = getInit(c), pos = getPos(c);
-          const n = ip.filter(v=>v!==0).length;
-          if(n===0 || n===1) continue;
-
-          // letters of the piece's own stickers (app colour letters)
-          const homeApp = [];
-          for(let i=0;i<3;i++) if(ip[i]!==0){ const v=[0,0,0]; v[i]=ip[i]; homeApp.push(LETTER_OF_VEC[vkey(v)]); }
-          // colours of the faces of the slot it currently occupies
-          const slotApp = [];
-          for(let i=0;i<3;i++) if(pos[i]!==0){ const v=[0,0,0]; v[i]=pos[i]; slotApp.push(colourOfDir[vkey(v)]); }
-
-          const piece = homeApp.map(l=>SW[l]);
-          const slot  = slotApp.map(l=>SW[l]);
-
-          if(n===3){
-            const pi = CORNER_IDX[key(piece)], si = CORNER_IDX[key(slot)];
-            st.cp[si] = pi;
-            const ud = homeApp.find(l=> l==='U' || l==='D');           // white / yellow sticker
-            const dir = mapVec(c, FACEVEC[ud]);
-            const onFace = SW[ colourOfDir[vkey(dir)] ];
-            st.co[si] = CORNER_ORDER[si].indexOf(onFace);
-          } else {
-            const pi = EDGE_IDX[key(piece)], si = EDGE_IDX[key(slot)];
-            st.ep[si] = pi;
-            const primarySolver = EDGE_ORDER[pi][0];
-            const dir = mapVec(c, FACEVEC[ SW[primarySolver] ]);
-            const onFace = SW[ colourOfDir[vkey(dir)] ];
-            st.eo[si] = (onFace === EDGE_ORDER[si][0]) ? 0 : 1;
-          }
-        }
-        return st;
-      }
-
-      /* ---------- app move -> geometric cfg, and -> solver move ---------- */
-      // clockwise turn of the local face whose outward dir is `sign` on `axis`:
-      //   dir = -sign   (matches the app's resolveMove)
-      function cfgForColour(colourLetterApp, prime, colourOfDir){
-        for(const [k,L] of Object.entries(colourOfDir)){
-          if(L !== colourLetterApp) continue;
-          const v = k.split(',').map(Number);
-          const i = v.findIndex(x=>x!==0);
-          const sign = v[i];
-          return {axisIdx:i, layers:[sign], dir: prime ? sign : -sign};
-        }
-        return null;
-      }
-      function colourMap(cubies){
-        const m = {};
-        for(const c of cubies){
-          if(c.init.filter(v=>v!==0).length!==1) continue;
-          m[vkey(c.pos)] = LETTER_OF_VEC[vkey(c.init)];
-        }
-        return m;
-      }
-      return {
-        solve: solve,
-        readState: readState,
-        isSolved: isSolved,
-        FACEVEC: FACEVEC,
-        SW: SW,
-        LETTER_OF_VEC: LETTER_OF_VEC,
-        vkey: vkey
-      };
-    })();
+    // CubeSolverLBL(LBLソルバー本体)は solver.js に分離した。
+    // 読み込みは head 側の <script src="solver.js"> で、この行より前に済んでいる。
 
     // --- Customizable button layout ---
     // This section only touches plain DOM/buttons and has zero dependency on
@@ -5149,526 +4698,7 @@ const PLL_DATA = {
     pllCloseBtn.addEventListener('click', () => pllOverlay.classList.remove('show'));
     document.getElementById('pll-close-x').addEventListener('click', () => pllOverlay.classList.remove('show'));
 
-    // --- ZBLL trainer ----------------------------------------------------
-    // ZBLL solves the whole last layer in one algorithm, once the LL edges
-    // are already oriented (i.e. after an edge-control F2L / ZBLS). All 493
-    // cases are here, split into the eight standard families named after the
-    // corner-orientation shape they show:
-    //
-    //   PLL (corners already oriented) 21, T 72, U 72, L 72, H 40,
-    //   Pi 72, Sune 72, Anti-Sune 72  ->  493
-    //
-    // Each entry is:
-    //   id      stable key, e.g. "ZBLL-Sune-07"
-    //   name    what the panel prints, e.g. "Sune 07" / "PLL Ja"
-    //   group   one of the eight families above
-    //   cp      corner-permutation subtype, shown as the small second line
-    //   alg     the solving algorithm (setup = the app runs it backwards)
-    //   pattern 21 face letters for the recognition diagram: 3 back tabs,
-    //           3 left, 3 right, 3 front, then the 3x3 top face read
-    //           back-row-first. A letter names the face a sticker BELONGS
-    //           to, exactly like PLL_DATA, so the sheet stays colour-neutral.
-    //
-    // The table was generated and verified programmatically against this
-    // app's own move engine: every algorithm leaves the first two layers
-    // untouched, every one returns its own setup to solved, the 493 produce
-    // 493 distinct diagrams, and the family sizes match the canonical ZBLL
-    // breakdown above.
-const ZBLL_DATA = [
-  {id:"ZBLL-PLL-01",name:"PLL Ub",group:"PLL",cp:"CP解決",alg:"R2 U R U R' U' R' U' R' U R'",pattern:"BBBLRLRFRFLFUUUUUUUUU"},
-  {id:"ZBLL-PLL-02",name:"PLL Ua",group:"PLL",cp:"CP解決",alg:"R U' R U R U R U' R' U' R2",pattern:"BBBLFLRLRFRFUUUUUUUUU"},
-  {id:"ZBLL-PLL-03",name:"PLL H",group:"PLL",cp:"CP解決",alg:"M2 U' M2 U2 M2 U' M2",pattern:"BFBLRLRLRFBFUUUUUUUUU"},
-  {id:"ZBLL-PLL-04",name:"PLL T",group:"PLL",cp:"隣接2点交換",alg:"F R U' R' U R U R2 F' R U R U' R'",pattern:"BBRLRLFLBFFRUUUUUUUUU"},
-  {id:"ZBLL-PLL-05",name:"PLL Gc",group:"PLL",cp:"隣接2点交換",alg:"R2 U' R U' R U R' U R2 U D' R U' R' D",pattern:"BRRLFLFLBFBRUUUUUUUUU"},
-  {id:"ZBLL-PLL-06",name:"PLL Gd",group:"PLL",cp:"隣接2点交換",alg:"D' R U R' U' D R2 U' R U' R' U R' U R2",pattern:"BFRLRLFBBFLRUUUUUUUUU"},
-  {id:"ZBLL-PLL-07",name:"PLL F",group:"PLL",cp:"隣接2点交換",alg:"R' U' R U' R' U R U R2 F' R U R U' R' F U R",pattern:"BFRLLLFRBFBRUUUUUUUUU"},
-  {id:"ZBLL-PLL-08",name:"PLL Ga",group:"PLL",cp:"隣接2点交換",alg:"R2 U R' U R' U' R U' R2 U' D R' U R D'",pattern:"BFRLBLFLBFRRUUUUUUUUU"},
-  {id:"ZBLL-PLL-09",name:"PLL Gb",group:"PLL",cp:"隣接2点交換",alg:"D R' U' R U D' R2 U R' U R U' R U' R2",pattern:"BLRLRLFFBFBRUUUUUUUUU"},
-  {id:"ZBLL-PLL-10",name:"PLL Na",group:"PLL",cp:"対角2点交換",alg:"R U R' U2 R U R2 F' R U R U' R' F R U' R' U' R U' R'",pattern:"BBFLRRLLRBFFUUUUUUUUU"},
-  {id:"ZBLL-PLL-11",name:"PLL E",group:"PLL",cp:"対角2点交換",alg:"F R' F' r U R U' R' r' U' R F R' U R U' F'",pattern:"BLFLFRLBRBRFUUUUUUUUU"},
-  {id:"ZBLL-PLL-12",name:"PLL Aa",group:"PLL",cp:"3点交換",alg:"x R' U R' D2 R U' R' D2 x' R2",pattern:"RBRBLLFRLFFBUUUUUUUUU"},
-  {id:"ZBLL-PLL-13",name:"PLL Ab",group:"PLL",cp:"3点交換",alg:"x R2 D2 R U R' D2 R U' x' R",pattern:"FBLRLLBRBFFRUUUUUUUUU"},
-  {id:"ZBLL-PLL-14",name:"PLL Ja",group:"PLL",cp:"3点交換",alg:"L' U2 L U L' U2 R U' L U R' U'",pattern:"FLLRRLBBBFFRUUUUUUUUU"},
-  {id:"ZBLL-PLL-15",name:"PLL Nb",group:"PLL",cp:"対角2点交換",alg:"R' U R' F R F' R U' R' F' U F R U R' U' R",pattern:"FBBRRLRLLFFBUUUUUUUUU"},
-  {id:"ZBLL-PLL-16",name:"PLL V",group:"PLL",cp:"対角2点交換",alg:"R2 D' R2 U R2 U' D R D' R D R' U R U' R",pattern:"FRBRLLRBLFFBUUUUUUUUU"},
-  {id:"ZBLL-PLL-17",name:"PLL Y",group:"PLL",cp:"対角2点交換",alg:"F R' F' R U R U' R' F R U' R' U R U R' F'",pattern:"FLBRBLRRLFFBUUUUUUUUU"},
-  {id:"ZBLL-PLL-18",name:"PLL Z",group:"PLL",cp:"4点循環",alg:"U M U2 M2 U2 M U' M2 U' M2",pattern:"LBLFRFBLBRFRUUUUUUUUU"},
-  {id:"ZBLL-PLL-19",name:"PLL Ra",group:"PLL",cp:"3点交換",alg:"R U2 R D R' U R D' R' U' R' U R U R'",pattern:"LBLFFRBLRBRFUUUUUUUUU"},
-  {id:"ZBLL-PLL-20",name:"PLL Rb",group:"PLL",cp:"3点交換",alg:"R2 F R U R U' R' F' R U2 R' U2 R",pattern:"LLBFRFRBLRFBUUUUUUUUU"},
-  {id:"ZBLL-PLL-21",name:"PLL Jb",group:"PLL",cp:"隣接2点交換",alg:"L U2 L' U' L U2 R' U L' U' R",pattern:"LLBFBBRRRLFFUUUUUUUUU"},
-  {id:"ZBLL-T-01",name:"T 01",group:"T",cp:"CP解決",alg:"B' U' B U' B' U2 F B U F' U F U2 F'",pattern:"BBBLLURRULFRUUUUUUFUF"},
-  {id:"ZBLL-T-02",name:"T 02",group:"T",cp:"CP解決",alg:"B' U' B U' B' U2 B L' U2 L U L' U L",pattern:"BBBLRURFULLRUUUUUUFUF"},
-  {id:"ZBLL-T-03",name:"T 03",group:"T",cp:"CP解決",alg:"B' U' B U' B' U2 F B U2 F2 U' F2 U' F2 U2 F",pattern:"UBBBRFRFRULFLUUUUULUU"},
-  {id:"ZBLL-T-04",name:"T 04",group:"T",cp:"CP解決",alg:"B U B' U B U2 B' R U2 R' U' R U' R'",pattern:"BBBLFURLULRRUUUUUUFUF"},
-  {id:"ZBLL-T-05",name:"T 05",group:"T",cp:"CP解決",alg:"B U B' U B U2 F' B' U2 F2 U F2 U F2 U2 F'",pattern:"BBULFLBLFFRUUURUUUUUR"},
-  {id:"ZBLL-T-06",name:"T 06",group:"T",cp:"CP解決",alg:"B U2 B' U' B U' B2 U2 B U B' U B",pattern:"URBBFFRBRULFLUUUUULUU"},
-  {id:"ZBLL-T-07",name:"T 07",group:"T",cp:"CP解決",alg:"F' U2 F2 U F2 U F2 U2 F' B U B' U B U2 B'",pattern:"URBBLFRFRUBFLUUUUULUU"},
-  {id:"ZBLL-T-08",name:"T 08",group:"T",cp:"CP解決",alg:"B U2 B' U' B U' B' L U L' U L U2 L'",pattern:"URBBBFRLRUFFLUUUUULUU"},
-  {id:"ZBLL-T-09",name:"T 09",group:"T",cp:"CP解決",alg:"F U2 F2 U' F2 U' F2 U2 F B U B' U B U2 B'",pattern:"UFBBRFRLRUBFLUUUUULUU"},
-  {id:"ZBLL-T-10",name:"T 10",group:"T",cp:"CP解決",alg:"B' U2 B U B' U B R' U' R U' R' U2 R",pattern:"BLULRLBBFFFUUURUUUUUR"},
-  {id:"ZBLL-T-11",name:"T 11",group:"T",cp:"CP解決",alg:"F U2 F2 U' F2 U' F2 U2 F B' U' B U' B' U2 B",pattern:"BLULFLBRFFBUUURUUUUUR"},
-  {id:"ZBLL-T-12",name:"T 12",group:"T",cp:"CP解決",alg:"B' U2 B U B' U B2 U2 B' U' B U' B'",pattern:"BLULBLBFFFRUUURUUUUUR"},
-  {id:"ZBLL-T-13",name:"T 13",group:"T",cp:"隣接2点交換",alg:"L U L' U L U2 R' L' U L U' R U L'",pattern:"BRULLLRBRFFUUUFUUUUUB"},
-  {id:"ZBLL-T-14",name:"T 14",group:"T",cp:"隣接2点交換",alg:"R' U2 R' D' R U2 R' D R U' R F R' U R U' F'",pattern:"ULRBFFFBBURRLUUUUULUU"},
-  {id:"ZBLL-T-15",name:"T 15",group:"T",cp:"隣接2点交換",alg:"B' U2 B U B' U B R' U L U' R U L'",pattern:"BLULBLRRRFFUUUFUUUUUB"},
-  {id:"ZBLL-T-16",name:"T 16",group:"T",cp:"3点交換",alg:"R' U2 R' D' R U2 R' D R2 r U R' U' r' F R F'",pattern:"UBRBLBFRFUFLLUUUUURUU"},
-  {id:"ZBLL-T-17",name:"T 17",group:"T",cp:"3点交換",alg:"F' r U R' U' r' F U' R U' R' U2 R",pattern:"UBRBRBFFFULLLUUUUURUU"},
-  {id:"ZBLL-T-18",name:"T 18",group:"T",cp:"3点交換",alg:"R' U2 R' D' R U2 R' D R2 U R' U L U' R U L'",pattern:"BFULRRRLLBBUUUFUUUUUF"},
-  {id:"ZBLL-T-19",name:"T 19",group:"T",cp:"3点交換",alg:"F R' F' r U R U' R2 r' D' R U2 R' D R U2 R",pattern:"LBLULFURBRFRBUFUUUUUU"},
-  {id:"ZBLL-T-20",name:"T 20",group:"T",cp:"3点交換",alg:"R U2 R' U' R U' R2 F' r U R U' r' F",pattern:"BRFLBULLUFFBUUUUUURUR"},
-  {id:"ZBLL-T-21",name:"T 21",group:"T",cp:"3点交換",alg:"B' U2 B U B' U B R' U2 R' D' R U2 R' D R2",pattern:"BFFLLULBUFRBUUUUUURUR"},
-  {id:"ZBLL-T-22",name:"T 22",group:"T",cp:"3点交換",alg:"F' U' F U' F' U2 F U R U' L' U R' U L U L' U L",pattern:"BFULLFFBRRRUUULUUUUUB"},
-  {id:"ZBLL-T-23",name:"T 23",group:"T",cp:"3点交換",alg:"F' U' F U' F' U2 F R' F' r U R U' r' F",pattern:"BFFLBULRUFLBUUUUUURUR"},
-  {id:"ZBLL-T-24",name:"T 24",group:"T",cp:"3点交換",alg:"R U2 R2 U' R2 U' R2 U2 F' r U R U' r' F",pattern:"BLULFFFRRRBUUULUUUUUB"},
-  {id:"ZBLL-T-25",name:"T 25",group:"T",cp:"対角2点交換",alg:"R' U2 R' D' R U2 R' D R2 U R' U2 R' D' R U2 R' D R2",pattern:"BRFLBULFURLRUUUUUUBUF"},
-  {id:"ZBLL-T-26",name:"T 26",group:"T",cp:"対角2点交換",alg:"R' F' r U R U' r' F2 U2 F' U' R' F U' F' U R",pattern:"LFLUBRULRBRFBUFUUUUUU"},
-  {id:"ZBLL-T-27",name:"T 27",group:"T",cp:"対角2点交換",alg:"r U R' U' r' F R F' L U2 L' U' L U2 R' U L' U' R",pattern:"ULFBBBLRRUFFLUUUUURUU"},
-  {id:"ZBLL-T-28",name:"T 28",group:"T",cp:"対角2点交換",alg:"L U2 L' U' L U2 R' U L' U' R F R' F' r U R U' r'",pattern:"LLLUBRURRBFFBUFUUUUUU"},
-  {id:"ZBLL-T-29",name:"T 29",group:"T",cp:"対角2点交換",alg:"R' U' F U F' R U F U2 F2 r U R' U' r' F R",pattern:"ULFBRBLFRUBFLUUUUURUU"},
-  {id:"ZBLL-T-30",name:"T 30",group:"T",cp:"隣接2点交換",alg:"R' U' R F R' U R U' F' U2 M U2 M2 U2 M U' M2 U' M2",pattern:"UBLRRFBLRUFFBUUUUULUU"},
-  {id:"ZBLL-T-31",name:"T 31",group:"T",cp:"隣接2点交換",alg:"R2 U R U R' U' R' U' R' U R2 U' R F R' U R U' F'",pattern:"ULLRBFBRRUFFBUUUUULUU"},
-  {id:"ZBLL-T-32",name:"T 32",group:"T",cp:"3点交換",alg:"R' F' r U R U' r' F",pattern:"RBUBLLRRBFFUUUFUUUUUL"},
-  {id:"ZBLL-T-33",name:"T 33",group:"T",cp:"3点交換",alg:"M2 U' M2 U2 M2 U' R' M2 F' r U R U' r' F",pattern:"RFUBRLRLBFBUUUFUUUUUL"},
-  {id:"ZBLL-T-34",name:"T 34",group:"T",cp:"3点交換",alg:"U2 M U2 M2 U2 M U' M2 U' R' M2 F' r U R U' r' F",pattern:"RLUBBLRFBFRUUUFUUUUUL"},
-  {id:"ZBLL-T-35",name:"T 35",group:"T",cp:"4点循環",alg:"L' U2 L U L' U L2 U' R' U L' U' R F' U2 F U F' U F",pattern:"UBFRLRLFLURBBUUUUUFUU"},
-  {id:"ZBLL-T-36",name:"T 36",group:"T",cp:"4点循環",alg:"B' U' B U' B' U2 B R U2 R' U' R U' R2 U L U' R U L'",pattern:"UBFRRRLLLUFBBUUUUUFUU"},
-  {id:"ZBLL-T-37",name:"T 37",group:"T",cp:"4点循環",alg:"L' U2 L U L' U L2 U2 L' U' L U' R L' U' L' U R' U' L",pattern:"RBUBRFFLBRFUUULUUUUUL"},
-  {id:"ZBLL-T-38",name:"T 38",group:"T",cp:"4点循環",alg:"L U2 L' U' L U' L2 U R U' L U R' B U2 B' U' B U' B'",pattern:"URFRLRLBLUFBBUUUUUFUU"},
-  {id:"ZBLL-T-39",name:"T 39",group:"T",cp:"4点循環",alg:"R U' L' U R' U' R L U2 R' U' R U R' U' R U' R'",pattern:"RRFBFULLUFBLUUUUUURUB"},
-  {id:"ZBLL-T-40",name:"T 40",group:"T",cp:"4点循環",alg:"L' U2 L U L' U L B' U' B U' B' U2 B R U' L' U R' U' L",pattern:"RFUBRFFBBRLUUULUUUUUL"},
-  {id:"ZBLL-T-41",name:"T 41",group:"T",cp:"4点循環",alg:"L U2 L' U' L U' L2 U R U' L U R2 U' R U' R' U2 R",pattern:"UFFRLRLRLUBBBUUUUUFUU"},
-  {id:"ZBLL-T-42",name:"T 42",group:"T",cp:"4点循環",alg:"R' U' F U F' R F U F' U' F U' F'",pattern:"BLLUBFURLRFBRUFUUUUUU"},
-  {id:"ZBLL-T-43",name:"T 43",group:"T",cp:"4点循環",alg:"B' U' B U' B' U2 B L' U R U' L U R2 U' R U' R' U2 R",pattern:"ULFRBRLRLUFBBUUUUUFUU"},
-  {id:"ZBLL-T-44",name:"T 44",group:"T",cp:"4点循環",alg:"L U2 L' U' L U' L' F U F' U F U2 F' R' U L U' R U L'",pattern:"RLUBRFFFBRBUUULUUUUUL"},
-  {id:"ZBLL-T-45",name:"T 45",group:"T",cp:"3点交換",alg:"F' U2 F U F' U r U R' U' r' F R",pattern:"BLLUFBURRLBFRUFUUUUUU"},
-  {id:"ZBLL-T-46",name:"T 46",group:"T",cp:"3点交換",alg:"F U2 F' U' F U' R' F' r U R U' r'",pattern:"RRBULLUFBFBRFULUUUUUU"},
-  {id:"ZBLL-T-47",name:"T 47",group:"T",cp:"4点循環",alg:"B U B' U B U2 B' R U' L' U R' U' L2 U L' U L U2 L'",pattern:"FRURLRLBLBFUUUBUUUUUF"},
-  {id:"ZBLL-T-48",name:"T 48",group:"T",cp:"4点循環",alg:"L U' R' U L' U' R2 U2 R' U' R U R' U' R U' R'",pattern:"RRBUFRULFBBLFULUUUUUU"},
-  {id:"ZBLL-T-49",name:"T 49",group:"T",cp:"4点循環",alg:"L' U2 L U L' U L2 U2 L' U' L U' L2 U R U' L U R'",pattern:"UFLFLBBRFUBLRUUUUURUU"},
-  {id:"ZBLL-T-50",name:"T 50",group:"T",cp:"4点循環",alg:"R' U' R U' R' U F U F' R F U' F'",pattern:"FLLRBUBRURFFUUUUUUBUL"},
-  {id:"ZBLL-T-51",name:"T 51",group:"T",cp:"対角2点交換",alg:"R' F' r U R U' r' F2 R U' R' U R U R2 F' R U R U' R'",pattern:"FBURRLBLBFFUUURUUUUUL"},
-  {id:"ZBLL-T-52",name:"T 52",group:"T",cp:"対角2点交換",alg:"R U R' U R U2 R2 F' r U R U' r' F L U' R' U L' U' R",pattern:"FFURBLBLBFRUUURUUUUUL"},
-  {id:"ZBLL-T-53",name:"T 53",group:"T",cp:"対角2点交換",alg:"L U' R' U L' U' R F R' F' r U R U' r'",pattern:"ULBFFFRBLURBRUUUUULUU"},
-  {id:"ZBLL-T-54",name:"T 54",group:"T",cp:"3点交換",alg:"F U F' U F U2 F' r U R' U' r' F R F'",pattern:"FFBRLURBUBRFUUUUUULUL"},
-  {id:"ZBLL-T-55",name:"T 55",group:"T",cp:"3点交換",alg:"L' U2 L U L' U r L U R' U' r' F R F'",pattern:"FLBRRURBUBFFUUUUUULUL"},
-  {id:"ZBLL-T-56",name:"T 56",group:"T",cp:"4点循環",alg:"F U F' U F U' R' U' R F' R' U R",pattern:"FLURBBFRRLFUUULUUUUUB"},
-  {id:"ZBLL-T-57",name:"T 57",group:"T",cp:"3点交換",alg:"r U R' U' r' F R F'",pattern:"UBLLLBBRRUFFFUUUUURUU"},
-  {id:"ZBLL-T-58",name:"T 58",group:"T",cp:"3点交換",alg:"M2 U' M2 U2 M2 U' r M2 U R' U' r' F R F'",pattern:"UFLLRBBLRUBFFUUUUURUU"},
-  {id:"ZBLL-T-59",name:"T 59",group:"T",cp:"3点交換",alg:"R' U2 R' D' R U2 R' D R' U R' U R U2 R'",pattern:"FLBURRUBRBFFLULUUUUUU"},
-  {id:"ZBLL-T-60",name:"T 60",group:"T",cp:"3点交換",alg:"U2 M U2 M2 U2 M U' M2 U' r M2 U R' U' r' F R F'",pattern:"ULLLBBBFRURFFUUUUURUU"},
-  {id:"ZBLL-T-61",name:"T 61",group:"T",cp:"隣接2点交換",alg:"R U2 R2 U' R2 U' R2 U2 R L' U R U' L U R'",pattern:"FBRULBUFRLRFLUBUUUUUU"},
-  {id:"ZBLL-T-62",name:"T 62",group:"T",cp:"隣接2点交換",alg:"U2 M U2 M2 U2 M U' M2 U' M2 F U F' R' F U' F' U R",pattern:"FBRURBULRLFFLUBUUUUUU"},
-  {id:"ZBLL-T-63",name:"T 63",group:"T",cp:"隣接2点交換",alg:"B U2 B' U' B U' B' L U' R' U L' U' R",pattern:"URBLLLRBRUFFFUUUUUBUU"},
-  {id:"ZBLL-T-64",name:"T 64",group:"T",cp:"隣接2点交換",alg:"R' U2 R2 U R2 U R2 U2 R' L U' R' U L' U' R",pattern:"LRBFLURBUBFRUUUUUULUF"},
-  {id:"ZBLL-T-65",name:"T 65",group:"T",cp:"隣接2点交換",alg:"R U2 R2 U' R2 U' R2 U2 R L U' R' U L' U' R",pattern:"LFBFRURBUBLRUUUUUULUF"},
-  {id:"ZBLL-T-66",name:"T 66",group:"T",cp:"隣接2点交換",alg:"F U F' R' F U' F' U R2 U' R U R U R U' R' U' R2",pattern:"FLRUBBURRLFFLUBUUUUUU"},
-  {id:"ZBLL-T-67",name:"T 67",group:"T",cp:"隣接2点交換",alg:"R' U2 R2 U R2 U R2 U2 R' L' U R U' L U R'",pattern:"FLRURBUFRLBFLUBUUUUUU"},
-  {id:"ZBLL-T-68",name:"T 68",group:"T",cp:"4点循環",alg:"F U R' U' R F' R' U' R U R' U R",pattern:"ULRLBBFRLUFBFUUUUURUU"},
-  {id:"ZBLL-T-69",name:"T 69",group:"T",cp:"2組交換",alg:"R' U' R U' R' U F U F' R F U' F' L' U R U' L U R'",pattern:"LBUFRBRFRLLUUUFUUUUUB"},
-  {id:"ZBLL-T-70",name:"T 70",group:"T",cp:"2組交換",alg:"R' U' F U F' R U F U2 F' R' U L U' R U L'",pattern:"LBUFFBRLRLRUUUFUUUUUB"},
-  {id:"ZBLL-T-71",name:"T 71",group:"T",cp:"2組交換",alg:"R U' L' U R' U' R' L U' F U F' R F U F' U' F U' F'",pattern:"FBFUFBULBLRRLURUUUUUU"},
-  {id:"ZBLL-T-72",name:"T 72",group:"T",cp:"2組交換",alg:"F R U' R' U R U R2 F' R U R U' R2 U' F U F' R F U' F'",pattern:"LLRFBUFFUBRBUUUUUULUR"},
-  {id:"ZBLL-U-01",name:"U 01",group:"U",cp:"CP解決",alg:"F' U2 F U F' U F B U2 B' U' B U' B'",pattern:"BBBLLFRRFUFUUUUUUULUR"},
-  {id:"ZBLL-U-02",name:"U 02",group:"U",cp:"CP解決",alg:"F U2 F2 U' F2 U' F2 U2 F B U2 B' U' B U' B'",pattern:"BBRLRLUFUFLRUUBUUUUUF"},
-  {id:"ZBLL-U-03",name:"U 03",group:"U",cp:"CP解決",alg:"F' U2 F2 U F2 U F2 U2 F' B' U2 B U B' U B",pattern:"LBBUFURLRLRFBUUUUUFUU"},
-  {id:"ZBLL-U-04",name:"U 04",group:"U",cp:"CP解決",alg:"F U F' U F U2 F' R U2 R2 U' R2 U' R2 U2 R",pattern:"UBUBFLBLRFRFLURUUUUUU"},
-  {id:"ZBLL-U-05",name:"U 05",group:"U",cp:"CP解決",alg:"B' U' B U' B' U2 B2 U B' U B U2 B'",pattern:"LRBUFURBRLLFBUUUUUFUU"},
-  {id:"ZBLL-U-06",name:"U 06",group:"U",cp:"CP解決",alg:"B U B' U B U2 B' L U2 L' U' L U' L'",pattern:"BRRLLLUFUFBRUUBUUUUUF"},
-  {id:"ZBLL-U-07",name:"U 07",group:"U",cp:"CP解決",alg:"B' U' B U' B' U2 B R' U2 R2 U R2 U R2 U2 R'",pattern:"BRBLBFRLFUFUUUUUUULUR"},
-  {id:"ZBLL-U-08",name:"U 08",group:"U",cp:"CP解決",alg:"B U2 B' U' B U' B' R U R' U R U2 R'",pattern:"UFUBLLBBRFRFLURUUUUUU"},
-  {id:"ZBLL-U-09",name:"U 09",group:"U",cp:"CP解決",alg:"B' U2 B U B' U B L' U' L U' L' U2 L",pattern:"UFUBBLBRRFLFLURUUUUUU"},
-  {id:"ZBLL-U-10",name:"U 10",group:"U",cp:"CP解決",alg:"B' U2 B U B' U F B U2 F2 U' F2 U' F2 U2 F",pattern:"BFRLRLULUFBRUUBUUUUUF"},
-  {id:"ZBLL-U-11",name:"U 11",group:"U",cp:"CP解決",alg:"B' U' B U' B' U2 B R' U2 R U R' U R",pattern:"LLBUFURRRLBFBUUUUUFUU"},
-  {id:"ZBLL-U-12",name:"U 12",group:"U",cp:"CP解決",alg:"B U B' U B U2 B2 U' B U' B' U2 B",pattern:"BLRLBLUFUFRRUUBUUUUUF"},
-  {id:"ZBLL-U-13",name:"U 13",group:"U",cp:"隣接2点交換",alg:"F' r U R' U' r' F R2 U' L' U R' U' L",pattern:"BLRLFFUBURRFUUBUUUUUL"},
-  {id:"ZBLL-U-14",name:"U 14",group:"U",cp:"隣接2点交換",alg:"F U2 F2 U' F2 U' F2 U2 F R' U L U' R U L'",pattern:"BBFLFLURUFLBUURUUUUUR"},
-  {id:"ZBLL-U-15",name:"U 15",group:"U",cp:"隣接2点交換",alg:"L U' R' U L' U' R L' U' L U' L' U2 L",pattern:"UBUBFLRRBFLRLUFUUUUUU"},
-  {id:"ZBLL-U-16",name:"U 16",group:"U",cp:"隣接2点交換",alg:"B U2 B' U' B U' B' R U' L' U R' U' L",pattern:"URUBLLRBBFFRLUFUUUUUU"},
-  {id:"ZBLL-U-17",name:"U 17",group:"U",cp:"隣接2点交換",alg:"F' U2 F2 U F2 U F2 U2 F' R' U L U' R U L'",pattern:"BFFLRLUBUFLBUURUUUUUR"},
-  {id:"ZBLL-U-18",name:"U 18",group:"U",cp:"隣接2点交換",alg:"L' U R U' L U R' L U L' U L U2 L'",pattern:"BLRLBFFRRUFUUUUUUULUB"},
-  {id:"ZBLL-U-19",name:"U 19",group:"U",cp:"3点交換",alg:"F' r U R' U' r' F R2 U R' U R U2 R'",pattern:"BLFLRRUBUBFFUURUUUUUL"},
-  {id:"ZBLL-U-20",name:"U 20",group:"U",cp:"3点交換",alg:"B' U' B U' B' U2 B R' U2 R' D' R U2 R' D R2",pattern:"URUBLFFFBRBRLULUUUUUU"},
-  {id:"ZBLL-U-21",name:"U 21",group:"U",cp:"3点交換",alg:"L U' R' U L' U' R U' R2 D' R U2 R' D R U2 R",pattern:"BFFLRRLLRUBUUUUUUUFUB"},
-  {id:"ZBLL-U-22",name:"U 22",group:"U",cp:"隣接2点交換",alg:"F' r U R' U' r' F R2 U R' U R U2 R2 U L U' R U L'",pattern:"RBLBFFBRFULUUUUUUULUR"},
-  {id:"ZBLL-U-23",name:"U 23",group:"U",cp:"隣接2点交換",alg:"F R U' R' U R U R2 F' R U R U' R2 F' r U R U' r' F",pattern:"RBBBRLULUFFRUULUUUUUF"},
-  {id:"ZBLL-U-24",name:"U 24",group:"U",cp:"2組交換",alg:"R' U2 R U R' U R2 U' L' U R' U' R' L U L U' R U L'",pattern:"BBLUFUBLFFRLRUUUUURUU"},
-  {id:"ZBLL-U-25",name:"U 25",group:"U",cp:"2組交換",alg:"L' U R U' L U R2 U' R U' R' U2 R2 U' L' U R' U' L",pattern:"BRLULUBFFFBLRUUUUURUU"},
-  {id:"ZBLL-U-26",name:"U 26",group:"U",cp:"2組交換",alg:"B' U' B U' B' U2 B R U' L' U R' U' R' L U L U' R U L'",pattern:"RRBBLFUFURBFUULUUUUUL"},
-  {id:"ZBLL-U-27",name:"U 27",group:"U",cp:"2組交換",alg:"R U2 R' U' R U' R2 U L U' R U R L' U' L' U R' U' L",pattern:"BRLUBUBLFFFLRUUUUURUU"},
-  {id:"ZBLL-U-28",name:"U 28",group:"U",cp:"2組交換",alg:"L U' R' U L' U' R F' U' F U' F' U2 F R' U L U' R U L'",pattern:"RRBBBFULURFFUULUUUUUL"},
-  {id:"ZBLL-U-29",name:"U 29",group:"U",cp:"2組交換",alg:"L U' R' U L' U' R2 U R' U R U2 R2 U L U' R U L'",pattern:"BFLULUBBFFRLRUUUUURUU"},
-  {id:"ZBLL-U-30",name:"U 30",group:"U",cp:"2組交換",alg:"B U B' U B U2 B' R U' L' U R' U' R' L U L U' R U L'",pattern:"BLLUFUBRFFBLRUUUUURUU"},
-  {id:"ZBLL-U-31",name:"U 31",group:"U",cp:"2組交換",alg:"x U2 r' U' r U2 R' F R' F' x' R2 F U F' R' F U' F' R U' R' U2 R",pattern:"ULURBFLFFRRLBUBUUUUUU"},
-  {id:"ZBLL-U-32",name:"U 32",group:"U",cp:"3点交換",alg:"L' U' L U' L' U L U' L' U2 R' L F' r U R U' r' F",pattern:"BLRURUFBLLFBRUUUUUFUU"},
-  {id:"ZBLL-U-33",name:"U 33",group:"U",cp:"4点循環",alg:"B U B' U B U2 B2 U' B U' B' U2 B R' U L U' R U L'",pattern:"RBFBRRLLBUFUUUUUUUFUL"},
-  {id:"ZBLL-U-34",name:"U 34",group:"U",cp:"4点循環",alg:"L U2 L' U' L U' R L' U R' U R U2 R2 U L U' R U L'",pattern:"RBLBRFULURFLUUFUUUUUB"},
-  {id:"ZBLL-U-35",name:"U 35",group:"U",cp:"4点循環",alg:"R U' L' U R' U L U L' U L F' U' F U' F' U2 F",pattern:"URURLFFBLRFBBULUUUUUU"},
-  {id:"ZBLL-U-36",name:"U 36",group:"U",cp:"4点循環",alg:"F U F' R' F U' F' U R2 U2 R2 U' R2 U' R2 U2 R",pattern:"RRFBLRLBBUFUUUUUUUFUL"},
-  {id:"ZBLL-U-37",name:"U 37",group:"U",cp:"4点循環",alg:"B U B' U B U2 B2 U' B U' B' U2 B R U' L' U R' U' L",pattern:"UFURLFFRLRBBBULUUUUUU"},
-  {id:"ZBLL-U-38",name:"U 38",group:"U",cp:"4点循環",alg:"B U B' U B U2 B' R U R' U R U2 R2 U L U' R U L'",pattern:"BFFULULRLFBBRUUUUURUU"},
-  {id:"ZBLL-U-39",name:"U 39",group:"U",cp:"4点循環",alg:"L' U' L U' L' U2 L2 U' R' U L' U' R F' U' F U' F' U2 F",pattern:"BFFUBULLLFRBRUUUUURUU"},
-  {id:"ZBLL-U-40",name:"U 40",group:"U",cp:"3点交換",alg:"R U2 R' U' R U' R D' R U2 R' D R U2 R",pattern:"BRFUBULLRBFFRUUUUULUU"},
-  {id:"ZBLL-U-41",name:"U 41",group:"U",cp:"3点交換",alg:"B' U2 B U B' U F' B r U R' U' r' F R",pattern:"BFFULULBRBRFRUUUUULUU"},
-  {id:"ZBLL-U-42",name:"U 42",group:"U",cp:"3点交換",alg:"F' U' F U' F' U2 r U R' U' r' F R",pattern:"RFFBBLLRFULUUUUUUUBUR"},
-  {id:"ZBLL-U-43",name:"U 43",group:"U",cp:"3点交換",alg:"F' U' F U' F' U2 F R2 D' R U2 R' D R U2 R",pattern:"BFFUBULRRBLFRUUUUULUU"},
-  {id:"ZBLL-U-44",name:"U 44",group:"U",cp:"3点交換",alg:"L' U2 L U L' U R2 L D' R U2 R' D R U2 R",pattern:"RLLBRBUBULFRUUFUUUUUF"},
-  {id:"ZBLL-U-45",name:"U 45",group:"U",cp:"3点交換",alg:"R2 D' R U2 R' D R U2 R",pattern:"UBUFLLLRBFFRRUBUUUUUU"},
-  {id:"ZBLL-U-46",name:"U 46",group:"U",cp:"3点交換",alg:"R' U2 R' D' R U2 R' D R F' r U R U' r' F",pattern:"FBBRLLURUFFBUULUUUUUR"},
-  {id:"ZBLL-U-47",name:"U 47",group:"U",cp:"3点交換",alg:"F U F' U F U2 R' F' r U R U' r'",pattern:"FFLRLFBBRURUUUUUUULUB"},
-  {id:"ZBLL-U-48",name:"U 48",group:"U",cp:"3点交換",alg:"B U2 B' U' B U' F B' R' F' r U R U' r'",pattern:"FFBRBLURUFLBUULUUUUUR"},
-  {id:"ZBLL-U-49",name:"U 49",group:"U",cp:"3点交換",alg:"R2 D' R U2 R' D R U2 R M2 U' M2 U2 M2 U' M2",pattern:"UFUFRLLLBFBRRUBUUUUUU"},
-  {id:"ZBLL-U-50",name:"U 50",group:"U",cp:"4点循環",alg:"L' U2 L U L' U R' L U L U' R U' L' U' L U' L'",pattern:"UBUFLRLFFBRLRUBUUUUUU"},
-  {id:"ZBLL-U-51",name:"U 51",group:"U",cp:"4点循環",alg:"L U2 L' U' L U' L' F U2 F' U' F U' F' L U' R' U L' U' R",pattern:"FBBRRRULUBFFUULUUUUUL"},
-  {id:"ZBLL-U-52",name:"U 52",group:"U",cp:"4点循環",alg:"B U2 B' U' B U' F' B' U' F U' F' U2 F L U' R' U L' U' R",pattern:"FFBRRRUBUBLFUULUUUUUL"},
-  {id:"ZBLL-U-53",name:"U 53",group:"U",cp:"4点循環",alg:"L' U2 L U L' U R L U' L' U R' U L U L' U L",pattern:"UFUFLRLRFBBLRUBUUUUUU"},
-  {id:"ZBLL-U-54",name:"U 54",group:"U",cp:"4点循環",alg:"B U B' U B U2 F B' U2 F' U' F U' F' L U' R' U L' U' R",pattern:"RFLULUBRFRBLFUUUUUBUU"},
-  {id:"ZBLL-U-55",name:"U 55",group:"U",cp:"4点循環",alg:"F' U2 F U F' U F L U2 L' U' L U' L2 U R U' L U R'",pattern:"RFLUBUBLFRRLFUUUUUBUU"},
-  {id:"ZBLL-U-56",name:"U 56",group:"U",cp:"4点循環",alg:"L' U R U' L U' R' U' R U' R' F U F' U F U2 F'",pattern:"ULUFBRLRFBFLRUBUUUUUU"},
-  {id:"ZBLL-U-57",name:"U 57",group:"U",cp:"3点交換",alg:"R U R' U R U' R' U R U2 R' r U R' U' r' F R F'",pattern:"LRBFBRULUBFRUULUUUUUF"},
-  {id:"ZBLL-U-58",name:"U 58",group:"U",cp:"3点交換",alg:"R' F' r U R U' r' F R' U2 R2 U R2 U R2 U2 R'",pattern:"FFLUBUBRRRLFLUUUUUBUU"},
-  {id:"ZBLL-U-59",name:"U 59",group:"U",cp:"3点交換",alg:"F R' F' r U R U' r' L' U' L U' L' U2 L",pattern:"FRBUBURLLFFBLUUUUURUU"},
-  {id:"ZBLL-U-60",name:"U 60",group:"U",cp:"隣接2点交換",alg:"L' U' L U' L' U2 L2 U' R' U L' U' R",pattern:"LBBFLLRFFURUUUUUUUBUR"},
-  {id:"ZBLL-U-61",name:"U 61",group:"U",cp:"隣接2点交換",alg:"F' U2 F2 U F2 U F2 U2 F' L U' R' U L' U' R",pattern:"FBBULURFRBRFLUUUUULUU"},
-  {id:"ZBLL-U-62",name:"U 62",group:"U",cp:"隣接2点交換",alg:"L U L' U L U2 L2 U R U' L U R'",pattern:"URULLBBBRLFFFURUUUUUU"},
-  {id:"ZBLL-U-63",name:"U 63",group:"U",cp:"隣接2点交換",alg:"r U R' U' r' F R U R' U' R F' R' U R",pattern:"FRBUBURFRBLFLUUUUULUU"},
-  {id:"ZBLL-U-64",name:"U 64",group:"U",cp:"隣接2点交換",alg:"F U2 F2 U' F2 U' F2 U2 F L U' R' U L' U' R",pattern:"FFBUBURLRBRFLUUUUULUU"},
-  {id:"ZBLL-U-65",name:"U 65",group:"U",cp:"隣接2点交換",alg:"R U2 R' U' R U R' U' R U' R' U' R' F' r U R U' r' F",pattern:"UFULBBBLRLRFFURUUUUUU"},
-  {id:"ZBLL-U-66",name:"U 66",group:"U",cp:"隣接2点交換",alg:"R' U' R F R' U R U' R' F' r U R U' r'",pattern:"FLBUFURBRBRFLUUUUULUU"},
-  {id:"ZBLL-U-67",name:"U 67",group:"U",cp:"隣接2点交換",alg:"B' U2 B U B' U B L' U R U' L U R'",pattern:"ULULBBBRRLFFFURUUUUUU"},
-  {id:"ZBLL-U-68",name:"U 68",group:"U",cp:"4点循環",alg:"R2 D' R U2 R' D R U2 R L U' R' U L' U' R",pattern:"FLRUFUFBLRRBLUUUUUBUU"},
-  {id:"ZBLL-U-69",name:"U 69",group:"U",cp:"2組交換",alg:"R U' L' U R' U' R' L U L U' R U L'",pattern:"LBRFLLFRRUFUUUUUUUBUB"},
-  {id:"ZBLL-U-70",name:"U 70",group:"U",cp:"2組交換",alg:"F U F' R' F U' F' R U' R' U2 R2 U' L' U R' U' L",pattern:"FRRULUFFBBBRLUUUUULUU"},
-  {id:"ZBLL-U-71",name:"U 71",group:"U",cp:"2組交換",alg:"R' F' r U R U' r' F U2 R2 D' R U2 R' D R U2 R",pattern:"LFRFRLFLRUBUUUUUUUBUB"},
-  {id:"ZBLL-U-72",name:"U 72",group:"U",cp:"2組交換",alg:"F R U' R' U R U R2 F' R U R U' R' U' R' U2 R' D' R U2 R' D R2",pattern:"LLRFBLFFRURUUUUUUUBUB"},
-  {id:"ZBLL-L-01",name:"L 01",group:"L",cp:"CP解決",alg:"B' U' B U' B' U2 B R U R' U R U2 R'",pattern:"BBULRUBFRLLFUURUUUFUU"},
-  {id:"ZBLL-L-02",name:"L 02",group:"L",cp:"CP解決",alg:"B U B' U B U2 B' L' U' L U' L' U2 L",pattern:"UBBBFLRLUFRRLUUUUUUUF"},
-  {id:"ZBLL-L-03",name:"L 03",group:"L",cp:"CP解決",alg:"B U2 B' U' B U' F B' U F' U F U2 F'",pattern:"URBBFLRBUFLRLUUUUUUUF"},
-  {id:"ZBLL-L-04",name:"L 04",group:"L",cp:"CP解決",alg:"B' U' B U' B' U2 F' B U2 F U F' U F",pattern:"BRULFUBBRLLFUURUUUFUU"},
-  {id:"ZBLL-L-05",name:"L 05",group:"L",cp:"CP解決",alg:"B U2 B' U' B U' B' L' U2 L U L' U L",pattern:"UFBBLLRBUFRRLUUUUUUUF"},
-  {id:"ZBLL-L-06",name:"L 06",group:"L",cp:"CP解決",alg:"B' U2 B U B' U B R U2 R' U' R U' R'",pattern:"BFULBUBRRLLFUURUUUFUU"},
-  {id:"ZBLL-L-07",name:"L 07",group:"L",cp:"隣接2点交換",alg:"L' U R U' L U R2 F' r U R U' r' F",pattern:"BRULBUBFFFLLUURUUURUU"},
-  {id:"ZBLL-L-08",name:"L 08",group:"L",cp:"隣接2点交換",alg:"L' U2 L U L' U R' L U L U' R U L'",pattern:"LBRUFLFRRFLUBUUUUUUUB"},
-  {id:"ZBLL-L-09",name:"L 09",group:"L",cp:"隣接2点交換",alg:"B' U' B U' B' U2 B R U' L' U R' U' L",pattern:"BBULFURRBLLRUUFUUUFUU"},
-  {id:"ZBLL-L-10",name:"L 10",group:"L",cp:"隣接2点交換",alg:"L U2 L' U' L U' R L' U' L' U R' U' L",pattern:"BLULBURRBLFRUUFUUUFUU"},
-  {id:"ZBLL-L-11",name:"L 11",group:"L",cp:"隣接2点交換",alg:"U2 M U2 M2 U2 M U' M2 U' M2 F U R' U' R F' R' U R",pattern:"RBUBRULLRLFFUUBUUUFUU"},
-  {id:"ZBLL-L-12",name:"L 12",group:"L",cp:"隣接2点交換",alg:"F U R' U' R F' R' U' R U R' U' R U R' U R",pattern:"BFLUBLBLFFRURUUUUUUUR"},
-  {id:"ZBLL-L-13",name:"L 13",group:"L",cp:"2組交換",alg:"B U2 B' U' B U' B' R' U L U' R U R' L' U L U' R U L'",pattern:"BBLUFFBLLRRURUUUUUUUF"},
-  {id:"ZBLL-L-14",name:"L 14",group:"L",cp:"2組交換",alg:"R U R' U R U2 R2 U L U' R U R' L' U L U' R U L'",pattern:"RRUBLULFFFBLUUBUUURUU"},
-  {id:"ZBLL-L-15",name:"L 15",group:"L",cp:"2組交換",alg:"R' U' R U' R' U' L U' R U R' L' U L U' R U L'",pattern:"BFLULFBBLRRURUUUUUUUF"},
-  {id:"ZBLL-L-16",name:"L 16",group:"L",cp:"2組交換",alg:"R2 D' R U2 R' D R U2 R U L' U R U' L U R'",pattern:"RFBBRRULFUBLUULUUUFUU"},
-  {id:"ZBLL-L-17",name:"L 17",group:"L",cp:"2組交換",alg:"R U R' U R U L' U R' U' R' L U L U' R U L'",pattern:"BLLURFBBLRFURUUUUUUUF"},
-  {id:"ZBLL-L-18",name:"L 18",group:"L",cp:"3点交換",alg:"R' U2 R' D' R U2 R' D R2",pattern:"UBRRLLFRUFFLBUUUUUUUB"},
-  {id:"ZBLL-L-19",name:"L 19",group:"L",cp:"3点交換",alg:"r U R' U' r' F R U2 F' U' F U' F'",pattern:"RRUBLURFLLBBUUFUUUFUU"},
-  {id:"ZBLL-L-20",name:"L 20",group:"L",cp:"3点交換",alg:"R' U2 R U R' U R U' L' U' L U' L' U' R U' L U R'",pattern:"BRRUBLFLBFFURUUUUUUUL"},
-  {id:"ZBLL-L-21",name:"L 21",group:"L",cp:"3点交換",alg:"r U R' U' r' F R U F' U F U2 F'",pattern:"BFRULLFBBFRURUUUUUUUL"},
-  {id:"ZBLL-L-22",name:"L 22",group:"L",cp:"3点交換",alg:"R' U2 R' D' R U2 R' D R2 M2 U' M2 U2 M2 U' M2",pattern:"UFRRRLFLUFBLBUUUUUUUB"},
-  {id:"ZBLL-L-23",name:"L 23",group:"L",cp:"4点循環",alg:"L U L' U L U R' U L' U' R L' U' L U' L' U2 L",pattern:"UBFRLFLFURRLBUUUUUUUB"},
-  {id:"ZBLL-L-24",name:"L 24",group:"L",cp:"4点循環",alg:"B' U2 B U B' U B2 U2 B' U' B U' B' R' U L U' R U L'",pattern:"RBLBRRULLUFBUUFUUUFUU"},
-  {id:"ZBLL-L-25",name:"L 25",group:"L",cp:"4点循環",alg:"L' U' L U' L' U' R U' L U R' L U L' U L U2 L'",pattern:"RRLBLRUBLUFBUUFUUUFUU"},
-  {id:"ZBLL-L-26",name:"L 26",group:"L",cp:"4点循環",alg:"L U L' U L U' L' U L U2 R' L' U L U' R U L'",pattern:"BRFUFFLLBRBURUUUUUUUL"},
-  {id:"ZBLL-L-27",name:"L 27",group:"L",cp:"4点循環",alg:"R U R' U R U' R' U R U2 R2 U L U' R U L'",pattern:"BFFURFLBBRLURUUUUUUUL"},
-  {id:"ZBLL-L-28",name:"L 28",group:"L",cp:"4点循環",alg:"F U2 F' U' F U' F2 U2 F U F' U F R' U L U' R U L'",pattern:"RFLBLRURLUBBUUFUUUFUU"},
-  {id:"ZBLL-L-29",name:"L 29",group:"L",cp:"4点循環",alg:"B' U2 B U B' U B2 U2 B' U' B U' B' R U' L' U R' U' L",pattern:"UFFRLFLRURBLBUUUUUUUB"},
-  {id:"ZBLL-L-30",name:"L 30",group:"L",cp:"4点循環",alg:"F U F' R' F U' F' R U' R' U2 R",pattern:"UFFRBFLLURRLBUUUUUUUB"},
-  {id:"ZBLL-L-31",name:"L 31",group:"L",cp:"4点循環",alg:"B' U2 B U B' U' B U B' U B R' U L U' R U L'",pattern:"BFFUBFLLBRRURUUUUUUUL"},
-  {id:"ZBLL-L-32",name:"L 32",group:"L",cp:"4点循環",alg:"F U F' R' F U' F' U' R U R' U R",pattern:"RLUBBUFRLFFBUULUUURUU"},
-  {id:"ZBLL-L-33",name:"L 33",group:"L",cp:"3点交換",alg:"F R' F' r U R U' r'",pattern:"RBLBLLURRUFFUUFUUUBUU"},
-  {id:"ZBLL-L-34",name:"L 34",group:"L",cp:"3点交換",alg:"M2 U' M2 U2 M2 U' M2 F R' F' r U R U' r'",pattern:"RFLBRLULRUBFUUFUUUBUU"},
-  {id:"ZBLL-L-35",name:"L 35",group:"L",cp:"3点交換",alg:"F R' F' r U R U' R r' U2 R' U' R U R' U' R U' R'",pattern:"BLFURBLBFLFURUUUUUUUR"},
-  {id:"ZBLL-L-36",name:"L 36",group:"L",cp:"3点交換",alg:"U2 M U2 M2 U2 M U' M2 U' M2 F R' F' r U R U' r'",pattern:"RLLBBLUFRURFUUFUUUBUU"},
-  {id:"ZBLL-L-37",name:"L 37",group:"L",cp:"3点交換",alg:"F' r U R' U' r' F R",pattern:"RBLULLBRRFFUFUUUUUUUB"},
-  {id:"ZBLL-L-38",name:"L 38",group:"L",cp:"3点交換",alg:"M2 U' M2 U2 M2 U' M2 F' r U R' U' r' F R",pattern:"RFLURLBLRFBUFUUUUUUUB"},
-  {id:"ZBLL-L-39",name:"L 39",group:"L",cp:"4点循環",alg:"B U2 B' U' B U' B' L U L' U L U R' U L' U' R",pattern:"RBLULRBFLBRUFUUUUUUUF"},
-  {id:"ZBLL-L-40",name:"L 40",group:"L",cp:"4点循環",alg:"B U2 B' U' B U' B2 U2 B U B' U B L U' R' U L' U' R",pattern:"RBLURRBLLBFUFUUUUUUUF"},
-  {id:"ZBLL-L-41",name:"L 41",group:"L",cp:"4点循環",alg:"R' U2 R2 U R2 U R2 U2 R2 U' F U F' R F U' F'",pattern:"RRLULRBBLBFUFUUUUUUUF"},
-  {id:"ZBLL-L-42",name:"L 42",group:"L",cp:"4点循環",alg:"F' U2 F U F' U F L' U' L U' L' U' R U' L U R'",pattern:"FRURLULBFRFLUUBUUUBUU"},
-  {id:"ZBLL-L-43",name:"L 43",group:"L",cp:"4点循環",alg:"L' U' L U' L' U2 L2 U L' U L U R' U L' U' R",pattern:"UFLFLRBRUBBFRUUUUUUUL"},
-  {id:"ZBLL-L-44",name:"L 44",group:"L",cp:"4点循環",alg:"F U F' U F U' F' R' F U' F' U R",pattern:"FLBRBBURFUFLUULUUURUU"},
-  {id:"ZBLL-L-45",name:"L 45",group:"L",cp:"対角2点交換",alg:"D' R U R' U' D R2 U' R U' R' U R' U D' R U2 R' D R U2 R",pattern:"UFBFRLRBUFLLRUUUUUUUB"},
-  {id:"ZBLL-L-46",name:"L 46",group:"L",cp:"対角2点交換",alg:"D R' U' R U D' R2 U R' U R U' R U' D' R U2 R' D R U2 R",pattern:"ULBFRLRFUFBLRUUUUUUUB"},
-  {id:"ZBLL-L-47",name:"L 47",group:"L",cp:"3点交換",alg:"U' R' U' R U' R' U R U' R' U2 R2 U' L' U R' U' L",pattern:"URBFBBRLULFFRUUUUUUUL"},
-  {id:"ZBLL-L-48",name:"L 48",group:"L",cp:"2組交換",alg:"R U R' U R U' R' U R U' R' U R U2 R'",pattern:"FBURLUFRLRFBUULUUUBUU"},
-  {id:"ZBLL-L-49",name:"L 49",group:"L",cp:"2組交換",alg:"R U2 R' U' R U R' U' R U' R' L' U2 L U L' U L",pattern:"URFFBRLLUBFLRUUUUUUUB"},
-  {id:"ZBLL-L-50",name:"L 50",group:"L",cp:"2組交換",alg:"R U R' U R U' R' U R U2 R2 U' R U' R' U2 R",pattern:"RFFUBRLRBBLUFUUUUUUUL"},
-  {id:"ZBLL-L-51",name:"L 51",group:"L",cp:"2組交換",alg:"F U F' R' F U' F' U2 L U' R U L'",pattern:"UFFFRRLLUBBLRUUUUUUUB"},
-  {id:"ZBLL-L-52",name:"L 52",group:"L",cp:"2組交換",alg:"R U R' U R U' R' U R U2 R' L' U' L U' L' U2 L",pattern:"ULFFRRLBUBFLRUUUUUUUB"},
-  {id:"ZBLL-L-53",name:"L 53",group:"L",cp:"2組交換",alg:"R' U2 R U R' U R2 U2 R' U' R U R' U' R U' R'",pattern:"RLFUFRLRBBBUFUUUUUUUL"},
-  {id:"ZBLL-L-54",name:"L 54",group:"L",cp:"4点循環",alg:"F U2 F2 U' F2 U' F2 U2 F2 U R' U' R F' R' U R",pattern:"UBFFFBLRULLBRUUUUUUUR"},
-  {id:"ZBLL-L-55",name:"L 55",group:"L",cp:"4点循環",alg:"R' U L U' R U R' L' U2 R' D' R U2 R' D R2",pattern:"FRURBUFFBBLRUULUUULUU"},
-  {id:"ZBLL-L-56",name:"L 56",group:"L",cp:"4点循環",alg:"R' U' R U' R' U R F R' U R U' F'",pattern:"FLLRBLURBUFRUUFUUUBUU"},
-  {id:"ZBLL-L-57",name:"L 57",group:"L",cp:"3点交換",alg:"R' F' r U R U' r' U' F U' F' U2 F",pattern:"LFBFBBURRULFUULUUURUU"},
-  {id:"ZBLL-L-58",name:"L 58",group:"L",cp:"3点交換",alg:"R U2 R' U' R U R' U' R U' R' U R U' L' U R' U' L",pattern:"FLLURRBBFBFULUUUUUUUR"},
-  {id:"ZBLL-L-59",name:"L 59",group:"L",cp:"3点交換",alg:"R' F' r U R U' r' U2 F U F' U F",pattern:"ULLLFRBRUBBRFUUUUUUUF"},
-  {id:"ZBLL-L-60",name:"L 60",group:"L",cp:"3点交換",alg:"L' U R U' L U R' U' F' U2 F2 U F2 U F2 U2 F'",pattern:"URBLBFRLURFLFUUUUUUUB"},
-  {id:"ZBLL-L-61",name:"L 61",group:"L",cp:"3点交換",alg:"L' U R U' L U R' U' F U2 F2 U' F2 U' F2 U2 F",pattern:"ULBLRFRBURFLFUUUUUUUB"},
-  {id:"ZBLL-L-62",name:"L 62",group:"L",cp:"隣接2点交換",alg:"B U B' U B U2 B' L' U R U' L U R'",pattern:"UBBLLBRFULRRFUUUUUUUF"},
-  {id:"ZBLL-L-63",name:"L 63",group:"L",cp:"隣接2点交換",alg:"R U' L' U R' U' R' L U2 R2 U R2 U R2 U2 R'",pattern:"LBUFLUBFRBRFUURUUULUU"},
-  {id:"ZBLL-L-64",name:"L 64",group:"L",cp:"隣接2点交換",alg:"R U' L' U R' U' R L U2 R2 U' R2 U' R2 U2 R",pattern:"LFUFBUBLRBRFUURUUULUU"},
-  {id:"ZBLL-L-65",name:"L 65",group:"L",cp:"4点循環",alg:"U2 M U2 M2 U2 M U' M2 U' M2 U F R' F' r U R U' r'",pattern:"UBRLRRFLUBFLFUUUUUUUB"},
-  {id:"ZBLL-L-66",name:"L 66",group:"L",cp:"4点循環",alg:"R' U' R F R' U R U F' U' F U' F'",pattern:"LLUFBURRLRFBUUFUUUBUU"},
-  {id:"ZBLL-L-67",name:"L 67",group:"L",cp:"4点循環",alg:"R' U' R F R' U R F' U F U2 F'",pattern:"FLRURRFFBBBULUUUUUUUL"},
-  {id:"ZBLL-L-68",name:"L 68",group:"L",cp:"2組交換",alg:"L U' R' U L' U' R U R' U2 R' D' R U2 R' D R2",pattern:"UBRLLBFRULFBFUUUUUUUR"},
-  {id:"ZBLL-L-69",name:"L 69",group:"L",cp:"2組交換",alg:"R' U2 R' D' R U2 R' D R U' R U' R' U2 R F' r U R' U' r' F R",pattern:"LBFFRLUFBULRUURUUUBUU"},
-  {id:"ZBLL-L-70",name:"L 70",group:"L",cp:"2組交換",alg:"R' U' F U F' R F U' R U' R' U R U R2 F' R U R U' R'",pattern:"LRUFFURBBBLRUUFUUULUU"},
-  {id:"ZBLL-L-71",name:"L 71",group:"L",cp:"2組交換",alg:"D' R U R' U' D R2 U' R U' R' U R' U R2 F U F' R' F U' F' U R",pattern:"FLRUFBFRRLBULUUUUUUUB"},
-  {id:"ZBLL-L-72",name:"L 72",group:"L",cp:"2組交換",alg:"F R U' R' U R U R2 F' R U R U' R' U' R' F' r U R U' r' F",pattern:"LLUFBURFBBRRUUFUUULUU"},
-  {id:"ZBLL-H-01",name:"H 01",group:"H",cp:"CP解決",alg:"L U L' U L U' L' U L U2 L'",pattern:"LBRURUUFULLRBUBUUUFUF"},
-  {id:"ZBLL-H-02",name:"H 02",group:"H",cp:"CP解決",alg:"L U2 L' U' L U L' U' L U' L'",pattern:"UBUBFFBLFURULURUUULUR"},
-  {id:"ZBLL-H-03",name:"H 03",group:"H",cp:"CP解決",alg:"B' U2 B U B' U B L U L' U L U2 L'",pattern:"LRRUFUUBULLRBUBUUUFUF"},
-  {id:"ZBLL-H-04",name:"H 04",group:"H",cp:"CP解決",alg:"B' U2 B U B' U' B U B' U B",pattern:"LRRULUUFULBRBUBUUUFUF"},
-  {id:"ZBLL-H-05",name:"H 05",group:"H",cp:"CP解決",alg:"B' U' B U' B' U B U' B' U2 B",pattern:"UFUBLFBBFURULURUUULUR"},
-  {id:"ZBLL-H-06",name:"H 06",group:"H",cp:"CP解決",alg:"F' r U R' U' r' F R U' L U' R' U L' U' R",pattern:"LFRURUULULBRBUBUUUFUF"},
-  {id:"ZBLL-H-07",name:"H 07",group:"H",cp:"CP解決",alg:"B U2 B' U' B U' B' R' U' R U' R' U2 R",pattern:"LLRUBUUFULRRBUBUUUFUF"},
-  {id:"ZBLL-H-08",name:"H 08",group:"H",cp:"隣接2点交換",alg:"R' U' R F R' U R U' F2 r U R' U' r' F R",pattern:"ULUBFFRBRURULUFUUULUB"},
-  {id:"ZBLL-H-09",name:"H 09",group:"H",cp:"隣接2点交換",alg:"B U2 B' U' B U' B' R' U L U' R U L'",pattern:"LLFURUUFULBBBURUUUFUR"},
-  {id:"ZBLL-H-10",name:"H 10",group:"H",cp:"3点交換",alg:"F' r U R' U' r' F R2 U2 R' U' R U' R'",pattern:"URUBBBRLLUFULUFUUURUF"},
-  {id:"ZBLL-H-11",name:"H 11",group:"H",cp:"3点交換",alg:"R U R' U R U2 R' r U R' U' r' F R U2 F' U' F U' F'",pattern:"ULUBFRFRRUBULULUUUFUB"},
-  {id:"ZBLL-H-12",name:"H 12",group:"H",cp:"隣接2点交換",alg:"F U R' U' R F' U' R' U2 R F U2 F' U' F U' F'",pattern:"UBURRFLLFUFUBUBUUULUR"},
-  {id:"ZBLL-H-13",name:"H 13",group:"H",cp:"3点交換",alg:"r U R' U' r' F R U2 F2 U' F2 U' F2 U2 F",pattern:"BLFURUUBULFLRURUUUFUB"},
-  {id:"ZBLL-H-14",name:"H 14",group:"H",cp:"3点交換",alg:"B U2 B' U' B U' F' B' r U R' U' r' F R",pattern:"UFURBLFRFULUBULUUUBUR"},
-  {id:"ZBLL-H-15",name:"H 15",group:"H",cp:"3点交換",alg:"B' U2 B U B' U F B R' F' r U R U' r'",pattern:"UFUFLFLBRURURUBUUULUB"},
-  {id:"ZBLL-H-16",name:"H 16",group:"H",cp:"4点循環",alg:"F U2 F2 U' F2 U' F2 U2 F2 U F' R' F U' F' U R",pattern:"UBUFFBLRLULURUBUUURUF"},
-  {id:"ZBLL-H-17",name:"H 17",group:"H",cp:"4点循環",alg:"L U L' U L U2 R L' U2 R' U' R U' R' L U' R' U L' U' R",pattern:"UBUFRBLLLUFURUBUUURUF"},
-  {id:"ZBLL-H-18",name:"H 18",group:"H",cp:"4点循環",alg:"L' U2 L U L' U R' L U L U' R U L' F U F' U F U2 F'",pattern:"RFBURUUBURLFFULUUUBUL"},
-  {id:"ZBLL-H-19",name:"H 19",group:"H",cp:"4点循環",alg:"B' U' B U' B' U2 B R U2 R' U' R U' R' L U' R' U L' U' R",pattern:"RFBULUURURBFFULUUUBUL"},
-  {id:"ZBLL-H-20",name:"H 20",group:"H",cp:"4点循環",alg:"B' U2 B U B' U F' B U' F U' F' U2 F L U' R' U L' U' R",pattern:"UFUFLBLRLUBURUBUUURUF"},
-  {id:"ZBLL-H-21",name:"H 21",group:"H",cp:"4点循環",alg:"r U R' U' r' F R F' U' F R' F' r U R U' r'",pattern:"ULUFFBLBLURURUBUUURUF"},
-  {id:"ZBLL-H-22",name:"H 22",group:"H",cp:"4点循環",alg:"L U2 L' U' L U' R L' U' L' U R' U' L B' U' B U' B' U2 B",pattern:"RLBURUUFURBFFULUUUBUL"},
-  {id:"ZBLL-H-23",name:"H 23",group:"H",cp:"対角2点交換",alg:"F R' F' R U R U' R' F R U' R' U R U R' F' R U R' U R U' R' U R U2 R'",pattern:"RBRURUULULFLFUBUUUFUB"},
-  {id:"ZBLL-H-24",name:"H 24",group:"H",cp:"対角2点交換",alg:"R' F' r U R U' r' F R U2 R' U' R U' R2 U L U' R U L'",pattern:"RFRURUUBULLLFUBUUUFUB"},
-  {id:"ZBLL-H-25",name:"H 25",group:"H",cp:"対角2点交換",alg:"U2 M U2 M2 U2 M U' M2 U' M2 U R' U L U' R U R' L' U L U' R U L'",pattern:"UFUFLFBRBUBURURUUULUL"},
-  {id:"ZBLL-H-26",name:"H 26",group:"H",cp:"対角2点交換",alg:"L U' R' U L' U' R F' U2 F U F' U r U R' U' r' F R",pattern:"UFUFBFBLBURURURUUULUL"},
-  {id:"ZBLL-H-27",name:"H 27",group:"H",cp:"対角2点交換",alg:"R' F' r U R U' r' U' F U' F' U2 F R' U L U' R U L'",pattern:"RLRURUUFULBLFUBUUUFUB"},
-  {id:"ZBLL-H-28",name:"H 28",group:"H",cp:"3点交換",alg:"R2 D' R U2 R' D R U2 R F R' F' r U R U' r'",pattern:"UBUFLLBRLUFURURUUUBUF"},
-  {id:"ZBLL-H-29",name:"H 29",group:"H",cp:"3点交換",alg:"L' U' L U' L' U2 R' L F' r U R U' r' U2 F U F' U F",pattern:"URUFLLBFLUBURURUUUBUF"},
-  {id:"ZBLL-H-30",name:"H 30",group:"H",cp:"4点循環",alg:"R' U2 R2 U R2 U R2 U2 R2 U' R F R' U R U' F'",pattern:"RRLULUUBUBFBFUFUUULUR"},
-  {id:"ZBLL-H-31",name:"H 31",group:"H",cp:"4点循環",alg:"F R' F' r U R U' R r' U' L' U R' U' R' L F' r U R U' r' F",pattern:"ULULFRLBRURUFUBUUUFUB"},
-  {id:"ZBLL-H-32",name:"H 32",group:"H",cp:"3点交換",alg:"R' F' r U R U' r' U2 F2 U F2 U F2 U2 F'",pattern:"FRBUBUULURFRLULUUUBUF"},
-  {id:"ZBLL-H-33",name:"H 33",group:"H",cp:"3点交換",alg:"R' U2 R' D' R U2 R' D R2 U L U' R' U L' U' R",pattern:"FBRULUURUFFLLUBUUURUB"},
-  {id:"ZBLL-H-34",name:"H 34",group:"H",cp:"3点交換",alg:"F R' F' r U R U' r' L' U2 L U L' U L",pattern:"ULULRRBBBUFUFURUUUFUL"},
-  {id:"ZBLL-H-35",name:"H 35",group:"H",cp:"隣接2点交換",alg:"B' U2 B U B' U B L U' R' U L' U' R",pattern:"FRRUFUULUBBRLUBUUULUF"},
-  {id:"ZBLL-H-36",name:"H 36",group:"H",cp:"隣接2点交換",alg:"L' U' L U' L' U' R U' L U R'",pattern:"FFRURUUBUBLRLUBUUULUF"},
-  {id:"ZBLL-H-37",name:"H 37",group:"H",cp:"隣接2点交換",alg:"L U L' U L U R' U L' U' R",pattern:"FLRURUUFUBBRLUBUUULUF"},
-  {id:"ZBLL-H-38",name:"H 38",group:"H",cp:"2組交換",alg:"M2 U' M2 U2 M2 U' R' M2 U L U' R U R' L' U L U' R U L'",pattern:"FBFULUURUBFBLURUUULUR"},
-  {id:"ZBLL-H-39",name:"H 39",group:"H",cp:"2組交換",alg:"F U F' R' F U' F' U' R U R' U R2 U' L' U R' U' L",pattern:"UFULLLRBRURUFUFUUUBUB"},
-  {id:"ZBLL-H-40",name:"H 40",group:"H",cp:"2組交換",alg:"R' U L U' R U R' L' U L U' R U L'",pattern:"FFFURUULUBBBLURUUULUR"},
-  {id:"ZBLL-Pi-01",name:"Pi 01",group:"Pi",cp:"CP解決",alg:"B' U2 B U B' U B R' U2 R U R' U R",pattern:"URRBFFUBUULRLUBUUULUF"},
-  {id:"ZBLL-Pi-02",name:"Pi 02",group:"Pi",cp:"CP解決",alg:"B U B' U B U2 B' R U R' U R U2 R'",pattern:"LRRUFFUBFULUBUBUUULUR"},
-  {id:"ZBLL-Pi-03",name:"Pi 03",group:"Pi",cp:"CP解決",alg:"B' U' B U' B' U2 B2 U2 B' U' B U' B'",pattern:"URRBBFULUUFRLUBUUULUF"},
-  {id:"ZBLL-Pi-04",name:"Pi 04",group:"Pi",cp:"CP解決",alg:"R' U' F U F' R U F U2 F' L U' R' U L' U' R",pattern:"UFRBBFURUULRLUBUUULUF"},
-  {id:"ZBLL-Pi-05",name:"Pi 05",group:"Pi",cp:"CP解決",alg:"L U' R' U L' U' R2 U' L' U R' U' L",pattern:"LFRURFULFUBUBUBUUULUR"},
-  {id:"ZBLL-Pi-06",name:"Pi 06",group:"Pi",cp:"CP解決",alg:"F' U2 F U F' U F2 U F' U F U2 F'",pattern:"LLUURUBBFLFUBURUUUFUR"},
-  {id:"ZBLL-Pi-07",name:"Pi 07",group:"Pi",cp:"隣接2点交換",alg:"R' U2 R U F R' U R U' F' B' U2 B U B' U B",pattern:"LLRUBRURLUFUBUBUUUFUF"},
-  {id:"ZBLL-Pi-08",name:"Pi 08",group:"Pi",cp:"隣接2点交換",alg:"R' F' r U R U' r' F2 U R' U' R F' R' U R",pattern:"LRUUBURFRLLUBUFUUUFUB"},
-  {id:"ZBLL-Pi-09",name:"Pi 09",group:"Pi",cp:"隣接2点交換",alg:"L' U R U' L U R' B U2 B' U' B U' B'",pattern:"URUBFURLULBBLUFUUUFUR"},
-  {id:"ZBLL-Pi-10",name:"Pi 10",group:"Pi",cp:"隣接2点交換",alg:"L U' R' U L' U' R2 U R' U R U2 R'",pattern:"LRFUFFULRUBUBURUUULUB"},
-  {id:"ZBLL-Pi-11",name:"Pi 11",group:"Pi",cp:"隣接2点交換",alg:"B U B' U B U2 B' R U' L' U R' U' L",pattern:"LFFURFUBRULUBURUUULUB"},
-  {id:"ZBLL-Pi-12",name:"Pi 12",group:"Pi",cp:"隣接2点交換",alg:"L U' R' U L' U R U R' U R",pattern:"UFFBRFUBUULBLURUUULUR"},
-  {id:"ZBLL-Pi-13",name:"Pi 13",group:"Pi",cp:"隣接2点交換",alg:"B' U' B U' B' U2 B R' U L U' R U L'",pattern:"UFFBBFULUURBLURUUULUR"},
-  {id:"ZBLL-Pi-14",name:"Pi 14",group:"Pi",cp:"隣接2点交換",alg:"L' U R U' L U R2 U' R U' R' U2 R",pattern:"UFUBBURLULRBLUFUUUFUR"},
-  {id:"ZBLL-Pi-15",name:"Pi 15",group:"Pi",cp:"隣接2点交換",alg:"L U' R' U L' U' R F' U2 F U F' U F",pattern:"LFFUBFULRURUBURUUULUB"},
-  {id:"ZBLL-Pi-16",name:"Pi 16",group:"Pi",cp:"隣接2点交換",alg:"L' U R U' L U' R' U' R U' R'",pattern:"ULFBRFUFUUBBLURUUULUR"},
-  {id:"ZBLL-Pi-17",name:"Pi 17",group:"Pi",cp:"3点交換",alg:"R U R' U R U2 R2 F' r U R U' r' F",pattern:"LLLURRUBRUFUBUFUUUFUB"},
-  {id:"ZBLL-Pi-18",name:"Pi 18",group:"Pi",cp:"対角2点交換",alg:"F R' F' R U R U' R' F R U' R' U R U R' F2 U2 F2 U F2 U F2 U2 F'",pattern:"LBUURUFLFRFUBULUUUBUR"},
-  {id:"ZBLL-Pi-19",name:"Pi 19",group:"Pi",cp:"対角2点交換",alg:"R' F' r U R U' r' F U R' U2 R' D' R U2 R' D R2",pattern:"LRUUBUFFFRLUBULUUUBUR"},
-  {id:"ZBLL-Pi-20",name:"Pi 20",group:"Pi",cp:"対角2点交換",alg:"F R' F' R U R U' R' F R U' R' U R U R' F' R U2 R2 U' R2 U' R2 U2 R",pattern:"UFUBLUFRURBRLULUUUBUF"},
-  {id:"ZBLL-Pi-21",name:"Pi 21",group:"Pi",cp:"対角2点交換",alg:"L U L' U L U R' U L' U' R F R' F' r U R U' r'",pattern:"ULUBRUFFURBRLULUUUBUF"},
-  {id:"ZBLL-Pi-22",name:"Pi 22",group:"Pi",cp:"隣接2点交換",alg:"L' U R U' L U R' U L' U R U' L U R'",pattern:"ULBRFFUBUURRBULUUULUF"},
-  {id:"ZBLL-Pi-23",name:"Pi 23",group:"Pi",cp:"2組交換",alg:"R' U' R U' R' U2 R2 U' L' U R' U' R' L U L U' R U L'",pattern:"UBBRRRUFUULFBULUUUFUL"},
-  {id:"ZBLL-Pi-24",name:"Pi 24",group:"Pi",cp:"2組交換",alg:"L U' R' U L' U' R L' U' L U' L' U2 R' L U L U' R U L'",pattern:"URBRLRUFUUBFBULUUUFUL"},
-  {id:"ZBLL-Pi-25",name:"Pi 25",group:"Pi",cp:"2組交換",alg:"B' U2 B U B' U B R U' L' U R' U' R' L U L U' R U L'",pattern:"BFUULULBLFRURUBUUURUF"},
-  {id:"ZBLL-Pi-26",name:"Pi 26",group:"Pi",cp:"2組交換",alg:"B U2 B' U' B U' B' R U' L' U R' U' R' L U L U' R U L'",pattern:"UFBRBRURUULFBULUUUFUL"},
-  {id:"ZBLL-Pi-27",name:"Pi 27",group:"Pi",cp:"2組交換",alg:"R U R' U R U2 R2 U L U' R U R L' U' L' U R' U' L",pattern:"ULBRRRUBUUFFBULUUUFUL"},
-  {id:"ZBLL-Pi-28",name:"Pi 28",group:"Pi",cp:"2組交換",alg:"L U' R' U L' U' R L' U R U' L U R' B U B' U B U2 B'",pattern:"BLUUFULRLFBURUBUUURUF"},
-  {id:"ZBLL-Pi-29",name:"Pi 29",group:"Pi",cp:"3点交換",alg:"r U R' U' r' F R F' B' U' B U' B' U2 B",pattern:"URURLURFULBLBUFUUUFUB"},
-  {id:"ZBLL-Pi-30",name:"Pi 30",group:"Pi",cp:"3点交換",alg:"r U R' U' r' F R F' R' U2 R2 U R2 U R2 U2 R'",pattern:"BFUUBURRBLLURUFUUUFUL"},
-  {id:"ZBLL-Pi-31",name:"Pi 31",group:"Pi",cp:"4点循環",alg:"r U R' U' r' F R F' U F R' F' r U R U' r'",pattern:"URLRBRUFUULLBUFUUUFUB"},
-  {id:"ZBLL-Pi-32",name:"Pi 32",group:"Pi",cp:"4点循環",alg:"B U2 B' U' B U' B' L' U R U' L U R' L U L' U L U2 L'",pattern:"UFLRLRURUUBLBUFUUUFUB"},
-  {id:"ZBLL-Pi-33",name:"Pi 33",group:"Pi",cp:"4点循環",alg:"B U2 B' U' B U' B2 U2 B U B' U B R' U L U' R U L'",pattern:"UFURLUFRUFBLBULUUURUB"},
-  {id:"ZBLL-Pi-34",name:"Pi 34",group:"Pi",cp:"4点循環",alg:"F U F' R' F U' F' U R2 U2 R' U' R U' R'",pattern:"ULLRRRUFUUBLBUFUUUFUB"},
-  {id:"ZBLL-Pi-35",name:"Pi 35",group:"Pi",cp:"3点交換",alg:"F R' F' r U R U' R r' U R' U R U' R' U R U2 R'",pattern:"URURBUFLUBFRBULUUULUF"},
-  {id:"ZBLL-Pi-36",name:"Pi 36",group:"Pi",cp:"3点交換",alg:"R' U' R U' R' U2 R F U F' U F U2 R' F' r U R U' r'",pattern:"UFLRBLURUULRBUFUUUBUF"},
-  {id:"ZBLL-Pi-37",name:"Pi 37",group:"Pi",cp:"3点交換",alg:"F R' F' r U R U' r' F' U2 F U F' U' F U F' U F",pattern:"UFURBUFRUBLRBULUUULUF"},
-  {id:"ZBLL-Pi-38",name:"Pi 38",group:"Pi",cp:"3点交換",alg:"F U2 F2 U' F2 U' F2 U2 r U R' U' r' F R",pattern:"BLUURUFBFBFURULUUULUR"},
-  {id:"ZBLL-Pi-39",name:"Pi 39",group:"Pi",cp:"3点交換",alg:"F' U2 F2 U F2 U F2 U2 R' F' r U R U' r'",pattern:"URBFBFULUUFBRULUUULUR"},
-  {id:"ZBLL-Pi-40",name:"Pi 40",group:"Pi",cp:"3点交換",alg:"L U L' U L U2 L' F' U' F U' F' U2 r U R' U' r' F R",pattern:"RFUULULBRLRUFUBUUUFUB"},
-  {id:"ZBLL-Pi-41",name:"Pi 41",group:"Pi",cp:"3点交換",alg:"R U2 R2 U' R2 U' R2 U2 R F R' F' r U R U' r'",pattern:"RLBUFFURRUBUFULUUULUB"},
-  {id:"ZBLL-Pi-42",name:"Pi 42",group:"Pi",cp:"4点循環",alg:"L U L' U L U2 L2 U' L U' L' U2 L2 U' R' U L' U' R",pattern:"RBUURULLLRFUFUBUUUBUF"},
-  {id:"ZBLL-Pi-43",name:"Pi 43",group:"Pi",cp:"4点循環",alg:"F U2 F' U' F U' F2 U2 F U F' U F L U' R' U L' U' R",pattern:"UBUFRULLURFFRUBUUUBUL"},
-  {id:"ZBLL-Pi-44",name:"Pi 44",group:"Pi",cp:"4点循環",alg:"B' U2 B U B' U B2 U2 B' U' B U' B' L' U R U' L U R'",pattern:"RBBURBULLUFUFULUUURUF"},
-  {id:"ZBLL-Pi-45",name:"Pi 45",group:"Pi",cp:"4点循環",alg:"L U' R' U L' U' R L' U' L U' L' U2 L B U2 B' U' B U' B'",pattern:"UFBFLBURUUBFRULUUURUL"},
-  {id:"ZBLL-Pi-46",name:"Pi 46",group:"Pi",cp:"4点循環",alg:"B' U2 B U B' U B2 U2 B' U' B U' B' L U' R' U L' U' R",pattern:"UFUFLULRURBFRUBUUUBUL"},
-  {id:"ZBLL-Pi-47",name:"Pi 47",group:"Pi",cp:"4点循環",alg:"U R U' L' U R' U' L2 U' R' U L' U R' D' R U2 R' D R2",pattern:"RLBUFBUBLURUFULUUURUF"},
-  {id:"ZBLL-Pi-48",name:"Pi 48",group:"Pi",cp:"対角2点交換",alg:"F U R' U' R F' R' U F' r U R U' r' F",pattern:"RRUUBUBFBLLUFURUUUFUL"},
-  {id:"ZBLL-Pi-49",name:"Pi 49",group:"Pi",cp:"対角2点交換",alg:"R' U' R U' R' U' L U' R U L' F' r U R' U' r' F R",pattern:"URUFFUBLULBLRURUUUFUB"},
-  {id:"ZBLL-Pi-50",name:"Pi 50",group:"Pi",cp:"2組交換",alg:"F' U2 F U F' U F2 U2 F' U' F U' F' R U R' U R U2 R'",pattern:"RRLULBUFBUBUFUFUUURUL"},
-  {id:"ZBLL-Pi-51",name:"Pi 51",group:"Pi",cp:"2組交換",alg:"B U2 B' U' B U' B2 U2 B U B' U B2 U2 B' U' B U' B'",pattern:"URUFLUFFURBLRULUUUBUB"},
-  {id:"ZBLL-Pi-52",name:"Pi 52",group:"Pi",cp:"2組交換",alg:"F' U2 F2 U F2 U F2 U2 F'",pattern:"URUFBUFLURFLRULUUUBUB"},
-  {id:"ZBLL-Pi-53",name:"Pi 53",group:"Pi",cp:"2組交換",alg:"F' U2 F U F' U F2 U2 F' U' F U' F2 U2 F U F' U F",pattern:"RFLULBUBBURUFUFUUURUL"},
-  {id:"ZBLL-Pi-54",name:"Pi 54",group:"Pi",cp:"2組交換",alg:"R U2 R2 U' R2 U' R2 U2 R2 U' R U R U R U' R' U' R2",pattern:"RFUURUFLBRBUFULUUUBUL"},
-  {id:"ZBLL-Pi-55",name:"Pi 55",group:"Pi",cp:"2組交換",alg:"F U2 F2 U' F2 U' F2 U2 F",pattern:"ULUFRUFBURFLRULUUUBUB"},
-  {id:"ZBLL-Pi-56",name:"Pi 56",group:"Pi",cp:"4点循環",alg:"R' F' r U R U' r' F U' F U2 F2 U' F2 U' F2 U2 F",pattern:"URLFFLULUUBBRUFUUUBUR"},
-  {id:"ZBLL-Pi-57",name:"Pi 57",group:"Pi",cp:"4点循環",alg:"L U' R' U L' U' R U R U' L' U R' U' L",pattern:"ULLFFLUBUURBRUFUUUBUR"},
-  {id:"ZBLL-Pi-58",name:"Pi 58",group:"Pi",cp:"3点交換",alg:"L' U R U' L U R' U R2 D' R U2 R' D R U2 R",pattern:"FFBURBULFUBULULUUURUR"},
-  {id:"ZBLL-Pi-59",name:"Pi 59",group:"Pi",cp:"3点交換",alg:"R U2 R' U' R U R' U' R U' R' r U R' U' r' F R F'",pattern:"FLUURULBFRFULUBUUUBUR"},
-  {id:"ZBLL-Pi-60",name:"Pi 60",group:"Pi",cp:"3点交換",alg:"R' F' r U R U' r' F B U B' U B U2 B'",pattern:"ULULFULRURBRFUBUUUBUF"},
-  {id:"ZBLL-Pi-61",name:"Pi 61",group:"Pi",cp:"3点交換",alg:"F' U' F U' F' U F U' F' U2 F r U R' U' r' F R F'",pattern:"FLUUFULRFRBULUBUUUBUR"},
-  {id:"ZBLL-Pi-62",name:"Pi 62",group:"Pi",cp:"3点交換",alg:"r U R' U' r' F R F' R' U2 R' D' R U2 R' D R2",pattern:"UBRLLRURUUFLFUBUUUFUB"},
-  {id:"ZBLL-Pi-63",name:"Pi 63",group:"Pi",cp:"3点交換",alg:"F' U' F U' F' U2 r U R' U' r' F R F U F' U F U2 F'",pattern:"URRLFRUBUULLFUBUUUFUB"},
-  {id:"ZBLL-Pi-64",name:"Pi 64",group:"Pi",cp:"3点交換",alg:"F' U' F U' F' U2 r U R' U' r' F R L' U2 L U L' U L",pattern:"UFRLLRUBUURLFUBUUUFUB"},
-  {id:"ZBLL-Pi-65",name:"Pi 65",group:"Pi",cp:"3点交換",alg:"F R' F' r U R U' R' r' U2 R2 U R2 U R2 U2 R'",pattern:"FFUUBUBRBFLULURUUURUL"},
-  {id:"ZBLL-Pi-66",name:"Pi 66",group:"Pi",cp:"隣接2点交換",alg:"L U2 L' U' L U' L2 U R U' L U R'",pattern:"FRRUFLULFUBULUBUUUBUR"},
-  {id:"ZBLL-Pi-67",name:"Pi 67",group:"Pi",cp:"隣接2点交換",alg:"B U B' U B U2 B' L U' R' U L' U' R",pattern:"FFUURUBBFBLULURUUULUR"},
-  {id:"ZBLL-Pi-68",name:"Pi 68",group:"Pi",cp:"隣接2点交換",alg:"B' U' B U' B' U2 B L' U R U' L U R'",pattern:"FFRUBLULFURULUBUUUBUR"},
-  {id:"ZBLL-Pi-69",name:"Pi 69",group:"Pi",cp:"隣接2点交換",alg:"L' U2 L U L' U L2 U' R' U L' U' R",pattern:"UFULBUBLUBRRFURUUULUF"},
-  {id:"ZBLL-Pi-70",name:"Pi 70",group:"Pi",cp:"4点循環",alg:"F U R' U' R F' R' U R2 U2 R2 U' R2 U' R2 U2 R",pattern:"FRFULBUBBUFULURUUURUL"},
-  {id:"ZBLL-Pi-71",name:"Pi 71",group:"Pi",cp:"4点循環",alg:"r U R' U' r' F R U R' U' R F' R' U F' r U R U' r' F",pattern:"FRUUBURFBRLULUFUUUBUL"},
-  {id:"ZBLL-Pi-72",name:"Pi 72",group:"Pi",cp:"4点循環",alg:"F' U2 F2 U F2 U F2 U2 F' U F' r U R' U' r' F R",pattern:"UFFLRBUBUULLFURUUURUB"},
-  {id:"ZBLL-Sune-01",name:"Sune 01",group:"Sune",cp:"CP解決",alg:"F U2 F2 U' F2 U' F2 U2 F R U2 R' U' R U' R'",pattern:"BBRLLUURFLFUUUBUUUFUR"},
-  {id:"ZBLL-Sune-02",name:"Sune 02",group:"Sune",cp:"CP解決",alg:"B U2 B' U' B U' B' L' U' L U' L' U2 L",pattern:"BFRLRUULFLBUUUBUUUFUR"},
-  {id:"ZBLL-Sune-03",name:"Sune 03",group:"Sune",cp:"CP解決",alg:"B' U' B U' B' U2 B R U2 R' U' R U' R'",pattern:"ULRBBLUFFFRULUBUUUUUR"},
-  {id:"ZBLL-Sune-04",name:"Sune 04",group:"Sune",cp:"隣接2点交換",alg:"x R2 D2 R U R' D2 R U' x' R2 U' L' U R' U' L",pattern:"ULRBFFUBLRRULUBUUUUUF"},
-  {id:"ZBLL-Sune-05",name:"Sune 05",group:"Sune",cp:"隣接2点交換",alg:"L U' R' U L' U' x U R' D2 R U' R' D2 x' R2",pattern:"ULBBFURBLFRULUUUUURUF"},
-  {id:"ZBLL-Sune-06",name:"Sune 06",group:"Sune",cp:"隣接2点交換",alg:"L U' R' U L' U R' D' R U2 R' D R2",pattern:"BLRLFUUBLFRUUUBUUURUF"},
-  {id:"ZBLL-Sune-07",name:"Sune 07",group:"Sune",cp:"隣接2点交換",alg:"L' U R U' L U R2 U2 R2 U R2 U R2 U2 R'",pattern:"BRFLFUULRLBUUURUUUFUB"},
-  {id:"ZBLL-Sune-08",name:"Sune 08",group:"Sune",cp:"隣接2点交換",alg:"L' U' L U' L' U2 R' L U L U' R U L'",pattern:"UFFBRUUBBLLRLURUUUFUU"},
-  {id:"ZBLL-Sune-09",name:"Sune 09",group:"Sune",cp:"3点交換",alg:"R2 D' R U2 R' D R2 U R' U R",pattern:"UBRBFUFLLRRULUUUUUBUF"},
-  {id:"ZBLL-Sune-10",name:"Sune 10",group:"Sune",cp:"3点交換",alg:"x R2 D2 R U R' D2 R U' x' R B' U2 B U B' U B",pattern:"UFFBLUUBFRRLLURUUUBUU"},
-  {id:"ZBLL-Sune-11",name:"Sune 11",group:"Sune",cp:"3点交換",alg:"F U F' U F U2 F' R' F' r U R U' r' F",pattern:"UFLBLFUBRRRULUFUUUUUB"},
-  {id:"ZBLL-Sune-12",name:"Sune 12",group:"Sune",cp:"3点交換",alg:"B' U2 B U B' U B x R' U R' D2 R U' R' D2 x' R2",pattern:"UFFBLULBRFRULUUUUURUB"},
-  {id:"ZBLL-Sune-13",name:"Sune 13",group:"Sune",cp:"3点交換",alg:"B U B' U B U2 B' R' U2 R' D' R U2 R' D R2",pattern:"BLLLFUURRFBUUUFUUURUB"},
-  {id:"ZBLL-Sune-14",name:"Sune 14",group:"Sune",cp:"対角2点交換",alg:"R U' L' U R' U L U L' U2 R U' L U R' U'",pattern:"URLBFRULFBBULUFUUUUUR"},
-  {id:"ZBLL-Sune-15",name:"Sune 15",group:"Sune",cp:"対角2点交換",alg:"R U' L' U R' U' L F' r U R' U' r' F R",pattern:"ULLBFUUBRRRFLUFUUUBUU"},
-  {id:"ZBLL-Sune-16",name:"Sune 16",group:"Sune",cp:"隣接2点交換",alg:"F' r U R' U' r' F R U r U R' U' r' F R F'",pattern:"URLRBUBFFLLUBUUUUUFUR"},
-  {id:"ZBLL-Sune-17",name:"Sune 17",group:"Sune",cp:"2組交換",alg:"x U2 r' U' r U2 R' F R' F' x' R' U' L' U R' U' L",pattern:"UBBRFFULLRRUBULUUUUUF"},
-  {id:"ZBLL-Sune-18",name:"Sune 18",group:"Sune",cp:"2組交換",alg:"L U' R' U L' U' R F R U' R' U R U R2 F' R U R U' R'",pattern:"URLRFUBBLFLUBUUUUURUF"},
-  {id:"ZBLL-Sune-19",name:"Sune 19",group:"Sune",cp:"2組交換",alg:"D' R U R' U' D R2 U' R U' R' U R' U R' U' L' U R' U' L",pattern:"URBRBFULLRFUBULUUUUUF"},
-  {id:"ZBLL-Sune-20",name:"Sune 20",group:"Sune",cp:"2組交換",alg:"F' r U R' U' r' F R2 U2 R' U' R U' R2 F' r U R U' r' F",pattern:"URLRBUBLLFFUBUUUUURUF"},
-  {id:"ZBLL-Sune-21",name:"Sune 21",group:"Sune",cp:"2組交換",alg:"D R' U' R U D' R2 U R' U R U' R U' R' U' L' U R' U' L",pattern:"UFBRBFURLRLUBULUUUUUF"},
-  {id:"ZBLL-Sune-22",name:"Sune 22",group:"Sune",cp:"2組交換",alg:"L' U R U' L U R2 U' R U' R' U' L U' R U L'",pattern:"ULBRRFUBLRFUBULUUUUUF"},
-  {id:"ZBLL-Sune-23",name:"Sune 23",group:"Sune",cp:"2組交換",alg:"U R U R2 F' R U R U' R' F R U2 L' U R' U' L",pattern:"ULBRFFURLRBUBULUUUUUF"},
-  {id:"ZBLL-Sune-24",name:"Sune 24",group:"Sune",cp:"2組交換",alg:"F R U' R' U R U R2 F' R U R U2 L' U R' U' L",pattern:"ULBRBFUFLRRUBULUUUUUF"},
-  {id:"ZBLL-Sune-25",name:"Sune 25",group:"Sune",cp:"3点交換",alg:"U' L' U2 L U L' U L2 U2 L' U' L U2 R' U L' U' R",pattern:"URRRFUFBBLLUBUUUUUFUL"},
-  {id:"ZBLL-Sune-26",name:"Sune 26",group:"Sune",cp:"3点交換",alg:"r U R' U' r' F R F2 U2 F U F' U F",pattern:"ULFRFLURBFBUBURUUUUUL"},
-  {id:"ZBLL-Sune-27",name:"Sune 27",group:"Sune",cp:"4点循環",alg:"L U L' U L U R' U L' U' R F' U' F U' F' U2 F",pattern:"UBLRRFULBRFUBUFUUUUUL"},
-  {id:"ZBLL-Sune-28",name:"Sune 28",group:"Sune",cp:"4点循環",alg:"B' U' B U' B' U2 B2 U B' U B U2 B' R U' L' U R' U' L",pattern:"RBLBRUULBFFUUUFUUURUL"},
-  {id:"ZBLL-Sune-29",name:"Sune 29",group:"Sune",cp:"4点循環",alg:"R U' L' U R' U' R2 L U R U R' U' R' U' R' U R'",pattern:"URLRLFUBBRFUBUFUUUUUL"},
-  {id:"ZBLL-Sune-30",name:"Sune 30",group:"Sune",cp:"4点循環",alg:"F U F' U F U2 R U' R' U R U R2 F' R U R U' R'",pattern:"RFLBRUUBBFLUUUFUUURUL"},
-  {id:"ZBLL-Sune-31",name:"Sune 31",group:"Sune",cp:"4点循環",alg:"L U2 L' U' L U' L' B' U' B U' B' U2 B R' U L U' R U L'",pattern:"UFLRLUURLFBBBUFUUURUU"},
-  {id:"ZBLL-Sune-32",name:"Sune 32",group:"Sune",cp:"4点循環",alg:"B' U2 B U B' U B x U2 r' U' r U2 R' F R' F' x' R2",pattern:"UFFRLULRBFBUBUUUUURUL"},
-  {id:"ZBLL-Sune-33",name:"Sune 33",group:"Sune",cp:"4点循環",alg:"F U F' U F U2 F' x U2 r' U' r U2 R' F R' F' x' R2",pattern:"RFLBLUURBFBUUUFUUURUL"},
-  {id:"ZBLL-Sune-34",name:"Sune 34",group:"Sune",cp:"4点循環",alg:"R2 U R U R' U' R' U' R' L' U R' U' L",pattern:"ULLRBFURBRFUBUFUUUUUL"},
-  {id:"ZBLL-Sune-35",name:"Sune 35",group:"Sune",cp:"4点循環",alg:"R' U' F U F' R U F U2 F'",pattern:"ULFRRULFBFBUBUUUUURUL"},
-  {id:"ZBLL-Sune-36",name:"Sune 36",group:"Sune",cp:"4点循環",alg:"R U' L' U R' U' L2 U L' U L U2 L' B U2 B' U' B U' B'",pattern:"RLLBRUUFBFBUUUFUUURUL"},
-  {id:"ZBLL-Sune-37",name:"Sune 37",group:"Sune",cp:"3点交換",alg:"R' U2 R U R' U R' D' R U2 R' D R U2 R",pattern:"UBLRFBULFLRUBUFUUUUUR"},
-  {id:"ZBLL-Sune-38",name:"Sune 38",group:"Sune",cp:"3点交換",alg:"F U F' U F U2 F2 r U R' U' r' F R",pattern:"UFLRLUUBRBRFBUFUUULUU"},
-  {id:"ZBLL-Sune-39",name:"Sune 39",group:"Sune",cp:"3点交換",alg:"B U B' U B U2 B' R2 D' R U2 R' D R U2 R",pattern:"ULLRFBURFLBUBUFUUUUUR"},
-  {id:"ZBLL-Sune-40",name:"Sune 40",group:"Sune",cp:"3点交換",alg:"U R' U2 R U R' U' R' D' R U2 R' D R2 U'",pattern:"UFBFLLUBRFRURULUUUUUB"},
-  {id:"ZBLL-Sune-41",name:"Sune 41",group:"Sune",cp:"3点交換",alg:"R U R' U R U2 R' F R' F' r U R U' r'",pattern:"ULLFRUBBRLFURUUUUUFUB"},
-  {id:"ZBLL-Sune-42",name:"Sune 42",group:"Sune",cp:"3点交換",alg:"F' U2 F U F' U F2 R' F' r U R U' r'",pattern:"ULLFFUBRRLBURUUUUUFUB"},
-  {id:"ZBLL-Sune-43",name:"Sune 43",group:"Sune",cp:"4点循環",alg:"R U2 R' U' R U R' U' R U' R' L' U R U' L U R'",pattern:"FBBRFUURLRLUUULUUUBUF"},
-  {id:"ZBLL-Sune-44",name:"Sune 44",group:"Sune",cp:"4点循環",alg:"x U2 r' U' r U2 R' F R' F' x' R' U R' U R U2 R'",pattern:"UBBFRRULLBFURULUUUUUF"},
-  {id:"ZBLL-Sune-45",name:"Sune 45",group:"Sune",cp:"4点循環",alg:"L U2 L' U' L U L' U' L U' L2 U R U' L U R'",pattern:"FRBRLUUBLRFUUULUUUBUF"},
-  {id:"ZBLL-Sune-46",name:"Sune 46",group:"Sune",cp:"4点循環",alg:"L U' R' U L' U' R' U R U R' U' R' U' R' U R'",pattern:"URLFLUBBLRFURUUUUUBUF"},
-  {id:"ZBLL-Sune-47",name:"Sune 47",group:"Sune",cp:"4点循環",alg:"M2 U' M2 U2 M2 U' M2 L U' R' U L' U' R",pattern:"URLFBUBFLRLURUUUUUBUF"},
-  {id:"ZBLL-Sune-48",name:"Sune 48",group:"Sune",cp:"4点循環",alg:"U2 M U2 M2 U2 M U' M2 U' M2 L U' R' U L' U' R",pattern:"UFLFLUBRLRBURUUUUUBUF"},
-  {id:"ZBLL-Sune-49",name:"Sune 49",group:"Sune",cp:"4点循環",alg:"L U' R' U L' U' R",pattern:"ULLFFUBBLRRURUUUUUBUF"},
-  {id:"ZBLL-Sune-50",name:"Sune 50",group:"Sune",cp:"4点循環",alg:"F R U' R' U R U R2 F' R U2 R U2 R'",pattern:"ULBFBRURLBFURULUUUUUF"},
-  {id:"ZBLL-Sune-51",name:"Sune 51",group:"Sune",cp:"対角2点交換",alg:"F U F' U F U' R' U' R F' R' U R r U R' U' r' F R F'",pattern:"FLRRBUURBLFUUUBUUUFUL"},
-  {id:"ZBLL-Sune-52",name:"Sune 52",group:"Sune",cp:"3点交換",alg:"L U' R' U L' U2 R F R' U R U' F'",pattern:"UFRFRUULFBBLRUBUUULUU"},
-  {id:"ZBLL-Sune-53",name:"Sune 53",group:"Sune",cp:"2組交換",alg:"F' U2 F U F' U F M2 U' M2 U2 M2 U' M2",pattern:"URLFBRULBBFURUFUUUUUL"},
-  {id:"ZBLL-Sune-54",name:"Sune 54",group:"Sune",cp:"2組交換",alg:"M2 U' M2 U2 M2 U' M2 B' U2 B U B' U B",pattern:"URFFBULLBRFURUUUUUBUL"},
-  {id:"ZBLL-Sune-55",name:"Sune 55",group:"Sune",cp:"2組交換",alg:"B U B' U B U2 B' M2 U' M2 U2 M2 U' M2",pattern:"URLFBUULLRFBRUFUUUBUU"},
-  {id:"ZBLL-Sune-56",name:"Sune 56",group:"Sune",cp:"2組交換",alg:"M2 U' M2 U2 M2 U' M2 F U F' U F U2 F'",pattern:"FRLRBUULBRFUUUFUUUBUL"},
-  {id:"ZBLL-Sune-57",name:"Sune 57",group:"Sune",cp:"2組交換",alg:"B' U2 B U B' U B",pattern:"UFFFLULBBRRURUUUUUBUL"},
-  {id:"ZBLL-Sune-58",name:"Sune 58",group:"Sune",cp:"2組交換",alg:"B U2 B' U' B U' B' R U2 R' U' R U R' U' R U' R'",pattern:"UFLFLUUBLRRBRUFUUUBUU"},
-  {id:"ZBLL-Sune-59",name:"Sune 59",group:"Sune",cp:"2組交換",alg:"R U R' U R U R U R U R U' R' U' R2",pattern:"UFLFLRUBBBRURUFUUUUUL"},
-  {id:"ZBLL-Sune-60",name:"Sune 60",group:"Sune",cp:"2組交換",alg:"B U B' U B U2 B'",pattern:"ULLFFUURLRBBRUFUUUBUU"},
-  {id:"ZBLL-Sune-61",name:"Sune 61",group:"Sune",cp:"2組交換",alg:"R2 U R U R' U' R' U' R' U2 R' U R U2 R'",pattern:"ULLFBRUFBBRURUFUUUUUL"},
-  {id:"ZBLL-Sune-62",name:"Sune 62",group:"Sune",cp:"4点循環",alg:"R' U2 R U F R' U R U' F'",pattern:"ULFFRULFRBBURUUUUULUB"},
-  {id:"ZBLL-Sune-63",name:"Sune 63",group:"Sune",cp:"3点交換",alg:"R' U2 R' D' R U2 R' D R2 L U L' U L U2 L'",pattern:"UBBLFUULRRRFFULUUUBUU"},
-  {id:"ZBLL-Sune-64",name:"Sune 64",group:"Sune",cp:"3点交換",alg:"R' F' r U R U' r' F2 U F' U F U2 F'",pattern:"UFLLLUBBFRRUFUUUUUBUR"},
-  {id:"ZBLL-Sune-65",name:"Sune 65",group:"Sune",cp:"3点交換",alg:"R' F' r U R U' r' F L' U2 L U L' U L",pattern:"ULLLRUBBFRFUFUUUUUBUR"},
-  {id:"ZBLL-Sune-66",name:"Sune 66",group:"Sune",cp:"3点交換",alg:"x R' U R' D2 R U' R' D2 x' R' U R' U R U2 R'",pattern:"ULBLRRUBFBFUFULUUUUUR"},
-  {id:"ZBLL-Sune-67",name:"Sune 67",group:"Sune",cp:"3点交換",alg:"F R' F' r U R U' r' F' U2 F U F' U F",pattern:"ULRLFFURBRBUFUBUUUUUL"},
-  {id:"ZBLL-Sune-68",name:"Sune 68",group:"Sune",cp:"隣接2点交換",alg:"F U2 F2 U' F2 U' F2 U2 F L' U R U' L U R'",pattern:"UBRLFBURFLLUFUBUUUUUR"},
-  {id:"ZBLL-Sune-69",name:"Sune 69",group:"Sune",cp:"隣接2点交換",alg:"F' U2 F2 U F2 U F2 U2 F' L' U R U' L U R'",pattern:"UFRLRBUBFLLUFUBUUUUUR"},
-  {id:"ZBLL-Sune-70",name:"Sune 70",group:"Sune",cp:"隣接2点交換",alg:"B U2 B' U' B U' B' L' U R U' L U R'",pattern:"LLRFRUUFFBBUUUBUUULUR"},
-  {id:"ZBLL-Sune-71",name:"Sune 71",group:"Sune",cp:"4点循環",alg:"F R' F' r U R U' R r' U' L' U R' U' L",pattern:"ULFLFRUBBBRUFURUUUUUL"},
-  {id:"ZBLL-Sune-72",name:"Sune 72",group:"Sune",cp:"2組交換",alg:"r U R' U' r' F R F' R2 D' R U2 R' D R U2 R",pattern:"UBFLLUURBBFRFURUUULUU"},
-  {id:"ZBLL-ASune-01",name:"Anti-Sune 01",group:"Anti-Sune",cp:"CP解決",alg:"R2 D' R U2 R' D R U2 F' r U R U' r' F",pattern:"LBUULLBRUFFRBURUUUUUF"},
-  {id:"ZBLL-ASune-02",name:"Anti-Sune 02",group:"Anti-Sune",cp:"CP解決",alg:"B U B' U B U2 B' L' U2 L U L' U L",pattern:"LRUUFFBBRULFBURUUULUU"},
-  {id:"ZBLL-ASune-03",name:"Anti-Sune 03",group:"Anti-Sune",cp:"CP解決",alg:"B' U2 B U B' U B R U R' U R U2 R'",pattern:"LFBURFRLUUBRBUUUUULUF"},
-  {id:"ZBLL-ASune-04",name:"Anti-Sune 04",group:"Anti-Sune",cp:"隣接2点交換",alg:"R2 D' R U2 R' D R U' L U' R U L'",pattern:"BRULBRBFUULFUURUUUFUL"},
-  {id:"ZBLL-ASune-05",name:"Anti-Sune 05",group:"Anti-Sune",cp:"隣接2点交換",alg:"x R2 D2 R U R' D2 R U' x' U L U' R U L'",pattern:"LRBUBRRFUULFBUUUUUFUL"},
-  {id:"ZBLL-ASune-06",name:"Anti-Sune 06",group:"Anti-Sune",cp:"隣接2点交換",alg:"F R' F' r U R U' r' U R' U2 R' D' R U2 R' D R2",pattern:"LRUUBRBFFULLBURUUUFUU"},
-  {id:"ZBLL-ASune-07",name:"Anti-Sune 07",group:"Anti-Sune",cp:"隣接2点交換",alg:"B' U2 B U B' U B R U' L' U R' U' L",pattern:"LRRUFFFLUUBBBUUUUULUR"},
-  {id:"ZBLL-ASune-08",name:"Anti-Sune 08",group:"Anti-Sune",cp:"隣接2点交換",alg:"R U2 R2 U' R2 U' R2 U2 R2 U' L' U R' U' L",pattern:"BFULRFRBUULBUUFUUULUR"},
-  {id:"ZBLL-ASune-09",name:"Anti-Sune 09",group:"Anti-Sune",cp:"隣接2点交換",alg:"F U2 F2 U' F2 U' F2 U2 F R U' L' U R' U' L",pattern:"LFUUBFRLBURRBUFUUULUU"},
-  {id:"ZBLL-ASune-10",name:"Anti-Sune 10",group:"Anti-Sune",cp:"隣接2点交換",alg:"L U' R' U L' U' R2 U2 R2 U' R2 U' R2 U2 R",pattern:"LFUUBLRLUFRBBUFUUUUUR"},
-  {id:"ZBLL-ASune-11",name:"Anti-Sune 11",group:"Anti-Sune",cp:"隣接2点交換",alg:"L U L' U L U2 R L' U' L' U R' U' L",pattern:"LLRURFFFUUBBBUUUUULUR"},
-  {id:"ZBLL-ASune-12",name:"Anti-Sune 12",group:"Anti-Sune",cp:"3点交換",alg:"F' r U R' U' r' F R F U2 F' U' F U' F'",pattern:"LRUULBRFFUBLBUFUUURUU"},
-  {id:"ZBLL-ASune-13",name:"Anti-Sune 13",group:"Anti-Sune",cp:"3点交換",alg:"R' U' R U' R2 D' R U2 R' D R2",pattern:"LBUURRFFBULRBULUUUFUU"},
-  {id:"ZBLL-ASune-14",name:"Anti-Sune 14",group:"Anti-Sune",cp:"3点交換",alg:"L U2 L' U' L U' x R' L' U R' D2 R U' R' D2 x' R2",pattern:"LBUURFFFURLBBULUUUUUR"},
-  {id:"ZBLL-ASune-15",name:"Anti-Sune 15",group:"Anti-Sune",cp:"3点交換",alg:"R' U' R U' R' U2 R U L U2 L' U' L U2 R' U L' U' R",pattern:"BRULFRFBUULBUULUUUFUR"},
-  {id:"ZBLL-ASune-16",name:"Anti-Sune 16",group:"Anti-Sune",cp:"3点交換",alg:"B' U' B U' B' U2 B x R' U R' D2 R U' R' D2 x' R2",pattern:"LRUULFFFURBBBULUUUUUR"},
-  {id:"ZBLL-ASune-17",name:"Anti-Sune 17",group:"Anti-Sune",cp:"3点交換",alg:"B U2 B' U' B U' B' R' U2 R' D' R U2 R' D R2",pattern:"LFUUBRFRBULRBULUUUFUU"},
-  {id:"ZBLL-ASune-18",name:"Anti-Sune 18",group:"Anti-Sune",cp:"対角2点交換",alg:"F U R' U' R F' R' U F' r U R U' r' F R' U2 R U R' U R",pattern:"LLFUBBLRUUFRBUUUUURUF"},
-  {id:"ZBLL-ASune-19",name:"Anti-Sune 19",group:"Anti-Sune",cp:"対角2点交換",alg:"U R U2 R' U' R U2 L' U R' U' R' L U L U' R U L'",pattern:"LLUURRFFUBBRBULUUUUUF"},
-  {id:"ZBLL-ASune-20",name:"Anti-Sune 20",group:"Anti-Sune",cp:"隣接2点交換",alg:"F U R' U' R F' R' U' R U R' U R F' U' F U' F' U2 F",pattern:"RBUBFFLRUULRUUBUUULUF"},
-  {id:"ZBLL-ASune-21",name:"Anti-Sune 21",group:"Anti-Sune",cp:"隣接2点交換",alg:"F U R' U' R F' R' U' R U R' U R2 U2 R' U' R U' R'",pattern:"RBUBRFLLUUFRUUBUUULUF"},
-  {id:"ZBLL-ASune-22",name:"Anti-Sune 22",group:"Anti-Sune",cp:"隣接2点交換",alg:"F R' F' r U R U' r' U' R' F' r U R U' r' F",pattern:"RLUBFFLBUURRUUBUUULUF"},
-  {id:"ZBLL-ASune-23",name:"Anti-Sune 23",group:"Anti-Sune",cp:"2組交換",alg:"D R' U' R U D' R2 U R' U R U' R U' R U L U' R U L'",pattern:"RBUBFRLLUURFUUBUUUFUL"},
-  {id:"ZBLL-ASune-24",name:"Anti-Sune 24",group:"Anti-Sune",cp:"2組交換",alg:"F R U' R' U R U R2 F' R U R U' R2 U L U' R U L'",pattern:"RRUBFRLBUULFUUBUUUFUL"},
-  {id:"ZBLL-ASune-25",name:"Anti-Sune 25",group:"Anti-Sune",cp:"2組交換",alg:"L' U R U' L U R' L' U R U' L U R' L U L' U L U2 L'",pattern:"RRUBLRLFUUBFUUBUUUFUL"},
-  {id:"ZBLL-ASune-26",name:"Anti-Sune 26",group:"Anti-Sune",cp:"2組交換",alg:"L U' R' U L' U R U R' U R2 U' L' U R' U' L",pattern:"BRUUBRLLFUFLRUBUUUFUU"},
-  {id:"ZBLL-ASune-27",name:"Anti-Sune 27",group:"Anti-Sune",cp:"2組交換",alg:"x U2 r' U' r U2 R' F R' F' x' R U L U' R U L'",pattern:"RFUBBRLRUULFUUBUUUFUL"},
-  {id:"ZBLL-ASune-28",name:"Anti-Sune 28",group:"Anti-Sune",cp:"2組交換",alg:"D' R U R' U' D R2 U' R U' R' U R' U R U L U' R U L'",pattern:"RLUBFRLRUUBFUUBUUUFUL"},
-  {id:"ZBLL-ASune-29",name:"Anti-Sune 29",group:"Anti-Sune",cp:"2組交換",alg:"L' U R U' L U R U R' U R' U' R U' R2 U' D R' U R D'",pattern:"BLUUFRLRFUBLRUBUUUFUU"},
-  {id:"ZBLL-ASune-30",name:"Anti-Sune 30",group:"Anti-Sune",cp:"2組交換",alg:"L' U R U' L U R' F R U' R' U R U R2 F' R U R U' R'",pattern:"BLUUBRLFFURLRUBUUUFUU"},
-  {id:"ZBLL-ASune-31",name:"Anti-Sune 31",group:"Anti-Sune",cp:"3点交換",alg:"r U R' U' r' F R F' R U2 R' U' R U' R'",pattern:"RRUBBFRLUUFLUUFUUULUB"},
-  {id:"ZBLL-ASune-32",name:"Anti-Sune 32",group:"Anti-Sune",cp:"3点交換",alg:"r U R' U' r' F R F2 U' F U' F' U2 F",pattern:"RFUBBFRRUULLUUFUUULUB"},
-  {id:"ZBLL-ASune-33",name:"Anti-Sune 33",group:"Anti-Sune",cp:"4点循環",alg:"R U2 R' U' R U' x R' U2 r' U' r U2 R' F R' F' x' R2",pattern:"BBFURRLLUUFLRUUUUUFUB"},
-  {id:"ZBLL-ASune-34",name:"Anti-Sune 34",group:"Anti-Sune",cp:"4点循環",alg:"L' U' L U' L' U2 x L U2 r' U' r U2 R' F R' F' x' R2",pattern:"BBUURRFLLUFBRULUUUFUU"},
-  {id:"ZBLL-ASune-35",name:"Anti-Sune 35",group:"Anti-Sune",cp:"4点循環",alg:"R' U L U' R U R2 L' U R U R' U' R' U' R' U R'",pattern:"RFUBBRFLUURLUULUUUFUB"},
-  {id:"ZBLL-ASune-36",name:"Anti-Sune 36",group:"Anti-Sune",cp:"4点循環",alg:"R' U L U' R U R L' U' R U R U R U' R' U' R2",pattern:"RLUBBRFRUUFLUULUUUFUB"},
-  {id:"ZBLL-ASune-37",name:"Anti-Sune 37",group:"Anti-Sune",cp:"3点交換",alg:"B' U' B U' B' U2 B R2 D' R U2 R' D R U2 R",pattern:"BRUULLFFRUBFRULUUUBUU"},
-  {id:"ZBLL-ASune-38",name:"Anti-Sune 38",group:"Anti-Sune",cp:"3点交換",alg:"F U2 F' U' F U' F2 r U R' U' r' F R",pattern:"RRUBLLFFUUBRUULUUUBUF"},
-  {id:"ZBLL-ASune-39",name:"Anti-Sune 39",group:"Anti-Sune",cp:"3点交換",alg:"R U2 R' U' R U' x R D2 R U R' D2 R U' x' R",pattern:"BRFUBLLLUUFRRUUUUUBUF"},
-  {id:"ZBLL-ASune-40",name:"Anti-Sune 40",group:"Anti-Sune",cp:"3点交換",alg:"L' U' L U' L' U2 L F' r U R' U' r' F R",pattern:"RRUBBLFLUUFRUULUUUBUF"},
-  {id:"ZBLL-ASune-41",name:"Anti-Sune 41",group:"Anti-Sune",cp:"3点交換",alg:"F' U' F U' F' U2 F x R2 D2 R U R' D2 R U' x' R",pattern:"BFFUBLLRUULRRUUUUUBUF"},
-  {id:"ZBLL-ASune-42",name:"Anti-Sune 42",group:"Anti-Sune",cp:"3点交換",alg:"F' U' F U' F' U2 F2 R' F' r U R U' r'",pattern:"RFUUBLLRUFLBFUBUUUUUR"},
-  {id:"ZBLL-ASune-43",name:"Anti-Sune 43",group:"Anti-Sune",cp:"4点循環",alg:"L U' R' U L' U' R2 U R' U R U' R' U R U2 R'",pattern:"FBURFBLRUULFUUBUUURUL"},
-  {id:"ZBLL-ASune-44",name:"Anti-Sune 44",group:"Anti-Sune",cp:"4点循環",alg:"U2 M U2 M2 U2 M U' M2 U' M2 L' U R U' L U R'",pattern:"RBUURBLLFUFLFUBUUURUU"},
-  {id:"ZBLL-ASune-45",name:"Anti-Sune 45",group:"Anti-Sune",cp:"4点循環",alg:"R U' R U R U R U' R' U' R2 L' U R U' L U R'",pattern:"RRUULBLBFUFLFUBUUURUU"},
-  {id:"ZBLL-ASune-46",name:"Anti-Sune 46",group:"Anti-Sune",cp:"4点循環",alg:"L' U R U' L U R'",pattern:"RRUUBBLFFULLFUBUUURUU"},
-  {id:"ZBLL-ASune-47",name:"Anti-Sune 47",group:"Anti-Sune",cp:"4点循環",alg:"x U2 r' U' r U2 R' F R' F' x' R2 B' U' B U' B' U2 B",pattern:"RFUULRLRUBBFFUBUUUUUL"},
-  {id:"ZBLL-ASune-48",name:"Anti-Sune 48",group:"Anti-Sune",cp:"4点循環",alg:"R U R' U R U L' U R' U L U L' U L",pattern:"RFUULBLRFUBLFUBUUURUU"},
-  {id:"ZBLL-ASune-49",name:"Anti-Sune 49",group:"Anti-Sune",cp:"4点循環",alg:"B U2 B' U' B U' B' L U2 L' U' L U2 R' U L' U' R",pattern:"FFURLBLRUUBFUUBUUURUL"},
-  {id:"ZBLL-ASune-50",name:"Anti-Sune 50",group:"Anti-Sune",cp:"4点循環",alg:"F U2 F' U' R' F U' F' U R",pattern:"RFUUBRLLUBRFFUBUUUUUL"},
-  {id:"ZBLL-ASune-51",name:"Anti-Sune 51",group:"Anti-Sune",cp:"4点循環",alg:"B U B' U B U2 B' L U2 L' U' L U' L2 U R U' L U R'",pattern:"RFLUBBBLUURFFUUUUURUL"},
-  {id:"ZBLL-ASune-52",name:"Anti-Sune 52",group:"Anti-Sune",cp:"4点循環",alg:"M2 U' M2 U2 M2 U' M2 L' U R U' L U R'",pattern:"RLUUFBLBFURLFUBUUURUU"},
-  {id:"ZBLL-ASune-53",name:"Anti-Sune 53",group:"Anti-Sune",cp:"4点循環",alg:"L' U R U' R L U R U R U' R' U' R2",pattern:"RLUUBBLRFUFLFUBUUURUU"},
-  {id:"ZBLL-ASune-54",name:"Anti-Sune 54",group:"Anti-Sune",cp:"対角2点交換",alg:"L' U R U' L U R' F R' F' r U R U' r'",pattern:"RRUUBLBFUFLLFURUUUUUB"},
-  {id:"ZBLL-ASune-55",name:"Anti-Sune 55",group:"Anti-Sune",cp:"3点交換",alg:"F' U' F U' F' U2 F r U R' U' r' F R F'",pattern:"RFUUBLBRFULLFURUUUBUU"},
-  {id:"ZBLL-ASune-56",name:"Anti-Sune 56",group:"Anti-Sune",cp:"2組交換",alg:"B' U' B U' B' U2 B",pattern:"RRUULRFFUBBLFULUUUUUB"},
-  {id:"ZBLL-ASune-57",name:"Anti-Sune 57",group:"Anti-Sune",cp:"2組交換",alg:"R2 U R U R' U' R' U' R' U' R' U' R U' R'",pattern:"RRFULBLFUUBLFUUUUURUB"},
-  {id:"ZBLL-ASune-58",name:"Anti-Sune 58",group:"Anti-Sune",cp:"2組交換",alg:"B U2 B' U' B U' B'",pattern:"FFURBBFRUULLUULUUURUB"},
-  {id:"ZBLL-ASune-59",name:"Anti-Sune 59",group:"Anti-Sune",cp:"2組交換",alg:"L' U' L U' L' U2 R2 L U R U R' U' R' U' R' U R'",pattern:"RFUUBBFRLULBFULUUURUU"},
-  {id:"ZBLL-ASune-60",name:"Anti-Sune 60",group:"Anti-Sune",cp:"2組交換",alg:"B' U' B U' B' U2 B M2 U' M2 U2 M2 U' M2",pattern:"RLUURRFBUBFLFULUUUUUB"},
-  {id:"ZBLL-ASune-61",name:"Anti-Sune 61",group:"Anti-Sune",cp:"2組交換",alg:"M2 U' M2 U2 M2 U' M2 F' U' F U' F' U2 F",pattern:"RLFURBLBUUFLFUUUUURUB"},
-  {id:"ZBLL-ASune-62",name:"Anti-Sune 62",group:"Anti-Sune",cp:"2組交換",alg:"F U2 F' U' F U' F' M2 U' M2 U2 M2 U' M2",pattern:"RLUURBFBLUFBFULUUURUU"},
-  {id:"ZBLL-ASune-63",name:"Anti-Sune 63",group:"Anti-Sune",cp:"2組交換",alg:"M2 U' M2 U2 M2 U' M2 B U2 B' U' B U' B'",pattern:"FLURRBFBUUFLUULUUURUB"},
-  {id:"ZBLL-ASune-64",name:"Anti-Sune 64",group:"Anti-Sune",cp:"4点循環",alg:"L' U R U' L U R' r U R' U' r' F R F'",pattern:"RRFUBLLFUULBFUUUUUBUR"},
-  {id:"ZBLL-ASune-65",name:"Anti-Sune 65",group:"Anti-Sune",cp:"4点循環",alg:"R U2 R' U' R U2 R U R U R U' R' U' R2 U",pattern:"FBLURRBLUUFBLUUUUUFUR"},
-  {id:"ZBLL-ASune-66",name:"Anti-Sune 66",group:"Anti-Sune",cp:"3点交換",alg:"R' F' r U R U' r' F2 U2 F' U' F U' F'",pattern:"FRUULBLFRUBFLUBUUURUU"},
-  {id:"ZBLL-ASune-67",name:"Anti-Sune 67",group:"Anti-Sune",cp:"3点交換",alg:"R' U2 R' D' R U2 R' D R2 B U2 B' U' B U' B'",pattern:"LFUFBBLRUULRUUBUUURUF"},
-  {id:"ZBLL-ASune-68",name:"Anti-Sune 68",group:"Anti-Sune",cp:"3点交換",alg:"F U R' U' R F' R' U2 L U' R U L'",pattern:"FFUURFBLURBLLURUUUUUB"},
-  {id:"ZBLL-ASune-69",name:"Anti-Sune 69",group:"Anti-Sune",cp:"隣接2点交換",alg:"R2 D' R U2 R' D R U R U' R' U2 R U'",pattern:"LLUFBLBRUUFRUURUUUBUF"},
-  {id:"ZBLL-ASune-70",name:"Anti-Sune 70",group:"Anti-Sune",cp:"4点循環",alg:"F U2 F' U' F U' F' U R2 D' R U2 R' D R U2 R",pattern:"FFRUBBFLUURLLUUUUURUB"},
-  {id:"ZBLL-ASune-71",name:"Anti-Sune 71",group:"Anti-Sune",cp:"4点循環",alg:"F U R' U' R F' U' R' U2 R",pattern:"FFUUBRRLUBRLLUFUUUUUB"},
-  {id:"ZBLL-ASune-72",name:"Anti-Sune 72",group:"Anti-Sune",cp:"2組交換",alg:"R' U2 R' D' R U2 R' D R2 F R' F' r U R U' r'",pattern:"FBRULLFRUUFBLUUUUUBUR"}
-];
+    // ZBLL_DATA(493種の手順表)と、その書式の説明は zbll-data.js に分離した。
 
     const zbllBtn = document.getElementById('zbll-btn');
     const zbllOverlay = document.getElementById('zbll-overlay');
@@ -6518,12 +5548,47 @@ const ZBLL_DATA = [
       const noteEl      = document.getElementById('demo-note');
       const noteIconEl  = document.getElementById('demo-note-icon');
       const noteTextEl  = document.getElementById('demo-note-text');
+      const mascotEl    = document.getElementById('demo-mascot');
       const closeEl     = document.getElementById('demo-close');
       if (!btn || !panel) return;
 
-      // 状態メッセージは常にアイコン付きの帯として出す。赤文字だけで
-      // 「注意」を伝えるのは見落としやすいので、色・アイコン・背景の
-      // 3つで違いを示す。kind: 'info'（通常）/ 'warn'（注意）/ 'good'（完了）。
+      // ゆるキャラの表情を切り替える。表示の出し分けは CSS 側の
+      // [data-state] セレクタに任せ、ここでは「今はどの状態か」だけを決める。
+      //   ok     = お手本どおりに進んでいる
+      //   miss   = お手本とちがう手が入った（もどす案内中）
+      //   almost = のこり20手以下（THRILL_THRESHOLD と同じ基準）
+      //   clear  = そろった
+      // replay=true のときは、同じ表情のままでもアニメを頭から流し直す。
+      // （ちがう手が続いたときに、毎回ちゃんと首を振ってくれるように）
+      function setMascot(state, replay) {
+        if (!mascotEl) return;
+        const changed = mascotEl.dataset.state !== state;
+        if (!changed && !replay) return;
+        if (!changed) {
+          mascotEl.removeAttribute('data-state');
+          void mascotEl.offsetWidth;   // 同じアニメを再生させるためのリフロー
+        }
+        mascotEl.dataset.state = state;
+      }
+
+      // 「いまの1手、合ってたよ」のひと跳ね。表情は変えずに重ねがけで出すだけなので、
+      // のこり手数に応じた ok / almost の使い分けをここで崩さない。
+      function popMascot() {
+        if (!mascotEl) return;
+        mascotEl.classList.remove('pop');
+        void mascotEl.offsetWidth;
+        mascotEl.classList.add('pop');
+      }
+      // 跳ね終わったら .pop を外す。外さないと !important が残って、
+      // このあとのふわふわ(bob)やぴょこん(hop)が二度と動かなくなる。
+      if (mascotEl) {
+        mascotEl.addEventListener('animationend', (e) => {
+          if (e.animationName === 'mascot-pop') mascotEl.classList.remove('pop');
+        });
+      }
+
+      // 状態メッセージ。画面には出さず（完成時の CLEAR TIME だけ帯で出る）、
+      // 読み上げ用に残してある。kind: 'info'（通常）/ 'warn'（注意）/ 'good'（完了）。
       function setNote(text, kind) {
         noteEl.classList.remove('warn', 'good', 'celebrate', 'new-record');
         if (kind === 'warn') noteEl.classList.add('warn');
@@ -7038,6 +6103,9 @@ const ZBLL_DATA = [
         const left = st.moves.length - st.i;
         const zone = left <= 1 ? 2 : (left <= THRILL_THRESHOLD ? 1 : 0);
         setThrillZone(zone);
+        // マスコットの表情はここで一本化して決める。
+        // 「ちがう手」が最優先、次に「のこり20手以下」、どちらでもなければ順調。
+        setMascot(st.wrong.length ? 'miss' : (zone >= 1 ? 'almost' : 'ok'));
         if (st.wrong.length) {
           phaseEl.textContent = t('phaseUndo');
           remainEl.innerHTML = t('wrongCount', { n: st.wrong.length });
@@ -7205,6 +6273,8 @@ const ZBLL_DATA = [
         st.wantCfg = null;
         syncDemo();
         setThrillZone(0);
+        setMascot('clear', true);
+        popMascot();
         panel.classList.add('celebrate');
         phaseEl.classList.add('celebrate-text');
         phaseEl.textContent = '🎉 COMPLETE! 🎉';
@@ -7249,6 +6319,7 @@ const ZBLL_DATA = [
           moveEl.style.color = '';
           moveEl.textContent = '—';
           moveDescEl.textContent = '';
+          setMascot('miss');
           setNote(t('solveFailed'), 'warn');
           return;
         }
@@ -7269,6 +6340,8 @@ const ZBLL_DATA = [
         st.wrong = [];
         st.done = false;
         st.locked = false;
+        setMascot('ok', true);
+        if (mascotEl) mascotEl.classList.remove('pop');
         // このソルブでヘルプを使ったので、記録はガイドあり側に付ける。
         usedHelpThisSolve = true;
         btn.classList.add('on');
@@ -7384,6 +6457,7 @@ const ZBLL_DATA = [
         phaseEl.classList.remove('celebrate-text');
         st.wantCfg = invertCfg(st.wrong[st.wrong.length - 1]);
         paintStep();
+        setMascot('miss', true);   // ちがう手が続いても毎回首を振る
         setNote(t('undoWrong', { n: st.wrong.length }), 'warn');
         startMoveLoop();
       }
@@ -7444,6 +6518,9 @@ const ZBLL_DATA = [
         // 通常モード: お手本と同じ手が入ったか判定。
         if (st.wantCfg && sameCfg(cfg, st.wantCfg)) {
           st.i++;
+          // 合っていた瞬間だけは必ずふっと跳ねてほめてくれる。
+          // （このあと startLoop→paintStep が、のこり手数に応じた表情に戻す）
+          popMascot();
           setNote(t('followExample'), 'info');
           if (st.i >= st.moves.length) { finish(); return; }
           startLoop();
