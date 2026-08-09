@@ -3966,7 +3966,10 @@
 
             // ヘルプ側(onTurnFinished)が「今回そろった瞬間の記録情報」を
             // 読めるよう、記録判定(checkSolved)を先に済ませておく。
-            if (gameState === 'solving') {
+            // 'drill' は OLL/PLL/ZBLL の「形にセット」で作った練習局面。
+            // 計測はしないが、そろった判定と完成演出は出したいので
+            // ここでは 'solving' と同じ扱いにする。
+            if (gameState === 'solving' || gameState === 'drill') {
               checkSolved();
             }
             if (onTurnFinished && !scrambleActive) onTurnFinished(cfg);
@@ -4445,9 +4448,14 @@
       } else {
         resetCube();
         for (let i = moves.length - 1; i >= 0; i--) makeTurn(invertMove(moves[i]), true);
-        // Treat it like a fresh scramble so the timer starts on the first
-        // move the player makes -- but a drill is never a personal best.
-        gameState = 'scrambled';
+        // 「形にセット」は手順の練習(ドリル)なので、タイマーは動かさない。
+        // ここを 'scrambled' にすると makeTurn() が最初の1手で startTimer()
+        // を呼んでしまうため、専用の 'drill' 状態に置く。
+        //   ・makeTurn() はタイマーを起動しない(表示は 00:00.00 のまま)
+        //   ・そろったかどうかの判定と完成演出は通常どおり出る(checkSolved)
+        //   ・記録対象外(recordEligible=false)なので自己ベストにもならない
+        //   ・計測中ではないのでサイズ変更や実行/セットの切り替えも自由
+        gameState = 'drill';
         recordEligible = false;
         usedOllThisSolve = false;
         usedPllThisSolve = false;
@@ -5190,10 +5198,22 @@ const PLL_DATA = {
     function checkSolved() {
       if (!isCubeSolved()) return false;
 
+      // 練習ドリル('drill' = OLL/PLL/ZBLL の「形にセット」)はタイマーを
+      // 回していない。ここで stopTimer() を通すと、前回の計測開始時刻
+      // (startTime)からの経過というデタラメな時間が表示に入ってしまう
+      // ので、ドリルのときは計測まわりを素通りさせる。
+      const wasDrill = (gameState === 'drill');
       gameState = 'solved';
       updateSizeLock();
       setShuffleSliderMode('solved');
-      const isNewBest = stopTimer();
+      let isNewBest = false;
+      if (wasDrill) {
+        solveInProgress = false;
+        clearInterval(timerInterval);
+        timerEl.textContent = '00:00.00';
+      } else {
+        isNewBest = stopTimer();
+      }
       // ヘルプのお手本パネルが完成表示を出すとき、ここで判定した
       // 「今回そろった記録」を読めるように橋渡ししておく。1回読まれたら
       // 消費される(古い情報を使い回さないため)。
@@ -5234,7 +5254,12 @@ const PLL_DATA = {
         //   ② 虹色シャード +10,000（1%抽選 → 当たれば大当たり確定演出）
         //      ただしキューブサイズを3%以下のまま解いた回は3%にアップ。
         //   抽選も保存も演出も handleClearReward() の中で完結します。
-        if (window.handleClearReward && gameState === 'solved') {
+        //
+        //   ただし練習ドリル(wasDrill = OLL/PLL/ZBLL の「形にセット」)は
+        //   数手で完成できてしまうため、シャードもEXP(ランク)も一切なし。
+        //   RankResult のリザルト画面も handleClearReward() の中から
+        //   開くので、ここで呼ばなければ丸ごと出ません。
+        if (window.handleClearReward && gameState === 'solved' && !wasDrill) {
           handleClearReward({
             originEl: document.getElementById('canvas-container'), // キューブ中心から弾ける
             popupAnchor: msgEl,          // 「＋100 GET!」を SOLVED! バナーの下に出す
