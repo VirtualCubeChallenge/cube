@@ -4515,3 +4515,505 @@
   #tut-next.tut-final { animation: none; box-shadow: 0 0 20px rgba(255, 59, 59, 0.75), 0 0 6px rgba(255, 59, 59, 0.6); }
 }
 /* === タップキューブ チュートリアル : CSS ここまで ======================== */
+
+/* =========================================================================
+   === RANK / EXP システム : CSS ここから =================================
+   クリア時のリザルト（ランクバッジ＋EXPバー）と、
+   「🏆 記録」画面の先頭に出すランクカード。
+   色は JS(RankResult.paint) が :root の --bd-* を書き換えて渡してくる。
+   ========================================================================= */
+:root{
+  --bd-main: #ffffff;   /* 現在ランクのバッジ色（明るい面） */
+  --bd-deep: #b9c4cf;   /* その影側 */
+  --bd-glow: rgba(255,255,255,.55);  /* 発光 */
+}
+
+/* ---- リザルト全体 ---------------------------------------------------- */
+.rr{
+  /* 完成時の白フラッシュ(9998)・大当たり演出(#jackpot-fx 10050 /
+     カットイン 10060)より前面に出す必要があるので、この値。
+     スプラッシュ(999999)より下なのは起動中に出ないようにするため。 */
+  position:fixed; inset:0; z-index:10100;
+  display:flex; align-items:center; justify-content:center;
+  padding:24px; opacity:0; visibility:hidden;
+  transition:opacity .22s ease, visibility .22s;
+}
+.rr.open{ opacity:1; visibility:visible; }
+.rr-scrim{
+  position:absolute; inset:0;
+  background:radial-gradient(80% 60% at 50% 42%, rgba(10,16,26,.72), rgba(4,6,10,.92));
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+}
+.rr-card{
+  position:relative; width:min(340px,100%);
+  padding:24px 20px 18px;
+  border-radius:26px;
+  background:linear-gradient(180deg, rgba(38,52,70,.62), rgba(15,19,26,.94));
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 30px 70px rgba(0,0,0,.62), inset 0 1px 0 rgba(255,255,255,.12);
+  text-align:center;
+  transform:translateY(18px) scale(.94);
+  transition:transform .34s cubic-bezier(.2,1.15,.3,1);
+}
+.rr.open .rr-card{ transform:none; }
+.rr-eyebrow{
+  font-size:11px; font-weight:800; letter-spacing:.34em;
+  color:#8a95a5; text-transform:uppercase; margin-bottom:2px;
+}
+.rr-time{
+  font-size:13px; font-weight:700; letter-spacing:.06em;
+  color:#ffd76a; min-height:19px; margin-bottom:12px;
+}
+
+/* ---- バッジ（六角クリスタル） ---------------------------------------- */
+.rr-badge-wrap{
+  position:relative; width:150px; height:150px; margin:0 auto 4px;
+  display:flex; align-items:center; justify-content:center;
+}
+.rr-badge{
+  position:relative; width:112px; height:124px;
+  clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background:linear-gradient(160deg, var(--bd-main), var(--bd-deep));
+  filter:drop-shadow(0 0 18px var(--bd-glow));
+  transition:filter .5s ease;
+}
+.rr-badge-inner{
+  position:absolute; inset:5px;
+  clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background:linear-gradient(150deg, var(--bd-main) 0%, var(--bd-deep) 78%);
+  overflow:hidden; display:flex; align-items:center; justify-content:center;
+}
+/* カット面：上のハイライトと下の影で「削り出した結晶」に見せる */
+.rr-badge-inner::before{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,0) 52%);
+  clip-path:polygon(50% 0%, 100% 25%, 50% 50%, 0% 25%);
+}
+.rr-badge-inner::after{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(0deg, rgba(0,0,0,.42), rgba(0,0,0,0) 60%);
+  clip-path:polygon(50% 50%, 100% 75%, 50% 100%, 0% 75%);
+}
+.rr-rainbow{
+  position:absolute; left:50%; top:50%; width:240%; height:240%;
+  transform:translate(-50%,-50%);
+  background:conic-gradient(from 0deg,#ff5f6d,#ffc371,#8fff8f,#5fe3ff,#a98bff,#ff5fd2,#ff5f6d);
+  opacity:0; transition:opacity .5s ease;
+  animation:rrSpin 5.5s linear infinite;
+}
+.rr-badge.rainbow .rr-rainbow{ opacity:1; }
+.rr-badge.rainbow{ animation:rrRbGlow 2.6s ease-in-out infinite; }
+@keyframes rrSpin{ to{ transform:translate(-50%,-50%) rotate(360deg); } }
+@keyframes rrRbGlow{
+  0%,100%{ filter:drop-shadow(0 0 16px rgba(255,255,255,.5)) hue-rotate(0deg); }
+  50%    { filter:drop-shadow(0 0 34px rgba(255,255,255,.85)) hue-rotate(180deg); }
+}
+.rr-num{
+  position:relative; z-index:2;
+  font-size:44px; font-weight:900; font-variant-numeric:tabular-nums;
+  letter-spacing:-.02em; line-height:1;
+}
+.rr-badge.dark-ink .rr-num{ color:#0d1218; text-shadow:0 1px 0 rgba(255,255,255,.55); }
+.rr-badge.light-ink .rr-num{ color:#fff; text-shadow:0 2px 6px rgba(0,0,0,.5); }
+
+/* レベルアップの瞬間 */
+.rr-badge.levelup{ animation:rrBadgePop .62s cubic-bezier(.2,1.4,.3,1); }
+@keyframes rrBadgePop{
+  0%  { transform:scale(1); }
+  22% { transform:scale(.88) rotate(-4deg); }
+  48% { transform:scale(1.34) rotate(3deg); filter:drop-shadow(0 0 44px #fff) brightness(1.7); }
+  72% { transform:scale(.98) rotate(-1deg); }
+  100%{ transform:scale(1); }
+}
+.rr-rays{
+  position:absolute; width:150px; height:150px; border-radius:50%;
+  background:repeating-conic-gradient(from 0deg,
+    rgba(255,255,255,.85) 0deg 3deg, rgba(255,255,255,0) 3deg 22deg);
+  opacity:0; pointer-events:none;
+}
+.rr-rays.go{ animation:rrRays .62s ease-out; }
+@keyframes rrRays{
+  0%  { opacity:0; transform:scale(.4) rotate(0deg); }
+  30% { opacity:.9; }
+  100%{ opacity:0; transform:scale(2.3) rotate(38deg); }
+}
+.rr-ring{
+  position:absolute; width:112px; height:124px; pointer-events:none;
+  clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background:var(--bd-main); opacity:0;
+}
+.rr-ring.go{ animation:rrRing .58s ease-out; }
+@keyframes rrRing{
+  0%  { opacity:.55; transform:scale(1); }
+  100%{ opacity:0;   transform:scale(1.85); }
+}
+.rr-sparks{ position:absolute; inset:0; pointer-events:none; }
+.rr-spark{
+  position:absolute; left:50%; top:50%; width:6px; height:6px; margin:-3px 0 0 -3px;
+  border-radius:999px; background:#fff; box-shadow:0 0 10px var(--bd-glow);
+}
+
+/* ---- EXPバー ---------------------------------------------------------- */
+.rr-rank-label{
+  font-size:11px; font-weight:800; letter-spacing:.32em;
+  color:#8a95a5; text-transform:uppercase; margin:8px 0 12px;
+}
+.rr-rank-label b{ color:var(--bd-main); font-weight:800; }
+.rr-bar{
+  position:relative; height:14px; border-radius:999px;
+  background:rgba(255,255,255,.09);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.6);
+  overflow:hidden;
+}
+.rr-fill{
+  position:absolute; left:0; top:0; bottom:0; width:0%;
+  border-radius:999px;
+  background:linear-gradient(90deg, var(--bd-deep), var(--bd-main));
+  box-shadow:0 0 14px var(--bd-glow);
+}
+.rr-fill::after{
+  content:""; position:absolute; inset:0; opacity:0;
+  background:linear-gradient(100deg, transparent 20%, rgba(255,255,255,.85) 50%, transparent 80%);
+  transform:translateX(-100%);
+}
+.rr-bar.surging .rr-fill::after{ opacity:1; animation:rrSheen .8s linear infinite; }
+@keyframes rrSheen{ to{ transform:translateX(220%); } }
+.rr-comet{
+  position:absolute; right:-2px; top:50%; width:16px; height:16px;
+  margin-top:-8px; border-radius:999px; background:#fff;
+  filter:blur(4px); opacity:0; transition:opacity .18s ease;
+}
+.rr-bar.surging .rr-comet{ opacity:.95; }
+.rr-bar.maxed .rr-fill{
+  background:conic-gradient(from 0deg,#ff5f6d,#ffc371,#8fff8f,#5fe3ff,#a98bff,#ff5fd2,#ff5f6d);
+  animation:rrHue 4s linear infinite;
+}
+@keyframes rrHue{ to{ filter:hue-rotate(360deg); } }
+.rr-nums{
+  display:flex; justify-content:space-between; align-items:baseline;
+  margin-top:8px; font-size:12px; color:#8a95a5;
+  font-variant-numeric:tabular-nums; letter-spacing:.02em;
+}
+.rr-nums .cur{ color:#eaf4ff; font-weight:800; font-size:14px; }
+
+/* ---- 獲得EXP ---------------------------------------------------------- */
+.rr-gain{
+  margin-top:14px; display:inline-flex; align-items:center; gap:8px;
+  padding:8px 16px; border-radius:999px;
+  background:rgba(95,227,255,.10);
+  border:1px solid rgba(95,227,255,.28);
+  color:#5fe3ff; font-weight:800; font-size:17px;
+  font-variant-numeric:tabular-nums;
+  opacity:0; transform:translateY(6px) scale(.9);
+}
+.rr-gain.show{ animation:rrGainPop .5s cubic-bezier(.2,1.5,.35,1) forwards; }
+@keyframes rrGainPop{
+  0%  { opacity:0; transform:translateY(8px) scale(.86); }
+  60% { opacity:1; transform:translateY(0) scale(1.12); }
+  100%{ opacity:1; transform:translateY(0) scale(1); }
+}
+.rr-close{
+  margin-top:16px; width:100%; height:46px; border-radius:14px;
+  border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.06);
+  color:#eaf4ff; font-size:14px; font-weight:700; letter-spacing:.06em;
+  font-family:var(--ui-font);
+  opacity:0; pointer-events:none; transition:opacity .3s ease;
+}
+.rr-close.show{ opacity:1; pointer-events:auto; }
+.rr-close:active{ transform:translateY(1px); }
+
+/* ---- 画面フラッシュ ---------------------------------------------------- */
+.rr-flash{
+  position:fixed; inset:0; z-index:10110; pointer-events:none;
+  background:#fff; opacity:0;
+}
+.rr-flash.go{ animation:rrFlash .3s ease-out; }
+@keyframes rrFlash{
+  0%  { opacity:0; }
+  12% { opacity:.92; }
+  100%{ opacity:0; }
+}
+
+/* ---- 「🏆 記録」画面の先頭に出すランクカード -------------------------- */
+.rank-card{
+  display:flex; align-items:center; gap:14px;
+  padding:12px 14px; margin:0 0 14px;
+  border-radius:16px;
+  background:linear-gradient(180deg, rgba(40,64,86,.34), rgba(16,22,32,.5));
+  border:1px solid rgba(255,255,255,.10);
+}
+.rank-card .rr-badge{ width:54px; height:60px; flex:0 0 auto; }
+.rank-card .rr-badge-inner{ inset:3px; }
+.rank-card .rr-num{ font-size:21px; }
+.rank-card-body{ flex:1 1 auto; min-width:0; text-align:left; }
+.rank-card-title{
+  font-size:10px; font-weight:800; letter-spacing:.24em;
+  color:#8a95a5; text-transform:uppercase; margin-bottom:6px;
+}
+.rank-card-title b{ color:var(--bd-main); font-size:15px; letter-spacing:0; }
+.rank-card .rr-bar{ height:9px; }
+.rank-card-sub{
+  margin-top:6px; font-size:11px; color:#8a95a5;
+  font-variant-numeric:tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .rr-badge.levelup, .rr-rays.go, .rr-ring.go, .rr-flash.go,
+  .rr-badge.rainbow, .rr-rainbow, .rr-bar.maxed .rr-fill,
+  .rr-bar.surging .rr-fill::after{ animation:none !important; }
+  .rr-flash{ display:none; }
+}
+/* === RANK / EXP システム : CSS ここまで ================================= */
+
+/* =========================================================================
+   === RANK FX : 節目ランクの演出 CSS ここから ============================
+   ランク 2 / 10 / 30 / 50 / 100 に到達した瞬間だけ、通常のランクアップ
+   演出に「レイヤーを重ねて」段階的に派手にする。
+     tier1 spark  (2)   … RANK UP! ポップ + 小花火
+     tier2 prism  (10)  … 全画面フラッシュ + 虹の粒子が横断 + 大テロップ
+     tier3 neon   (30)  … スキャンライン + ネオン光輪 + バッジにオーラ
+     tier4 ascend (50)  … 暗転 → 光の柱 → 称号カットイン
+     tier5 legend (100) … 全画面レインボー + 虹シャードの滝 + 永続オーラ
+   粒子はDOMではなく1枚のcanvasに描く（端末が古くてもコマ落ちしない）。
+   ========================================================================= */
+
+/* ---- レイヤーの器 ------------------------------------------------------ */
+.rank-fx, .rank-fx-canvas{
+  position:fixed; inset:0; pointer-events:none;
+}
+.rank-fx{ z-index:10105; overflow:hidden; }
+.rank-fx-canvas{ z-index:10106; width:100%; height:100%; }
+.rank-fx > *{ position:absolute; inset:0; opacity:0; }
+
+/* ---- tier4 : 暗転のヴェール -------------------------------------------- */
+.rfx-veil{ background:#04060a; }
+.rfx-veil.go{ animation:rfxVeil 2.3s ease-in-out forwards; }
+@keyframes rfxVeil{
+  0%{ opacity:0; } 14%{ opacity:.92; } 72%{ opacity:.72; } 100%{ opacity:0; }
+}
+
+/* ---- tier4 : 中央を突き抜ける光の柱 ------------------------------------ */
+.rfx-pillar{
+  background:
+    linear-gradient(90deg, transparent 46%, rgba(255,255,255,.95) 50%, transparent 54%),
+    linear-gradient(90deg, transparent 40%, rgba(255,231,160,.55) 50%, transparent 60%);
+  filter:blur(1px);
+  transform:scaleX(.02) scaleY(0);
+  transform-origin:50% 50%;
+}
+.rfx-pillar.go{ animation:rfxPillar 1.5s cubic-bezier(.15,.9,.2,1) forwards; }
+@keyframes rfxPillar{
+  0%  { opacity:0; transform:scaleX(.02) scaleY(0); }
+  18% { opacity:1; transform:scaleX(.05) scaleY(1); }
+  46% { opacity:1; transform:scaleX(1)   scaleY(1); }
+  100%{ opacity:0; transform:scaleX(2.6) scaleY(1); }
+}
+
+/* ---- tier3 : サイバーなスキャンライン ---------------------------------- */
+.rfx-scan{
+  background:repeating-linear-gradient(180deg,
+    rgba(95,227,255,.16) 0px, rgba(95,227,255,.16) 1px,
+    transparent 1px, transparent 4px);
+  mix-blend-mode:screen;
+}
+.rfx-scan.go{ animation:rfxScan 1.25s linear forwards; }
+@keyframes rfxScan{
+  0%  { opacity:0;  transform:translateY(-14px); }
+  12% { opacity:.95; }
+  100%{ opacity:0;  transform:translateY(120px); }
+}
+
+/* ---- tier3 : ネオンの光輪（3重に広がる） ------------------------------- */
+.rfx-halo{ display:flex; align-items:center; justify-content:center; }
+.rfx-halo i{
+  position:absolute; width:180px; height:180px; border-radius:50%;
+  border:2px solid rgba(95,227,255,.9);
+  box-shadow:0 0 26px rgba(95,227,255,.85), inset 0 0 26px rgba(95,227,255,.5);
+  opacity:0;
+}
+.rfx-halo.go{ opacity:1; }
+.rfx-halo.go i{ animation:rfxHalo 1.05s cubic-bezier(.1,.8,.2,1) forwards; }
+.rfx-halo.go i:nth-child(2){ animation-delay:.13s; border-color:rgba(168,139,255,.9); }
+.rfx-halo.go i:nth-child(3){ animation-delay:.26s; border-color:rgba(255,215,106,.9); }
+@keyframes rfxHalo{
+  0%  { opacity:.95; transform:scale(.2); }
+  100%{ opacity:0;   transform:scale(7); }
+}
+
+/* ---- tier5 : 全画面レインボー ------------------------------------------ */
+.rfx-wash{
+  background:conic-gradient(from 0deg,
+    #ff5f6d,#ffc371,#8fff8f,#5fe3ff,#a98bff,#ff5fd2,#ff5f6d);
+  mix-blend-mode:screen;
+}
+.rfx-wash.go{ animation:rfxWash 3.4s ease-in-out forwards; }
+@keyframes rfxWash{
+  0%  { opacity:0;   filter:hue-rotate(0deg)   saturate(1.6); transform:scale(1.6) rotate(0deg); }
+  16% { opacity:.62; }
+  70% { opacity:.34; }
+  100%{ opacity:0;   filter:hue-rotate(360deg) saturate(1.6); transform:scale(1) rotate(120deg); }
+}
+
+/* ---- テロップ（tier1〜5で大きさと質感が変わる） ------------------------ */
+.rfx-telop{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:6px; text-align:center; padding:0 16px;
+}
+.rfx-telop.go{ opacity:1; }
+.rfx-telop-sub{
+  font-size:12px; font-weight:800; letter-spacing:.42em; text-transform:uppercase;
+  color:#d9fbff; text-shadow:0 0 14px rgba(95,227,255,.9);
+  opacity:0;
+}
+.rfx-telop-main{
+  font-family:var(--ui-font);
+  font-weight:900; letter-spacing:-.01em; line-height:1;
+  font-size:clamp(34px, 12vw, 68px);
+  color:#fff;
+  text-shadow:0 4px 24px rgba(0,0,0,.6);
+  opacity:0;
+}
+/* --- tier1: ぽんっと飛び出すだけの軽いポップ --- */
+.rfx-telop.t1 .rfx-telop-main{
+  font-size:clamp(28px, 9vw, 46px);
+  animation:rfxPop .72s cubic-bezier(.2,1.6,.3,1) forwards;
+}
+@keyframes rfxPop{
+  0%  { opacity:0; transform:scale(.4) translateY(14px); }
+  55% { opacity:1; transform:scale(1.16) translateY(0); }
+  76% { transform:scale(.96); }
+  100%{ opacity:1; transform:scale(1); }
+}
+/* --- tier2: 虹のグラデ文字。リッチに見せるのは色と字間 --- */
+.rfx-telop.t2 .rfx-telop-main{
+  background:linear-gradient(100deg,#fff 0%,#5fe3ff 28%,#a98bff 52%,#ff5fd2 74%,#ffd76a 100%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  filter:drop-shadow(0 0 18px rgba(120,200,255,.75));
+  animation:rfxPop .8s cubic-bezier(.2,1.5,.3,1) forwards;
+}
+.rfx-telop.t2 .rfx-telop-sub{ animation:rfxFadeUp .6s ease-out .1s forwards; }
+/* --- tier3: ネオン。左からスキューでカットイン --- */
+.rfx-telop.t3 .rfx-telop-main{
+  color:#eafcff;
+  text-shadow:0 0 8px #5fe3ff, 0 0 26px #2ea8ff, 0 0 60px #1b6cff;
+  animation:rfxCutIn .78s cubic-bezier(.12,.9,.2,1) forwards;
+}
+.rfx-telop.t3 .rfx-telop-sub{
+  color:#7ff0ff; animation:rfxFadeUp .6s ease-out .12s forwards;
+}
+@keyframes rfxCutIn{
+  0%  { opacity:0; transform:translateX(-38vw) skewX(-16deg) scale(1.1); }
+  62% { opacity:1; transform:translateX(0) skewX(-4deg) scale(1); }
+  100%{ opacity:1; transform:translateX(0) skewX(0) scale(1); }
+}
+/* --- tier4: 称号。金〜プラチナで、下線が横に走る --- */
+.rfx-telop.t4 .rfx-telop-main{
+  /* 金 → プラチナ → 金。中間で一度冷たい銀を挟むと金属に見える */
+  background:linear-gradient(180deg,#fffdf3 0%,#ffe9a8 40%,#d7b45a 52%,#e6ebf3 66%,#fff8e0 100%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  filter:drop-shadow(0 0 26px rgba(255,214,120,.8));
+  animation:rfxAwaken 1.1s cubic-bezier(.16,1,.3,1) forwards;
+}
+.rfx-telop.t4 .rfx-telop-sub{
+  color:#ffe9a8; letter-spacing:.5em;
+  animation:rfxFadeUp .7s ease-out .28s forwards;
+}
+@keyframes rfxAwaken{
+  0%  { opacity:0; transform:scale(2.4); filter:blur(14px) drop-shadow(0 0 26px #ffd76a); }
+  46% { opacity:1; transform:scale(1); filter:blur(0) drop-shadow(0 0 34px #ffd76a); }
+  100%{ opacity:1; transform:scale(1); filter:blur(0) drop-shadow(0 0 20px #ffd76a); }
+}
+/* --- tier5: 伝説。文字自体がレインボーで流れ続ける --- */
+.rfx-telop.t5 .rfx-telop-main{
+  font-size:clamp(40px, 15vw, 86px); letter-spacing:.06em;
+  background:linear-gradient(100deg,#ff5f6d,#ffc371,#8fff8f,#5fe3ff,#a98bff,#ff5fd2,#ff5f6d);
+  background-size:300% 100%;
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  filter:drop-shadow(0 0 30px rgba(255,255,255,.9));
+  animation:rfxAwaken 1.1s cubic-bezier(.16,1,.3,1) forwards,
+            rfxFlow 2.4s linear .6s infinite;
+}
+.rfx-telop.t5 .rfx-telop-sub{
+  color:#fff; letter-spacing:.55em;
+  animation:rfxFadeUp .7s ease-out .3s forwards;
+}
+@keyframes rfxFlow{ to{ background-position:300% 0; } }
+@keyframes rfxFadeUp{
+  0%  { opacity:0; transform:translateY(10px); }
+  100%{ opacity:1; transform:translateY(0); }
+}
+
+/* ---- バッジのオーラ（tier3以上）＋残像 --------------------------------- */
+.rr-badge-wrap.aura::before{
+  content:""; position:absolute; left:50%; top:50%;
+  width:190px; height:190px; margin:-95px 0 0 -95px;
+  border-radius:50%;
+  background:conic-gradient(from 0deg,
+    transparent 0deg, var(--bd-main) 60deg, transparent 130deg,
+    var(--bd-main) 210deg, transparent 300deg);
+  filter:blur(16px); opacity:.75;
+  animation:rfxAuraSpin 2.4s linear infinite;
+}
+/* 残像：バッジと同じ六角形が、少し遅れて外へ広がっては消える */
+.rr-badge-wrap.aura::after{
+  content:""; position:absolute; left:50%; top:50%;
+  width:112px; height:124px; margin:-62px 0 0 -56px;
+  clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background:var(--bd-main); opacity:0;
+  mix-blend-mode:screen;
+  animation:rfxGhost 1.1s ease-out infinite;
+}
+@keyframes rfxAuraSpin{ to{ transform:rotate(360deg); } }
+@keyframes rfxGhost{
+  0%  { opacity:.42; transform:scale(1); }
+  100%{ opacity:0;  transform:scale(1.7); }
+}
+/* 神々しい明滅（tier4/5のバッジ） */
+.rr-badge.divine{ animation:rfxDivine 1.4s ease-in-out 2; }
+@keyframes rfxDivine{
+  0%,100%{ filter:drop-shadow(0 0 20px var(--bd-glow)) brightness(1); }
+  30%    { filter:drop-shadow(0 0 60px #fff) brightness(2.4) saturate(1.4); }
+  55%    { filter:drop-shadow(0 0 26px #fff) brightness(1.2); }
+  78%    { filter:drop-shadow(0 0 70px #fff) brightness(2.1); }
+}
+
+/* ---- ランク100以降、UIを永続的に「伝説仕様」へ -------------------------- */
+.legend-mode .rr-badge-wrap::before{
+  content:""; position:absolute; left:50%; top:50%;
+  width:190px; height:190px; margin:-95px 0 0 -95px; border-radius:50%;
+  background:conic-gradient(from 0deg,#ff5f6d,#ffc371,#8fff8f,#5fe3ff,#a98bff,#ff5fd2,#ff5f6d);
+  filter:blur(20px); opacity:.6;
+  animation:rfxAuraSpin 4.5s linear infinite;
+}
+.legend-mode .rank-card{
+  border-color:rgba(255,255,255,.3);
+  background:linear-gradient(180deg, rgba(90,70,140,.35), rgba(16,22,32,.55));
+  box-shadow:0 0 26px rgba(160,120,255,.28);
+}
+.legend-mode .rank-card-title b,
+.legend-mode #records-panel > h2,
+.legend-mode .records-panel-header h2{
+  background:linear-gradient(100deg,#ff5f6d,#ffc371,#8fff8f,#5fe3ff,#a98bff,#ff5fd2,#ff5f6d);
+  background-size:300% 100%;
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  animation:rfxFlow 4s linear infinite;
+}
+.legend-mode .rr-card{
+  border-color:rgba(255,255,255,.28);
+  box-shadow:0 30px 70px rgba(0,0,0,.62),
+             inset 0 1px 0 rgba(255,255,255,.2),
+             0 0 40px rgba(180,140,255,.35);
+}
+
+/* ---- 動きを減らす設定の端末では、光量だけ残して動きを止める ------------- */
+@media (prefers-reduced-motion: reduce){
+  .rfx-veil.go, .rfx-pillar.go, .rfx-scan.go, .rfx-halo.go i, .rfx-wash.go,
+  .rr-badge-wrap.aura::before, .rr-badge-wrap.aura::after,
+  .rr-badge.divine, .legend-mode .rr-badge-wrap::before,
+  .rfx-telop.t1 .rfx-telop-main, .rfx-telop.t2 .rfx-telop-main,
+  .rfx-telop.t3 .rfx-telop-main, .rfx-telop.t4 .rfx-telop-main,
+  .rfx-telop.t5 .rfx-telop-main{ animation:none !important; }
+  .rfx-telop.go .rfx-telop-main, .rfx-telop.go .rfx-telop-sub{ opacity:1; }
+  .rank-fx-canvas{ display:none; }
+}
+/* === RANK FX : 節目ランクの演出 CSS ここまで ============================ */

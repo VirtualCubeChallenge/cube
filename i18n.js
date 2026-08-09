@@ -2137,3 +2137,37 @@
             "tutFinishBody": "Sem pressa.<br>Comece tentando fechar <b>uma face</b>!"
           }
     };
+
+/* ============================================================
+   === RANK / EXP システムの文言（後付けマージ） ============
+   既存の I18N に上書きせず足すだけなので、辞書本体には
+   一切手を入れていない。キーは5つ。
+   ============================================================ */
+(function addRankStrings() {
+  const RANK_I18N = {
+    "ja":    { rankTitle:"ランク", rankNext:"次のランクまで {n}", rankMax:"最高ランク到達",
+               rankContinue:"つづける" },
+    "en":    { rankTitle:"Rank", rankNext:"{n} to next rank", rankMax:"Max rank reached",
+               rankContinue:"Continue" },
+    "zh-CN": { rankTitle:"等级", rankNext:"距离下一等级还差 {n}", rankMax:"已达最高等级",
+               rankContinue:"继续" },
+    "zh-TW": { rankTitle:"等級", rankNext:"距離下一等級還差 {n}", rankMax:"已達最高等級",
+               rankContinue:"繼續" },
+    "ko":    { rankTitle:"랭크", rankNext:"다음 랭크까지 {n}", rankMax:"최고 랭크 달성",
+               rankContinue:"계속하기" },
+    "es":    { rankTitle:"Rango", rankNext:"{n} para el siguiente rango", rankMax:"Rango máximo alcanzado",
+               rankContinue:"Continuar" },
+    "id":    { rankTitle:"Peringkat", rankNext:"{n} lagi ke peringkat berikutnya", rankMax:"Peringkat tertinggi tercapai",
+               rankContinue:"Lanjutkan" },
+    "ru":    { rankTitle:"Ранг", rankNext:"До следующего ранга {n}", rankMax:"Максимальный ранг",
+               rankContinue:"Продолжить" },
+    "pt-BR": { rankTitle:"Rank", rankNext:"{n} para o próximo rank", rankMax:"Rank máximo alcançado",
+               rankContinue:"Continuar" }
+  };
+  Object.keys(RANK_I18N).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(RANK_I18N[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = RANK_I18N[lang][k];
+    });
+  });
+})();
