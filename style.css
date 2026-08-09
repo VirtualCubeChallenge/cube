@@ -4515,3 +4515,258 @@
   #tut-next.tut-final { animation: none; box-shadow: 0 0 20px rgba(255, 59, 59, 0.75), 0 0 6px rgba(255, 59, 59, 0.6); }
 }
 /* === タップキューブ チュートリアル : CSS ここまで ======================== */
+
+/* =========================================================================
+   === RANK / EXP システム : CSS ここから =================================
+   クリア時のリザルト（ランクバッジ＋EXPバー）と、
+   「🏆 記録」画面の先頭に出すランクカード。
+   色は JS(RankResult.paint) が :root の --bd-* を書き換えて渡してくる。
+   ========================================================================= */
+:root{
+  --bd-main: #ffffff;   /* 現在ランクのバッジ色（明るい面） */
+  --bd-deep: #b9c4cf;   /* その影側 */
+  --bd-glow: rgba(255,255,255,.55);  /* 発光 */
+}
+
+/* ---- リザルト全体 ---------------------------------------------------- */
+.rr{
+  /* 完成時の白フラッシュ(9998)・大当たり演出(#jackpot-fx 10050 /
+     カットイン 10060)より前面に出す必要があるので、この値。
+     スプラッシュ(999999)より下なのは起動中に出ないようにするため。 */
+  position:fixed; inset:0; z-index:10100;
+  display:flex; align-items:center; justify-content:center;
+  padding:24px; opacity:0; visibility:hidden;
+  transition:opacity .22s ease, visibility .22s;
+}
+.rr.open{ opacity:1; visibility:visible; }
+.rr-scrim{
+  position:absolute; inset:0;
+  background:radial-gradient(80% 60% at 50% 42%, rgba(10,16,26,.72), rgba(4,6,10,.92));
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+}
+.rr-card{
+  position:relative; width:min(340px,100%);
+  padding:24px 20px 18px;
+  border-radius:26px;
+  background:linear-gradient(180deg, rgba(38,52,70,.62), rgba(15,19,26,.94));
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 30px 70px rgba(0,0,0,.62), inset 0 1px 0 rgba(255,255,255,.12);
+  text-align:center;
+  transform:translateY(18px) scale(.94);
+  transition:transform .34s cubic-bezier(.2,1.15,.3,1);
+}
+.rr.open .rr-card{ transform:none; }
+.rr-eyebrow{
+  font-size:11px; font-weight:800; letter-spacing:.34em;
+  color:#8a95a5; text-transform:uppercase; margin-bottom:2px;
+}
+.rr-time{
+  font-size:13px; font-weight:700; letter-spacing:.06em;
+  color:#ffd76a; min-height:19px; margin-bottom:12px;
+}
+
+/* ---- バッジ（六角クリスタル） ---------------------------------------- */
+.rr-badge-wrap{
+  position:relative; width:150px; height:150px; margin:0 auto 4px;
+  display:flex; align-items:center; justify-content:center;
+}
+.rr-badge{
+  position:relative; width:112px; height:124px;
+  clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background:linear-gradient(160deg, var(--bd-main), var(--bd-deep));
+  filter:drop-shadow(0 0 18px var(--bd-glow));
+  transition:filter .5s ease;
+}
+.rr-badge-inner{
+  position:absolute; inset:5px;
+  clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background:linear-gradient(150deg, var(--bd-main) 0%, var(--bd-deep) 78%);
+  overflow:hidden; display:flex; align-items:center; justify-content:center;
+}
+/* カット面：上のハイライトと下の影で「削り出した結晶」に見せる */
+.rr-badge-inner::before{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,0) 52%);
+  clip-path:polygon(50% 0%, 100% 25%, 50% 50%, 0% 25%);
+}
+.rr-badge-inner::after{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(0deg, rgba(0,0,0,.42), rgba(0,0,0,0) 60%);
+  clip-path:polygon(50% 50%, 100% 75%, 50% 100%, 0% 75%);
+}
+.rr-rainbow{
+  position:absolute; left:50%; top:50%; width:240%; height:240%;
+  transform:translate(-50%,-50%);
+  background:conic-gradient(from 0deg,#ff5f6d,#ffc371,#8fff8f,#5fe3ff,#a98bff,#ff5fd2,#ff5f6d);
+  opacity:0; transition:opacity .5s ease;
+  animation:rrSpin 5.5s linear infinite;
+}
+.rr-badge.rainbow .rr-rainbow{ opacity:1; }
+.rr-badge.rainbow{ animation:rrRbGlow 2.6s ease-in-out infinite; }
+@keyframes rrSpin{ to{ transform:translate(-50%,-50%) rotate(360deg); } }
+@keyframes rrRbGlow{
+  0%,100%{ filter:drop-shadow(0 0 16px rgba(255,255,255,.5)) hue-rotate(0deg); }
+  50%    { filter:drop-shadow(0 0 34px rgba(255,255,255,.85)) hue-rotate(180deg); }
+}
+.rr-num{
+  position:relative; z-index:2;
+  font-size:44px; font-weight:900; font-variant-numeric:tabular-nums;
+  letter-spacing:-.02em; line-height:1;
+}
+.rr-badge.dark-ink .rr-num{ color:#0d1218; text-shadow:0 1px 0 rgba(255,255,255,.55); }
+.rr-badge.light-ink .rr-num{ color:#fff; text-shadow:0 2px 6px rgba(0,0,0,.5); }
+
+/* レベルアップの瞬間 */
+.rr-badge.levelup{ animation:rrBadgePop .62s cubic-bezier(.2,1.4,.3,1); }
+@keyframes rrBadgePop{
+  0%  { transform:scale(1); }
+  22% { transform:scale(.88) rotate(-4deg); }
+  48% { transform:scale(1.34) rotate(3deg); filter:drop-shadow(0 0 44px #fff) brightness(1.7); }
+  72% { transform:scale(.98) rotate(-1deg); }
+  100%{ transform:scale(1); }
+}
+.rr-rays{
+  position:absolute; width:150px; height:150px; border-radius:50%;
+  background:repeating-conic-gradient(from 0deg,
+    rgba(255,255,255,.85) 0deg 3deg, rgba(255,255,255,0) 3deg 22deg);
+  opacity:0; pointer-events:none;
+}
+.rr-rays.go{ animation:rrRays .62s ease-out; }
+@keyframes rrRays{
+  0%  { opacity:0; transform:scale(.4) rotate(0deg); }
+  30% { opacity:.9; }
+  100%{ opacity:0; transform:scale(2.3) rotate(38deg); }
+}
+.rr-ring{
+  position:absolute; width:112px; height:124px; pointer-events:none;
+  clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background:var(--bd-main); opacity:0;
+}
+.rr-ring.go{ animation:rrRing .58s ease-out; }
+@keyframes rrRing{
+  0%  { opacity:.55; transform:scale(1); }
+  100%{ opacity:0;   transform:scale(1.85); }
+}
+.rr-sparks{ position:absolute; inset:0; pointer-events:none; }
+.rr-spark{
+  position:absolute; left:50%; top:50%; width:6px; height:6px; margin:-3px 0 0 -3px;
+  border-radius:999px; background:#fff; box-shadow:0 0 10px var(--bd-glow);
+}
+
+/* ---- EXPバー ---------------------------------------------------------- */
+.rr-rank-label{
+  font-size:11px; font-weight:800; letter-spacing:.32em;
+  color:#8a95a5; text-transform:uppercase; margin:8px 0 12px;
+}
+.rr-rank-label b{ color:var(--bd-main); font-weight:800; }
+.rr-bar{
+  position:relative; height:14px; border-radius:999px;
+  background:rgba(255,255,255,.09);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.6);
+  overflow:hidden;
+}
+.rr-fill{
+  position:absolute; left:0; top:0; bottom:0; width:0%;
+  border-radius:999px;
+  background:linear-gradient(90deg, var(--bd-deep), var(--bd-main));
+  box-shadow:0 0 14px var(--bd-glow);
+}
+.rr-fill::after{
+  content:""; position:absolute; inset:0; opacity:0;
+  background:linear-gradient(100deg, transparent 20%, rgba(255,255,255,.85) 50%, transparent 80%);
+  transform:translateX(-100%);
+}
+.rr-bar.surging .rr-fill::after{ opacity:1; animation:rrSheen .8s linear infinite; }
+@keyframes rrSheen{ to{ transform:translateX(220%); } }
+.rr-comet{
+  position:absolute; right:-2px; top:50%; width:16px; height:16px;
+  margin-top:-8px; border-radius:999px; background:#fff;
+  filter:blur(4px); opacity:0; transition:opacity .18s ease;
+}
+.rr-bar.surging .rr-comet{ opacity:.95; }
+.rr-bar.maxed .rr-fill{
+  background:conic-gradient(from 0deg,#ff5f6d,#ffc371,#8fff8f,#5fe3ff,#a98bff,#ff5fd2,#ff5f6d);
+  animation:rrHue 4s linear infinite;
+}
+@keyframes rrHue{ to{ filter:hue-rotate(360deg); } }
+.rr-nums{
+  display:flex; justify-content:space-between; align-items:baseline;
+  margin-top:8px; font-size:12px; color:#8a95a5;
+  font-variant-numeric:tabular-nums; letter-spacing:.02em;
+}
+.rr-nums .cur{ color:#eaf4ff; font-weight:800; font-size:14px; }
+
+/* ---- 獲得EXP ---------------------------------------------------------- */
+.rr-gain{
+  margin-top:14px; display:inline-flex; align-items:center; gap:8px;
+  padding:8px 16px; border-radius:999px;
+  background:rgba(95,227,255,.10);
+  border:1px solid rgba(95,227,255,.28);
+  color:#5fe3ff; font-weight:800; font-size:17px;
+  font-variant-numeric:tabular-nums;
+  opacity:0; transform:translateY(6px) scale(.9);
+}
+.rr-gain.show{ animation:rrGainPop .5s cubic-bezier(.2,1.5,.35,1) forwards; }
+@keyframes rrGainPop{
+  0%  { opacity:0; transform:translateY(8px) scale(.86); }
+  60% { opacity:1; transform:translateY(0) scale(1.12); }
+  100%{ opacity:1; transform:translateY(0) scale(1); }
+}
+.rr-penalty{
+  margin-top:9px; font-size:12px; line-height:1.5; color:#ffb27a;
+  opacity:0; transition:opacity .3s ease .1s;
+}
+.rr-penalty.show{ opacity:1; }
+.rr-penalty s{ color:#8a95a5; text-decoration-color:rgba(255,255,255,.35); }
+.rr-close{
+  margin-top:16px; width:100%; height:46px; border-radius:14px;
+  border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.06);
+  color:#eaf4ff; font-size:14px; font-weight:700; letter-spacing:.06em;
+  font-family:var(--ui-font);
+  opacity:0; pointer-events:none; transition:opacity .3s ease;
+}
+.rr-close.show{ opacity:1; pointer-events:auto; }
+.rr-close:active{ transform:translateY(1px); }
+
+/* ---- 画面フラッシュ ---------------------------------------------------- */
+.rr-flash{
+  position:fixed; inset:0; z-index:10110; pointer-events:none;
+  background:#fff; opacity:0;
+}
+.rr-flash.go{ animation:rrFlash .3s ease-out; }
+@keyframes rrFlash{
+  0%  { opacity:0; }
+  12% { opacity:.92; }
+  100%{ opacity:0; }
+}
+
+/* ---- 「🏆 記録」画面の先頭に出すランクカード -------------------------- */
+.rank-card{
+  display:flex; align-items:center; gap:14px;
+  padding:12px 14px; margin:0 0 14px;
+  border-radius:16px;
+  background:linear-gradient(180deg, rgba(40,64,86,.34), rgba(16,22,32,.5));
+  border:1px solid rgba(255,255,255,.10);
+}
+.rank-card .rr-badge{ width:54px; height:60px; flex:0 0 auto; }
+.rank-card .rr-badge-inner{ inset:3px; }
+.rank-card .rr-num{ font-size:21px; }
+.rank-card-body{ flex:1 1 auto; min-width:0; text-align:left; }
+.rank-card-title{
+  font-size:10px; font-weight:800; letter-spacing:.24em;
+  color:#8a95a5; text-transform:uppercase; margin-bottom:6px;
+}
+.rank-card-title b{ color:var(--bd-main); font-size:15px; letter-spacing:0; }
+.rank-card .rr-bar{ height:9px; }
+.rank-card-sub{
+  margin-top:6px; font-size:11px; color:#8a95a5;
+  font-variant-numeric:tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .rr-badge.levelup, .rr-rays.go, .rr-ring.go, .rr-flash.go,
+  .rr-badge.rainbow, .rr-rainbow, .rr-bar.maxed .rr-fill,
+  .rr-bar.surging .rr-fill::after{ animation:none !important; }
+  .rr-flash{ display:none; }
+}
+/* === RANK / EXP システム : CSS ここまで ================================= */
