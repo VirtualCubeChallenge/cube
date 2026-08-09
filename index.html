@@ -8873,17 +8873,13 @@ const Shop = (function () {
       return;
     }
 
-    // ここから先はシャードが減る。何を・いくつ使って・残りいくつに
-    // なるかを見せてから決めてもらう。キャンセル・背景タップ・Esc は
-    // すべて「何もせずに閉じる」側に倒れる(askConfirm の作り)。
+    // ここから先はシャードが減る。何を・いくつ使うのかを見せてから
+    // 決めてもらう。キャンセル・背景タップ・Esc はすべて
+    // 「何もせずに閉じる」側に倒れる(askConfirm の作り)。
     const shardName = t(theme.cur === 'rainbow' ? 'shopShardRainbow' : 'shopShardCyan');
     const opts = {
       title:  t('shopConfirmTitle', { name: label(theme) }),
-      body:   t('shopConfirmBody', {
-                shard: shardName,
-                cost:  fmt(theme.cost),
-                left:  fmt(balance(theme.cur) - theme.cost)
-              }),
+      body:   t('shopConfirmBody', { shard: shardName, cost: fmt(theme.cost) }),
       ok:     t('shopRedeem'),
       cancel: t('confirmCancel'),
       onOk:   function () { buy(theme); }

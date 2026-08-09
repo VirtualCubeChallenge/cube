@@ -2187,7 +2187,7 @@
   const SHOP_I18N = {
     "ja": {
       shopConfirmTitle:"「{name}」を引き換えますか？",
-      shopConfirmBody:"{shard}を {cost} 使います。引き換えたあとの残りは {left} です。",
+      shopConfirmBody:"{shard}を {cost}使います。",
       shopShardCyan:"水色シャード", shopShardRainbow:"虹シャード",
       menuShop:"🛍️ ショップ", shopTitle:"ショップ",
       shopLead:"シャードでメインカラーを引き換えます",
@@ -2202,7 +2202,7 @@
     },
     "en": {
       shopConfirmTitle:"Redeem {name}?",
-      shopConfirmBody:"This spends {cost} {shard}. You will have {left} left.",
+      shopConfirmBody:"This spends {cost} {shard}.",
       shopShardCyan:"cyan shards", shopShardRainbow:"rainbow shards",
       menuShop:"🛍️ Shop", shopTitle:"Shop",
       shopLead:"Redeem shards for a main color",
@@ -2217,7 +2217,7 @@
     },
     "zh-CN": {
       shopConfirmTitle:"要兑换{name}吗？",
-      shopConfirmBody:"将消耗 {cost} 个{shard}，兑换后剩余 {left} 个。",
+      shopConfirmBody:"将消耗 {cost} 个{shard}。",
       shopShardCyan:"水色碎片", shopShardRainbow:"彩虹碎片",
       menuShop:"🛍️ 商店", shopTitle:"商店",
       shopLead:"用碎片兑换主色调",
@@ -2232,7 +2232,7 @@
     },
     "zh-TW": {
       shopConfirmTitle:"要兌換{name}嗎？",
-      shopConfirmBody:"將消耗 {cost} 個{shard}，兌換後剩餘 {left} 個。",
+      shopConfirmBody:"將消耗 {cost} 個{shard}。",
       shopShardCyan:"水藍碎片", shopShardRainbow:"彩虹碎片",
       menuShop:"🛍️ 商店", shopTitle:"商店",
       shopLead:"用碎片兌換主色調",
@@ -2247,7 +2247,7 @@
     },
     "ko": {
       shopConfirmTitle:"{name}(으)로 교환할까요?",
-      shopConfirmBody:"{shard} {cost}개를 사용합니다. 교환 후에는 {left}개가 남습니다.",
+      shopConfirmBody:"{shard} {cost}개를 사용합니다.",
       shopShardCyan:"하늘색 조각", shopShardRainbow:"무지개 조각",
       menuShop:"🛍️ 상점", shopTitle:"상점",
       shopLead:"조각으로 메인 색상을 교환합니다",
@@ -2262,7 +2262,7 @@
     },
     "es": {
       shopConfirmTitle:"¿Canjear {name}?",
-      shopConfirmBody:"Gastarás {cost} {shard}. Te quedarán {left}.",
+      shopConfirmBody:"Gastarás {cost} {shard}.",
       shopShardCyan:"fragmentos cian", shopShardRainbow:"fragmentos arcoíris",
       menuShop:"🛍️ Tienda", shopTitle:"Tienda",
       shopLead:"Canjea fragmentos por un color principal",
@@ -2277,7 +2277,7 @@
     },
     "id": {
       shopConfirmTitle:"Tukar {name}?",
-      shopConfirmBody:"Ini memakai {cost} {shard}. Sisanya menjadi {left}.",
+      shopConfirmBody:"Ini memakai {cost} {shard}.",
       shopShardCyan:"serpihan biru", shopShardRainbow:"serpihan pelangi",
       menuShop:"🛍️ Toko", shopTitle:"Toko",
       shopLead:"Tukar serpihan jadi warna utama",
@@ -2292,7 +2292,7 @@
     },
     "ru": {
       shopConfirmTitle:"Обменять на «{name}»?",
-      shopConfirmBody:"Будет потрачено {cost} ({shard}). Останется {left}.",
+      shopConfirmBody:"Будет потрачено {cost} ({shard}).",
       shopShardCyan:"голубые осколки", shopShardRainbow:"радужные осколки",
       menuShop:"🛍️ Магазин", shopTitle:"Магазин",
       shopLead:"Обменяйте осколки на основной цвет",
@@ -2307,7 +2307,7 @@
     },
     "pt-BR": {
       shopConfirmTitle:"Trocar por {name}?",
-      shopConfirmBody:"Isso gasta {cost} {shard}. Restarão {left}.",
+      shopConfirmBody:"Isso gasta {cost} {shard}.",
       shopShardCyan:"fragmentos ciano", shopShardRainbow:"fragmentos arco-íris",
       menuShop:"🛍️ Loja", shopTitle:"Loja",
       shopLead:"Troque fragmentos por uma cor principal",
