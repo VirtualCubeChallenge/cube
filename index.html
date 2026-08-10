@@ -1241,6 +1241,8 @@
       // 6秒の自動クローズが説明の途中で走ると、読んでいる本人には
       // 「勝手に閉じた＝操作をまちがえた」としか見えない。
       if (open && !tutHolding) menuIdleTimer = setTimeout(() => setMenuOpen(false), 6000);
+      // つまみの位置は「開いているかどうか」で変わるので、そのつど測り直す。
+      if (typeof positionShuffleSlider === 'function') positionShuffleSlider();
     }
     onI18n(() => setMenuOpen(menuActions.classList.contains('open')));
     menuToggle.addEventListener('click', () => {
@@ -1493,48 +1495,48 @@
     });
     window.addEventListener('resize', () => { shuffleMaxDrag = shuffleTrackRange(); });
 
-    // --- シャッフルの縦位置: ドロワーの実測の下端に合わせる -----------------
-    // .menu-actions は visibility:hidden の間も箱としての高さを持ち続けている
-    // (display:none にはしていないため)。なので閉じて見えないときも、実際に
-    // はドロワーのカードぶんの高さがそこに存在している。ここを「トグル
-    // ボタンの高さ+数px」のような固定値にすると、その実在する高さぶんが
-    // 考慮されず、ドロワーを開いたときにこの丸枠がカードの灰色に食い込んで
-    // 見えてしまう。そこで実際に描画されたドロワーの下端をここで測り、
-    // そのすぐ外側(+ margin ぶん)に --shuffle-top として毎回書き直す。
-    // 言語切り替えでラベルの折り返し方が変わったり、フォント読み込みで
-    // 高さが後から確定したりするケースもあるため、初回だけでなく
-    // リサイズ時・言語切り替え時にも測り直す。
+    /* --- シャッフルの縦位置 ------------------------------------------------
+       このつまみは .top-btns を基準にした position:absolute で、ヘッダーから
+       ぶら下がっている。縦位置は --shuffle-top に毎回実測を書き込んで決める
+       （CSS 側は `top: var(--shuffle-top, 210px)`。あの数値は JS 実行前と
+       失敗時だけのフォールバック）。
+
+       決め方は3段構え:
+         ① ふだんは ≡ ボタンのすぐ下。
+         ② ドロワーを開いているあいだだけ、カードの下端をよけて下がる。
+         ③ 最後に、キューブの表示領域(#canvas-container)の下端からはみ出す
+            ぶんを切り上げる。
+
+       ①で「閉じているドロワーの高さ」を測らないのが要点。.menu-actions は
+       display:none ではなく visibility:hidden なので、閉じていても箱として
+       の高さを持ち続けている。その実測値がブラウザによってまるで違い、
+       Android Chrome では実際よりかなり大きく出る(78vw の min-width と
+       折り返しの計測タイミングが絡むと思われる)。以前はその値をそのまま
+       採用していたため、Android だけつまみが下へ落ちて OLL/ZBLL/PLL の列に
+       重なっていた。開いているときのカードは目に見えている箱なので、
+       測っても値は信用できる。
+
+       ③はもっと素朴で、しかしいちばん効く安全弁。Android Chrome は URL バーと
+       ナビゲーションバーのぶんだけ表示領域が縦に短く、iOS で問題なく収まって
+       いた位置でも、そこにはもうキューブの領域が無い、ということが起きる。
+       行数から上限 px を決める従来のやり方(shuffleTopSafeMax)では、画面の
+       高さそのものが足りない場合を防げなかったので、実際の領域の下端で
+       止める。従来の上限は②の異常値対策としてだけ残してある。
+
+       お手本(#demo-panel)が出ているときは、そのパネルの下端より下へ回す
+       処理も②と③のあいだに入る。パネルは #canvas-container 基準、つまみは
+       .top-btns 基準と別々の座標系なので、getBoundingClientRect で画面上の
+       実ピクセルに揃えてから比べている。
+
+       初回はフォント読み込みでラベルの実測が後から変わるため、描画が一段落
+       してからも測り直す。リサイズ・言語切り替え・ドロワーの開閉でも同じ。 */
     const SHUFFLE_BELOW_DRAWER_MARGIN = 14; // ドロワーの影(box-shadow)ぶんの余白
-    // タップキューブの「ヘルプ」(お手本)パネルが出ている間、そのパネルは
-    // #canvas-container 基準の絶対配置で画面上部に幅いっぱいに広がる
-    // (#demo-panel, top:8px/left:8px/right:8px)。一方シャッフルのつまみは
-    // ヘッダー側 (.top-btns) を基準にドロワーの真下へ吊り下げているだけ
-    // なので、お手本パネルの有無やその実際の高さ(そろった瞬間の
-    // "COMPLETE!" 表示で伸びる)をまったく考慮していなかった。その結果、
-    // ヘルプ中に完成すると、光って目立つはずのシャッフルのつまみがパネルの
-    // 上に重なって見えてしまっていた。
-    // ここでは #demo-panel が実際に表示されているときだけその下端を
-    // getBoundingClientRect で測り、shuffle-slider の座標系(offsetParent
-    // である .top-btns 基準)に変換して、ドロワー基準の位置と比べて低い方
-    // (=より下)を採用する。getBoundingClientRect で揃えるのは、2つの要素が
-    // 別々の position:absolute 基準を持っていても、画面上の実ピクセル位置
-    // さえ合わせれば重なりを確実に避けられるため。
-    // ドロワー(.menu-actions)の中身は「🏆 記録」「🛍️ ショップ」「⚙️ 設定」
-    // の3行なので、ドロワーの真下という前提が保たれている限り
-    // --shuffle-top はせいぜい 380px 前後にしかならないはず。
-    // (上限値 SHUFFLE_TOP_SAFE_MAX は行数から算出するので、今後ドロワーに
-    //  行を足しても、この安全弁が正常な位置まで巻き込むことはない。)
-    // ところが Android Chrome では
-    // .menu-actions が visibility:hidden のまま持っている「箱としての高さ」
-    // の実測値 (offsetTop / offsetHeight) が他ブラウザよりはるかに大きく
-    // 出てしまうことがあり(78vw の min-width や折り返しの計測タイミングが
-    // 絡むと思われる)、その値をそのまま採用するとつまみが画面中ほどまで
-    // 落ちてOLL/ZBLL/PLLの列に重なってしまう。ドロワーが実際に何行あって
-    // も現実的にここまでは伸びない、という上限値でクランプし、異常値を
-    // 無視する安全弁にする。お手本パネル(#demo-panel)表示中だけはキューブ
-    // 領域の下端まで正当に伸びる必要があるため、このクランプの対象外にする。
-    // 2行ぶんの実測上限 320px を基準に、3行目以降は1行 74px
-    // (padding 20px×2 + 文字 19px 相当 + gap 8px) を足していく。
+    const SHUFFLE_BELOW_TOGGLE_MARGIN = 10; // 閉じているときの ≡ ボタンとの間隔
+    const SHUFFLE_STAGE_BOTTOM_MARGIN = 12; // キューブ領域の下端との間隔
+    // ②の異常値対策として残している上限。ドロワーが実際に何行あっても
+    // 現実的にここまでは伸びない、という値でクランプする。2行ぶんの実測
+    // 上限 320px を基準に、3行目以降は1行 74px (padding 20px×2 + 文字
+    // 19px 相当 + gap 8px) を足していく。
     const SHUFFLE_TOP_SAFE_BASE = 320;   // 2行のときの上限
     const SHUFFLE_ROW_HEIGHT    = 74;    // ドロワー1行ぶんの高さ + gap
     function shuffleTopSafeMax() {
@@ -1545,22 +1547,54 @@
     }
     function positionShuffleSlider() {
       if (!menuActions || !shuffleSlider) return;
-      const drawerBottom = menuActions.offsetTop + menuActions.offsetHeight;
-      // .shuffle-slider の CSS 側は `top: var(--shuffle-top, 210px);` なので、
-      // ここで --shuffle-top を書き換えるだけで反映される。
-      let top = drawerBottom + SHUFFLE_BELOW_DRAWER_MARGIN;
-      // 上記の異常値クランプ。お手本パネルぶんの底上げ判定より前に適用し、
-      // ベースとなるドロワー基準の値だけを正常化しておく。
-      top = Math.min(top, shuffleTopSafeMax());
+      const menuOpen = menuActions.classList.contains('open');
+
+      // ふだん(ドロワーが閉じているとき)は ≡ ボタンのすぐ下。閉じている
+      // ドロワーの「箱としての高さ」は測らない。あれは visibility:hidden の
+      // まま残っている見えない箱で、実測値がブラウザによってまるで違い、
+      // Android Chrome では実際より大きく出てつまみが下へ落ちていた。
+      const toggleBottom = menuToggle
+        ? menuToggle.offsetTop + menuToggle.offsetHeight
+        : 44;
+      let top = toggleBottom + SHUFFLE_BELOW_TOGGLE_MARGIN;
+
+      // ドロワーが開いているあいだだけ、カードの下端をよけて下がる。
+      // (見えている箱を測るので、この値は信用できる。それでも異常値の
+      //  安全弁として shuffleTopSafeMax() は残しておく。)
+      if (menuOpen) {
+        const drawerBottom = menuActions.offsetTop + menuActions.offsetHeight;
+        top = Math.max(top, Math.min(drawerBottom + SHUFFLE_BELOW_DRAWER_MARGIN,
+                                     shuffleTopSafeMax()));
+      }
+
+      const parentEl = shuffleSlider.offsetParent;
+      const parentTop = parentEl ? parentEl.getBoundingClientRect().top : 0;
+
+      // お手本パネルが出ているときは、その下端より下へ。
       const demoPanelEl = document.getElementById('demo-panel');
       if (demoPanelEl && demoPanelEl.classList.contains('show')) {
         const demoRect = demoPanelEl.getBoundingClientRect();
-        const parentEl = shuffleSlider.offsetParent;
-        const parentTop = parentEl ? parentEl.getBoundingClientRect().top : 0;
         const demoBottomLocal = (demoRect.bottom - parentTop) + SHUFFLE_BELOW_DRAWER_MARGIN;
         top = Math.max(top, demoBottomLocal);
       }
-      shuffleSlider.style.setProperty('--shuffle-top', top + 'px');
+
+      // 最後に、キューブの表示領域(#canvas-container)からはみ出さないよう
+      // 下端で止める。ここがいちばん効く安全弁で、Android Chrome のように
+      // URLバーやナビゲーションバーで縦が短くなる環境でも、つまみが
+      // OLL/ZBLL/PLL の列や回転ボタンの上に垂れ下がらなくなる。
+      // (以前の「ドロワー何行ぶんまで」という px の上限だけでは、画面の
+      //  高さそのものが足りない場合を防げなかった。)
+      const stage = document.getElementById('canvas-container');
+      if (stage && parentEl) {
+        const stageBottomLocal = stage.getBoundingClientRect().bottom - parentTop;
+        const maxTop = stageBottomLocal - shuffleSlider.offsetHeight
+                       - SHUFFLE_STAGE_BOTTOM_MARGIN;
+        if (maxTop > 0) top = Math.min(top, maxTop);
+      }
+
+      // .shuffle-slider の CSS 側は `top: var(--shuffle-top, 210px);` なので、
+      // ここで --shuffle-top を書き換えるだけで反映される。
+      shuffleSlider.style.setProperty('--shuffle-top', Math.round(top) + 'px');
     }
     // 初回はフォント読み込みでラベルの実測サイズが後から変わることがあるので、
     // 描画が一段落してから測る。document.fonts が無い環境向けの保険として
@@ -1572,6 +1606,13 @@
     }
     setTimeout(positionShuffleSlider, 300);
     window.addEventListener('resize', positionShuffleSlider);
+    window.addEventListener('orientationchange', () => setTimeout(positionShuffleSlider, 250));
+    // Android Chrome は URL バーの出入りで表示領域の高さだけが変わり、
+    // window の resize が出ないことがある。visualViewport はその変化を
+    // 拾えるので、あるときはこちらでも測り直す。
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', positionShuffleSlider);
+    }
     onI18n(() => requestAnimationFrame(positionShuffleSlider));
 
 
