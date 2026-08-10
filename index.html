@@ -5,7 +5,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <!-- user-scalable=no だけでは Android(Chrome の「ズームの強制有効化」が
+       ONの端末、Samsung Internet など)でピンチ拡大が素通りしてしまう。
+       minimum-scale / maximum-scale も付けて「1倍から動かない」ことを
+       二重に宣言しておく。これを見てくれないブラウザ向けの本命の対策は
+       この下の <script> (ズーム封じ) 側。 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>3D Rubik's Cube</title>
   <!-- Home Screen / standalone web-app support (iOS "Add to Home Screen") -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -49,6 +54,85 @@
         r.style.setProperty('--tc-rgb',
           ((n >> 16) & 255) + ', ' + ((n >> 8) & 255) + ', ' + (n & 255));
       } catch (e) { /* 保存が読めない環境は既定のミントのまま */ }
+    })();
+  </script>
+  <!-- ============================================================
+       ズーム封じ (Android で回している最中に画面が拡大される不具合の対策)
+
+       症状: キューブを回している途中で画面全体がぐいっと拡大され、
+       回転記号ボタンが画面の外にはみ出す。iOS では起きず Android で出る。
+
+       原因: ブラウザ標準の「ピンチ拡大」。回している指に加えて、端末を
+       持っている側の指が画面のどこかに触れた瞬間、2本指＝ピンチと解釈
+       されてページが拡大される。head の viewport には user-scalable=no を
+       書いてあるが、これは Android では効かない場合がある(Chrome の
+       設定→ユーザー補助→「ズームの強制有効化」が ON の端末や、
+       Samsung Internet などのブラウザ)。そのぶん JS 側で止める。
+
+       ここでやっていること:
+         ①2本目の指が触れた/動いた時点で既定動作(ピンチ)を捨てる
+         ②iOS Safari の gesture 系イベントも同様に捨てる
+         ③PC の Ctrl(⌘)+ホイールによる拡大も捨てる
+         ④それでも拡大されてしまった時の保険として、倍率が1を超えたら
+           viewport を書き換えて1倍へ戻す
+       ダブルタップ拡大のほうは style.css の body { touch-action: manipulation }
+       で無効にしてある(「ダブルタップで180°回転」は pointer イベントで
+       自前に判定しているので影響を受けない)。
+       ============================================================ -->
+  <script>
+    (function preventPageZoom() {
+      var meta = document.querySelector('meta[name="viewport"]');
+      var BASE = meta ? meta.getAttribute('content') : '';
+      var flip = false;
+      // 拡大されてしまった時に1倍へ戻す。viewport の content を書き換えると
+      // ブラウザが倍率を計算し直し、maximum-scale=1 にクランプされて元の
+      // 表示に戻る。中身は同じでよいので、末尾の空白1つだけ足し引きして
+      // 「値が変わった」と認識させる。
+      function resetZoom() {
+        if (!meta) return;
+        flip = !flip;
+        meta.setAttribute('content', BASE + (flip ? ' ' : ''));
+      }
+
+      // capture:true で本体のどのハンドラより先に受け取り、passive:false で
+      // preventDefault() を効かせる (既定の passive のままだと無視される)。
+      var opt = { passive: false, capture: true };
+      var multiTouchAt = 0;
+
+      function blockMultiTouch(e) {
+        if (e.touches && e.touches.length > 1) {
+          multiTouchAt = Date.now();
+          if (e.cancelable) e.preventDefault();
+        }
+      }
+      // 指1本の操作(キューブをなぞる/ボタンをスライドする/一覧をスクロール
+      // する)には一切触らないので、操作感は今までどおり。
+      document.addEventListener('touchstart', blockMultiTouch, opt);
+      document.addEventListener('touchmove', blockMultiTouch, opt);
+
+      // iOS Safari は user-scalable=no を無視するかわりに gesture 系を出す。
+      ['gesturestart', 'gesturechange', 'gestureend'].forEach(function (type) {
+        document.addEventListener(type, function (e) {
+          if (e.cancelable) e.preventDefault();
+        }, opt);
+      });
+
+      // PC のトラックパッドのピンチ / Ctrl+ホイール。
+      document.addEventListener('wheel', function (e) {
+        if (e.ctrlKey && e.cancelable) e.preventDefault();
+      }, opt);
+
+      // 保険。上で止めきれずに拡大された場合だけ1倍へ戻す。直前に2本指が
+      // 触れていた時に限っているので、ユーザーが自分の意思で(ブラウザの
+      // メニュー等から)拡大した場合まで巻き戻すことはない。
+      if (window.visualViewport) {
+        var vv = window.visualViewport;
+        var onZoom = function () {
+          if (vv.scale > 1.01 && Date.now() - multiTouchAt < 2000) resetZoom();
+        };
+        vv.addEventListener('resize', onZoom);
+        vv.addEventListener('scroll', onZoom);
+      }
     })();
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>

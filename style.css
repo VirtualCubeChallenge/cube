@@ -149,6 +149,16 @@
       height: 100dvh;
       /* html 側と揃えて、body 自身もラバーバンドで伸縮しないようにする。 */
       overscroll-behavior: none;
+      /* ダブルタップ拡大を全画面で無効にする。manipulation は「スクロールと
+         ピンチは許すが、ダブルタップ拡大のような追加のジェスチャーは許さない」
+         という指定。子要素の touch-action と掛け合わされるだけなので、
+         #canvas-container の none も .face-card の pan-y も、設定画面などの
+         縦スクロールもこれまでどおり効く。
+         残るピンチ拡大のほうは index.html の head にあるズーム封じの
+         スクリプト側で止めている(CSS だけでは Android で素通りするため)。
+         「ダブルタップで180°回転」は pointer イベントで自前に時間を測って
+         判定しているので、この指定の影響を受けない。 */
+      touch-action: manipulation;
     }
     #header {
       padding: 10px 12px 10px;
