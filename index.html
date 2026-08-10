@@ -596,7 +596,7 @@
         <h3 class="shop-section-title" data-i18n="shopThemes">メインカラー</h3>
         <div class="shop-grid" id="shop-theme-grid"></div>
         <h3 class="shop-section-title" data-i18n="shopMarks">マーク枠</h3>
-        <p class="shop-section-note" data-i18n="shopMarksLead">そろえたとき、白い面に映ります</p>
+        <p class="shop-section-note" data-i18n="shopMarksLead">そろえたとき、6面すべてに映ります</p>
         <div class="shop-grid" id="shop-mark-grid"></div>
       </div>
       <p class="shop-toast" id="shop-toast" role="status" aria-live="polite"></p>
@@ -5201,66 +5201,39 @@ const PLL_DATA = {
       return true;
     }
 
-    /* --- 完成したときに白い面へ写真を映す（ショップの「マーク枠」）--------
-       ・そろった瞬間だけ、白い面の 3x3 の上に薄い板を9枚うかべて、
+    /* --- 完成したときに6面すべてへ写真を映す（ショップの「マーク枠」）----
+       ・そろった瞬間だけ、6面それぞれの 3x3 の上に薄い板を9枚うかべて、
          引き換えた写真を9分割して貼る。ステッカーの目地がそのまま残る
-         ので「白い面に写真が刷られた」ように見える。
+         ので「面に写真が刷られた」ように見える。板は 6面 x 9枚 = 54枚。
        ・キューブ本体のマテリアルには一切触らない。だから消すときは板を
          外すだけで済み、色や回転の処理と干渉しない。
-       ・M列などで白がどの面に来ていても大丈夫なように、面は「白い中央
-         キューブがどこを向いているか」から毎回さがす。
+       ・マテリアルとテクスチャは「3x3のどのマスか」の9個だけ作って、
+         6面ぜんぶで使い回す。54枚ぶん作ると同じ写真をGPUへ54回送る
+         ことになり、スマホでは重さも発熱もばかにならないため。
        ・状態を var で持つのは、この下で定義される関数(executeTurn など)が
          ファイルの上のほうから先に呼ばれても TDZ で落ちないようにするため。 */
-    var markGroup = null;      // 9枚の板をぶら下げる入れ物（cubeGroup の子）
-    var markGeom  = null;      // 板1枚ぶんの形（9枚で使い回す）
-    var markImg   = null;      // 写真そのもの（1枚だけ読み込んで使い回す）
+    var markGroups = [];       // 6面ぶんの入れ物（どれも cubeGroup の子）
+    var markMats   = [];       // 9マスぶんのマテリアル（6面で使い回す）
+    var markGeom   = null;     // 板1枚ぶんの形（54枚で使い回す）
+    var markImg    = null;     // 写真そのもの（1枚だけ読み込んで使い回す）
     var markImgUrl = null;
     var markImgReady = false;
     var markFadeRAF = null;
-    var MARK_WHITE = 0xFFFFFF; // 「白い面」= FACE_COLORS.U と同じ白
-
-    // その面の中央キューブが今どの色を見せているか。そろっている盤面なら
-    // 中央の色 = その面の色なので、白い面はこれで一発でさがせる。
-    function faceCenterColor(face) {
-      const axes = ['x', 'y', 'z'];
-      for (const c of cubies) {
-        if (Math.abs(c.position[face.axis] - face.sign) > 0.1) continue;
-        let isCenter = true;
-        for (const ax of axes) {
-          if (ax !== face.axis && Math.abs(c.position[ax]) > 0.1) isCenter = false;
-        }
-        if (!isCenter) continue;
-        for (let i = 0; i < 6; i++) {
-          _stickerDir.copy(LOCAL_FACE_DIRS[i]).applyQuaternion(c.quaternion);
-          if (Math.abs(_stickerDir[face.axis] - face.sign) < 0.1) {
-            return c.material[i].color.getHex();
-          }
-        }
-      }
-      return null;
-    }
-    function findWhiteFace() {
-      for (const face of WORLD_FACES) {
-        if (faceCenterColor(face) === MARK_WHITE) return face;
-      }
-      return null;
-    }
 
     function hideSolvedMark() {
       if (markFadeRAF) { cancelAnimationFrame(markFadeRAF); markFadeRAF = null; }
-      if (!markGroup) return;
-      markGroup.children.forEach((tile) => {
-        if (tile.material) {
-          if (tile.material.map) tile.material.map.dispose();
-          tile.material.dispose();
-        }
+      if (!markGroups.length) return;
+      markGroups.forEach((g) => cubeGroup.remove(g));
+      markGroups = [];
+      markMats.forEach((m) => {
+        if (m.map) m.map.dispose();
+        m.dispose();
       });
-      cubeGroup.remove(markGroup);
-      markGroup = null;
+      markMats = [];
       if (markGeom) { markGeom.dispose(); markGeom = null; }
     }
 
-    // 写真は1枚だけ読み込んで、9枚の板でテクスチャを共有する
+    // 写真は1枚だけ読み込んで、54枚の板でテクスチャを共有する
     // （THREE.Texture は同じ Image から作れば画像データは1つで済む）。
     function withMarkImage(url, done) {
       if (markImgUrl === url && markImgReady) { done(); return; }
@@ -5273,19 +5246,13 @@ const PLL_DATA = {
     }
 
     function buildSolvedMark() {
-      const face = findWhiteFace();
-      if (!face || !markImgReady || !markImg) return;
+      if (!markImgReady || !markImg) return;
       hideSolvedMark();
 
-      const n = new THREE.Vector3(0, 0, 0);
-      n[face.axis] = face.sign;
-      markGroup = new THREE.Group();
-      // 板は初期状態で +Z を向いているので、そこから白い面の向きへ回す。
-      markGroup.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), n);
-      // キューブ表面(1.47)のほんの少し外側。近すぎると面とちらつく。
-      markGroup.position.copy(n).multiplyScalar(1.482);
-
       markGeom = new THREE.PlaneGeometry(0.9, 0.9);
+      // まず9マスぶんのマテリアルを作る。写真を3x3に切り分けて、
+      // (i, j) のマスにはその位置の切れ端を割り当てる。
+      const cells = [];
       for (let i = -1; i <= 1; i++) {
         for (let j = -1; j <= 1; j++) {
           const tex = new THREE.Texture(markImg);
@@ -5294,25 +5261,44 @@ const PLL_DATA = {
           tex.magFilter = THREE.LinearFilter;
           tex.generateMipmaps = false;
           tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
-          tex.repeat.set(1 / 3, 1 / 3);         // 写真を3x3に切り分けて
-          tex.offset.set((i + 1) / 3, (j + 1) / 3); // 各マスに1枚ずつ配る
-          const tile = new THREE.Mesh(markGeom, new THREE.MeshBasicMaterial({
+          tex.repeat.set(1 / 3, 1 / 3);
+          tex.offset.set((i + 1) / 3, (j + 1) / 3);
+          const mat = new THREE.MeshBasicMaterial({
             map: tex,
             transparent: true,
             opacity: 0                          // ふわっと出す（下の fade）
-          }));
-          tile.position.set(i, j, 0);
-          markGroup.add(tile);
+          });
+          markMats.push(mat);
+          cells.push({ i: i, j: j, mat: mat });
         }
       }
-      cubeGroup.add(markGroup);
+
+      // その9枚を、6面それぞれに同じ並びで貼っていく。
+      const FWD = new THREE.Vector3(0, 0, 1);   // 板がもともと向いている向き
+      WORLD_FACES.forEach((face) => {
+        const n = new THREE.Vector3(0, 0, 0);
+        n[face.axis] = face.sign;
+        const g = new THREE.Group();
+        // 板は +Z 向きなので、そこからこの面の向きへ回す。
+        g.quaternion.setFromUnitVectors(FWD, n);
+        // キューブ表面(1.47)のほんの少し外側。近すぎると面とちらつく。
+        g.position.copy(n).multiplyScalar(1.482);
+        cells.forEach((c) => {
+          const tile = new THREE.Mesh(markGeom, c.mat);
+          tile.position.set(c.i, c.j, 0);
+          g.add(tile);
+        });
+        cubeGroup.add(g);
+        markGroups.push(g);
+      });
 
       // 完成演出のフラッシュが引いたあと、0.5秒かけて浮かび上がる。
+      // マテリアルは6面で共有しているので、9個ぶん触れば全面に効く。
       const t0 = performance.now();
       const fade = (now) => {
-        if (!markGroup) return;
+        if (!markGroups.length) return;
         const p = Math.min((now - t0) / 500, 1);
-        markGroup.children.forEach((tile) => { tile.material.opacity = p; });
+        markMats.forEach((m) => { m.opacity = p; });
         markFadeRAF = (p < 1) ? requestAnimationFrame(fade) : null;
       };
       markFadeRAF = requestAnimationFrame(fade);
@@ -5384,7 +5370,7 @@ const PLL_DATA = {
       glowAndSpinCube();
       launchConfetti(isNewBest);
       launchFireworks(isNewBest);
-      // 引き換えてあれば、白い面に写真を映す（練習ドリルでも出す。
+      // 引き換えてあれば、6面すべてに写真を映す（練習ドリルでも出す。
       // 報酬ではなく、そろったときの見た目そのものなので）。
       // 白フラッシュと決めスピンの勢いが抜けてから浮かび上がらせる。
       setTimeout(() => { if (gameState === 'solved') showSolvedMark(); }, 620);
@@ -8815,7 +8801,7 @@ const Shop = (function () {
 
   /* ---- マーク枠（そろえたとき白い面に映る絵）----------------------------
      色とは別売りの飾り。引き換えて「つける」にしておくと、キューブが
-     そろった瞬間だけ白い面に写真が浮かび上がる（3D側の showSolvedMark）。
+     そろった瞬間だけ6面すべてに写真が浮かび上がる（3D側の showSolvedMark）。
      絵は data URI で埋め込んである。外部ファイルにすると、ホーム画面に
      追加したときに読み込み待ちが1つ増えるため。容量を抑えるために
      256x256 の WebP（約5.5KB）にしてある。差し替えるときも、同じくらい

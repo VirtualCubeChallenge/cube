@@ -2340,39 +2340,39 @@
 (function addMarkStrings() {
   const MARK_I18N = {
     "ja": {
-      shopMarks:"マーク枠", shopMarksLead:"そろえたとき、白い面に映ります",
+      shopMarks:"マーク枠", shopMarksLead:"そろえたとき、6面すべてに映ります",
       shopMarkEquip:"これをつける", shopMarkNone:"なし", shopMarkCat:"ねこ"
     },
     "en": {
-      shopMarks:"Face mark", shopMarksLead:"Shows on the white face when you solve",
+      shopMarks:"Face mark", shopMarksLead:"Shows on all six faces when you solve",
       shopMarkEquip:"Use this mark", shopMarkNone:"None", shopMarkCat:"Cat"
     },
     "zh-CN": {
-      shopMarks:"图案框", shopMarksLead:"复原时会浮现在白色面上",
+      shopMarks:"图案框", shopMarksLead:"复原时会浮现在六个面上",
       shopMarkEquip:"使用此图案", shopMarkNone:"无", shopMarkCat:"猫"
     },
     "zh-TW": {
-      shopMarks:"圖案框", shopMarksLead:"完成時會浮現在白色面上",
+      shopMarks:"圖案框", shopMarksLead:"完成時會浮現在六個面上",
       shopMarkEquip:"使用此圖案", shopMarkNone:"無", shopMarkCat:"貓"
     },
     "ko": {
-      shopMarks:"마크 틀", shopMarksLead:"맞추면 흰색 면에 나타납니다",
+      shopMarks:"마크 틀", shopMarksLead:"맞추면 여섯 면 모두에 나타납니다",
       shopMarkEquip:"이 마크 사용", shopMarkNone:"없음", shopMarkCat:"고양이"
     },
     "es": {
-      shopMarks:"Marca de cara", shopMarksLead:"Aparece en la cara blanca al resolver",
+      shopMarks:"Marca de cara", shopMarksLead:"Aparece en las seis caras al resolver",
       shopMarkEquip:"Usar esta marca", shopMarkNone:"Ninguna", shopMarkCat:"Gato"
     },
     "id": {
-      shopMarks:"Bingkai gambar", shopMarksLead:"Muncul di sisi putih saat selesai",
+      shopMarks:"Bingkai gambar", shopMarksLead:"Muncul di keenam sisi saat selesai",
       shopMarkEquip:"Pakai gambar ini", shopMarkNone:"Tidak ada", shopMarkCat:"Kucing"
     },
     "ru": {
-      shopMarks:"Картинка на грани", shopMarksLead:"Появится на белой грани, когда собран",
+      shopMarks:"Картинка на грани", shopMarksLead:"Появится на всех шести гранях, когда собран",
       shopMarkEquip:"Выбрать картинку", shopMarkNone:"Нет", shopMarkCat:"Кот"
     },
     "pt-BR": {
-      shopMarks:"Marca na face", shopMarksLead:"Aparece na face branca ao resolver",
+      shopMarks:"Marca na face", shopMarksLead:"Aparece nas seis faces ao resolver",
       shopMarkEquip:"Usar esta marca", shopMarkNone:"Nenhuma", shopMarkCat:"Gato"
     }
   };
