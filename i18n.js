@@ -2328,3 +2328,58 @@
     });
   });
 })();
+
+/* ============================================================
+   🛍️ ショップ「マーク枠」の文言（9言語ぶん）
+   色と同じく、既存の I18N に上書きせず足すだけ。キーは5個。
+     shopMarks / shopMarksLead / shopMarkEquip
+     ＋ マークの名前 shopMark*（none / cat）
+   マークを足すときは index.html の MARKS に1行足して、ここに
+   shopMark<Id>（先頭大文字）を9言語ぶん書き足す。
+   ============================================================ */
+(function addMarkStrings() {
+  const MARK_I18N = {
+    "ja": {
+      shopMarks:"マーク枠", shopMarksLead:"そろえたとき、白い面に映ります",
+      shopMarkEquip:"これをつける", shopMarkNone:"なし", shopMarkCat:"ねこ"
+    },
+    "en": {
+      shopMarks:"Face mark", shopMarksLead:"Shows on the white face when you solve",
+      shopMarkEquip:"Use this mark", shopMarkNone:"None", shopMarkCat:"Cat"
+    },
+    "zh-CN": {
+      shopMarks:"图案框", shopMarksLead:"复原时会浮现在白色面上",
+      shopMarkEquip:"使用此图案", shopMarkNone:"无", shopMarkCat:"猫"
+    },
+    "zh-TW": {
+      shopMarks:"圖案框", shopMarksLead:"完成時會浮現在白色面上",
+      shopMarkEquip:"使用此圖案", shopMarkNone:"無", shopMarkCat:"貓"
+    },
+    "ko": {
+      shopMarks:"마크 틀", shopMarksLead:"맞추면 흰색 면에 나타납니다",
+      shopMarkEquip:"이 마크 사용", shopMarkNone:"없음", shopMarkCat:"고양이"
+    },
+    "es": {
+      shopMarks:"Marca de cara", shopMarksLead:"Aparece en la cara blanca al resolver",
+      shopMarkEquip:"Usar esta marca", shopMarkNone:"Ninguna", shopMarkCat:"Gato"
+    },
+    "id": {
+      shopMarks:"Bingkai gambar", shopMarksLead:"Muncul di sisi putih saat selesai",
+      shopMarkEquip:"Pakai gambar ini", shopMarkNone:"Tidak ada", shopMarkCat:"Kucing"
+    },
+    "ru": {
+      shopMarks:"Картинка на грани", shopMarksLead:"Появится на белой грани, когда собран",
+      shopMarkEquip:"Выбрать картинку", shopMarkNone:"Нет", shopMarkCat:"Кот"
+    },
+    "pt-BR": {
+      shopMarks:"Marca na face", shopMarksLead:"Aparece na face branca ao resolver",
+      shopMarkEquip:"Usar esta marca", shopMarkNone:"Nenhuma", shopMarkCat:"Gato"
+    }
+  };
+  Object.keys(MARK_I18N).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(MARK_I18N[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = MARK_I18N[lang][k];
+    });
+  });
+})();

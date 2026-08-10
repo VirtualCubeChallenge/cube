@@ -5109,6 +5109,15 @@
   color: #8a95a5;
   margin: 10px 2px 8px;
 }
+/* マーク枠だけは「何が起きる飾りなのか」が名前から読めないので、
+   見出しの下に一行だけ添える。見出しと同じ左そろえ・同じ字送り。 */
+.shop-section-note {
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: left;
+  color: #6f7889;
+  margin: -4px 2px 8px;
+}
 
 /* ---- 一覧 ---------------------------------------------------------------
    色そのものが商品なので、名前より先に色の面積が目に入るようにする。
@@ -5187,6 +5196,24 @@
 /* プリズムは1色に決まらない枠なので、見本のほうも回して見せる。
    見本そのものを回すとマスが菱形になってしまうので、回すのは中の
    色だけ。角丸で切り抜いた枠の内側でグラデーションを回転させる。 */
+/* マーク枠の見本。写真そのものを1マスに切って見せる。背景画像は
+   カード生成時にインラインで差し込む（data URI を CSS に書かずに
+   済ませて、絵の差し替えを index.html 側だけで完結させるため）。 */
+.shop-swatch.is-mark {
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+/* 「なし」の枠。絵が無いので、消してあることが分かる斜線だけ引く。 */
+.shop-swatch.is-mark.is-off::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  background: linear-gradient(
+    135deg, transparent 46%, #6f7889 46%, #6f7889 54%, transparent 54%);
+}
+
 .shop-swatch.is-prism { overflow: hidden; }
 .shop-swatch.is-prism::before {
   content: '';
