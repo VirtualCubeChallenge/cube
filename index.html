@@ -591,13 +591,23 @@
           </span>
         </div>
       </div>
-      <p class="settings-hint" data-i18n="shopLead">シャードでメインカラーを引き換えます</p>
-      <div class="shop-scroll">
-        <h3 class="shop-section-title" data-i18n="shopThemes">メインカラー</h3>
-        <div class="shop-grid" id="shop-theme-grid"></div>
-        <h3 class="shop-section-title" data-i18n="shopMarks">マーク</h3>
-        <p class="shop-section-note" data-i18n="shopMarksLead">そろえたとき、6面すべてに映ります</p>
-        <div class="shop-grid" id="shop-mark-grid"></div>
+      <!-- 品目のページ切り替え。タブを押しても、中身を横になぞっても動く
+           （ZBLLのタブと同じ操作感。指1本で左右になぞるとページが移る）。 -->
+      <div class="shop-tabs" id="shop-tabs" role="tablist">
+        <button class="shop-tab on" type="button" role="tab" aria-selected="true"
+                data-page="themes" data-i18n="shopThemes">メインカラー</button>
+        <button class="shop-tab" type="button" role="tab" aria-selected="false"
+                data-page="skins" data-i18n="shopMarks">キューブスキン</button>
+      </div>
+      <div class="shop-scroll" id="shop-scroll">
+        <div class="shop-page" id="shop-page-themes">
+          <p class="settings-hint shop-page-lead" data-i18n="shopLead">シャードでメインカラーを引き換えます</p>
+          <div class="shop-grid" id="shop-theme-grid"></div>
+        </div>
+        <div class="shop-page is-hidden" id="shop-page-skins">
+          <p class="settings-hint shop-page-lead" data-i18n="shopMarksLead">そろえたとき、6面すべてに映ります</p>
+          <div class="shop-grid" id="shop-mark-grid"></div>
+        </div>
       </div>
       <p class="shop-toast" id="shop-toast" role="status" aria-live="polite"></p>
       <div class="settings-actions">
@@ -5201,7 +5211,7 @@ const PLL_DATA = {
       return true;
     }
 
-    /* --- 完成したときに6面すべてへ写真を映す（ショップの「マーク」）----
+    /* --- 完成したときに6面すべてへ写真を映す（ショップの「キューブスキン」）----
        ・そろった瞬間だけ、6面それぞれの 3x3 の上に薄い板を9枚うかべて、
          引き換えた写真を9分割して貼る。ステッカーの目地がそのまま残る
          ので「面に写真が刷られた」ように見える。板は 6面 x 9枚 = 54枚。
@@ -5368,7 +5378,7 @@ const PLL_DATA = {
       });
     }
 
-    // ショップでマークを付け替えたとき、そろえたままでもすぐ反映できる
+    // ショップでスキンを付け替えたとき、そろえたままでもすぐ反映できる
     // ように外へ出しておく（引き換えた直後の確認用）。
     window.__solvedMarkRefresh = function () {
       if (gameState === 'solved') showSolvedMark();
@@ -5722,7 +5732,7 @@ const PLL_DATA = {
     // --- Render Loop ---
     function animate() {
       requestAnimationFrame(animate);
-      // 完成マークを出しているときだけ、持ち替えが止まったら写真の
+      // 完成スキンを出しているときだけ、持ち替えが止まったら写真の
       // 上下を貼り直す（出していないときは即 return する軽い呼び出し）。
       updateSolvedMarkFacing();
       renderer.render(scene, camera);
@@ -8857,7 +8867,7 @@ const Shop = (function () {
     { id: 'prism',    hex: '#7cf0ff', cost: 100000000, cur: 'rainbow', cycle: true }
   ];
 
-  /* ---- マーク（そろえたとき面に映る絵）----------------------------
+  /* ---- キューブスキン（そろえたとき面に映る絵）--------------------
      色とは別売りの飾り。引き換えて「つける」にしておくと、キューブが
      そろった瞬間だけ6面すべてに写真が浮かび上がる（3D側の showSolvedMark）。
      絵は data URI で埋め込んである。外部ファイルにすると、ホーム画面に
@@ -8897,7 +8907,7 @@ const Shop = (function () {
       const saved = localStorage.getItem(THEME_KEY);
       if (saved && byId(saved) && owned.indexOf(saved) !== -1) equipped = saved;
     } catch (e) { /* 既定のまま */ }
-    // マークも色と同じつくり（持ちものと、今つけているものは別保存）。
+    // スキンも色と同じつくり（持ちものと、今つけているものは別保存）。
     try {
       const rawM = JSON.parse(localStorage.getItem(MARK_OWNED_KEY) || '[]');
       if (Array.isArray(rawM)) ownedMarks = rawM.filter((id) => markById(id));
@@ -8935,7 +8945,7 @@ const Shop = (function () {
     const key = 'shopMark' + mark.id.charAt(0).toUpperCase() + mark.id.slice(1);
     return (typeof t === 'function' && t(key)) || mark.id;
   }
-  // 今つけているマークの絵。3D側(showSolvedMark)がそろった瞬間に読む。
+  // 今つけているスキンの絵。3D側(showSolvedMark)がそろった瞬間に読む。
   // 「なし」のときは null なので、向こうは何も出さない。
   function markImage() {
     const m = markById(equippedMark);
@@ -9038,6 +9048,43 @@ const Shop = (function () {
 
   /* ---- 画面 ------------------------------------------------------------ */
   let overlayEl = null, gridEl = null, markGridEl = null, toastEl = null;
+  let tabsEl = null, scrollEl = null;
+  const pageEls = {};
+  /* ---- ページ（メインカラー / キューブスキン）--------------------------
+     品目が増えて縦に長くなると、下の品目が「あるのに気づかれない」ので、
+     1ページ1品目にして横で切り替える。タブを押しても、中身を横に
+     なぞっても同じところへ行く（ZBLLのタブと同じ操作感）。 */
+  const PAGES = ['themes', 'skins'];
+  let page = 'themes';
+
+  function applyPage(next) {
+    ensureDom();
+    if (PAGES.indexOf(next) === -1) return;
+    page = next;
+    PAGES.forEach((id) => {
+      const el = pageEls[id];
+      if (el) el.classList.toggle('is-hidden', id !== page);
+    });
+    if (tabsEl) {
+      tabsEl.querySelectorAll('.shop-tab').forEach((tab) => {
+        const on = tab.dataset.page === page;
+        tab.classList.toggle('on', on);
+        tab.setAttribute('aria-selected', String(on));
+      });
+    }
+    // ページを移ったら先頭から見せる（前のページの読み位置を持ち込まない）。
+    if (scrollEl) scrollEl.scrollTop = 0;
+    const shown = pageEls[page];
+    if (shown && !reduced()) {
+      shown.classList.remove('slide-in');
+      void shown.offsetWidth;   // アニメーションをやり直させる
+      shown.classList.add('slide-in');
+    }
+  }
+  function stepPage(delta) {
+    const i = PAGES.indexOf(page);
+    applyPage(PAGES[(i + delta + PAGES.length) % PAGES.length]);
+  }
   let cyanEl = null, rainbowEl = null;
   let toastTimer = null;
 
@@ -9045,6 +9092,10 @@ const Shop = (function () {
     overlayEl = overlayEl || document.getElementById('shop-overlay');
     gridEl    = gridEl    || document.getElementById('shop-theme-grid');
     markGridEl = markGridEl || document.getElementById('shop-mark-grid');
+    tabsEl     = tabsEl     || document.getElementById('shop-tabs');
+    scrollEl   = scrollEl   || document.getElementById('shop-scroll');
+    pageEls.themes = pageEls.themes || document.getElementById('shop-page-themes');
+    pageEls.skins  = pageEls.skins  || document.getElementById('shop-page-skins');
     toastEl   = toastEl   || document.getElementById('shop-toast');
     cyanEl    = cyanEl    || document.getElementById('shop-cyan-count');
     rainbowEl = rainbowEl || document.getElementById('shop-rainbow-count');
@@ -9083,7 +9134,7 @@ const Shop = (function () {
     return card;
   }
 
-  // マークのカード。色のカードと同じ形（見本・名前・値段/状態）だが、
+  // スキンのカード。色のカードと同じ形（見本・名前・値段/状態）だが、
   // 見本のところに写真そのものを敷く。
   function buildMarkCard(mark) {
     const has    = ownedMarks.indexOf(mark.id) !== -1;
@@ -9232,10 +9283,53 @@ const Shop = (function () {
     else buy(theme);   // ダイアログが無い環境でも詰まらないようにする保険
   }
 
+  /* 中身を横になぞってページを移る。ZBLLのタブ切り替えと同じ作りで、
+     縦スクロールと取り合いにならないよう、まず10pxで「これは横向きの
+     操作だ」と判定してから縦スクロールを止める。 */
+  function setupShopSwipe() {
+    if (!scrollEl) return;
+    const SWIPE_THRESHOLD = 40; // 横に40px動いて初めてページ送りとみなす
+    const DIRECTION_LOCK = 10;  // 縦スクロールと取り違えないための判定幅
+    let startX = 0, startY = 0, tracking = false, horizontal = false;
+
+    scrollEl.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1) { tracking = false; return; }
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      tracking = true;
+      horizontal = false;
+    }, { passive: true });
+
+    scrollEl.addEventListener('touchmove', (e) => {
+      if (!tracking || e.touches.length !== 1) return;
+      const dx = e.touches[0].clientX - startX;
+      const dy = e.touches[0].clientY - startY;
+      if (!horizontal && Math.abs(dx) > DIRECTION_LOCK && Math.abs(dx) > Math.abs(dy)) {
+        horizontal = true;
+      }
+      if (horizontal && e.cancelable) e.preventDefault();
+    }, { passive: false });
+
+    scrollEl.addEventListener('touchend', (e) => {
+      if (!tracking) return;
+      tracking = false;
+      if (!horizontal) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) < SWIPE_THRESHOLD) return;
+      stepPage(dx < 0 ? 1 : -1);  // 左へなぞる→次のページ、右→前のページ
+    });
+
+    scrollEl.addEventListener('touchcancel', () => {
+      tracking = false;
+      horizontal = false;
+    });
+  }
+
   function open() {
     ensureDom();
     if (!overlayEl) return;
     render();
+    applyPage(page);
     overlayEl.classList.add('show');
   }
   function close() {
@@ -9266,6 +9360,13 @@ const Shop = (function () {
         if (theme) onCardTap(theme);
       });
     }
+    if (tabsEl) {
+      tabsEl.addEventListener('click', (e) => {
+        const tab = e.target.closest ? e.target.closest('.shop-tab') : null;
+        if (tab && tab.dataset.page) applyPage(tab.dataset.page);
+      });
+    }
+    setupShopSwipe();
     if (markGridEl) {
       markGridEl.addEventListener('click', (e) => {
         const card = e.target.closest ? e.target.closest('.shop-card') : null;
@@ -9290,6 +9391,7 @@ const Shop = (function () {
     MARKS: MARKS,
     applyMark: applyMark,
     getEquippedMark: function () { return equippedMark; },
+    showPage: applyPage,
     getOwnedMarks: function () { return ownedMarks.slice(); }
   };
 })();

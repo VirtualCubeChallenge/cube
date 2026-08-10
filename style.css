@@ -5101,6 +5101,7 @@
 }
 .shop-wallet svg { display: block; }
 
+/* 見出し（現在は未使用。品目を1ページに複数並べたくなったとき用に残す） */
 .shop-section-title {
   font-size: 11px;
   font-weight: 800;
@@ -5109,15 +5110,44 @@
   color: #8a95a5;
   margin: 10px 2px 8px;
 }
-/* マークだけは「何が起きる飾りなのか」が名前から読めないので、
-   見出しの下に一行だけ添える。見出しと同じ左そろえ・同じ字送り。 */
-.shop-section-note {
-  font-size: 11px;
-  line-height: 1.4;
-  text-align: left;
-  color: #6f7889;
-  margin: -4px 2px 8px;
+/* ---- ページ切り替え（メインカラー / キューブスキン）----------------------
+   品目が増えても縦に積まず、1ページ1品目にして横で切り替える。タブは
+   今つけているテーマカラーで光らせる（ショップの中身と地続きに見せる）。 */
+.shop-tabs {
+  display: flex;
+  gap: 6px;
+  margin: 10px 0 8px;
 }
+.shop-tab {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 8px 6px;
+  border-radius: 10px;
+  background: #23232c;
+  border: 1.4px solid #3a3a48;
+  color: #b8b8c4;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.shop-tab.on {
+  border-color: var(--tc);
+  color: var(--tc);
+  background: rgba(var(--tc-rgb), 0.10);
+}
+.shop-tab:active { transform: scale(0.98); }
+
+.shop-page.is-hidden { display: none; }
+/* 横になぞって移ったことが分かるよう、入ってくる側だけ軽く滑らせる。 */
+.shop-page.slide-in { animation: shopPageIn 0.2s ease-out; }
+@keyframes shopPageIn {
+  from { opacity: 0; transform: translateX(10px); }
+  to   { opacity: 1; transform: none; }
+}
+.shop-page-lead { margin-bottom: 8px; }
 
 /* ---- 一覧 ---------------------------------------------------------------
    色そのものが商品なので、名前より先に色の面積が目に入るようにする。
@@ -5297,6 +5327,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .shop-swatch.is-prism { animation: none; }
+  .shop-page.slide-in { animation: none; }
+  .shop-tab:active { transform: none; }
   .shop-card.just-got::after { animation: none; opacity: 0; }
   .shop-card:active { transform: none; }
 }
