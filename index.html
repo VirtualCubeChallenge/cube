@@ -595,7 +595,7 @@
       <div class="shop-scroll">
         <h3 class="shop-section-title" data-i18n="shopThemes">メインカラー</h3>
         <div class="shop-grid" id="shop-theme-grid"></div>
-        <h3 class="shop-section-title" data-i18n="shopMarks">マーク枠</h3>
+        <h3 class="shop-section-title" data-i18n="shopMarks">マーク</h3>
         <p class="shop-section-note" data-i18n="shopMarksLead">そろえたとき、6面すべてに映ります</p>
         <div class="shop-grid" id="shop-mark-grid"></div>
       </div>
@@ -5201,7 +5201,7 @@ const PLL_DATA = {
       return true;
     }
 
-    /* --- 完成したときに6面すべてへ写真を映す（ショップの「マーク枠」）----
+    /* --- 完成したときに6面すべてへ写真を映す（ショップの「マーク」）----
        ・そろった瞬間だけ、6面それぞれの 3x3 の上に薄い板を9枚うかべて、
          引き換えた写真を9分割して貼る。ステッカーの目地がそのまま残る
          ので「面に写真が刷られた」ように見える。板は 6面 x 9枚 = 54枚。
@@ -8857,7 +8857,7 @@ const Shop = (function () {
     { id: 'prism',    hex: '#7cf0ff', cost: 100000000, cur: 'rainbow', cycle: true }
   ];
 
-  /* ---- マーク枠（そろえたとき白い面に映る絵）----------------------------
+  /* ---- マーク（そろえたとき面に映る絵）----------------------------
      色とは別売りの飾り。引き換えて「つける」にしておくと、キューブが
      そろった瞬間だけ6面すべてに写真が浮かび上がる（3D側の showSolvedMark）。
      絵は data URI で埋め込んである。外部ファイルにすると、ホーム画面に
@@ -8897,7 +8897,7 @@ const Shop = (function () {
       const saved = localStorage.getItem(THEME_KEY);
       if (saved && byId(saved) && owned.indexOf(saved) !== -1) equipped = saved;
     } catch (e) { /* 既定のまま */ }
-    // マーク枠も色と同じつくり（持ちものと、今つけているものは別保存）。
+    // マークも色と同じつくり（持ちものと、今つけているものは別保存）。
     try {
       const rawM = JSON.parse(localStorage.getItem(MARK_OWNED_KEY) || '[]');
       if (Array.isArray(rawM)) ownedMarks = rawM.filter((id) => markById(id));
@@ -9083,7 +9083,7 @@ const Shop = (function () {
     return card;
   }
 
-  // マーク枠のカード。色のカードと同じ形（見本・名前・値段/状態）だが、
+  // マークのカード。色のカードと同じ形（見本・名前・値段/状態）だが、
   // 見本のところに写真そのものを敷く。
   function buildMarkCard(mark) {
     const has    = ownedMarks.indexOf(mark.id) !== -1;

@@ -2330,7 +2330,7 @@
 })();
 
 /* ============================================================
-   🛍️ ショップ「マーク枠」の文言（9言語ぶん）
+   🛍️ ショップ「マーク」の文言（9言語ぶん）
    色と同じく、既存の I18N に上書きせず足すだけ。キーは5個。
      shopMarks / shopMarksLead / shopMarkEquip
      ＋ マークの名前 shopMark*（none / cat）
@@ -2340,7 +2340,7 @@
 (function addMarkStrings() {
   const MARK_I18N = {
     "ja": {
-      shopMarks:"マーク枠", shopMarksLead:"そろえたとき、6面すべてに映ります",
+      shopMarks:"マーク", shopMarksLead:"そろえたとき、6面すべてに映ります",
       shopMarkEquip:"これをつける", shopMarkNone:"なし", shopMarkCat:"ねこ"
     },
     "en": {
@@ -2348,15 +2348,15 @@
       shopMarkEquip:"Use this mark", shopMarkNone:"None", shopMarkCat:"Cat"
     },
     "zh-CN": {
-      shopMarks:"图案框", shopMarksLead:"复原时会浮现在六个面上",
+      shopMarks:"图案", shopMarksLead:"复原时会浮现在六个面上",
       shopMarkEquip:"使用此图案", shopMarkNone:"无", shopMarkCat:"猫"
     },
     "zh-TW": {
-      shopMarks:"圖案框", shopMarksLead:"完成時會浮現在六個面上",
+      shopMarks:"圖案", shopMarksLead:"完成時會浮現在六個面上",
       shopMarkEquip:"使用此圖案", shopMarkNone:"無", shopMarkCat:"貓"
     },
     "ko": {
-      shopMarks:"마크 틀", shopMarksLead:"맞추면 여섯 면 모두에 나타납니다",
+      shopMarks:"마크", shopMarksLead:"맞추면 여섯 면 모두에 나타납니다",
       shopMarkEquip:"이 마크 사용", shopMarkNone:"없음", shopMarkCat:"고양이"
     },
     "es": {
@@ -2364,7 +2364,7 @@
       shopMarkEquip:"Usar esta marca", shopMarkNone:"Ninguna", shopMarkCat:"Gato"
     },
     "id": {
-      shopMarks:"Bingkai gambar", shopMarksLead:"Muncul di keenam sisi saat selesai",
+      shopMarks:"Gambar", shopMarksLead:"Muncul di keenam sisi saat selesai",
       shopMarkEquip:"Pakai gambar ini", shopMarkNone:"Tidak ada", shopMarkCat:"Kucing"
     },
     "ru": {
