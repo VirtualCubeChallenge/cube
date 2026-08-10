@@ -1600,18 +1600,30 @@
     }
 
     /* 画面シェイク: 完成の瞬間、画面全体をガクッと揺らす。 */
+    /* 完成の瞬間の「バシッ」という手応え。
+       もとは body 全体を上下左右に振っていたが、それだと
+         ・ヘッダー(タイマー)やボタンまで一緒に上下し、
+         ・画面そのものが縦に動くので、端末側のスクロール/ラバーバンドや
+           iOS WebKit の合成と噛み合ってガタガタに見える
+       という2つの問題が出ていた（「完成すると上下にギザギザ動く」の正体）。
+       いまはキューブの居るところ(#canvas-container)だけを、しかも
+       横方向にだけ振る。縦の動きとわずかな回転は完全に無くしたので、
+       画面が上下にずれることはもう起こらない。translate3d で描くのは、
+       整数ピクセルへの丸めでギザついて見えるのを避けるため。 */
     @keyframes screen-shake-anim {
-      0%   { transform: translate(0, 0); }
-      10%  { transform: translate(-7px, 4px) rotate(-0.4deg); }
-      20%  { transform: translate(6px, -5px) rotate(0.4deg); }
-      30%  { transform: translate(-6px, 5px) rotate(-0.3deg); }
-      40%  { transform: translate(5px, -3px) rotate(0.3deg); }
-      50%  { transform: translate(-4px, 3px) rotate(-0.2deg); }
-      65%  { transform: translate(3px, -2px); }
-      80%  { transform: translate(-2px, 1px); }
-      100% { transform: translate(0, 0); }
+      0%   { transform: translate3d(0, 0, 0); }
+      10%  { transform: translate3d(-7px, 0, 0); }
+      20%  { transform: translate3d(6px, 0, 0); }
+      30%  { transform: translate3d(-6px, 0, 0); }
+      40%  { transform: translate3d(5px, 0, 0); }
+      50%  { transform: translate3d(-4px, 0, 0); }
+      65%  { transform: translate3d(3px, 0, 0); }
+      80%  { transform: translate3d(-2px, 0, 0); }
+      100% { transform: translate3d(0, 0, 0); }
     }
-    body.screen-shake { animation: screen-shake-anim 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+    #canvas-container.screen-shake {
+      animation: screen-shake-anim 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    }
 
     /* 紙吹雪: 画面いちばん上のレイヤーに敷いた1枚のcanvasに物理演算で描く。 */
     #confetti-canvas {
@@ -1640,7 +1652,7 @@
       animation: demo-rainbow-bg 1.6s linear infinite;
     }
     @media (prefers-reduced-motion: reduce) {
-      body.screen-shake { animation: none; }
+      #canvas-container.screen-shake { animation: none; }
       #impact-flash.hit { animation: none; opacity: 0 !important; }
       .msg-gold-text { animation: none; }
     }
@@ -4190,14 +4202,16 @@
   100%{ transform:scale(11); opacity:0; border-width:1px }
 }
 
-/* --- 画面全体を叩く揺れ（カットインの瞬間だけ）--- */
+/* --- 画面全体を叩く揺れ（カットインの瞬間だけ）---
+   完成時の揺れと同じ理由で、縦の動きと回転はやめて左右だけにしてある
+   （画面が縦にずれると端末のスクロールと噛み合ってガタつくため）。 */
 .jp-screen-shake{ animation:jp-screen-shake .42s cubic-bezier(.36,.07,.19,.97); }
 @keyframes jp-screen-shake{
-  10%{transform:translate3d(-9px,4px,0) rotate(-.5deg)}
-  30%{transform:translate3d(8px,-6px,0) rotate(.6deg)}
-  50%{transform:translate3d(-6px,5px,0) rotate(-.4deg)}
-  70%{transform:translate3d(5px,-3px,0) rotate(.3deg)}
-  90%{transform:translate3d(-2px,1px,0)}
+  10%{transform:translate3d(-9px,0,0)}
+  30%{transform:translate3d(8px,0,0)}
+  50%{transform:translate3d(-6px,0,0)}
+  70%{transform:translate3d(5px,0,0)}
+  90%{transform:translate3d(-2px,0,0)}
   100%{transform:none}
 }
 

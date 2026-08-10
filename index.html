@@ -5485,12 +5485,17 @@ const PLL_DATA = {
       impactFlashEl.classList.add('hit');
     }
 
-    // 画面全体をガクッと揺らす。
+    // 完成の瞬間、キューブのあたりをガクッと揺らす。
+    // 揺らすのは #canvas-container だけ（body 全体を揺らすと、ヘッダーや
+    // ボタンまで動くうえ、画面そのものが縦にずれて端末のスクロールと
+    // 噛み合い、上下にギザギザ動いて見える）。振れるのは左右だけ。
     function screenShake() {
-      document.body.classList.remove('screen-shake');
-      void document.body.offsetWidth;
-      document.body.classList.add('screen-shake');
-      setTimeout(() => document.body.classList.remove('screen-shake'), 520);
+      const stage = document.getElementById('canvas-container');
+      if (!stage) return;
+      stage.classList.remove('screen-shake');
+      void stage.offsetWidth;
+      stage.classList.add('screen-shake');
+      setTimeout(() => stage.classList.remove('screen-shake'), 520);
     }
 
     // キューブ自体を「ピカーン」とゴールドに発光させながら、その場で
