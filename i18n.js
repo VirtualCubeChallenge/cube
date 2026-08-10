@@ -2328,3 +2328,58 @@
     });
   });
 })();
+
+/* ============================================================
+   🛍️ ショップ「キューブスキン」の文言（9言語ぶん）
+   色と同じく、既存の I18N に上書きせず足すだけ。キーは5個。
+     shopMarks / shopMarksLead / shopMarkEquip
+     ＋ マークの名前 shopMark*（none / cat）
+   スキンを足すときは index.html の MARKS に1行足して、ここに
+   shopMark<Id>（先頭大文字）を9言語ぶん書き足す。
+   ============================================================ */
+(function addMarkStrings() {
+  const MARK_I18N = {
+    "ja": {
+      shopMarks:"キューブスキン", shopMarksLead:"そろえたとき、6面すべてに映ります",
+      shopMarkEquip:"これにする", shopMarkNone:"なし", shopMarkCat:"ねこ"
+    },
+    "en": {
+      shopMarks:"Cube skin", shopMarksLead:"Shows on all six faces when you solve",
+      shopMarkEquip:"Use this skin", shopMarkNone:"None", shopMarkCat:"Cat"
+    },
+    "zh-CN": {
+      shopMarks:"魔方皮肤", shopMarksLead:"复原时会浮现在六个面上",
+      shopMarkEquip:"使用此皮肤", shopMarkNone:"无", shopMarkCat:"猫"
+    },
+    "zh-TW": {
+      shopMarks:"魔方皮膚", shopMarksLead:"完成時會浮現在六個面上",
+      shopMarkEquip:"使用此皮膚", shopMarkNone:"無", shopMarkCat:"貓"
+    },
+    "ko": {
+      shopMarks:"큐브 스킨", shopMarksLead:"맞추면 여섯 면 모두에 나타납니다",
+      shopMarkEquip:"이 스킨 사용", shopMarkNone:"없음", shopMarkCat:"고양이"
+    },
+    "es": {
+      shopMarks:"Skin del cubo", shopMarksLead:"Aparece en las seis caras al resolver",
+      shopMarkEquip:"Usar esta skin", shopMarkNone:"Ninguna", shopMarkCat:"Gato"
+    },
+    "id": {
+      shopMarks:"Skin kubus", shopMarksLead:"Muncul di keenam sisi saat selesai",
+      shopMarkEquip:"Pakai skin ini", shopMarkNone:"Tidak ada", shopMarkCat:"Kucing"
+    },
+    "ru": {
+      shopMarks:"Скин кубика", shopMarksLead:"Появится на всех шести гранях, когда собран",
+      shopMarkEquip:"Выбрать скин", shopMarkNone:"Нет", shopMarkCat:"Кот"
+    },
+    "pt-BR": {
+      shopMarks:"Skin do cubo", shopMarksLead:"Aparece nas seis faces ao resolver",
+      shopMarkEquip:"Usar esta skin", shopMarkNone:"Nenhuma", shopMarkCat:"Gato"
+    }
+  };
+  Object.keys(MARK_I18N).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(MARK_I18N[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = MARK_I18N[lang][k];
+    });
+  });
+})();

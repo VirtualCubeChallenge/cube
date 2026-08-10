@@ -1600,18 +1600,30 @@
     }
 
     /* 画面シェイク: 完成の瞬間、画面全体をガクッと揺らす。 */
+    /* 完成の瞬間の「バシッ」という手応え。
+       もとは body 全体を上下左右に振っていたが、それだと
+         ・ヘッダー(タイマー)やボタンまで一緒に上下し、
+         ・画面そのものが縦に動くので、端末側のスクロール/ラバーバンドや
+           iOS WebKit の合成と噛み合ってガタガタに見える
+       という2つの問題が出ていた（「完成すると上下にギザギザ動く」の正体）。
+       いまはキューブの居るところ(#canvas-container)だけを、しかも
+       横方向にだけ振る。縦の動きとわずかな回転は完全に無くしたので、
+       画面が上下にずれることはもう起こらない。translate3d で描くのは、
+       整数ピクセルへの丸めでギザついて見えるのを避けるため。 */
     @keyframes screen-shake-anim {
-      0%   { transform: translate(0, 0); }
-      10%  { transform: translate(-7px, 4px) rotate(-0.4deg); }
-      20%  { transform: translate(6px, -5px) rotate(0.4deg); }
-      30%  { transform: translate(-6px, 5px) rotate(-0.3deg); }
-      40%  { transform: translate(5px, -3px) rotate(0.3deg); }
-      50%  { transform: translate(-4px, 3px) rotate(-0.2deg); }
-      65%  { transform: translate(3px, -2px); }
-      80%  { transform: translate(-2px, 1px); }
-      100% { transform: translate(0, 0); }
+      0%   { transform: translate3d(0, 0, 0); }
+      10%  { transform: translate3d(-7px, 0, 0); }
+      20%  { transform: translate3d(6px, 0, 0); }
+      30%  { transform: translate3d(-6px, 0, 0); }
+      40%  { transform: translate3d(5px, 0, 0); }
+      50%  { transform: translate3d(-4px, 0, 0); }
+      65%  { transform: translate3d(3px, 0, 0); }
+      80%  { transform: translate3d(-2px, 0, 0); }
+      100% { transform: translate3d(0, 0, 0); }
     }
-    body.screen-shake { animation: screen-shake-anim 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+    #canvas-container.screen-shake {
+      animation: screen-shake-anim 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    }
 
     /* 紙吹雪: 画面いちばん上のレイヤーに敷いた1枚のcanvasに物理演算で描く。 */
     #confetti-canvas {
@@ -1640,7 +1652,7 @@
       animation: demo-rainbow-bg 1.6s linear infinite;
     }
     @media (prefers-reduced-motion: reduce) {
-      body.screen-shake { animation: none; }
+      #canvas-container.screen-shake { animation: none; }
       #impact-flash.hit { animation: none; opacity: 0 !important; }
       .msg-gold-text { animation: none; }
     }
@@ -4190,14 +4202,16 @@
   100%{ transform:scale(11); opacity:0; border-width:1px }
 }
 
-/* --- 画面全体を叩く揺れ（カットインの瞬間だけ）--- */
+/* --- 画面全体を叩く揺れ（カットインの瞬間だけ）---
+   完成時の揺れと同じ理由で、縦の動きと回転はやめて左右だけにしてある
+   （画面が縦にずれると端末のスクロールと噛み合ってガタつくため）。 */
 .jp-screen-shake{ animation:jp-screen-shake .42s cubic-bezier(.36,.07,.19,.97); }
 @keyframes jp-screen-shake{
-  10%{transform:translate3d(-9px,4px,0) rotate(-.5deg)}
-  30%{transform:translate3d(8px,-6px,0) rotate(.6deg)}
-  50%{transform:translate3d(-6px,5px,0) rotate(-.4deg)}
-  70%{transform:translate3d(5px,-3px,0) rotate(.3deg)}
-  90%{transform:translate3d(-2px,1px,0)}
+  10%{transform:translate3d(-9px,0,0)}
+  30%{transform:translate3d(8px,0,0)}
+  50%{transform:translate3d(-6px,0,0)}
+  70%{transform:translate3d(5px,0,0)}
+  90%{transform:translate3d(-2px,0,0)}
   100%{transform:none}
 }
 
@@ -5101,6 +5115,7 @@
 }
 .shop-wallet svg { display: block; }
 
+/* 見出し（現在は未使用。品目を1ページに複数並べたくなったとき用に残す） */
 .shop-section-title {
   font-size: 11px;
   font-weight: 800;
@@ -5109,6 +5124,44 @@
   color: #8a95a5;
   margin: 10px 2px 8px;
 }
+/* ---- ページ切り替え（メインカラー / キューブスキン）----------------------
+   品目が増えても縦に積まず、1ページ1品目にして横で切り替える。タブは
+   今つけているテーマカラーで光らせる（ショップの中身と地続きに見せる）。 */
+.shop-tabs {
+  display: flex;
+  gap: 6px;
+  margin: 10px 0 8px;
+}
+.shop-tab {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 8px 6px;
+  border-radius: 10px;
+  background: #23232c;
+  border: 1.4px solid #3a3a48;
+  color: #b8b8c4;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.shop-tab.on {
+  border-color: var(--tc);
+  color: var(--tc);
+  background: rgba(var(--tc-rgb), 0.10);
+}
+.shop-tab:active { transform: scale(0.98); }
+
+.shop-page.is-hidden { display: none; }
+/* 横になぞって移ったことが分かるよう、入ってくる側だけ軽く滑らせる。 */
+.shop-page.slide-in { animation: shopPageIn 0.2s ease-out; }
+@keyframes shopPageIn {
+  from { opacity: 0; transform: translateX(10px); }
+  to   { opacity: 1; transform: none; }
+}
+.shop-page-lead { margin-bottom: 8px; }
 
 /* ---- 一覧 ---------------------------------------------------------------
    色そのものが商品なので、名前より先に色の面積が目に入るようにする。
@@ -5187,6 +5240,24 @@
 /* プリズムは1色に決まらない枠なので、見本のほうも回して見せる。
    見本そのものを回すとマスが菱形になってしまうので、回すのは中の
    色だけ。角丸で切り抜いた枠の内側でグラデーションを回転させる。 */
+/* マークの見本。写真そのものを1マスに切って見せる。背景画像は
+   カード生成時にインラインで差し込む（data URI を CSS に書かずに
+   済ませて、絵の差し替えを index.html 側だけで完結させるため）。 */
+.shop-swatch.is-mark {
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+/* 「なし」の枠。絵が無いので、消してあることが分かる斜線だけ引く。 */
+.shop-swatch.is-mark.is-off::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  background: linear-gradient(
+    135deg, transparent 46%, #6f7889 46%, #6f7889 54%, transparent 54%);
+}
+
 .shop-swatch.is-prism { overflow: hidden; }
 .shop-swatch.is-prism::before {
   content: '';
@@ -5270,6 +5341,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .shop-swatch.is-prism { animation: none; }
+  .shop-page.slide-in { animation: none; }
+  .shop-tab:active { transform: none; }
   .shop-card.just-got::after { animation: none; opacity: 0; }
   .shop-card:active { transform: none; }
 }

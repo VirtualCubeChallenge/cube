@@ -591,10 +591,23 @@
           </span>
         </div>
       </div>
-      <p class="settings-hint" data-i18n="shopLead">シャードでメインカラーを引き換えます</p>
-      <div class="shop-scroll">
-        <h3 class="shop-section-title" data-i18n="shopThemes">メインカラー</h3>
-        <div class="shop-grid" id="shop-theme-grid"></div>
+      <!-- 品目のページ切り替え。タブを押しても、中身を横になぞっても動く
+           （ZBLLのタブと同じ操作感。指1本で左右になぞるとページが移る）。 -->
+      <div class="shop-tabs" id="shop-tabs" role="tablist">
+        <button class="shop-tab on" type="button" role="tab" aria-selected="true"
+                data-page="themes" data-i18n="shopThemes">メインカラー</button>
+        <button class="shop-tab" type="button" role="tab" aria-selected="false"
+                data-page="skins" data-i18n="shopMarks">キューブスキン</button>
+      </div>
+      <div class="shop-scroll" id="shop-scroll">
+        <div class="shop-page" id="shop-page-themes">
+          <p class="settings-hint shop-page-lead" data-i18n="shopLead">シャードでメインカラーを引き換えます</p>
+          <div class="shop-grid" id="shop-theme-grid"></div>
+        </div>
+        <div class="shop-page is-hidden" id="shop-page-skins">
+          <p class="settings-hint shop-page-lead" data-i18n="shopMarksLead">そろえたとき、6面すべてに映ります</p>
+          <div class="shop-grid" id="shop-mark-grid"></div>
+        </div>
       </div>
       <p class="shop-toast" id="shop-toast" role="status" aria-live="polite"></p>
       <div class="settings-actions">
@@ -3910,6 +3923,8 @@
     };
 
     function executeTurn(move, instant) {
+      // 完成したときに映した写真は、1手でも動かしたらすぐ引っ込める。
+      if (typeof hideSolvedMark === 'function') hideSolvedMark();
       // A move is either standard notation ("R", "U'") or, when the player
       // drags a layer directly on the cube, an already-resolved
       // { axis, layers, dir } config.
@@ -5115,6 +5130,7 @@ const PLL_DATA = {
       // trigger the timer.
       gameState = 'idle';
       resetTimer();
+      hideSolvedMark();
       initCube();
       hideSolvedMsg();
       const moves = ['U', "U'", 'D', "D'", 'L', "L'", 'R', "R'", 'F', "F'", 'B', "B'"];
@@ -5195,6 +5211,180 @@ const PLL_DATA = {
       return true;
     }
 
+    /* --- 完成したときに6面すべてへ写真を映す（ショップの「キューブスキン」）----
+       ・そろった瞬間だけ、6面それぞれの 3x3 の上に薄い板を9枚うかべて、
+         引き換えた写真を9分割して貼る。ステッカーの目地がそのまま残る
+         ので「面に写真が刷られた」ように見える。板は 6面 x 9枚 = 54枚。
+       ・キューブ本体のマテリアルには一切触らない。だから消すときは板を
+         外すだけで済み、色や回転の処理と干渉しない。
+       ・マテリアルとテクスチャは「3x3のどのマスか」の9個だけ作って、
+         6面ぜんぶで使い回す。54枚ぶん作ると同じ写真をGPUへ54回送る
+         ことになり、スマホでは重さも発熱もばかにならないため。
+       ・状態を var で持つのは、この下で定義される関数(executeTurn など)が
+         ファイルの上のほうから先に呼ばれても TDZ で落ちないようにするため。 */
+    var markGroups = [];       // 6面ぶんの入れ物 { group, n }（cubeGroup の子）
+    var markMats   = [];       // 9マスぶんのマテリアル（6面で使い回す）
+    var markGeom   = null;     // 板1枚ぶんの形（54枚で使い回す）
+    var markImg    = null;     // 写真そのもの（1枚だけ読み込んで使い回す）
+    var markImgUrl = null;
+    var markImgReady = false;
+    var markFadeRAF = null;
+
+    function hideSolvedMark() {
+      if (markFadeRAF) { cancelAnimationFrame(markFadeRAF); markFadeRAF = null; }
+      // (var 宣言より前に呼ばれても落ちないよう、存在チェックから入る)
+      if (!markGroups || !markGroups.length) return;
+      markGroups.forEach((e) => cubeGroup.remove(e.group));
+      markGroups = [];
+      markNeedsFacing = false;
+      markMats.forEach((m) => {
+        if (m.map) m.map.dispose();
+        m.dispose();
+      });
+      markMats = [];
+      if (markGeom) { markGeom.dispose(); markGeom = null; }
+    }
+
+    /* 面ごとの「写真の上をどっちに向けるか」を決める。
+       板は面に貼りついているので、キューブを持ち替えると面ごとに写真が
+       横向きや逆さまになってしまう。そこで面の法線まわりに90°単位で
+       4通り回してみて、写真の上が画面の上にいちばん近くなる向きを選ぶ。
+       判定はカメラ空間に持ち込んでからの y 成分で見る（上面のように
+       画面の上とほぼ直交する面でも、手前/奥のどちらが上かを正しく選べる）。 */
+    var MARK_FWD = new THREE.Vector3(0, 0, 1);  // 板がもともと向いている向き
+    var markLastQuat = new THREE.Quaternion();
+    var markSettleAt = 0;
+    var markNeedsFacing = false;
+    var _markUp = new THREE.Vector3();
+    var _markQ = new THREE.Quaternion();
+    var _markCamInv = new THREE.Quaternion();
+
+    function orientMarkGroups() {
+      if (!markGroups.length) return;
+      _markCamInv.copy(camera.quaternion).invert();
+      markGroups.forEach((entry) => {
+        const base = new THREE.Quaternion().setFromUnitVectors(MARK_FWD, entry.n);
+        let bestQ = null;
+        let bestScore = -Infinity;
+        for (let k = 0; k < 4; k++) {
+          _markQ.setFromAxisAngle(entry.n, k * Math.PI / 2).multiply(base);
+          _markUp.set(0, 1, 0)
+            .applyQuaternion(_markQ)              // 板の上 → キューブの中の向き
+            .applyQuaternion(cubeGroup.quaternion) // → 世界の向き
+            .applyQuaternion(_markCamInv);         // → 画面の向き
+          if (_markUp.y > bestScore) { bestScore = _markUp.y; bestQ = _markQ.clone(); }
+        }
+        entry.group.quaternion.copy(bestQ);
+      });
+      markLastQuat.copy(cubeGroup.quaternion);
+    }
+
+    // 持ち替え(ドラッグ)のあいだ回し続けると目まぐるしいので、向きが
+    // 落ち着いてから貼り直す。持ち替えは90°単位でスナップして止まるので、
+    // 止まった時点の向きで選べば必ずきれいに収まる。
+    function updateSolvedMarkFacing() {
+      if (!markGroups || !markGroups.length) return;
+      const now = performance.now();
+      if (!cubeGroup.quaternion.equals(markLastQuat)) {
+        markLastQuat.copy(cubeGroup.quaternion);
+        markSettleAt = now;
+        markNeedsFacing = true;
+        return;
+      }
+      if (markNeedsFacing && now - markSettleAt > 200) {
+        markNeedsFacing = false;
+        orientMarkGroups();
+      }
+    }
+
+    // 写真は1枚だけ読み込んで、54枚の板でテクスチャを共有する
+    // （THREE.Texture は同じ Image から作れば画像データは1つで済む）。
+    function withMarkImage(url, done) {
+      if (markImgUrl === url && markImgReady) { done(); return; }
+      markImgUrl = url;
+      markImgReady = false;
+      markImg = new Image();
+      markImg.onload = function () { markImgReady = true; done(); };
+      markImg.onerror = function () { markImgReady = false; };
+      markImg.src = url;
+    }
+
+    function buildSolvedMark() {
+      if (!markImgReady || !markImg) return;
+      hideSolvedMark();
+
+      markGeom = new THREE.PlaneGeometry(0.9, 0.9);
+      // まず9マスぶんのマテリアルを作る。写真を3x3に切り分けて、
+      // (i, j) のマスにはその位置の切れ端を割り当てる。
+      const cells = [];
+      for (let i = -1; i <= 1; i++) {
+        for (let j = -1; j <= 1; j++) {
+          const tex = new THREE.Texture(markImg);
+          tex.needsUpdate = true;
+          tex.minFilter = THREE.LinearFilter;   // ミップマップを作らない＝軽い
+          tex.magFilter = THREE.LinearFilter;
+          tex.generateMipmaps = false;
+          tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+          tex.repeat.set(1 / 3, 1 / 3);
+          tex.offset.set((i + 1) / 3, (j + 1) / 3);
+          const mat = new THREE.MeshBasicMaterial({
+            map: tex,
+            transparent: true,
+            opacity: 0                          // ふわっと出す（下の fade）
+          });
+          markMats.push(mat);
+          cells.push({ i: i, j: j, mat: mat });
+        }
+      }
+
+      // その9枚を、6面それぞれに同じ並びで貼っていく。
+      WORLD_FACES.forEach((face) => {
+        const n = new THREE.Vector3(0, 0, 0);
+        n[face.axis] = face.sign;
+        const g = new THREE.Group();
+        // キューブ表面(1.47)のほんの少し外側。近すぎると面とちらつく。
+        g.position.copy(n).multiplyScalar(1.482);
+        cells.forEach((c) => {
+          const tile = new THREE.Mesh(markGeom, c.mat);
+          tile.position.set(c.i, c.j, 0);
+          g.add(tile);
+        });
+        cubeGroup.add(g);
+        markGroups.push({ group: g, n: n });
+      });
+      // 板の向き（＝写真の上下）は、いまの持ち方から決める。
+      orientMarkGroups();
+
+      // 完成演出のフラッシュが引いたあと、0.5秒かけて浮かび上がる。
+      // マテリアルは6面で共有しているので、9個ぶん触れば全面に効く。
+      const t0 = performance.now();
+      const fade = (now) => {
+        if (!markGroups.length) return;
+        const p = Math.min((now - t0) / 500, 1);
+        markMats.forEach((m) => { m.opacity = p; });
+        markFadeRAF = (p < 1) ? requestAnimationFrame(fade) : null;
+      };
+      markFadeRAF = requestAnimationFrame(fade);
+    }
+
+    function showSolvedMark() {
+      hideSolvedMark();
+      const url = (window.Shop && typeof Shop.getMarkImage === 'function')
+        ? Shop.getMarkImage() : null;
+      if (!url) return;                    // 「なし」なら何も出さない
+      withMarkImage(url, function () {
+        // 読み込みを待つあいだにシャッフルされていたら、もう出さない。
+        if (gameState === 'solved') buildSolvedMark();
+      });
+    }
+
+    // ショップでスキンを付け替えたとき、そろえたままでもすぐ反映できる
+    // ように外へ出しておく（引き換えた直後の確認用）。
+    window.__solvedMarkRefresh = function () {
+      if (gameState === 'solved') showSolvedMark();
+      else hideSolvedMark();
+    };
+
     function checkSolved() {
       if (!isCubeSolved()) return false;
 
@@ -5243,6 +5433,12 @@ const PLL_DATA = {
       glowAndSpinCube();
       launchConfetti(isNewBest);
       launchFireworks(isNewBest);
+      // 引き換えてあれば、6面すべてに写真を映す（練習ドリルでも出す。
+      // 報酬ではなく、そろったときの見た目そのものなので）。
+      // 白フラッシュと決めスピンの勢いが抜けてから浮かび上がらせる。
+      // 決めスピン(glowAndSpinCube, 900ms)が終わってから出す。回っている
+      // 最中に出すと、その瞬間の向きで写真の上下を決めてしまうため。
+      setTimeout(() => { if (gameState === 'solved') showSolvedMark(); }, 980);
       // クリスタル報酬。白フラッシュと画面シェイク(0.5s)が収まってから
       // 走らせることで、演出同士がぶつからず、飛翔中の座標計算も
       // body の transform に引きずられない。
@@ -5289,12 +5485,17 @@ const PLL_DATA = {
       impactFlashEl.classList.add('hit');
     }
 
-    // 画面全体をガクッと揺らす。
+    // 完成の瞬間、キューブのあたりをガクッと揺らす。
+    // 揺らすのは #canvas-container だけ（body 全体を揺らすと、ヘッダーや
+    // ボタンまで動くうえ、画面そのものが縦にずれて端末のスクロールと
+    // 噛み合い、上下にギザギザ動いて見える）。振れるのは左右だけ。
     function screenShake() {
-      document.body.classList.remove('screen-shake');
-      void document.body.offsetWidth;
-      document.body.classList.add('screen-shake');
-      setTimeout(() => document.body.classList.remove('screen-shake'), 520);
+      const stage = document.getElementById('canvas-container');
+      if (!stage) return;
+      stage.classList.remove('screen-shake');
+      void stage.offsetWidth;
+      stage.classList.add('screen-shake');
+      setTimeout(() => stage.classList.remove('screen-shake'), 520);
     }
 
     // キューブ自体を「ピカーン」とゴールドに発光させながら、その場で
@@ -5497,6 +5698,7 @@ const PLL_DATA = {
 
     function resetCube() {
       resetTimer();
+      hideSolvedMark();   // 板は cubeGroup の子なので、作り直しの前に外す
       initCube();
       gameState = 'idle';
       updateSizeLock();
@@ -5535,6 +5737,9 @@ const PLL_DATA = {
     // --- Render Loop ---
     function animate() {
       requestAnimationFrame(animate);
+      // 完成スキンを出しているときだけ、持ち替えが止まったら写真の
+      // 上下を貼り直す（出していないときは即 return する軽い呼び出し）。
+      updateSolvedMarkFacing();
       renderer.render(scene, camera);
     }
     requestScramble = scrambleCube;
@@ -8667,6 +8872,22 @@ const Shop = (function () {
     { id: 'prism',    hex: '#7cf0ff', cost: 100000000, cur: 'rainbow', cycle: true }
   ];
 
+  /* ---- キューブスキン（そろえたとき面に映る絵）--------------------
+     色とは別売りの飾り。引き換えて「つける」にしておくと、キューブが
+     そろった瞬間だけ6面すべてに写真が浮かび上がる（3D側の showSolvedMark）。
+     絵は data URI で埋め込んである。外部ファイルにすると、ホーム画面に
+     追加したときに読み込み待ちが1つ増えるため。容量を抑えるために
+     256x256 の WebP（約5.5KB）にしてある。差し替えるときも、同じくらい
+     小さく作った data URI を img: に貼り替えるだけでよい。 */
+  const MARK_IMG_CAT = 'data:image/webp;base64,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';
+  const MARKS = [
+    { id: 'none', cost: 0,  cur: 'cyan', img: null },
+    { id: 'cat',  cost: 50, cur: 'cyan', img: MARK_IMG_CAT }
+  ];
+  const MARK_DEFAULT_ID = 'none';
+  const MARK_OWNED_KEY  = 'rubiks-cube-shop-marks-owned';
+  const MARK_KEY        = 'rubiks-cube-shop-mark';
+
   const DEFAULT_ID   = 'mint';
   const OWNED_KEY    = 'rubiks-cube-shop-owned';
   const THEME_KEY    = 'rubiks-cube-theme';
@@ -8678,6 +8899,8 @@ const Shop = (function () {
   /* ---- 保存されているもの ---------------------------------------------- */
   let owned    = [DEFAULT_ID];
   let equipped = DEFAULT_ID;
+  let ownedMarks    = [MARK_DEFAULT_ID];
+  let equippedMark  = MARK_DEFAULT_ID;
 
   function loadState() {
     try {
@@ -8689,6 +8912,16 @@ const Shop = (function () {
       const saved = localStorage.getItem(THEME_KEY);
       if (saved && byId(saved) && owned.indexOf(saved) !== -1) equipped = saved;
     } catch (e) { /* 既定のまま */ }
+    // スキンも色と同じつくり（持ちものと、今つけているものは別保存）。
+    try {
+      const rawM = JSON.parse(localStorage.getItem(MARK_OWNED_KEY) || '[]');
+      if (Array.isArray(rawM)) ownedMarks = rawM.filter((id) => markById(id));
+    } catch (e) { /* 壊れていたら既定に戻すだけ */ }
+    if (ownedMarks.indexOf(MARK_DEFAULT_ID) === -1) ownedMarks.push(MARK_DEFAULT_ID);
+    try {
+      const savedM = localStorage.getItem(MARK_KEY);
+      if (savedM && markById(savedM) && ownedMarks.indexOf(savedM) !== -1) equippedMark = savedM;
+    } catch (e) { /* 既定のまま */ }
   }
   function saveState() {
     const theme = byId(equipped) || byId(DEFAULT_ID);
@@ -8696,6 +8929,8 @@ const Shop = (function () {
       localStorage.setItem(OWNED_KEY, JSON.stringify(owned));
       localStorage.setItem(THEME_KEY, equipped);
       localStorage.setItem(THEME_HEX_KEY, theme.cycle ? 'prism' : theme.hex);
+      localStorage.setItem(MARK_OWNED_KEY, JSON.stringify(ownedMarks));
+      localStorage.setItem(MARK_KEY, equippedMark);
     } catch (e) { /* 保存できない環境ではその場かぎりになる */ }
   }
 
@@ -8706,6 +8941,27 @@ const Shop = (function () {
   function label(theme) {
     const key = 'shopColor' + theme.id.charAt(0).toUpperCase() + theme.id.slice(1);
     return (typeof t === 'function' && t(key)) || theme.id;
+  }
+  function markById(id) {
+    for (let i = 0; i < MARKS.length; i++) if (MARKS[i].id === id) return MARKS[i];
+    return null;
+  }
+  function markLabel(mark) {
+    const key = 'shopMark' + mark.id.charAt(0).toUpperCase() + mark.id.slice(1);
+    return (typeof t === 'function' && t(key)) || mark.id;
+  }
+  // 今つけているスキンの絵。3D側(showSolvedMark)がそろった瞬間に読む。
+  // 「なし」のときは null なので、向こうは何も出さない。
+  function markImage() {
+    const m = markById(equippedMark);
+    return (m && m.img) || null;
+  }
+  function applyMark(id) {
+    const mark = markById(id) || markById(MARK_DEFAULT_ID);
+    equippedMark = mark.id;
+    saveState();
+    // そろえたまま付け替えたときは、その場で貼り替えて見せる。
+    if (typeof window.__solvedMarkRefresh === 'function') window.__solvedMarkRefresh();
   }
   function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
   function reduced() {
@@ -8796,13 +9052,55 @@ const Shop = (function () {
   }
 
   /* ---- 画面 ------------------------------------------------------------ */
-  let overlayEl = null, gridEl = null, toastEl = null;
+  let overlayEl = null, gridEl = null, markGridEl = null, toastEl = null;
+  let tabsEl = null, scrollEl = null;
+  const pageEls = {};
+  /* ---- ページ（メインカラー / キューブスキン）--------------------------
+     品目が増えて縦に長くなると、下の品目が「あるのに気づかれない」ので、
+     1ページ1品目にして横で切り替える。タブを押しても、中身を横に
+     なぞっても同じところへ行く（ZBLLのタブと同じ操作感）。 */
+  const PAGES = ['themes', 'skins'];
+  let page = 'themes';
+
+  function applyPage(next) {
+    ensureDom();
+    if (PAGES.indexOf(next) === -1) return;
+    page = next;
+    PAGES.forEach((id) => {
+      const el = pageEls[id];
+      if (el) el.classList.toggle('is-hidden', id !== page);
+    });
+    if (tabsEl) {
+      tabsEl.querySelectorAll('.shop-tab').forEach((tab) => {
+        const on = tab.dataset.page === page;
+        tab.classList.toggle('on', on);
+        tab.setAttribute('aria-selected', String(on));
+      });
+    }
+    // ページを移ったら先頭から見せる（前のページの読み位置を持ち込まない）。
+    if (scrollEl) scrollEl.scrollTop = 0;
+    const shown = pageEls[page];
+    if (shown && !reduced()) {
+      shown.classList.remove('slide-in');
+      void shown.offsetWidth;   // アニメーションをやり直させる
+      shown.classList.add('slide-in');
+    }
+  }
+  function stepPage(delta) {
+    const i = PAGES.indexOf(page);
+    applyPage(PAGES[(i + delta + PAGES.length) % PAGES.length]);
+  }
   let cyanEl = null, rainbowEl = null;
   let toastTimer = null;
 
   function ensureDom() {
     overlayEl = overlayEl || document.getElementById('shop-overlay');
     gridEl    = gridEl    || document.getElementById('shop-theme-grid');
+    markGridEl = markGridEl || document.getElementById('shop-mark-grid');
+    tabsEl     = tabsEl     || document.getElementById('shop-tabs');
+    scrollEl   = scrollEl   || document.getElementById('shop-scroll');
+    pageEls.themes = pageEls.themes || document.getElementById('shop-page-themes');
+    pageEls.skins  = pageEls.skins  || document.getElementById('shop-page-skins');
     toastEl   = toastEl   || document.getElementById('shop-toast');
     cyanEl    = cyanEl    || document.getElementById('shop-cyan-count');
     rainbowEl = rainbowEl || document.getElementById('shop-rainbow-count');
@@ -8841,6 +9139,36 @@ const Shop = (function () {
     return card;
   }
 
+  // スキンのカード。色のカードと同じ形（見本・名前・値段/状態）だが、
+  // 見本のところに写真そのものを敷く。
+  function buildMarkCard(mark) {
+    const has    = ownedMarks.indexOf(mark.id) !== -1;
+    const on     = mark.id === equippedMark;
+    const enough = balance(mark.cur) >= mark.cost;
+
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'shop-card' +
+      (has ? ' owned' : '') + (on ? ' equipped' : '') +
+      (!has && !enough ? ' short' : '');
+    card.dataset.id = mark.id;
+
+    let foot;
+    if (on)       foot = '<span class="shop-state on">' + t('shopUsing') + '</span>';
+    else if (has) foot = '<span class="shop-state">' + t('shopMarkEquip') + '</span>';
+    else          foot = '<span class="shop-price">' + shardHtml(mark.cur) +
+                         fmt(mark.cost) + '</span>';
+
+    const swatch = mark.img
+      ? '<span class="shop-swatch is-mark" style="--sw:#2f2f3a;background-image:url(' + mark.img + ')"></span>'
+      : '<span class="shop-swatch is-mark is-off" style="--sw:#2f2f3a"></span>';
+
+    card.innerHTML = swatch +
+      '<span class="shop-name">' + markLabel(mark) + '</span>' +
+      foot;
+    return card;
+  }
+
   function render() {
     ensureDom();
     if (!gridEl) return;
@@ -8848,6 +9176,10 @@ const Shop = (function () {
     if (rainbowEl) rainbowEl.textContent = fmt(balance('rainbow'));
     gridEl.innerHTML = '';
     THEMES.forEach((theme) => gridEl.appendChild(buildCard(theme)));
+    if (markGridEl) {
+      markGridEl.innerHTML = '';
+      MARKS.forEach((mark) => markGridEl.appendChild(buildMarkCard(mark)));
+    }
   }
 
   function toast(msg, kind) {
@@ -8883,6 +9215,49 @@ const Shop = (function () {
     }
   }
 
+  function buyMark(mark) {
+    if (ownedMarks.indexOf(mark.id) !== -1) return;
+    if (balance(mark.cur) < mark.cost) {
+      toast(t('shopShort'), 'warn');
+      render();
+      return;
+    }
+    spend(mark.cur, mark.cost);
+    ownedMarks.push(mark.id);
+    applyMark(mark.id);
+    render();
+    toast(t('shopGot', { name: markLabel(mark) }), 'good');
+    const el = markGridEl && markGridEl.querySelector('[data-id="' + mark.id + '"]');
+    if (el && !reduced()) {
+      el.classList.add('just-got');
+      setTimeout(() => el.classList.remove('just-got'), 900);
+    }
+  }
+
+  // 色のカードとまったく同じ考え方：持っているなら付け替えるだけ、
+  // 足りないなら理由を出すだけ、引き換えるときだけ確認をはさむ。
+  function onMarkTap(mark) {
+    if (ownedMarks.indexOf(mark.id) !== -1) {
+      if (mark.id !== equippedMark) applyMark(mark.id);
+      render();
+      return;
+    }
+    if (balance(mark.cur) < mark.cost) {
+      toast(t('shopShort'), 'warn');
+      return;
+    }
+    const shardName = t(mark.cur === 'rainbow' ? 'shopShardRainbow' : 'shopShardCyan');
+    const opts = {
+      title:  t('shopConfirmTitle', { name: markLabel(mark) }),
+      body:   t('shopConfirmBody', { shard: shardName, cost: fmt(mark.cost) }),
+      ok:     t('shopRedeem'),
+      cancel: t('confirmCancel'),
+      onOk:   function () { buyMark(mark); }
+    };
+    if (typeof askConfirm === 'function') askConfirm(opts);
+    else buyMark(mark);
+  }
+
   function onCardTap(theme) {
     // すでに持っている色：その場で付け替え。何も減らず、押し直せば
     // 元に戻せるので確認は挟まない。
@@ -8913,10 +9288,53 @@ const Shop = (function () {
     else buy(theme);   // ダイアログが無い環境でも詰まらないようにする保険
   }
 
+  /* 中身を横になぞってページを移る。ZBLLのタブ切り替えと同じ作りで、
+     縦スクロールと取り合いにならないよう、まず10pxで「これは横向きの
+     操作だ」と判定してから縦スクロールを止める。 */
+  function setupShopSwipe() {
+    if (!scrollEl) return;
+    const SWIPE_THRESHOLD = 40; // 横に40px動いて初めてページ送りとみなす
+    const DIRECTION_LOCK = 10;  // 縦スクロールと取り違えないための判定幅
+    let startX = 0, startY = 0, tracking = false, horizontal = false;
+
+    scrollEl.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1) { tracking = false; return; }
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      tracking = true;
+      horizontal = false;
+    }, { passive: true });
+
+    scrollEl.addEventListener('touchmove', (e) => {
+      if (!tracking || e.touches.length !== 1) return;
+      const dx = e.touches[0].clientX - startX;
+      const dy = e.touches[0].clientY - startY;
+      if (!horizontal && Math.abs(dx) > DIRECTION_LOCK && Math.abs(dx) > Math.abs(dy)) {
+        horizontal = true;
+      }
+      if (horizontal && e.cancelable) e.preventDefault();
+    }, { passive: false });
+
+    scrollEl.addEventListener('touchend', (e) => {
+      if (!tracking) return;
+      tracking = false;
+      if (!horizontal) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) < SWIPE_THRESHOLD) return;
+      stepPage(dx < 0 ? 1 : -1);  // 左へなぞる→次のページ、右→前のページ
+    });
+
+    scrollEl.addEventListener('touchcancel', () => {
+      tracking = false;
+      horizontal = false;
+    });
+  }
+
   function open() {
     ensureDom();
     if (!overlayEl) return;
     render();
+    applyPage(page);
     overlayEl.classList.add('show');
   }
   function close() {
@@ -8947,6 +9365,21 @@ const Shop = (function () {
         if (theme) onCardTap(theme);
       });
     }
+    if (tabsEl) {
+      tabsEl.addEventListener('click', (e) => {
+        const tab = e.target.closest ? e.target.closest('.shop-tab') : null;
+        if (tab && tab.dataset.page) applyPage(tab.dataset.page);
+      });
+    }
+    setupShopSwipe();
+    if (markGridEl) {
+      markGridEl.addEventListener('click', (e) => {
+        const card = e.target.closest ? e.target.closest('.shop-card') : null;
+        if (!card) return;
+        const mark = markById(card.dataset.id);
+        if (mark) onMarkTap(mark);
+      });
+    }
     // 言語が変わったら色名とボタン文言を引き直す。
     if (typeof onI18n === 'function') onI18n(() => {
       if (overlayEl && overlayEl.classList.contains('show')) render();
@@ -8957,7 +9390,14 @@ const Shop = (function () {
     init: init, open: open, close: close, render: render,
     applyTheme: applyTheme, THEMES: THEMES,
     getEquipped: function () { return equipped; },
-    getOwned: function () { return owned.slice(); }
+    getOwned: function () { return owned.slice(); },
+    // 3D側がそろった瞬間に読む（何も付けていなければ null）。
+    getMarkImage: markImage,
+    MARKS: MARKS,
+    applyMark: applyMark,
+    getEquippedMark: function () { return equippedMark; },
+    showPage: applyPage,
+    getOwnedMarks: function () { return ownedMarks.slice(); }
   };
 })();
 window.Shop = Shop;
