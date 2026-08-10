@@ -5212,7 +5212,7 @@ const PLL_DATA = {
          ことになり、スマホでは重さも発熱もばかにならないため。
        ・状態を var で持つのは、この下で定義される関数(executeTurn など)が
          ファイルの上のほうから先に呼ばれても TDZ で落ちないようにするため。 */
-    var markGroups = [];       // 6面ぶんの入れ物（どれも cubeGroup の子）
+    var markGroups = [];       // 6面ぶんの入れ物 { group, n }（cubeGroup の子）
     var markMats   = [];       // 9マスぶんのマテリアル（6面で使い回す）
     var markGeom   = null;     // 板1枚ぶんの形（54枚で使い回す）
     var markImg    = null;     // 写真そのもの（1枚だけ読み込んで使い回す）
@@ -5222,15 +5222,69 @@ const PLL_DATA = {
 
     function hideSolvedMark() {
       if (markFadeRAF) { cancelAnimationFrame(markFadeRAF); markFadeRAF = null; }
-      if (!markGroups.length) return;
-      markGroups.forEach((g) => cubeGroup.remove(g));
+      // (var 宣言より前に呼ばれても落ちないよう、存在チェックから入る)
+      if (!markGroups || !markGroups.length) return;
+      markGroups.forEach((e) => cubeGroup.remove(e.group));
       markGroups = [];
+      markNeedsFacing = false;
       markMats.forEach((m) => {
         if (m.map) m.map.dispose();
         m.dispose();
       });
       markMats = [];
       if (markGeom) { markGeom.dispose(); markGeom = null; }
+    }
+
+    /* 面ごとの「写真の上をどっちに向けるか」を決める。
+       板は面に貼りついているので、キューブを持ち替えると面ごとに写真が
+       横向きや逆さまになってしまう。そこで面の法線まわりに90°単位で
+       4通り回してみて、写真の上が画面の上にいちばん近くなる向きを選ぶ。
+       判定はカメラ空間に持ち込んでからの y 成分で見る（上面のように
+       画面の上とほぼ直交する面でも、手前/奥のどちらが上かを正しく選べる）。 */
+    var MARK_FWD = new THREE.Vector3(0, 0, 1);  // 板がもともと向いている向き
+    var markLastQuat = new THREE.Quaternion();
+    var markSettleAt = 0;
+    var markNeedsFacing = false;
+    var _markUp = new THREE.Vector3();
+    var _markQ = new THREE.Quaternion();
+    var _markCamInv = new THREE.Quaternion();
+
+    function orientMarkGroups() {
+      if (!markGroups.length) return;
+      _markCamInv.copy(camera.quaternion).invert();
+      markGroups.forEach((entry) => {
+        const base = new THREE.Quaternion().setFromUnitVectors(MARK_FWD, entry.n);
+        let bestQ = null;
+        let bestScore = -Infinity;
+        for (let k = 0; k < 4; k++) {
+          _markQ.setFromAxisAngle(entry.n, k * Math.PI / 2).multiply(base);
+          _markUp.set(0, 1, 0)
+            .applyQuaternion(_markQ)              // 板の上 → キューブの中の向き
+            .applyQuaternion(cubeGroup.quaternion) // → 世界の向き
+            .applyQuaternion(_markCamInv);         // → 画面の向き
+          if (_markUp.y > bestScore) { bestScore = _markUp.y; bestQ = _markQ.clone(); }
+        }
+        entry.group.quaternion.copy(bestQ);
+      });
+      markLastQuat.copy(cubeGroup.quaternion);
+    }
+
+    // 持ち替え(ドラッグ)のあいだ回し続けると目まぐるしいので、向きが
+    // 落ち着いてから貼り直す。持ち替えは90°単位でスナップして止まるので、
+    // 止まった時点の向きで選べば必ずきれいに収まる。
+    function updateSolvedMarkFacing() {
+      if (!markGroups || !markGroups.length) return;
+      const now = performance.now();
+      if (!cubeGroup.quaternion.equals(markLastQuat)) {
+        markLastQuat.copy(cubeGroup.quaternion);
+        markSettleAt = now;
+        markNeedsFacing = true;
+        return;
+      }
+      if (markNeedsFacing && now - markSettleAt > 200) {
+        markNeedsFacing = false;
+        orientMarkGroups();
+      }
     }
 
     // 写真は1枚だけ読み込んで、54枚の板でテクスチャを共有する
@@ -5274,13 +5328,10 @@ const PLL_DATA = {
       }
 
       // その9枚を、6面それぞれに同じ並びで貼っていく。
-      const FWD = new THREE.Vector3(0, 0, 1);   // 板がもともと向いている向き
       WORLD_FACES.forEach((face) => {
         const n = new THREE.Vector3(0, 0, 0);
         n[face.axis] = face.sign;
         const g = new THREE.Group();
-        // 板は +Z 向きなので、そこからこの面の向きへ回す。
-        g.quaternion.setFromUnitVectors(FWD, n);
         // キューブ表面(1.47)のほんの少し外側。近すぎると面とちらつく。
         g.position.copy(n).multiplyScalar(1.482);
         cells.forEach((c) => {
@@ -5289,8 +5340,10 @@ const PLL_DATA = {
           g.add(tile);
         });
         cubeGroup.add(g);
-        markGroups.push(g);
+        markGroups.push({ group: g, n: n });
       });
+      // 板の向き（＝写真の上下）は、いまの持ち方から決める。
+      orientMarkGroups();
 
       // 完成演出のフラッシュが引いたあと、0.5秒かけて浮かび上がる。
       // マテリアルは6面で共有しているので、9個ぶん触れば全面に効く。
@@ -5373,7 +5426,9 @@ const PLL_DATA = {
       // 引き換えてあれば、6面すべてに写真を映す（練習ドリルでも出す。
       // 報酬ではなく、そろったときの見た目そのものなので）。
       // 白フラッシュと決めスピンの勢いが抜けてから浮かび上がらせる。
-      setTimeout(() => { if (gameState === 'solved') showSolvedMark(); }, 620);
+      // 決めスピン(glowAndSpinCube, 900ms)が終わってから出す。回っている
+      // 最中に出すと、その瞬間の向きで写真の上下を決めてしまうため。
+      setTimeout(() => { if (gameState === 'solved') showSolvedMark(); }, 980);
       // クリスタル報酬。白フラッシュと画面シェイク(0.5s)が収まってから
       // 走らせることで、演出同士がぶつからず、飛翔中の座標計算も
       // body の transform に引きずられない。
@@ -5667,6 +5722,9 @@ const PLL_DATA = {
     // --- Render Loop ---
     function animate() {
       requestAnimationFrame(animate);
+      // 完成マークを出しているときだけ、持ち替えが止まったら写真の
+      // 上下を貼り直す（出していないときは即 return する軽い呼び出し）。
+      updateSolvedMarkFacing();
       renderer.render(scene, camera);
     }
     requestScramble = scrambleCube;
