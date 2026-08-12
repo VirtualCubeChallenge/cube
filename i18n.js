@@ -2341,39 +2341,39 @@
   const MARK_I18N = {
     "ja": {
       shopMarks:"キューブスキン", shopMarksLead:"そろえたとき、6面すべてに映ります",
-      shopMarkEquip:"これにする", shopMarkNone:"なし", shopMarkCat:"ねこ", shopMarkBird:"インコ"
+      shopMarkEquip:"これにする", shopMarkNone:"なし", shopMarkCat:"ねこ", shopMarkBird:"ぽざっく"
     },
     "en": {
       shopMarks:"Cube skin", shopMarksLead:"Shows on all six faces when you solve",
-      shopMarkEquip:"Use this skin", shopMarkNone:"None", shopMarkCat:"Cat", shopMarkBird:"Parakeet"
+      shopMarkEquip:"Use this skin", shopMarkNone:"None", shopMarkCat:"Cat", shopMarkBird:"Pozakku"
     },
     "zh-CN": {
       shopMarks:"魔方皮肤", shopMarksLead:"复原时会浮现在六个面上",
-      shopMarkEquip:"使用此皮肤", shopMarkNone:"无", shopMarkCat:"猫", shopMarkBird:"鹦鹉"
+      shopMarkEquip:"使用此皮肤", shopMarkNone:"无", shopMarkCat:"猫", shopMarkBird:"Pozakku"
     },
     "zh-TW": {
       shopMarks:"魔方皮膚", shopMarksLead:"完成時會浮現在六個面上",
-      shopMarkEquip:"使用此皮膚", shopMarkNone:"無", shopMarkCat:"貓", shopMarkBird:"鸚鵡"
+      shopMarkEquip:"使用此皮膚", shopMarkNone:"無", shopMarkCat:"貓", shopMarkBird:"Pozakku"
     },
     "ko": {
       shopMarks:"큐브 스킨", shopMarksLead:"맞추면 여섯 면 모두에 나타납니다",
-      shopMarkEquip:"이 스킨 사용", shopMarkNone:"없음", shopMarkCat:"고양이", shopMarkBird:"앵무새"
+      shopMarkEquip:"이 스킨 사용", shopMarkNone:"없음", shopMarkCat:"고양이", shopMarkBird:"포잣쿠"
     },
     "es": {
       shopMarks:"Skin del cubo", shopMarksLead:"Aparece en las seis caras al resolver",
-      shopMarkEquip:"Usar esta skin", shopMarkNone:"Ninguna", shopMarkCat:"Gato", shopMarkBird:"Periquito"
+      shopMarkEquip:"Usar esta skin", shopMarkNone:"Ninguna", shopMarkCat:"Gato", shopMarkBird:"Pozakku"
     },
     "id": {
       shopMarks:"Skin kubus", shopMarksLead:"Muncul di keenam sisi saat selesai",
-      shopMarkEquip:"Pakai skin ini", shopMarkNone:"Tidak ada", shopMarkCat:"Kucing", shopMarkBird:"Parkit"
+      shopMarkEquip:"Pakai skin ini", shopMarkNone:"Tidak ada", shopMarkCat:"Kucing", shopMarkBird:"Pozakku"
     },
     "ru": {
       shopMarks:"Скин кубика", shopMarksLead:"Появится на всех шести гранях, когда собран",
-      shopMarkEquip:"Выбрать скин", shopMarkNone:"Нет", shopMarkCat:"Кот", shopMarkBird:"Попугай"
+      shopMarkEquip:"Выбрать скин", shopMarkNone:"Нет", shopMarkCat:"Кот", shopMarkBird:"Позакку"
     },
     "pt-BR": {
       shopMarks:"Skin do cubo", shopMarksLead:"Aparece nas seis faces ao resolver",
-      shopMarkEquip:"Usar esta skin", shopMarkNone:"Nenhuma", shopMarkCat:"Gato", shopMarkBird:"Periquito"
+      shopMarkEquip:"Usar esta skin", shopMarkNone:"Nenhuma", shopMarkCat:"Gato", shopMarkBird:"Pozakku"
     }
   };
   Object.keys(MARK_I18N).forEach(function (lang) {
