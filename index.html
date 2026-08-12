@@ -203,7 +203,51 @@
       </button>
       <div class="menu-actions" id="menu-actions" role="menu">
         <button class="action-btn" id="records-btn" role="menuitem" data-i18n="menuRecords">🏆 記録</button>
-        <button class="action-btn" id="training-btn" role="menuitem" data-i18n="menuTraining">🎯 トレーニング</button>
+        <button class="action-btn" id="training-btn" role="menuitem">
+        <svg class="menu-cube-icon" viewBox="0 0 26 26" aria-hidden="true" focusable="false">
+          <defs>
+            <radialGradient id="plltIcoGlow" cx="50%" cy="52%" r="50%">
+              <stop offset="0%"   stop-color="#ff2d45" stop-opacity=".55"/>
+              <stop offset="55%"  stop-color="#ff2d45" stop-opacity=".18"/>
+              <stop offset="100%" stop-color="#ff2d45" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="plltIcoTop" x1="0" y1="0" x2=".3" y2="1">
+              <stop offset="0%"   stop-color="#ff8a92"/>
+              <stop offset="55%"  stop-color="#ff4257"/>
+              <stop offset="100%" stop-color="#ec2338"/>
+            </linearGradient>
+            <linearGradient id="plltIcoFront" x1="0" y1="0" x2=".2" y2="1">
+              <stop offset="0%"   stop-color="#e01f35"/>
+              <stop offset="100%" stop-color="#a50f22"/>
+            </linearGradient>
+            <linearGradient id="plltIcoRight" x1="0" y1="0" x2=".4" y2="1">
+              <stop offset="0%"   stop-color="#b31324"/>
+              <stop offset="100%" stop-color="#7d0817"/>
+            </linearGradient>
+          </defs>
+
+          <!-- 背後のほのかな赤い光 -->
+          <ellipse cx="13" cy="13.6" rx="13" ry="12.4" fill="url(#plltIcoGlow)"/>
+
+          <!-- 3面。マス目は線で入れる（27個の四角を並べるより軽い） -->
+          <polygon points="13,13.4 23.2,8.3 23.2,17 13,22.1" fill="url(#plltIcoRight)"/>
+          <polygon points="2.8,8.3 13,13.4 13,22.1 2.8,17" fill="url(#plltIcoFront)"/>
+          <polygon points="13,3.2 23.2,8.3 13,13.4 2.8,8.3" fill="url(#plltIcoTop)"/>
+          <polygon points="13,3.2 17.59,5.5 8.41,5.5" fill="#fff" opacity=".34"/>
+          <g fill="none" stroke="#4a0410" stroke-width=".62" stroke-linecap="round" opacity=".78">
+            <path d="M16.4 4.9L6.2 10M9.6 4.9L19.8 10M19.8 6.6L9.6 11.7M6.2 6.6L16.4 11.7M6.2 10L6.2 18.7M2.8 11.2L13 16.3M9.6 11.7L9.6 20.4M2.8 14.1L13 19.2M16.4 11.7L16.4 20.4M13 16.3L23.2 11.2M19.8 10L19.8 18.7M13 19.2L23.2 14.1"/>
+          </g>
+          <path d="M2.8 8.3L13 3.2L23.2 8.3L23.2 17L13 22.1L2.8 17Z"
+                fill="none" stroke="#4a0410" stroke-width=".7" stroke-linejoin="round" opacity=".8"/>
+          <path d="M13 13.4L13 22.1"
+                fill="none" stroke="#4a0410" stroke-width=".62" opacity=".78"/>
+
+          <!-- きらめき -->
+          <path d="M21.4 3.6c.28 1.5.6 1.82 2.1 2.1-1.5.28-1.82.6-2.1 2.1-.28-1.5-.6-1.82-2.1-2.1 1.5-.28 1.82-.6 2.1-2.1Z" fill="#fff" opacity=".92"/>
+          <path d="M5 6.2c.16.86.34 1.04 1.2 1.2-.86.16-1.04.34-1.2 1.2-.16-.86-.34-1.04-1.2-1.2.86-.16 1.04-.34 1.2-1.2Z" fill="#fff" opacity=".6"/>
+        </svg>
+          <span data-i18n="menuTraining">トレーニング</span>
+        </button>
         <button class="action-btn" id="shop-btn" role="menuitem" data-i18n="menuShop">🛍️ ショップ</button>
         <button class="action-btn" id="settings-btn" role="menuitem" data-i18n="menuSettings">⚙️ 設定</button>
       </div>
@@ -7131,10 +7175,15 @@ const PLL_DATA = {
     <!-- ① 設定・スタート -->
     <section class="pllt-view pllt-setup">
       <div class="pllt-panel">
+        <button class="pllt-stats-btn" id="pllt-stats-btn" data-i18n-aria="plltStats" aria-label="通算成績">
+          <span class="pllt-stats-btn-ico" aria-hidden="true">📊</span>
+          <span class="pllt-stats-btn-val" id="pllt-stats-btn-val">—</span>
+        </button>
         <button class="alg-panel-close-x" id="pllt-close-setup" data-i18n-aria="close" aria-label="閉じる">✕</button>
         <div class="pllt-panel-scroll">
           <h2 id="pllt-title" data-i18n="plltTitle">PLL 2側面判断</h2>
           <p class="pllt-lead" data-i18n="plltLead">持ち替えず、見えている2面だけで当てる</p>
+          <p class="pllt-rule" data-i18n="plltRule">分かった瞬間にキューブをタップ → そこで計測が止まります</p>
 
           <div class="pllt-field">
             <span class="pllt-field-label" data-i18n="plltCount">問題数</span>
@@ -7154,15 +7203,6 @@ const PLL_DATA = {
               <button type="button" class="pllt-mode" data-mode="weak" data-i18n="plltModeWeak">弱点集中</button>
             </div>
             <p class="pllt-hint" id="pllt-mode-hint">21種類から均等に出します</p>
-          </div>
-
-          <div class="pllt-field">
-            <span class="pllt-field-label" data-i18n="plltTiming">判別タイムの測り方</span>
-            <div class="pllt-modes" id="pllt-timing-row" role="group">
-              <button type="button" class="pllt-mode" data-timing="peek" data-i18n="plltTimingPeek">見えた瞬間</button>
-              <button type="button" class="pllt-mode" data-timing="answer" data-i18n="plltTimingAnswer">ボタンまで</button>
-            </div>
-            <p class="pllt-hint" id="pllt-timing-hint">分かった瞬間にキューブをタップすると、そこで計測が止まります。</p>
           </div>
 
           <button class="pllt-start" id="pllt-start" data-i18n="plltStart">スタート</button>
@@ -7193,6 +7233,11 @@ const PLL_DATA = {
            CSS の preserve-3d で組み、カメラ角は固定。出題ごとに色が
            変わるのは側面上段の6マスだけ。 -->
       <div class="pllt-stage-wrap" id="pllt-stage-wrap">
+        <!-- カウントダウンの数字と、「瞬間」モードで叩いたあとの❓。
+             キューブの真上に重なるが、指のイベントは通す。 -->
+        <div class="pllt-cover" aria-hidden="true">
+          <span class="pllt-cover-mark" id="pllt-cover-mark">3</span>
+        </div>
         <div class="pllt-stage" aria-hidden="true">
           <div class="pllt-cube">
             <div class="pllt-face pllt-face-u" id="pllt-face-u"></div>
@@ -7242,7 +7287,44 @@ const PLL_DATA = {
           <div class="pllt-result-actions">
             <button class="action-btn" id="pllt-retry" data-i18n="plltRetry">もう一度挑戦</button>
             <button class="action-btn" id="pllt-retry-weak" data-i18n="plltRetryWeak">弱点のみ再挑戦</button>
-            <button class="action-btn" id="pllt-share" data-i18n="plltShare">結果をシェア</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ④ 通算成績（21種ぶんの積み上げ。セッションをまたいで残る） -->
+    <section class="pllt-view pllt-stats">
+      <div class="pllt-panel">
+        <button class="alg-panel-close-x" id="pllt-stats-back" data-i18n-aria="plltBack" aria-label="戻る">✕</button>
+        <div class="pllt-panel-scroll">
+          <h2 data-i18n="plltStats">通算成績</h2>
+
+          <div class="pllt-summary">
+            <div class="pllt-sum-cell">
+              <span class="pllt-sum-label" data-i18n="plltColAttempts">出題</span>
+              <b><span id="pllt-st-n">0</span></b>
+            </div>
+            <div class="pllt-sum-cell">
+              <span class="pllt-sum-label" data-i18n="plltColAcc">正答率</span>
+              <b><span id="pllt-st-acc">—</span></b>
+            </div>
+            <div class="pllt-sum-cell">
+              <span class="pllt-sum-label" data-i18n="plltColTime">平均</span>
+              <b><span id="pllt-st-avg">—</span><i>s</i></b>
+            </div>
+          </div>
+
+          <div class="pllt-st-list" id="pllt-st-list"></div>
+          <p class="pllt-hint pllt-st-empty" id="pllt-st-empty" data-i18n="plltStatsEmpty">まだ記録がありません。</p>
+
+          <!-- 消去は取り返しがつかないので、押し間違いでは起きない
+               「最後まで滑らせる」操作にしてある。確認ダイアログの
+               代わりにこのスライド自体が確認になる。 -->
+          <div class="pllt-reset-slider" id="pllt-reset-slider" role="button" tabindex="0"
+               data-i18n-aria="plltStatsReset" aria-label="記録をリセット">
+            <span class="pllt-reset-fill" id="pllt-reset-fill" aria-hidden="true"></span>
+            <span class="pllt-reset-label" id="pllt-reset-label" data-i18n="plltResetSlide">スライドして記録を消去</span>
+            <span class="pllt-reset-thumb" id="pllt-reset-thumb" aria-hidden="true">🗑</span>
           </div>
         </div>
       </div>
@@ -9718,6 +9800,8 @@ const PllTrainer = (function () {
   const CFG = {
     STORAGE_KEY: 'rubiks-cube-pll-trainer',
     COUNTS:       [10, 30, 50, 100], // 問題数のタブ
+    COUNT_FROM:      3,  // スタート後のカウントダウン（3・2・1）
+    COUNT_STEP:    700,  // カウント1つぶんの長さ(ms)
     WRONG_HOLD:   1100,  // 不正解のとき正解名を見せる時間(ms)。画面タップで短縮可
     FLASH_MS:      260,  // 緑/赤フラッシュの長さ
     WEAK_ACC:      0.80, // これ未満の正答率は「要練習」
@@ -9818,7 +9902,7 @@ const PllTrainer = (function () {
   // stats[name] = { n: 出題数, c: 正解数, t: 正解したときの合計ms }
   // 平均判別タイムは「正解したぶんだけ」で出す。誤答の時間を混ぜると
   // 迷ってから間違えた回と、即答で間違えた回が同じ扱いになってしまう。
-  let store = { v: 1, sessions: 0, stats: {}, cfg: { count: 30, ups: ['y'], mode: 'random', timing: 'peek' } };
+  let store = { v: 1, sessions: 0, stats: {}, cfg: { count: 30, ups: ['y'], mode: 'random' } };
   function loadStore() {
     try {
       const raw = localStorage.getItem(CFG.STORAGE_KEY);
@@ -9838,7 +9922,6 @@ const PllTrainer = (function () {
           if (keep.length) store.cfg.ups = keep;
         }
         if (parsed.cfg.mode === 'weak' || parsed.cfg.mode === 'random') store.cfg.mode = parsed.cfg.mode;
-        if (parsed.cfg.timing === 'peek' || parsed.cfg.timing === 'answer') store.cfg.timing = parsed.cfg.timing;
       }
     } catch (err) { /* 使えない環境ならその場かぎりで動かす */ }
   }
@@ -10044,17 +10127,6 @@ const PllTrainer = (function () {
         paintSetup();
       });
     }
-    const timing = q('pllt-timing-row');
-    if (timing && !timing.dataset.bound) {
-      timing.dataset.bound = '1';
-      timing.addEventListener('click', (e) => {
-        const b = e.target.closest ? e.target.closest('.pllt-mode') : null;
-        if (!b) return;
-        store.cfg.timing = b.dataset.timing;
-        saveStore();
-        paintSetup();
-      });
-    }
   }
 
   function paintSetup() {
@@ -10081,20 +10153,13 @@ const PllTrainer = (function () {
     });
     const hint = q('pllt-mode-hint');
     if (hint) hint.textContent = tx(store.cfg.mode === 'weak' ? 'plltModeWeakHint' : 'plltModeRandomHint');
-    const timing = q('pllt-timing-row');
-    if (timing) Array.from(timing.children).forEach((b) => {
-      const on = b.dataset.timing === store.cfg.timing;
-      b.classList.toggle('on', on);
-      b.setAttribute('aria-pressed', String(on));
-    });
-    const tHint = q('pllt-timing-hint');
-    if (tHint) tHint.textContent = tx(store.cfg.timing === 'peek' ? 'plltTimingPeekHint' : 'plltTimingAnswerHint');
     // グループの見出しも言語に追従させる。
     document.querySelectorAll('#pllt-answers .pllt-group-label').forEach((el) => {
       if (el.dataset.key) el.textContent = tx(el.dataset.key);
     });
     const badge = q('pllt-sessions');
     if (badge) badge.textContent = tx('plltSessions', { n: store.sessions });
+    paintStatsBadge();
   }
 
   // 動かないマス（U面9枚とF/R面の下2段）をまとめて塗り直す。上面の色は
@@ -10141,6 +10206,43 @@ const PllTrainer = (function () {
     startClock();
   }
 
+  /* ---- スタート後の 3・2・1 ---------------------------------------------
+     出題の瞬間から計りたいので、カウント中はキューブを隠しておく。
+     隠す仕組みは「瞬間」モードで❓に差し替えるのと同じものを使い回す。 */
+  let countTimer = 0;
+  function runCountdown(done) {
+    const root = q('pllt-overlay');
+    const mark = q('pllt-cover-mark');
+    let n = CFG.COUNT_FROM;
+    if (root) root.classList.add('counting');
+    const step = () => {
+      if (n > 0) {
+        if (mark) {
+          mark.textContent = String(n);
+          // クラスを外してすぐ付け直すだけではアニメが再開しないので、
+          // 一度レイアウトを読んでリセットを確定させる。
+          mark.classList.remove('tick');
+          void mark.offsetWidth;
+          mark.classList.add('tick');
+        }
+        beepTick(n === 1);
+        n--;
+        countTimer = setTimeout(step, CFG.COUNT_STEP);
+      } else {
+        countTimer = 0;
+        if (root) root.classList.remove('counting');
+        if (mark) mark.classList.remove('tick');
+        done();
+      }
+    };
+    step();
+  }
+  function stopCountdown() {
+    if (countTimer) { clearTimeout(countTimer); countTimer = 0; }
+    const root = q('pllt-overlay');
+    if (root) root.classList.remove('counting');
+  }
+
   function startClock() {
     stopClock();
     const timeEl = q('pllt-time');
@@ -10157,12 +10259,12 @@ const PllTrainer = (function () {
   }
 
   function answer(name) {
-    if (!session.live || session.locked) return;
+    if (!session.live || session.locked || countTimer) return;
     const item = session.queue[session.index];
     if (!item) return;
-    // 「見えた瞬間」モードでキューブを叩いてあれば、その時点の時間を使う。
+    // 分かった瞬間にキューブを叩いてあれば、その時点の時間を使う。
     // ボタンを探していた時間は判別タイムに入れない。叩き忘れてそのまま
-    // ボタンを押した場合は、これまでどおり回答までの時間になる。
+    // ボタンを押した場合は、回答までの時間をそのまま記録する。
     const ms = session.peekMs || (performance.now() - session.shownAt);
     const ok = (name === item.name);
 
@@ -10267,6 +10369,23 @@ const PllTrainer = (function () {
       o.start(now); o.stop(now + (ok ? 0.12 : 0.2));
     } catch (err) { /* 音が出せない環境では黙る */ }
   }
+  // カウントダウンの拍。最後の1つだけ少し高くして「次が本番」を伝える。
+  function beepTick(last) {
+    if (!CFG.SOUND) return;
+    try {
+      if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+      if (actx.state === 'suspended') actx.resume();
+      const now = actx.currentTime;
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(last ? 660 : 440, now);
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.exponentialRampToValueAtTime(0.05, now + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.11);
+      o.connect(g); g.connect(actx.destination);
+      o.start(now); o.stop(now + 0.14);
+    } catch (err) { /* 音が出せない環境では黙る */ }
+  }
   function haptic(pattern) {
     if (typeof triggerHaptics === 'function') triggerHaptics(pattern);
     else if (navigator.vibrate) { try { navigator.vibrate(pattern); } catch (err) { /* 非対応 */ } }
@@ -10276,6 +10395,7 @@ const PllTrainer = (function () {
   function finish() {
     session.live = false;
     stopClock();
+    stopCountdown();
     hideAnswerBanner();
     saveStore();
     renderResult();
@@ -10355,25 +10475,190 @@ const PllTrainer = (function () {
     }
   }
 
-  function shareText() {
-    const total = session.queue.length;
-    const acc = total ? (session.correct / total * 100) : 0;
-    return tx('plltShareText', {
-      count: total,
-      acc: acc.toFixed(1),
-      avg: (sessionAvgMs() / 1000).toFixed(2)
+  /* ---- 通算成績 ---------------------------------------------------------
+     セッションをまたいで貯まる21種ぶんの記録。設定画面の左上に通算正答率
+     だけを出しておき、押すと種類ごとの内訳が開く。回答のたびに statOf() が
+     積んでいるので、ここでは読むだけ。 */
+  function overallStats() {
+    let n = 0, c = 0, t = 0;
+    NAMES.forEach((name) => {
+      const s = store.stats[name];
+      if (!s) return;
+      n += s.n; c += s.c; t += s.t;
     });
+    return { n: n, c: c, avg: c ? t / c : 0 };
   }
-  function share() {
-    const text = shareText();
-    const url = (location && location.href) ? location.href.split('#')[0] : '';
-    const intent = 'https://x.com/intent/post?text=' +
-      encodeURIComponent(text) + (url ? '&url=' + encodeURIComponent(url) : '');
-    try { window.open(intent, '_blank', 'noopener'); }
-    catch (err) {
-      // ポップアップが止められたときはせめて手元に残す。
-      try { navigator.clipboard.writeText(text + '\n' + url); } catch (e2) { /* あきらめる */ }
+  // 正答率の見た目。数字だけだと一覧で比べにくいので、帯の長さと色でも出す。
+  function accTone(acc) {
+    if (acc >= 0.9)  return '#4fe0a8';
+    if (acc >= 0.75) return '#ffc861';
+    return '#ff6a7a';
+  }
+  function paintStatsBadge() {
+    const val = q('pllt-stats-btn-val');
+    if (!val) return;
+    const o = overallStats();
+    val.textContent = o.n ? Math.round(o.c / o.n * 100) + '%' : '—';
+    val.style.color = o.n ? accTone(o.c / o.n) : '';
+  }
+
+  function renderStats() {
+    const o = overallStats();
+    const set = (id, v) => { const e = q(id); if (e) e.textContent = v; };
+    set('pllt-st-n', String(o.n));
+    set('pllt-st-acc', o.n ? (o.c / o.n * 100).toFixed(1) + '%' : '—');
+    set('pllt-st-avg', o.avg ? (o.avg / 1000).toFixed(2) : '—');
+
+    const empty = q('pllt-st-empty');
+    if (empty) empty.style.display = o.n ? 'none' : '';
+    const slider = q('pllt-reset-slider');
+    if (slider) {
+      slider.classList.toggle('disabled', !o.n);
+      slider.setAttribute('aria-disabled', String(!o.n));
     }
+
+    const list = q('pllt-st-list');
+    if (!list) return;
+    list.textContent = '';
+    const frag = document.createDocumentFragment();
+    // 並びは回答ボタンと同じ4グループ。探す場所が同じなので迷わない。
+    GROUPS.forEach((g) => {
+      const block = document.createElement('div');
+      block.className = 'pllt-st-group ' + g.cls;
+      const label = document.createElement('span');
+      label.className = 'pllt-group-label';
+      label.dataset.key = g.key;
+      label.textContent = tx(g.key);
+      block.appendChild(label);
+      g.names.forEach((name) => {
+        const s = store.stats[name];
+        const n = s ? s.n : 0;
+        const acc = n ? s.c / n : 0;
+        const row = document.createElement('div');
+        row.className = 'pllt-st-row' + (n ? '' : ' none');
+        const cell = (cls, text) => {
+          const d = document.createElement('span');
+          d.className = cls;
+          if (text !== undefined) d.textContent = text;
+          return d;
+        };
+        row.appendChild(cell('pllt-st-name', name));
+        const bar = cell('pllt-st-bar');
+        const fill = cell('pllt-st-fill');
+        if (n) {
+          fill.style.width = (acc * 100).toFixed(0) + '%';
+          fill.style.background = accTone(acc);
+        }
+        bar.appendChild(fill);
+        row.appendChild(bar);
+        const pct = cell('pllt-st-pct', n ? Math.round(acc * 100) + '%' : '—');
+        if (n) pct.style.color = accTone(acc);
+        row.appendChild(pct);
+        row.appendChild(cell('pllt-st-n', n ? String(n) : '—'));
+        row.appendChild(cell('pllt-st-avg', (s && s.c) ? (s.t / s.c / 1000).toFixed(2) : '—'));
+        block.appendChild(row);
+      });
+      frag.appendChild(block);
+    });
+    list.appendChild(frag);
+  }
+
+  /* ---- 記録の消去スライダー ---------------------------------------------
+     消したら戻せないので、タップ一発では起きないようにしてある。つまみを
+     右端まで滑らせきって初めて実行。確認ダイアログの代わりに、この操作
+     そのものが確認を兼ねる。指で動かすのは transform と width だけ。 */
+  let setResetProgress = null;
+  function buildResetSlider() {
+    const track = q('pllt-reset-slider');
+    if (!track || track.dataset.bound) return;
+    track.dataset.bound = '1';
+    const thumb = q('pllt-reset-thumb');
+    const fill  = q('pllt-reset-fill');
+    const label = q('pllt-reset-label');
+    let dragging = false, originX = 0, maxX = 0, p = 0, pid = null;
+
+    const setP = (v, animate) => {
+      p = Math.max(0, Math.min(1, v));
+      if (thumb) {
+        thumb.style.transition = animate ? 'transform .18s ease' : 'none';
+        thumb.style.transform = 'translateX(' + (p * maxX).toFixed(1) + 'px)';
+      }
+      if (fill) {
+        fill.style.transition = animate ? 'width .18s ease' : 'none';
+        fill.style.width = (p * 100).toFixed(1) + '%';
+      }
+      // ラベルは滑らせるほど薄くなる（進み具合が文字でも分かる）。
+      track.style.setProperty('--p', p.toFixed(3));
+    };
+    setResetProgress = (v) => {
+      maxX = span();
+      setP(v, false);
+      track.classList.remove('done');
+      if (label) label.textContent = tx('plltResetSlide');
+    };
+    function span() {
+      const pad = 4;
+      return Math.max(0, track.clientWidth - (thumb ? thumb.offsetWidth : 40) - pad * 2);
+    }
+
+    const finish = () => {
+      store.stats = {};
+      store.sessions = 0;
+      saveStore();
+      renderStats();
+      paintSetup();
+      track.classList.add('done');
+      if (label) label.textContent = tx('plltResetDone');
+      haptic([12, 50, 12]);
+      setTimeout(() => {
+        track.classList.remove('done');
+        if (label) label.textContent = tx('plltResetSlide');
+        setP(0, true);
+      }, 1400);
+    };
+
+    const down = (e) => {
+      if (track.classList.contains('disabled') || track.classList.contains('done')) return;
+      dragging = true;
+      maxX = span();
+      originX = e.clientX - p * maxX;
+      pid = e.pointerId;
+      try { track.setPointerCapture(pid); } catch (err) { /* 未対応でも動く */ }
+      track.classList.add('dragging');
+    };
+    const move = (e) => {
+      if (!dragging || !maxX) return;
+      setP((e.clientX - originX) / maxX, false);
+    };
+    const up = () => {
+      if (!dragging) return;
+      dragging = false;
+      track.classList.remove('dragging');
+      if (pid !== null) { try { track.releasePointerCapture(pid); } catch (err) {} pid = null; }
+      // 端までしっかり届いたときだけ実行。届かなければ左へ戻す。
+      if (p >= 0.97) { setP(1, true); finish(); }
+      else setP(0, true);
+    };
+
+    track.addEventListener('pointerdown', down);
+    track.addEventListener('pointermove', move);
+    track.addEventListener('pointerup', up);
+    track.addEventListener('pointercancel', up);
+    // キーボードだけの人はスライドできないので、そこは確認ダイアログで。
+    track.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      if (track.classList.contains('disabled')) return;
+      if (typeof askConfirm === 'function') {
+        askConfirm({
+          title: tx('plltStatsResetTitle'),
+          body: tx('plltStatsResetBody'),
+          ok: tx('plltStatsReset'),
+          cancel: tx('confirmCancel'),
+          onOk: finish
+        });
+      } else if (confirm(tx('plltStatsResetTitle'))) finish();
+    });
   }
 
   /* ---- 画面の切り替え -------------------------------------------------- */
@@ -10397,18 +10682,20 @@ const PllTrainer = (function () {
     session.pool = pool || null;
     session.locked = false;
     session.peekMs = 0;
-    const root0 = q('pllt-overlay');
-    if (root0) root0.dataset.timing = store.cfg.timing;
     hideAnswerBanner();
     paintHud(0);
+    const prog = q('pllt-progress');
+    if (prog) prog.textContent = '1 / ' + session.queue.length;
+    const timeEl = q('pllt-time');
+    if (timeEl) timeEl.textContent = '0.00';
     setView('drill');
-    // 先に画面を切り替えてから1問目を出す（切り替えの1フレームぶん、
+    // 先に画面を切り替えてからカウントを始める（切り替えの1フレームぶん、
     // 計測開始が遅れないようにするため）。
-    requestAnimationFrame(() => { showQuestion(); });
+    requestAnimationFrame(() => { runCountdown(showQuestion); });
   }
 
   function quitDrill() {
-    if (session.live || session.index > 0) {
+    if (session.live || countTimer || session.index > 0) {
       if (typeof askConfirm === 'function') {
         askConfirm({
           title: tx('plltQuitTitle'),
@@ -10426,6 +10713,7 @@ const PllTrainer = (function () {
   function abort() {
     session.live = false;
     stopClock();
+    stopCountdown();
     if (wrongTimer) { clearTimeout(wrongTimer); wrongTimer = 0; }
     hideAnswerBanner();
     saveStore();
@@ -10471,19 +10759,31 @@ const PllTrainer = (function () {
       const weak = weakNames();
       if (weak.length) start(weak);
     });
-    on('pllt-share', share);
     on('pllt-result-close', close);
+    on('pllt-stats-btn', () => {
+      renderStats();
+      setView('stats');
+      // 前に途中まで滑らせていたら、開き直したときは左端から。
+      // 幅は表示されてからでないと測れないので1フレーム待つ。
+      requestAnimationFrame(() => { if (setResetProgress) setResetProgress(0); });
+    });
+    on('pllt-stats-back', () => { paintSetup(); setView('setup'); });
+    buildResetSlider();
 
     // 不正解の「正解は◯◯」を読んだら、待たずに次へ行けるようにする。
     const stage = q('pllt-stage-wrap');
     if (stage) stage.addEventListener('click', () => {
       if (session.locked) { nextAfterWrong(); return; }
-      // 分かった瞬間にここを叩くと、計測だけ先に止める。
-      if (session.live && store.cfg.timing === 'peek' && !session.peekMs) {
+      // 分かった瞬間にここを叩くと、計測を止めてキューブを隠す。
+      if (session.live && !session.peekMs) {
         session.peekMs = performance.now() - session.shownAt;
         stopClock();
         const timeEl = q('pllt-time');
         if (timeEl) timeEl.textContent = (session.peekMs / 1000).toFixed(2);
+        // 叩いた時点でキューブを消して❓に差し替える。もう一度見て
+        // 確かめられないので、見た瞬間の判断そのものが試される。
+        const mark = q('pllt-cover-mark');
+        if (mark) { mark.textContent = '❓'; mark.classList.remove('tick'); }
         const root = q('pllt-overlay');
         if (root) root.classList.add('peeked');
         haptic(8);
@@ -10501,7 +10801,9 @@ const PllTrainer = (function () {
 
     if (typeof onI18n === 'function') onI18n(() => {
       const root = q('pllt-overlay');
-      if (root && root.classList.contains('show')) paintSetup();
+      if (!root || !root.classList.contains('show')) return;
+      paintSetup();
+      if (root.dataset.view === 'stats') renderStats();
     });
   }
 

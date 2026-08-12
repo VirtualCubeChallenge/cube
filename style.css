@@ -5385,11 +5385,12 @@
 
 .pllt-view { display: none; }
 #pllt-overlay[data-view="setup"]  .pllt-setup,
+#pllt-overlay[data-view="stats"]  .pllt-stats,
 #pllt-overlay[data-view="result"] .pllt-result { display: flex; }
 #pllt-overlay[data-view="drill"]  .pllt-drill  { display: flex; }
 
 /* ---- 設定 / リザルトの共通パネル ------------------------------------- */
-.pllt-setup, .pllt-result {
+.pllt-setup, .pllt-result, .pllt-stats {
   position: absolute;
   inset: 0;
   align-items: center;
@@ -5429,6 +5430,18 @@
 }
 
 /* ---- 設定の各項目 ----------------------------------------------------- */
+/* 計測の止め方は1つだけなので、設定では選ばせず一言で伝える。 */
+.pllt-rule {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(var(--tc-rgb), .72);
+  background: rgba(var(--tc-rgb), .07);
+  border: 1px solid rgba(var(--tc-rgb), .22);
+  border-radius: 9px;
+  padding: 8px 10px;
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
 .pllt-field { margin-bottom: 16px; text-align: left; }
 .pllt-field-label {
   display: block;
@@ -5857,6 +5870,175 @@
   pointer-events: none;
 }
 
+/* ---- 通算成績 ---------------------------------------------------------
+   設定画面の左上には通算正答率だけを出す（✕の対角）。押すと21種の
+   内訳が開く。数字だけを縦に並べても比べにくいので、帯の長さと色でも
+   同じことを言う。色は 90%以上=緑 / 75%以上=琥珀 / それ未満=赤。 */
+.pllt-stats-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 34px;
+  padding: 0 11px;
+  border-radius: 999px;
+  border: 1px solid #3a3a48;
+  background: rgba(255, 255, 255, .06);
+  color: #c8c8d4;
+  font-size: 12px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.pllt-stats-btn:active { border-color: var(--tc); background: rgba(var(--tc-rgb), .16); }
+.pllt-stats-btn-ico { font-size: 12px; line-height: 1; }
+
+.pllt-st-group { margin-bottom: 12px; }
+.pllt-st-group.g1 { --g: 255, 200, 97; }
+.pllt-st-group.g2 { --g: 111, 216, 255; }
+.pllt-st-group.g3 { --g: 126, 224, 143; }
+.pllt-st-group.g4 { --g: 199, 155, 255; }
+.pllt-st-group .pllt-group-label {
+  display: block;
+  text-align: left;
+  margin-bottom: 4px;
+}
+.pllt-st-row {
+  display: grid;
+  grid-template-columns: 2.4rem 1fr 2.9rem 2.2rem 2.8rem;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 2px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  border-bottom: 1px solid #20202a;
+}
+.pllt-st-row.none { opacity: .42; }
+.pllt-st-name {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 800;
+  color: #e6e6ee;
+}
+.pllt-st-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: #23232c;
+  overflow: hidden;
+}
+.pllt-st-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: #3a3a48;
+  transition: width .2s ease;
+}
+.pllt-st-row .pllt-st-pct { text-align: right; font-weight: 800; color: #9a9aac; }
+.pllt-st-row .pllt-st-n,
+.pllt-st-row .pllt-st-avg { text-align: right; color: #8b8b9c; }
+.pllt-st-empty { text-align: center; }
+
+/* ---- 記録の消去スライダー ---------------------------------------------
+   消したら戻せない操作なので、指を横に長く動かしきったときだけ効く。
+   赤い帯は「これは破壊的な操作だ」という合図。動くのは transform と
+   width と opacity だけなので、指に貼りついたまま滑る。 */
+.pllt-reset-slider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 52px;
+  margin-top: 18px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 106, 122, .42);
+  background: rgba(255, 60, 80, .09);
+  overflow: hidden;
+  cursor: grab;
+  /* 横に引く操作なので、パネルのスクロールに取られないようにする。 */
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  --p: 0;
+}
+.pllt-reset-slider.dragging { cursor: grabbing; }
+.pllt-reset-slider.disabled { opacity: .35; pointer-events: none; }
+.pllt-reset-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(214, 58, 74, .30), rgba(255, 86, 104, .55));
+}
+.pllt-reset-label {
+  position: relative;
+  z-index: 1;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  color: #ff9aa6;
+  pointer-events: none;
+  /* 滑らせるほど薄くなる。進み具合が文字でも伝わる。 */
+  opacity: calc(1 - var(--p) * 0.9);
+}
+.pllt-reset-thumb {
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-top: -22px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ff6a7a, #d63a4a);
+  box-shadow: 0 2px 8px rgba(214, 58, 74, .45);
+  font-size: 18px;
+  line-height: 1;
+  pointer-events: none;
+}
+/* 消しきったら緑にして「終わった」ことを見せる。 */
+.pllt-reset-slider.done { border-color: rgba(79, 224, 168, .55); }
+.pllt-reset-slider.done .pllt-reset-fill {
+  background: linear-gradient(90deg, rgba(79, 224, 168, .28), rgba(79, 224, 168, .5));
+}
+.pllt-reset-slider.done .pllt-reset-label { opacity: 1; color: #4fe0a8; }
+.pllt-reset-slider.done .pllt-reset-thumb {
+  background: linear-gradient(180deg, #6ef0bd, #2fb98a);
+  box-shadow: 0 2px 8px rgba(79, 224, 168, .45);
+}
+
+
+/* ---- ドロワーの「トレーニング」のアイコン ------------------------------
+   絵文字ではなく、赤いルービックキューブを等角投影で描いたSVG。
+   他の行（🏆/🛍️/⚙️）は絵文字1文字＋半角スペースなので、
+   アイコン幅と gap をそれに合わせて字下げ位置を揃える。
+   光り方は、SVG内の赤いグローに加えて外側にも drop-shadow を重ね、
+   ゆっくり明滅させている。動かすのは filter と opacity だけ。 */
+#training-btn { gap: 6px; }
+.menu-cube-icon {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  display: block;
+  filter: drop-shadow(0 0 3px rgba(255, 45, 69, .55));
+  animation: pllt-icon-shine 2.8s ease-in-out infinite;
+}
+@keyframes pllt-icon-shine {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 45, 69, .40)); }
+  50%      { filter: drop-shadow(0 0 6px rgba(255, 45, 69, .80)); }
+}
+
 /* ---- PLL一覧からトレーニングへ入る導線 -------------------------------- */
 .pllt-open-btn {
   display: flex;
@@ -5892,11 +6074,11 @@
   .pllt-hud-item b { font-size: 14px; }
 }
 
-/* ---- 「見えた瞬間」モードの案内と、止まったことの合図 ----------------
+/* ---- 「分かったらタップ」の案内と、止まったことの合図 ----------------
    計測を止める操作なので、押せる場所であることと、止まったことの両方が
    ひと目で分かる必要がある。止まった合図はタイマーの色と、キューブが
-   一度だけ小さく沈む動きの2つ。どちらも合成だけで描ける。 */
-#pllt-overlay[data-timing="peek"] .pllt-stage-wrap { cursor: pointer; }
+   ❓に変わることの2つ。どちらも合成だけで描ける。 */
+.pllt-stage-wrap { cursor: pointer; }
 .pllt-peek-hint {
   position: absolute;
   left: 50%;
@@ -5911,25 +6093,62 @@
   letter-spacing: .06em;
   color: rgba(var(--tc-rgb), .8);
   pointer-events: none;
-  display: none;
 }
-#pllt-overlay[data-timing="peek"] .pllt-peek-hint { display: block; }
-#pllt-overlay.peeked .pllt-peek-hint { visibility: hidden; }
+/* 叩いたあと（❓）と、カウントダウン中は引っ込める。 */
+#pllt-overlay.peeked .pllt-peek-hint,
+#pllt-overlay.counting .pllt-peek-hint { visibility: hidden; }
 /* 計測が止まったことがひと目で分かるよう、タイマーを止め色にする。 */
 #pllt-overlay.peeked .pllt-hud-time b { color: #4fe0a8; }
 #pllt-overlay.peeked .pllt-hud-time .pllt-hud-label { color: #4fe0a8; opacity: .7; }
-/* 止めた瞬間にキューブが一度だけ小さく沈む。手ごたえの合図。 */
-#pllt-overlay.peeked .pllt-cube { animation: pllt-peek-tap 200ms ease-out; }
-@keyframes pllt-peek-tap {
-  0%   { transform: translateY(calc(var(--pllt-s) * 0.10)) rotateX(-26deg) rotateY(-38deg) scale(1); }
-  45%  { transform: translateY(calc(var(--pllt-s) * 0.10)) rotateX(-26deg) rotateY(-38deg) scale(.955); }
-  100% { transform: translateY(calc(var(--pllt-s) * 0.10)) rotateX(-26deg) rotateY(-38deg) scale(1); }
+/* ---- キューブを隠す2つの場面 ------------------------------------------
+   ① スタート直後のカウントダウン中（まだ問題は出ていない）
+   ② 「瞬間」モードで叩いたあと（見返せないようにする）
+   どちらも同じ仕掛けで、キューブを消してカバーの文字だけを見せる。
+   opacity と transform しか動かさないので描画は軽い。 */
+.pllt-cover {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  /* 不正解の「正解は◯◯」を読み飛ばすタップを塞がないよう、指は通す。 */
+  pointer-events: none;
+  z-index: 2;
+}
+#pllt-overlay.counting .pllt-cover,
+#pllt-overlay.peeked   .pllt-cover { display: flex; }
+#pllt-overlay.counting .pllt-stage,
+#pllt-overlay.peeked   .pllt-stage {
+  opacity: 0;
+  transform: scale(.94);
+  transition: opacity .12s ease, transform .12s ease;
+}
+.pllt-stage { transition: opacity .12s ease, transform .12s ease; }
+.pllt-cover-mark {
+  font-size: clamp(48px, 16vw, 88px);
+  font-weight: 900;
+  line-height: 1;
+  color: var(--tc);
+  font-variant-numeric: tabular-nums;
+}
+#pllt-overlay.peeked .pllt-cover-mark {
+  /* ❓ は絵文字なので色は乗らない。大きさだけ少し抑える。 */
+  font-size: clamp(40px, 13vw, 72px);
+  opacity: .85;
+}
+/* 数字が1つ進むたびに、大きめから素早く落ち着く。 */
+.pllt-cover-mark.tick { animation: pllt-tick 380ms cubic-bezier(.2, .9, .3, 1); }
+@keyframes pllt-tick {
+  0%   { transform: scale(1.5); opacity: 0; }
+  35%  { transform: scale(1);   opacity: 1; }
+  100% { transform: scale(1);   opacity: 1; }
 }
 
 /* 動きを減らす設定の端末では、フラッシュを控えめな一瞬に。 */
 @media (prefers-reduced-motion: reduce) {
   .pllt-flash.ok, .pllt-flash.ng { animation-duration: 120ms; }
   .pllt-ans:active { transform: none; }
-  #pllt-overlay.peeked .pllt-cube { animation: none; }
+  .pllt-cover-mark.tick { animation: none; }
+  .menu-cube-icon { animation: none; }
 }
 /* === PLL 2側面判断トレーナー : CSS ここまで ============================= */
