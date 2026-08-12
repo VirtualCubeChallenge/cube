@@ -6227,3 +6227,318 @@
   .menu-cube-icon { animation: none; }
 }
 /* === PLL 2側面判断トレーナー : CSS ここまで ============================= */
+
+/* =========================================================================
+   キューブスキン獲得演出（skin get） — ショップでスキンを引き換えた瞬間
+   -------------------------------------------------------------------------
+   方針
+   ・3D は Three.js ではなく CSS 3D（preserve-3d）で描く。本体の
+     WebGL キャンバスが動いている上に2つ目の WebGL 文脈を作ると、
+     スマホでは切り替えのたびに数百ms止まることがあるため。
+   ・光の粒・紙吹雪・きらめきは canvas 1枚にまとめて描く。DOM を
+     100個増やすとレイアウト計算が毎フレーム走って重くなる。
+   ・動かすのは transform と opacity だけ。幅や位置（left/top）は触らない。
+     ぼかし(filter)や半透明(opacity)は preserve-3d を平面に潰すので、
+     キューブ本体と親には掛けない（掛けるのは面＝末端だけ）。
+   ・画面の揺れは左右のみ。上下に振ると iPad でページごと跳ねる。
+   ・粒が尽きたら requestAnimationFrame を止める。開けっぱなしでも
+     電池を食わない。
+   ========================================================================= */
+
+/* ---- 土台 ------------------------------------------------------------- */
+.sg-overlay{
+  position: fixed; inset: 0; z-index: 10200;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 42%,
+              rgba(10,12,18,.80) 0%, rgba(4,5,8,.97) 58%, #020304 100%);
+  transition: opacity .22s ease;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+.sg-overlay[hidden]{ display: none; }   /* 作者スタイルの display が [hidden] に勝つため明示 */
+.sg-overlay.is-open{ opacity: 1; pointer-events: auto; }
+
+/* 粒の canvas。集光・軌跡・紙吹雪・きらめきを全部ここで描く */
+.sg-canvas{ position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+/* 中央に立ちのぼる光の柱。出現の瞬間だけ立ち上がり、あとは薄く残って
+   キューブを下から照らす。 */
+.sg-beam{
+  position: absolute; left: 50%; top: 42%;
+  width: min(52vw, 300px); height: 150vmax;
+  margin-left: calc(min(52vw, 300px) / -2);   /* 幅の半分。min の符号を取り違えないよう calc で割る */
+  transform: translateY(-50%) scaleY(.04); opacity: 0;
+  background: linear-gradient(90deg, transparent,
+              rgba(var(--tc-rgb), .34) 30%, rgba(255,255,255,.72) 50%,
+              rgba(var(--tc-rgb), .34) 70%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 34%, #000 66%, transparent);
+          mask-image: linear-gradient(to bottom, transparent, #000 34%, #000 66%, transparent);
+  pointer-events: none; will-change: transform, opacity;
+}
+.sg-beam.is-lit{ animation: sg-beam .9s cubic-bezier(.1,.9,.3,1) forwards, sg-beam-breathe 3.6s ease-in-out .9s infinite; }
+@keyframes sg-beam{
+  0%  { opacity: 0;  transform: translateY(-50%) scaleY(.04) scaleX(1.5); }
+  22% { opacity: 1;  transform: translateY(-50%) scaleY(1)   scaleX(1); }
+  100%{ opacity: .28; transform: translateY(-50%) scaleY(1)  scaleX(.62); }
+}
+@keyframes sg-beam-breathe{
+  0%,100%{ opacity: .22; } 50%{ opacity: .38; }
+}
+
+/* ---- 背後の光のライン（サンバースト）2枚を逆回転させる ---------------- */
+.sg-burst, .sg-burst2{
+  position: absolute; top: 42%; left: 50%;
+  width: 200vmax; height: 200vmax; margin: -100vmax 0 0 -100vmax;
+  opacity: 0; pointer-events: none;
+  transition: opacity .5s ease; will-change: transform;
+}
+.sg-burst{
+  background: conic-gradient(from 0deg,
+      rgba(var(--tc-rgb),.34) 0deg 4deg, transparent 4deg 18deg,
+      rgba(255,255,255,.20) 18deg 20deg, transparent 20deg 34deg,
+      rgba(var(--tc-rgb),.26) 34deg 40deg, transparent 40deg 60deg);
+  -webkit-mask-image: radial-gradient(closest-side, transparent 5%, #000 24%, transparent 60%);
+          mask-image: radial-gradient(closest-side, transparent 5%, #000 24%, transparent 60%);
+}
+.sg-burst2{
+  background: conic-gradient(from 12deg,
+      rgba(255,215,106,.22) 0deg 2deg, transparent 2deg 26deg,
+      rgba(255,255,255,.10) 26deg 27deg, transparent 27deg 45deg);
+  -webkit-mask-image: radial-gradient(closest-side, transparent 8%, #000 30%, transparent 68%);
+          mask-image: radial-gradient(closest-side, transparent 8%, #000 30%, transparent 68%);
+}
+.is-open .sg-burst.is-lit { opacity: .9;  animation: sg-spin 11s linear infinite; }
+.is-open .sg-burst2.is-lit{ opacity: .75; animation: sg-spin 17s linear infinite reverse; }
+@keyframes sg-spin{ to{ transform: rotate(360deg); } }
+
+/* キューブの真後ろの光だまり。ゆっくり脈打たせて「出っぱなし」に見せない */
+.sg-halo{
+  position: absolute; top: 42%; left: 50%;
+  width: 78vmin; height: 78vmin; margin: -39vmin 0 0 -39vmin;
+  border-radius: 50%; opacity: 0; pointer-events: none;
+  background: radial-gradient(circle,
+              rgba(var(--tc-rgb),.42) 0%, rgba(var(--tc-rgb),.16) 38%, transparent 68%);
+  transition: opacity .6s ease;
+}
+.sg-halo.is-lit{ opacity: 1; animation: sg-halo 2.8s ease-in-out infinite; }
+@keyframes sg-halo{
+  0%,100%{ transform: scale(1);    opacity: .85; }
+  50%    { transform: scale(1.09); opacity: 1; }
+}
+
+/* ---- 出現のフラッシュ（ホワイトアウト）------------------------------- */
+.sg-flash{
+  position: absolute; top: 42%; left: 50%; width: 220vmax; height: 220vmax;
+  margin: -110vmax 0 0 -110vmax; border-radius: 50%; opacity: 0;
+  background: radial-gradient(circle, #fff 0%, rgba(255,255,255,.95) 18%,
+              rgba(var(--tc-rgb),.62) 32%, transparent 52%);
+  pointer-events: none; will-change: transform, opacity;
+}
+.sg-flash.is-fire{ animation: sg-flash .78s cubic-bezier(.2,.85,.3,1) forwards; }
+@keyframes sg-flash{
+  0%  { opacity: 0;   transform: scale(.06); }
+  10% { opacity: 1;   transform: scale(.30); }
+  34% { opacity: .85; transform: scale(.52); }
+  100%{ opacity: 0;   transform: scale(.92); }
+}
+
+/* ---- 衝撃波の輪（出現の瞬間と着地の瞬間に広がる）---------------------- */
+.sg-rings{ position: absolute; top: 42%; left: 50%; pointer-events: none; }
+.sg-ring{
+  position: absolute; top: 0; left: 0; width: 34vmin; height: 34vmin;
+  margin: -17vmin 0 0 -17vmin; border-radius: 50%; opacity: 0;
+  border: 2px solid rgba(255,255,255,.9);
+  box-shadow: 0 0 26px rgba(var(--tc-rgb),.75), inset 0 0 22px rgba(var(--tc-rgb),.45);
+  will-change: transform, opacity;
+}
+.sg-ring.go{ animation: sg-ring .95s cubic-bezier(.12,.75,.25,1) forwards; }
+.sg-ring.r2.go{ animation-delay: .10s; }
+.sg-ring.r3.go{ animation-delay: .22s; }
+@keyframes sg-ring{
+  0%  { opacity: 0;   transform: scale(.18); border-width: 6px; }
+  12% { opacity: 1; }
+  100%{ opacity: 0;   transform: scale(3.6); border-width: 1px; }
+}
+
+/* ---- 中身の並び ------------------------------------------------------- */
+.sg-stack{
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; align-items: center;
+  gap: clamp(16px, 4.4vh, 30px);
+  padding: 24px 20px calc(24px + env(safe-area-inset-bottom));
+  will-change: transform;
+}
+/* 画面の揺れ。上下に振ると iPad でページごと跳ねるので左右だけ。 */
+.sg-stack.is-shake{ animation: sg-shake .42s cubic-bezier(.36,.07,.19,.97); }
+@keyframes sg-shake{
+  0%,100%{ transform: translate3d(0,0,0); }
+  12%{ transform: translate3d(-9px,0,0); } 26%{ transform: translate3d(8px,0,0); }
+  42%{ transform: translate3d(-6px,0,0); } 58%{ transform: translate3d(5px,0,0); }
+  74%{ transform: translate3d(-3px,0,0); } 88%{ transform: translate3d(2px,0,0); }
+}
+
+/* ---- キューブ（CSS 3D）------------------------------------------------
+   決めポーズは --px / --py の2つだけ。角度を変えたいときはここを直せば
+   出現アニメの終わりも一緒に動く（キーフレーム側でも同じ変数を読む）。 */
+.sg-stage{
+  --s: clamp(112px, 36vw, 178px);   /* 1面の1辺 */
+  --px: -26deg;                      /* 決めポーズ：ななめ上から */
+  --py: -38deg;
+  width: var(--s); height: var(--s);
+  perspective: 820px;
+  filter: drop-shadow(0 16px 34px rgba(0,0,0,.6));
+}
+.sg-float{ width: 100%; height: 100%; transform-style: preserve-3d; }
+.sg-float.is-idle{ animation: sg-bob 3.4s ease-in-out .2s infinite; }
+@keyframes sg-bob{
+  0%,100%{ transform: translate3d(0,0,0); }
+  50%    { transform: translate3d(0,-8px,0); }
+}
+.sg-cube{
+  position: relative; width: 100%; height: 100%;
+  transform-style: preserve-3d;
+  transform: scale(.06) rotateX(-200deg) rotateY(-900deg);
+  visibility: hidden; will-change: transform;
+}
+.sg-cube.is-in{ animation: sg-arrive 1.25s cubic-bezier(.16,.86,.28,1) forwards; }
+@keyframes sg-arrive{
+  /* 出だしは目で追えないほど速く回し、行きすぎ → 沈む → 戻すの3拍で着地 */
+  0%  { visibility: visible; transform: scale(.06) rotateX(-200deg) rotateY(-900deg); }
+  46% { transform: scale(1.34) rotateX(calc(var(--px) - 22deg)) rotateY(calc(var(--py) + 130deg)); }
+  62% { transform: scale(1.16) rotateX(calc(var(--px) - 8deg))  rotateY(calc(var(--py) + 42deg)); }
+  76% { transform: scale(.88)  rotateX(var(--px)) rotateY(calc(var(--py) - 12deg)); }
+  88% { transform: scale(1.07) rotateX(var(--px)) rotateY(calc(var(--py) + 4deg)); }
+  100%{ visibility: visible; transform: scale(1) rotateX(var(--px)) rotateY(var(--py)); }
+}
+/* 着地の瞬間に一度だけ光をまとう（面ごとに掛けるので 3D は潰れない） */
+.sg-cube.is-land .sg-face{ animation: sg-face-flash .55s ease-out; }
+@keyframes sg-face-flash{
+  0%  { filter: brightness(3.2) saturate(.4); }
+  100%{ filter: brightness(1)   saturate(1); }
+}
+.sg-face{
+  position: absolute; inset: 0;
+  background-color: #1b1d24;
+  background-image: var(--sg-img, none);
+  background-size: cover; background-position: center;
+  border-radius: 6px;
+  backface-visibility: hidden;
+}
+/* ステッカーの目地。写真の上に白い細線を引くだけで「キューブに刷られた」
+   ように見える。本編の完成マークと同じ考え方。 */
+.sg-face::after{
+  content: ""; position: absolute; inset: 0; border-radius: 6px;
+  background:
+    linear-gradient(to right, transparent 32.4%, rgba(255,255,255,.62) 32.4% 34.2%,
+      transparent 34.2% 65.8%, rgba(255,255,255,.62) 65.8% 67.6%, transparent 67.6%),
+    linear-gradient(to bottom, transparent 32.4%, rgba(255,255,255,.62) 32.4% 34.2%,
+      transparent 34.2% 65.8%, rgba(255,255,255,.62) 65.8% 67.6%, transparent 67.6%);
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.72);
+}
+/* 面ごとの明るさで立体感を出す（影は落とさない＝黒くしない）。
+   .is-land の間だけ brightness アニメに主導権を渡す。 */
+.sg-f-u{ transform: rotateX( 90deg) translateZ(calc(var(--s) / 2)); filter: brightness(1.14); }
+.sg-f-d{ transform: rotateX(-90deg) translateZ(calc(var(--s) / 2)); filter: brightness(.80); }
+.sg-f-f{ transform: translateZ(calc(var(--s) / 2)); }
+.sg-f-b{ transform: rotateY(180deg) translateZ(calc(var(--s) / 2)); filter: brightness(.86); }
+.sg-f-r{ transform: rotateY( 90deg) translateZ(calc(var(--s) / 2)); filter: brightness(1.04); }
+.sg-f-l{ transform: rotateY(-90deg) translateZ(calc(var(--s) / 2)); filter: brightness(.90); }
+
+/* 色だけのスキン（写真なし）のときの見た目 */
+.sg-cube.is-plain .sg-face{
+  background-image: linear-gradient(150deg, rgba(255,255,255,.22), transparent 60%);
+  background-color: var(--sg-plain-color, #2a2d36);
+}
+
+/* ---- 文字まわり ------------------------------------------------------- */
+.sg-text{ display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+
+.sg-get{
+  font-family: 'Orbitron', sans-serif; font-weight: 900;
+  font-size: clamp(38px, 13vw, 68px); line-height: 1;
+  letter-spacing: .06em;
+  /* 金色の帯を横に流して、文字そのものを光らせる */
+  background: linear-gradient(100deg,
+      #fff 0%, var(--jp-gold, #ffd76a) 26%, #fff6d2 42%,
+      var(--jp-gold, #ffd76a) 58%, #ffae2e 100%);
+  background-size: 280% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent; -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 1.5px rgba(255,255,255,.34);
+  filter: drop-shadow(0 0 20px rgba(255,215,106,.6)) drop-shadow(0 3px 0 rgba(0,0,0,.35));
+  opacity: 0; transform: scale(.5);
+}
+.sg-get.is-in{
+  animation: sg-pop .6s cubic-bezier(.16,1.7,.36,1) forwards,
+             sg-shine 2.4s linear .5s infinite;
+}
+@keyframes sg-pop{
+  0%  { opacity: 0; transform: scale(.45) translateY(18px); }
+  55% { opacity: 1; transform: scale(1.22) translateY(0); }
+  75% { transform: scale(.95); }
+  100%{ opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes sg-shine{ 0%{ background-position: 180% 0; } 100%{ background-position: -80% 0; } }
+
+.sg-kind{
+  font-size: 12px; letter-spacing: .2em;
+  color: rgba(var(--tc-rgb), .9);
+  text-shadow: 0 0 12px rgba(var(--tc-rgb), .6);
+  opacity: 0; transform: translateY(10px);
+}
+.sg-name{
+  position: relative;
+  font-size: clamp(19px, 5.6vw, 26px); font-weight: 700; color: #fff;
+  padding: 4px 18px; border-radius: 999px;
+  opacity: 0; transform: translateY(12px);
+  text-shadow: 0 0 16px rgba(var(--tc-rgb), .55);
+  box-shadow: inset 0 0 0 1px rgba(var(--tc-rgb), .35),
+              0 0 22px rgba(var(--tc-rgb), .22);
+  background: rgba(255,255,255,.05);
+}
+.sg-kind.is-in, .sg-name.is-in{ animation: sg-rise .42s ease forwards; }
+.sg-name.is-in{ animation: sg-rise .42s ease .06s forwards, sg-name-glow 2.6s ease-in-out .5s infinite; }
+@keyframes sg-rise{ to{ opacity: 1; transform: translateY(0); } }
+@keyframes sg-name-glow{
+  0%,100%{ box-shadow: inset 0 0 0 1px rgba(var(--tc-rgb),.35), 0 0 18px rgba(var(--tc-rgb),.18); }
+  50%    { box-shadow: inset 0 0 0 1px rgba(var(--tc-rgb),.6),  0 0 34px rgba(var(--tc-rgb),.4); }
+}
+
+.sg-ok{
+  margin-top: 2px;
+  min-width: 172px; padding: 13px 30px;
+  font: inherit; font-size: 16px; font-weight: 700; color: #06110f;
+  background: linear-gradient(180deg, #fff 0%, rgba(var(--tc-rgb), 1) 100%);
+  border: 0; border-radius: 999px; cursor: pointer;
+  box-shadow: 0 0 26px rgba(var(--tc-rgb), .42), 0 6px 18px rgba(0,0,0,.45);
+  opacity: 0; transform: translateY(14px);
+  -webkit-tap-highlight-color: transparent;
+}
+.sg-ok.is-in{ animation: sg-rise .4s ease .12s forwards, sg-ok-pulse 2.2s ease-in-out .6s infinite; }
+@keyframes sg-ok-pulse{
+  0%,100%{ box-shadow: 0 0 22px rgba(var(--tc-rgb),.34), 0 6px 18px rgba(0,0,0,.45); }
+  50%    { box-shadow: 0 0 40px rgba(var(--tc-rgb),.6),  0 6px 18px rgba(0,0,0,.45); }
+}
+.sg-ok:active{ transform: translateY(1px) scale(.97); }
+.sg-ok:focus-visible{ outline: 3px solid #fff; outline-offset: 3px; }
+
+/* ---- 動きを減らす設定のとき ------------------------------------------
+   出す情報は同じまま、回転・粒・発光・揺れだけをやめる。 */
+@media (prefers-reduced-motion: reduce){
+  .sg-cube.is-in{ animation: sg-arrive-calm .3s ease forwards; }
+  @keyframes sg-arrive-calm{
+    from{ visibility: visible; transform: scale(.9) rotateX(var(--px)) rotateY(var(--py)); }
+    to  { visibility: visible; transform: scale(1)  rotateX(var(--px)) rotateY(var(--py)); }
+  }
+  .sg-cube.is-land .sg-face{ animation: none; }
+  .sg-float.is-idle{ animation: none; }
+  .sg-stack.is-shake{ animation: none; }
+  .sg-beam.is-lit{ animation: none; opacity: .2; transform: translateY(-50%) scaleY(1) scaleX(.62); }
+  .sg-halo.is-lit{ animation: none; }
+  .is-open .sg-burst.is-lit, .is-open .sg-burst2.is-lit{ animation: none; opacity: .28; }
+  .sg-flash.is-fire, .sg-ring.go{ animation: none; }
+  .sg-get.is-in, .sg-kind.is-in, .sg-name.is-in, .sg-ok.is-in{
+    animation: sg-rise .2s ease forwards;
+  }
+}
