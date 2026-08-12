@@ -2724,3 +2724,29 @@
     });
   });
 })();
+
+/* =========================================================================
+   限定スキン「スイカ」の表示名（ショップのキューブスキン欄）
+   既存の辞書は触らず、無いキーだけを足すマージ方式。
+   演出中に出る「SUMMER!」は非翻訳（GET! と同じ扱い）なのでキーは1つだけ。
+   ========================================================================= */
+(function () {
+  if (typeof I18N === 'undefined') return;
+  var MELON_I18N = {
+    'ja':    { shopMarkWatermelon: 'スイカ' },
+    'en':    { shopMarkWatermelon: 'Watermelon' },
+    'zh-CN': { shopMarkWatermelon: '西瓜' },
+    'zh-TW': { shopMarkWatermelon: '西瓜' },
+    'ko':    { shopMarkWatermelon: '수박' },
+    'es':    { shopMarkWatermelon: 'Sandía' },
+    'id':    { shopMarkWatermelon: 'Semangka' },
+    'ru':    { shopMarkWatermelon: 'Арбуз' },
+    'pt-BR': { shopMarkWatermelon: 'Melancia' }
+  };
+  Object.keys(MELON_I18N).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(MELON_I18N[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = MELON_I18N[lang][k];
+    });
+  });
+})();
