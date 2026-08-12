@@ -7245,14 +7245,13 @@ const PLL_DATA = {
           <span class="pllt-cover-mark" id="pllt-cover-mark">3</span>
         </div>
         <div class="pllt-stage" aria-hidden="true">
-          <!-- 側面は4つとも用意しておく。どの2面が見えるかは、キューブを
-               回した向きと backface-visibility が決める。JS側は「どの面が
-               見えているか」を気にしなくてよい。 -->
+          <!-- 手前2アングル(FR/FL)から見える F・R・L の3面を置く。どの2面が
+               見えるかは、キューブを回した向きと backface-visibility が
+               決めるので、JS側は「どの面が見えているか」を気にしなくてよい。 -->
           <div class="pllt-cube" id="pllt-cube">
             <div class="pllt-face pllt-face-u" id="pllt-face-u"></div>
             <div class="pllt-face pllt-face-f" id="pllt-face-f"></div>
             <div class="pllt-face pllt-face-r" id="pllt-face-r"></div>
-            <div class="pllt-face pllt-face-b" id="pllt-face-b"></div>
             <div class="pllt-face pllt-face-l" id="pllt-face-l"></div>
           </div>
         </div>
@@ -9869,11 +9868,11 @@ const PllTrainer = (function () {
      覗くかを決めるのがアングル。角に立つと、時計回りで手前にくる面が
      視界の右、その次の面が視界の左に見える。
 
-       FR … 視界の左=F  右=R      FL … 左=L  右=F
-       BR … 左=R  右=B            BL … 左=B  右=L
+       FR … 視界の左=F  右=R
+       FL … 視界の左=L  右=F
 
-     spin はキューブの見た目の回し量。90度ずつではなく ±38 / ±142 と
-     対称に取ってあるので、どのアングルでも2面の見え方の比率が同じになる。
+     spin はキューブの見た目の回し量。±38 と対称に取ってあるので、
+     どちらのアングルでも2面の見え方の比率が同じになる。
 
      ▼ AUF との関係（重要・注意点にも書いた）
        視界に入る6マスは、リング上の連続した6つを逆順に読んだもの。
@@ -9882,19 +9881,23 @@ const PllTrainer = (function () {
        “模様”はアングルを増やしても増えない。増えるのは、その模様に
        どの絶対色が乗るか（と、下2段のF2Lの色）だけ。
        だからアングルは難易度ではなく、色の丸暗記を防ぐための変化として
-       扱う。判定に使う正解のPLL名は、AUFにもアングルにも影響されない。 */
+       扱う。判定に使う正解のPLL名は、AUFにもアングルにも影響されない。
+
+     ▼ 奥から覗くアングル(BR/BL)は入れていない
+       実際に持っているキューブを奥から見ることはないので、練習として
+       の意味が薄い。増やすなら ANGLES に足して spin を ±142 にすれば
+       そのまま動くが、B面のDOMを戻す必要がある。 */
   const ANGLES = {
-    FR: { left: 'F', right: 'R', spin:  -38 },
-    FL: { left: 'L', right: 'F', spin:   38 },
-    BR: { left: 'R', right: 'B', spin: -142 },
-    BL: { left: 'B', right: 'L', spin:  142 }
+    FR: { left: 'F', right: 'R', spin: -38 },
+    FL: { left: 'L', right: 'F', spin:  38 }
   };
-  const ANGLE_KEYS = ['FR', 'FL', 'BR', 'BL'];
+  const ANGLE_KEYS = ['FR', 'FL'];
 
   // 各面の上段3マス（その面を正面から見て左→右）が、リングのどの位置か。
   // どの面も「自分の3つを逆順に読む」だけで揃う。
-  const FACE_RING = { B: [2, 1, 0], R: [5, 4, 3], F: [8, 7, 6], L: [11, 10, 9] };
-  const SIDES = ['F', 'R', 'B', 'L'];
+  // 手前2アングルからは後面が見えないので、後面は持たない。
+  const FACE_RING = { R: [5, 4, 3], F: [8, 7, 6], L: [11, 10, 9] };
+  const SIDES = ['F', 'R', 'L'];
 
   /* ---- 12マスのリングと AUF ------------------------------------------- */
   // PLL_DATA の並び（後3・左3・右3・前3）を、上から見て時計回りの
@@ -10060,8 +10063,8 @@ const PllTrainer = (function () {
   /* ---- DOM ------------------------------------------------------------- */
   const el = {};
   // 側面4つぶんの上段（毎問ここだけ書き換える）と、動かない下2段。
-  const topCells = { F: [], R: [], B: [], L: [] };
-  const lowCells = { F: [], R: [], B: [], L: [] };
+  const topCells = { F: [], R: [], L: [] };
+  const lowCells = { F: [], R: [], L: [] };
   let uCells = [];
   let built = false;
   let rafId = 0;
@@ -10074,7 +10077,7 @@ const PllTrainer = (function () {
     // U と側面4つで45マス。裏を向いた面は backface-visibility で消えるので、
     // アングルを変えても「見える2面だけが出る」ことはCSS側が保証してくれる。
     // 側面の2段目3段目はそろった状態の単色なので、配色を変えたときだけ塗る。
-    ['u', 'f', 'r', 'b', 'l'].forEach((face) => {
+    ['u', 'f', 'r', 'l'].forEach((face) => {
       const faceEl = q('pllt-face-' + face);
       if (!faceEl || faceEl.childElementCount) return;
       for (let i = 0; i < 9; i++) {
