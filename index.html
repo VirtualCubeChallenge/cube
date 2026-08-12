@@ -1441,6 +1441,10 @@
       var dist = camera.position.length();
       var k = Math.max(0.7, Math.min(4.5, dist / 7));
 
+      // 粒ごとの色は three r128 の setColorAt を使う。無い版に当たっても
+      // 「赤一色で飛ぶ」に落として、演出そのものは必ず出す。
+      var canTint = (typeof shards.setColorAt === 'function');
+
       cubeGroup.getWorldPosition(_v);
       var ox = _v.x, oy = _v.y, oz = _v.z;
 
@@ -1467,8 +1471,9 @@
         if (roll < 0.60) { p.size = (0.8 + Math.random() * 0.9) * k; _col.set(Math.random() < 0.4 ? '#ff5064' : C.flesh); }
         else if (roll < 0.80) { p.size = (0.45 + Math.random() * 0.25) * k; _col.set(C.seed); }
         else { p.size = (0.3 + Math.random() * 0.4) * k; _col.set(C.juice); }
-        shards.setColorAt(i, _col);
+        if (canTint) shards.setColorAt(i, _col);
       }
+      if (!canTint) { shardMat.color.set(C.flesh); return; }
       if (shards.instanceColor) shards.instanceColor.needsUpdate = true;
       // 初回だけ、インスタンス色を使うシェーダに切り替えてもらう。
       if (!shardColorReady) { shardColorReady = true; shardMat.needsUpdate = true; }
@@ -1553,7 +1558,24 @@
       var growMs = (CFG.T_POSE - CFG.T_SPLIT) * 1.3;
 
       var last = t0;
-      raf = requestAnimationFrame(function step(now) {
+      // 途中で例外が出たら、皮をかぶったまま固まらせずに
+      // 「割れ終わった状態」まで飛ばして畳む。黙って固まるのがいちばん困る。
+      function safeStep(now) {
+        try { step(now); }
+        catch (err) {
+          if (window.console) console.warn('WatermelonFX:', err);
+          raf = null; playing = false;
+          if (camShakeY) { camera.position.y -= camShakeY; camShakeY = 0; }
+          shellL.visible = shellR.visible = false;
+          if (shellL.parent) shellL.parent.remove(shellL);
+          if (shellR.parent) shellR.parent.remove(shellR);
+          if (shards) { shards.visible = false; if (shards.parent) shards.parent.remove(shards); }
+          fleshCube.visible = true;
+          fleshCube.scale.set(1, 1, 1);
+        }
+      }
+      raf = requestAnimationFrame(safeStep);
+      function step(now) {
         var el = now - t0;
         var dt = Math.min(now - last, 34);
         last = now;
@@ -1607,7 +1629,7 @@
         }
 
         if (el < CFG.T_END || alive) {
-          raf = requestAnimationFrame(step);
+          raf = requestAnimationFrame(safeStep);
         } else {
           // 粒が尽きたら rAF を止める。以後、果肉キューブは静止したまま
           // 残り続けるので、毎フレーム何かを計算する必要はない。
@@ -1617,7 +1639,7 @@
           scene.remove(shards);
           fleshCube.scale.set(1, 1, 1);
         }
-      });
+      }
     }
 
     // 1手でも動かしたら片づける（既存スキンの hideSolvedMark と同じ扱い）
@@ -6191,6 +6213,11 @@ const PLL_DATA = {
     }
 
     function showSolvedMark() {
+      // スイカスキンは「写真を6面に貼る」仕組みではなく WatermelonFX が
+      // 中身なので、ここは丸ごと素通りさせる。下の hideSolvedMark() まで
+      // 進むと、完成の980ms後にこれが呼ばれた時点で、出したばかりの
+      // スイカ(果肉キューブ)を自分で消してしまう。
+      if (window.WatermelonFX && WatermelonFX.isEquipped()) return;
       hideSolvedMark();
       const url = (window.Shop && typeof Shop.getMarkImage === 'function')
         ? Shop.getMarkImage() : null;
