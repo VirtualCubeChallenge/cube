@@ -5664,13 +5664,13 @@
   overflow: hidden;
 }
 /* 正準的な CSS キューブの置き方。translateZ で半辺ぶん押し出す。
-   側面は4つとも置き、裏を向いたものは backface-visibility で消す。
+   側面は見える可能性のある3つを置き、裏を向いたものは
+   backface-visibility で消す。
    これで「見える2面だけが出る」ことをCSSが保証してくれるので、
    JS側は毎問4面ぶん塗るだけでよく、どれが見えているかを判定しない。 */
 .pllt-face-f { transform: translateZ(calc(var(--pllt-s) / 2)); }
 .pllt-face-u { transform: rotateX(90deg) translateZ(calc(var(--pllt-s) / 2)); }
 .pllt-face-r { transform: rotateY(90deg) translateZ(calc(var(--pllt-s) / 2)); }
-.pllt-face-b { transform: rotateY(180deg) translateZ(calc(var(--pllt-s) / 2)); }
 .pllt-face-l { transform: rotateY(-90deg) translateZ(calc(var(--pllt-s) / 2)); }
 .pllt-sticker {
   display: block;
@@ -5691,8 +5691,7 @@
   pointer-events: none;
 }
 .pllt-face-u::after { background: rgba(255,255,255,.13); }
-.pllt-face-f::after, .pllt-face-r::after,
-.pllt-face-b::after, .pllt-face-l::after {
+.pllt-face-f::after, .pllt-face-r::after, .pllt-face-l::after {
   background: linear-gradient(rgba(255,255,255,.06), rgba(255,255,255,0));
 }
 
@@ -5744,6 +5743,9 @@
   grid-auto-rows: minmax(44px, auto);
   gap: 5px;
 }
+/* グリッドの子は既定で内容幅より小さくならない。これを外さないと、
+   横に詰めたときに最後のボタンが枠から押し出される。 */
+.pllt-group-row > .pllt-ans { min-width: 0; }
 .pllt-ans {
   border-radius: 10px;
   background: rgba(var(--g), .08);
@@ -5770,11 +5772,23 @@
   color: #4fe0a8;
   background: rgba(79, 224, 168, .16);
 }
-/* 画面が広いときは、4グループを横に並べて指の移動距離を短くする。 */
-@media (min-width: 560px) {
-  .pllt-answers { flex-direction: row; align-items: flex-start; gap: 10px; }
-  .pllt-group { flex: 1 1 0; }
-  .pllt-group.g3 { flex: 2 1 0; }
+/* ---- 大きな画面（タブレットなど）---------------------------------------
+   幅いっぱいに引き伸ばすと、ボタンが横に痩せるうえ、グリッドの子は
+   既定で内容より小さくならないので最後のグループが画面外へはみ出す。
+   ①全体を中央に寄せて幅の上限を決める ②グリッドの子に min-width:0 を
+   入れてはみ出しを止める ③空いた縦の余白はキューブを大きくして埋める。 */
+@media (min-width: 640px) {
+  .pllt-drill { padding: 14px 14px calc(14px + env(safe-area-inset-bottom, 0px)); gap: 12px; }
+  .pllt-hud,
+  .pllt-answers { width: 100%; max-width: 660px; margin: 0 auto; }
+  .pllt-stage { --pllt-s: clamp(140px, min(38vw, 27vh), 300px); }
+  .pllt-answers { gap: 10px; }
+  .pllt-group-row { grid-auto-rows: minmax(54px, auto); gap: 8px; }
+  .pllt-group-label { font-size: 11px; }
+  .pllt-ans { font-size: 20px; border-radius: 12px; }
+  .pllt-hud { padding: 10px 48px 10px 10px; }
+  .pllt-hud-item b { font-size: 18px; }
+  .pllt-hud-label { font-size: 10px; }
 }
 
 /* ---- 正誤フラッシュ ---------------------------------------------------
@@ -6097,6 +6111,23 @@
   font-size: 10px;
   font-weight: 600;
   opacity: .75;
+}
+
+/* 横に広くて縦が足りないとき（タブレットの横向きなど）は、キューブと
+   回答を左右に分ける。縦に積むとキューブが潰れるか、ボタンが画面外に
+   出てしまうため。 */
+@media (min-width: 900px) and (min-aspect-ratio: 1/1) {
+  .pllt-drill {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    align-items: center;
+    column-gap: 20px;
+  }
+  .pllt-hud { grid-column: 1 / -1; max-width: none; }
+  .pllt-stage-wrap { grid-column: 1; min-height: 0; }
+  .pllt-answers { grid-column: 2; max-width: 520px; }
+  .pllt-stage { --pllt-s: clamp(140px, min(26vw, 40vh), 320px); }
 }
 
 /* 縦の狭い端末では、回答ボタンを詰めてキューブの居場所を確保する。 */
