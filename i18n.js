@@ -2393,6 +2393,7 @@
 (function addPllTrainerStrings() {
   const PLLT_I18N = {
     "ja": {
+      menuTraining:"🎯 トレーニング",
       plltOpen:"2側面判断トレーニング", plltOpenSub:"見えている2面だけで当てる",
       plltTitle:"PLL 2側面判断", plltLead:"持ち替えず、見えている2面だけで当てる",
       plltCount:"問題数", plltUColor:"上面の色", plltUColorHint:"複数選べます。選んだ色からランダムに出ます。",
@@ -2424,6 +2425,7 @@
       plltShareText:"PLL 2側面判断トレーニング\n{count}問 ／ 正答率 {acc}% ／ 平均判別 {avg}秒\n#ルービックキューブ #PLL"
     },
     "en": {
+      menuTraining:"🎯 Training",
       plltOpen:"2-sided recognition", plltOpenSub:"Name the case from two faces",
       plltTitle:"PLL 2-sided recognition", plltLead:"Name the case from the two faces you can see",
       plltCount:"Questions", plltUColor:"Top colour", plltUColorHint:"Pick as many as you like — the top colour is drawn at random from your selection.",
@@ -2455,6 +2457,7 @@
       plltShareText:"PLL 2-sided recognition\n{count} cases / {acc}% correct / {avg}s average\n#rubikscube #PLL"
     },
     "zh-CN": {
+      menuTraining:"🎯 训练",
       plltOpen:"两面判断训练", plltOpenSub:"只看两个可见面来判断",
       plltTitle:"PLL 两面判断", plltLead:"不转动魔方，只凭看得见的两个面判断",
       plltCount:"题数", plltUColor:"顶面颜色", plltUColorHint:"可以多选。顶面颜色会从所选颜色中随机出现。",
@@ -2486,6 +2489,7 @@
       plltShareText:"PLL 两面判断训练\n{count}题 ／ 正确率 {acc}% ／ 平均判断 {avg}秒\n#魔方 #PLL"
     },
     "zh-TW": {
+      menuTraining:"🎯 訓練",
       plltOpen:"兩面判斷訓練", plltOpenSub:"只看兩個可見面來判斷",
       plltTitle:"PLL 兩面判斷", plltLead:"不轉動魔方，只憑看得見的兩個面判斷",
       plltCount:"題數", plltUColor:"頂面顏色", plltUColorHint:"可以多選。頂面顏色會從所選顏色中隨機出現。",
@@ -2517,6 +2521,7 @@
       plltShareText:"PLL 兩面判斷訓練\n{count}題 ／ 正確率 {acc}% ／ 平均判斷 {avg}秒\n#魔術方塊 #PLL"
     },
     "ko": {
+      menuTraining:"🎯 트레이닝",
       plltOpen:"두 면 판단 훈련", plltOpenSub:"보이는 두 면만으로 맞히기",
       plltTitle:"PLL 두 면 판단", plltLead:"큐브를 돌리지 않고, 보이는 두 면만으로 맞혀 보세요",
       plltCount:"문제 수", plltUColor:"윗면 색", plltUColorHint:"여러 개 고를 수 있습니다. 고른 색 중에서 무작위로 나옵니다.",
@@ -2548,6 +2553,7 @@
       plltShareText:"PLL 두 면 판단 훈련\n{count}문제 / 정답률 {acc}% / 평균 판단 {avg}초\n#루빅스큐브 #PLL"
     },
     "es": {
+      menuTraining:"🎯 Entrenamiento",
       plltOpen:"Reconocimiento a 2 caras", plltOpenSub:"Acierta viendo solo dos caras",
       plltTitle:"PLL a dos caras", plltLead:"Identifica el caso solo con las dos caras que ves",
       plltCount:"Preguntas", plltUColor:"Color de arriba", plltUColorHint:"Puedes elegir varios: el color de arriba sale al azar entre los marcados.",
@@ -2579,6 +2585,7 @@
       plltShareText:"Reconocimiento de PLL a dos caras\n{count} casos / {acc}% de aciertos / {avg}s de media\n#cuborubik #PLL"
     },
     "id": {
+      menuTraining:"🎯 Latihan",
       plltOpen:"Latihan baca 2 sisi", plltOpenSub:"Tebak hanya dari dua sisi",
       plltTitle:"PLL 2 sisi", plltLead:"Tebak kasusnya hanya dari dua sisi yang terlihat",
       plltCount:"Jumlah soal", plltUColor:"Warna atas", plltUColorHint:"Bisa pilih lebih dari satu — warna atas diambil acak dari yang dipilih.",
@@ -2610,6 +2617,7 @@
       plltShareText:"Latihan baca PLL 2 sisi\n{count} soal / akurasi {acc}% / rata-rata {avg} detik\n#rubik #PLL"
     },
     "ru": {
+      menuTraining:"🎯 Тренировка",
       plltOpen:"Распознавание по 2 граням", plltOpenSub:"Угадай по двум видимым граням",
       plltTitle:"PLL по двум граням", plltLead:"Определи случай только по двум видимым граням",
       plltCount:"Вопросов", plltUColor:"Цвет верха", plltUColorHint:"Можно выбрать несколько — цвет верха берётся случайно из отмеченных.",
@@ -2641,6 +2649,7 @@
       plltShareText:"Тренировка PLL по двум граням\n{count} случаев / точность {acc}% / среднее {avg} с\n#кубикрубика #PLL"
     },
     "pt-BR": {
+      menuTraining:"🎯 Treino",
       plltOpen:"Leitura de 2 faces", plltOpenSub:"Acerte vendo só duas faces",
       plltTitle:"PLL em 2 faces", plltLead:"Identifique o caso só pelas duas faces visíveis",
       plltCount:"Questões", plltUColor:"Cor de cima", plltUColorHint:"Pode marcar vários — a cor de cima sai ao acaso entre as escolhidas.",

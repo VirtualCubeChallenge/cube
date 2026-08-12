@@ -203,6 +203,7 @@
       </button>
       <div class="menu-actions" id="menu-actions" role="menu">
         <button class="action-btn" id="records-btn" role="menuitem" data-i18n="menuRecords">🏆 記録</button>
+        <button class="action-btn" id="training-btn" role="menuitem" data-i18n="menuTraining">🎯 トレーニング</button>
         <button class="action-btn" id="shop-btn" role="menuitem" data-i18n="menuShop">🛍️ ショップ</button>
         <button class="action-btn" id="settings-btn" role="menuitem" data-i18n="menuSettings">⚙️ 設定</button>
       </div>
@@ -742,8 +743,9 @@
       </div>
       <p class="settings-hint oll-mode-hint" id="pll-mode-hint">今のキューブに手順を実行します（OLLまで揃った状態で使ってください）</p>
 
-      <!-- 2側面判断トレーニングへの入口。手順を覚えたあとの「判断の速さ」を
-           鍛える場所なので、一覧のすぐ上に置いてある。 -->
+      <!-- 2側面判断トレーニングへの入口。ドロワーの「トレーニング」からも
+           入れるが、手順を覚えた流れでそのまま判断練習へ行けるよう
+           一覧のすぐ上にも置いてある。 -->
       <button class="pllt-open-btn" id="pllt-open">
         <span class="pllt-open-name" data-i18n="plltOpen">2側面判断トレーニング</span>
         <span class="pllt-open-sub" data-i18n="plltOpenSub">見えている2面だけで当てる</span>
@@ -10505,12 +10507,19 @@ const PllTrainer = (function () {
 
   loadStore();
 
-  // PLL一覧の中の導線。ここだけは open() を待たずに繋いでおく必要がある
+  // 入口は2か所。どちらも open() を待たずに繋いでおく必要がある
   // （このボタンを押すことが open() のきっかけそのものなので）。
   (function bindEntry() {
+    // ① ドロワーメニューの「トレーニング」。押したらドロワーは閉じる。
+    //    種目が増えたらここを一覧画面に差し替える。
+    const menuBtn = q('training-btn');
+    if (menuBtn) {
+      if (typeof menuAction === 'function') menuAction(menuBtn, open);
+      else menuBtn.addEventListener('click', open);
+    }
+    // ② PLL一覧の中の導線。こちらから来たときは閉じたら一覧へ戻す。
     const entry = q('pllt-open');
-    if (!entry) return;
-    entry.addEventListener('click', () => {
+    if (entry) entry.addEventListener('click', () => {
       const pll = q('pll-overlay');
       if (pll) { pll.classList.remove('show'); cameFromPll = true; }
       open();
