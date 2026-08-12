@@ -5451,7 +5451,13 @@
   margin-bottom: 6px;
   letter-spacing: .04em;
 }
-.pllt-tabs, .pllt-modes { display: flex; gap: 6px; }
+/* 問題数は8つあるので、横1列ではなく4列×2段。 */
+.pllt-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.pllt-modes { display: flex; gap: 6px; }
 .pllt-tab, .pllt-mode {
   flex: 1 1 0;
   min-width: 0;
@@ -5633,8 +5639,12 @@
   width: var(--pllt-s);
   height: var(--pllt-s);
   transform-style: preserve-3d;
-  /* FR面とU面がはっきり見える、実戦に近い角度で固定。 */
-  transform: translateY(calc(var(--pllt-s) * 0.10)) rotateX(-26deg) rotateY(-38deg);
+  /* 姿勢の式はここ1か所だけ。アングルの切り替えは --pllt-spin を
+     差し替えるだけで済み、JS側は角度の計算を持たない。
+     FR:-38 / FL:38 / BR:-142 / BL:142 と対称に取ってあるので、
+     どのアングルでも2面の見え方の比率が同じになる。 */
+  --pllt-spin: -38deg;
+  transform: translateY(calc(var(--pllt-s) * 0.10)) rotateX(-26deg) rotateY(var(--pllt-spin));
 }
 /* 黒いフチ(枠と目地)はやめた。小さく描くと黒がステッカーを痩せさせて
    色が読みにくくなるため、マスどうしは隙間なく敷きつめ、白い細線だけで
@@ -5642,6 +5652,8 @@
 .pllt-face {
   position: absolute;
   inset: 0;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
@@ -5651,10 +5663,15 @@
   border-radius: 4%;
   overflow: hidden;
 }
-/* 正準的な CSS キューブの置き方。translateZ で半辺ぶん押し出す。 */
+/* 正準的な CSS キューブの置き方。translateZ で半辺ぶん押し出す。
+   側面は4つとも置き、裏を向いたものは backface-visibility で消す。
+   これで「見える2面だけが出る」ことをCSSが保証してくれるので、
+   JS側は毎問4面ぶん塗るだけでよく、どれが見えているかを判定しない。 */
 .pllt-face-f { transform: translateZ(calc(var(--pllt-s) / 2)); }
 .pllt-face-u { transform: rotateX(90deg) translateZ(calc(var(--pllt-s) / 2)); }
 .pllt-face-r { transform: rotateY(90deg) translateZ(calc(var(--pllt-s) / 2)); }
+.pllt-face-b { transform: rotateY(180deg) translateZ(calc(var(--pllt-s) / 2)); }
+.pllt-face-l { transform: rotateY(-90deg) translateZ(calc(var(--pllt-s) / 2)); }
 .pllt-sticker {
   display: block;
   background: #33333f;
@@ -5663,8 +5680,10 @@
   box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.62);
 }
 /* 立体感は「上から光が当たっている」ぶんの明るさだけで出す。
-   影(黒)を重ねると、そのぶん色が沈んで判断しにくくなる。 */
-.pllt-face-u::after, .pllt-face-r::after {
+   影(黒)を重ねると、そのぶん色が沈んで判断しにくくなる。
+   左右どちらに出るかはアングルで入れ替わるので、側面には左右差を
+   つけず、上からの光だけで奥行きを出している。 */
+.pllt-face::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -5672,7 +5691,10 @@
   pointer-events: none;
 }
 .pllt-face-u::after { background: rgba(255,255,255,.13); }
-.pllt-face-r::after { background: rgba(255,255,255,.04); }
+.pllt-face-f::after, .pllt-face-r::after,
+.pllt-face-b::after, .pllt-face-l::after {
+  background: linear-gradient(rgba(255,255,255,.06), rgba(255,255,255,0));
+}
 
 /* ---- 不正解のとき出る「正解は◯◯」 ----------------------------------- */
 .pllt-banner {
@@ -6086,6 +6108,9 @@
   .pllt-stage-wrap { min-height: 100px; }
   .pllt-hud-item b { font-size: 14px; }
 }
+
+/* アングルのチップ。FR/FL/BR/BL の4つを等幅で並べる。 */
+.pllt-angle { font-size: 12px; letter-spacing: .06em; }
 
 /* ---- 「分かったらタップ」の案内と、止まったことの合図 ----------------
    計測を止める操作なので、押せる場所であることと、止まったことの両方が

@@ -787,8 +787,8 @@
       </div>
       <p class="settings-hint oll-mode-hint" id="pll-mode-hint">今のキューブに手順を実行します（OLLまで揃った状態で使ってください）</p>
 
-      <!-- 2側面判断トレーニングへの入口。ドロワーの「トレーニング」からも
-           入れるが、手順を覚えた流れでそのまま判断練習へ行けるよう
+      <!-- 2側面判断 検定への入口。ドロワーの「トレーニング」からも入れるが、
+           手順を覚えた流れでそのまま判断練習へ行けるよう
            一覧のすぐ上にも置いてある。 -->
       <button class="pllt-open-btn" id="pllt-open">
         <span class="pllt-open-name" data-i18n="plltOpen">2側面判断トレーニング</span>
@@ -7197,6 +7197,12 @@ const PLL_DATA = {
           </div>
 
           <div class="pllt-field">
+            <span class="pllt-field-label" data-i18n="plltAngle">アングル</span>
+            <div class="pllt-modes" id="pllt-angle-row" role="group"></div>
+            <p class="pllt-hint" id="pllt-angle-hint">複数選べます。選んだアングルからランダムに出ます。</p>
+          </div>
+
+          <div class="pllt-field">
             <span class="pllt-field-label" data-i18n="plltMode">出題モード</span>
             <div class="pllt-modes" id="pllt-mode-row" role="group">
               <button type="button" class="pllt-mode on" data-mode="random" data-i18n="plltModeRandom">ランダム</button>
@@ -7239,10 +7245,15 @@ const PLL_DATA = {
           <span class="pllt-cover-mark" id="pllt-cover-mark">3</span>
         </div>
         <div class="pllt-stage" aria-hidden="true">
-          <div class="pllt-cube">
+          <!-- 側面は4つとも用意しておく。どの2面が見えるかは、キューブを
+               回した向きと backface-visibility が決める。JS側は「どの面が
+               見えているか」を気にしなくてよい。 -->
+          <div class="pllt-cube" id="pllt-cube">
             <div class="pllt-face pllt-face-u" id="pllt-face-u"></div>
             <div class="pllt-face pllt-face-f" id="pllt-face-f"></div>
             <div class="pllt-face pllt-face-r" id="pllt-face-r"></div>
+            <div class="pllt-face pllt-face-b" id="pllt-face-b"></div>
+            <div class="pllt-face pllt-face-l" id="pllt-face-l"></div>
           </div>
         </div>
         <div class="pllt-banner" id="pllt-banner" role="status" aria-live="assertive"></div>
@@ -9799,7 +9810,7 @@ const PllTrainer = (function () {
   /* ---- 調整用パラメータ（ここだけ触れば手触りが変わる）---------------- */
   const CFG = {
     STORAGE_KEY: 'rubiks-cube-pll-trainer',
-    COUNTS:       [10, 30, 50, 100], // 問題数のタブ
+    COUNTS:       [10, 30, 50, 100, 300, 500, 800, 1000], // 問題数のタブ
     COUNT_FROM:      3,  // スタート後のカウントダウン（3・2・1）
     COUNT_STEP:    700,  // カウント1つぶんの長さ(ms)
     WRONG_HOLD:   1100,  // 不正解のとき正解名を見せる時間(ms)。画面タップで短縮可
@@ -9853,6 +9864,38 @@ const PllTrainer = (function () {
   };
   const U_CHOICES = ['y', 'w', 'r', 'b', 'o', 'g'];
 
+  /* ---- アングル（見える2面）---------------------------------------------
+     上から見て時計回りに 後→右→前→左 と並んだリングに対し、どの角から
+     覗くかを決めるのがアングル。角に立つと、時計回りで手前にくる面が
+     視界の右、その次の面が視界の左に見える。
+
+       FR … 視界の左=F  右=R      FL … 左=L  右=F
+       BR … 左=R  右=B            BL … 左=B  右=L
+
+     spin はキューブの見た目の回し量。90度ずつではなく ±38 / ±142 と
+     対称に取ってあるので、どのアングルでも2面の見え方の比率が同じになる。
+
+     ▼ AUF との関係（重要・注意点にも書いた）
+       視界に入る6マスは、リング上の連続した6つを逆順に読んだもの。
+       アングルを1つ進めることも、AUFを1つ足すことも、この「窓」を
+       3つずらすという同じ操作になる。つまり見えるステッカーの
+       “模様”はアングルを増やしても増えない。増えるのは、その模様に
+       どの絶対色が乗るか（と、下2段のF2Lの色）だけ。
+       だからアングルは難易度ではなく、色の丸暗記を防ぐための変化として
+       扱う。判定に使う正解のPLL名は、AUFにもアングルにも影響されない。 */
+  const ANGLES = {
+    FR: { left: 'F', right: 'R', spin:  -38 },
+    FL: { left: 'L', right: 'F', spin:   38 },
+    BR: { left: 'R', right: 'B', spin: -142 },
+    BL: { left: 'B', right: 'L', spin:  142 }
+  };
+  const ANGLE_KEYS = ['FR', 'FL', 'BR', 'BL'];
+
+  // 各面の上段3マス（その面を正面から見て左→右）が、リングのどの位置か。
+  // どの面も「自分の3つを逆順に読む」だけで揃う。
+  const FACE_RING = { B: [2, 1, 0], R: [5, 4, 3], F: [8, 7, 6], L: [11, 10, 9] };
+  const SIDES = ['F', 'R', 'B', 'L'];
+
   /* ---- 12マスのリングと AUF ------------------------------------------- */
   // PLL_DATA の並び（後3・左3・右3・前3）を、上から見て時計回りの
   // 12マスに組み替える。
@@ -9870,9 +9913,9 @@ const PllTrainer = (function () {
   }
 
   /* ---- 84通りの出題を最初に1回だけ作っておく -------------------------- */
-  // faces[i] は「その位置のステッカーが本来どの面のものか」。
-  // 実際の色は配色を掛けたときに決まるので、上面の色を変えても
-  // 作り直しは要らない。
+  // 各要素はリング12マスぶんの「そのステッカーが本来どの面のものか」。
+  // 実際の色は配色を掛けたときに決まるので、上面の色やアングルを変えても
+  // 作り直しは要らない。4面ぶん持っておけば、どのアングルからでも引ける。
   let DECK = null;
   function buildDeck() {
     if (DECK) return DECK;
@@ -9884,14 +9927,7 @@ const PllTrainer = (function () {
       if (!entry) return;
       let ring = toRing(entry[1]);
       for (let auf = 0; auf < 4; auf++) {
-        DECK.push({
-          name: name,
-          auf: auf,
-          // 見えるのはこの6マスだけ。
-          // F面上段（左→右）と R面上段（左→右＝前→後）。
-          front: [ring[8], ring[7], ring[6]],
-          right: [ring[5], ring[4], ring[3]]
-        });
+        DECK.push({ name: name, auf: auf, ring: ring.slice() });
         ring = turnU(ring);
       }
     });
@@ -9902,7 +9938,7 @@ const PllTrainer = (function () {
   // stats[name] = { n: 出題数, c: 正解数, t: 正解したときの合計ms }
   // 平均判別タイムは「正解したぶんだけ」で出す。誤答の時間を混ぜると
   // 迷ってから間違えた回と、即答で間違えた回が同じ扱いになってしまう。
-  let store = { v: 1, sessions: 0, stats: {}, cfg: { count: 30, ups: ['y'], mode: 'random' } };
+  let store = { v: 1, sessions: 0, stats: {}, cfg: { count: 30, ups: ['y'], angles: ['FR'], mode: 'random' } };
   function loadStore() {
     try {
       const raw = localStorage.getItem(CFG.STORAGE_KEY);
@@ -9920,6 +9956,10 @@ const PllTrainer = (function () {
         if (ups) {
           const keep = ups.filter((c) => SCHEMES[c]);
           if (keep.length) store.cfg.ups = keep;
+        }
+        if (Array.isArray(parsed.cfg.angles)) {
+          const keep = parsed.cfg.angles.filter((k) => ANGLES[k]);
+          if (keep.length) store.cfg.angles = keep;
         }
         if (parsed.cfg.mode === 'weak' || parsed.cfg.mode === 'random') store.cfg.mode = parsed.cfg.mode;
       }
@@ -9970,6 +10010,7 @@ const PllTrainer = (function () {
     if (!deck) return [];
     const names = (pool && pool.length) ? pool.slice() : NAMES.slice();
     const ups = (store.cfg.ups && store.cfg.ups.length) ? store.cfg.ups : ['y'];
+    const angs = (store.cfg.angles && store.cfg.angles.length) ? store.cfg.angles : ['FR'];
     const ref = overallAvg();
     const weights = names.map((n) => (mode === 'weak' ? weightOf(n, ref) : 1));
     const queue = [];
@@ -9985,10 +10026,12 @@ const PllTrainer = (function () {
       last = pick;
       const variants = deck.filter((q) => q.name === pick);
       const v = variants[(Math.random() * variants.length) | 0];
-      // 上面の色も1問ごとに決める。DECK は使い回すので、書き換えずに包む。
+      // 上面の色とアングルも1問ごとに決める。DECK は使い回すので、
+      // 書き換えずに包む（ring は読むだけなので共有のままでよい）。
       queue.push({
-        name: v.name, auf: v.auf, front: v.front, right: v.right,
-        up: ups[(Math.random() * ups.length) | 0]
+        name: v.name, auf: v.auf, ring: v.ring,
+        up:    ups[(Math.random()  * ups.length)  | 0],
+        angle: angs[(Math.random() * angs.length) | 0]
       });
     }
     return queue;
@@ -10016,7 +10059,10 @@ const PllTrainer = (function () {
 
   /* ---- DOM ------------------------------------------------------------- */
   const el = {};
-  let cellsF = [], cellsR = [];   // 側面上段の6マス（毎問ここだけ書き換える）
+  // 側面4つぶんの上段（毎問ここだけ書き換える）と、動かない下2段。
+  const topCells = { F: [], R: [], B: [], L: [] };
+  const lowCells = { F: [], R: [], B: [], L: [] };
+  let uCells = [];
   let built = false;
   let rafId = 0;
   let wrongTimer = 0;
@@ -10025,17 +10071,19 @@ const PllTrainer = (function () {
   function tx(key, vars) { return (typeof t === 'function') ? t(key, vars) : key; }
 
   function buildCube() {
-    // U(9) / F(9) / R(9) の27マス。F・R の2段目3段目はそろった状態の
-    // 単色なので、配色を変えたときだけ塗り直す。
-    ['u', 'f', 'r'].forEach((face) => {
+    // U と側面4つで45マス。裏を向いた面は backface-visibility で消えるので、
+    // アングルを変えても「見える2面だけが出る」ことはCSS側が保証してくれる。
+    // 側面の2段目3段目はそろった状態の単色なので、配色を変えたときだけ塗る。
+    ['u', 'f', 'r', 'b', 'l'].forEach((face) => {
       const faceEl = q('pllt-face-' + face);
       if (!faceEl || faceEl.childElementCount) return;
       for (let i = 0; i < 9; i++) {
         const cell = document.createElement('i');
         cell.className = 'pllt-sticker';
         faceEl.appendChild(cell);
-        if (face === 'f' && i < 3) cellsF.push(cell);
-        if (face === 'r' && i < 3) cellsR.push(cell);
+        if (face === 'u') { uCells.push(cell); continue; }
+        const key = face.toUpperCase();
+        (i < 3 ? topCells[key] : lowCells[key]).push(cell);
       }
     });
   }
@@ -10116,6 +10164,28 @@ const PllTrainer = (function () {
         paintSetup();
       });
     }
+    const angles = q('pllt-angle-row');
+    if (angles && !angles.childElementCount) {
+      ANGLE_KEYS.forEach((k) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'pllt-mode pllt-angle';
+        b.dataset.angle = k;
+        b.textContent = k;
+        angles.appendChild(b);
+      });
+      angles.addEventListener('click', (e) => {
+        const b = e.target.closest ? e.target.closest('.pllt-angle') : null;
+        if (!b) return;
+        const k = b.dataset.angle;
+        const at = store.cfg.angles.indexOf(k);
+        // 色と同じで、全部外すと出すものが無くなるので最後の1つは残す。
+        if (at >= 0) { if (store.cfg.angles.length > 1) store.cfg.angles.splice(at, 1); }
+        else store.cfg.angles.push(k);
+        saveStore();
+        paintSetup();
+      });
+    }
     const modes = q('pllt-mode-row');
     if (modes && !modes.dataset.bound) {
       modes.dataset.bound = '1';
@@ -10145,6 +10215,14 @@ const PllTrainer = (function () {
     });
     const cHint = q('pllt-color-hint');
     if (cHint) cHint.textContent = tx('plltUColorHint');
+    const angles = q('pllt-angle-row');
+    if (angles) Array.from(angles.children).forEach((b) => {
+      const on = store.cfg.angles.indexOf(b.dataset.angle) >= 0;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', String(on));
+    });
+    const aHint = q('pllt-angle-hint');
+    if (aHint) aHint.textContent = tx('plltAngleHint');
     const modes = q('pllt-mode-row');
     if (modes) Array.from(modes.children).forEach((b) => {
       const on = b.dataset.mode === store.cfg.mode;
@@ -10170,15 +10248,10 @@ const PllTrainer = (function () {
     if (paintedScheme === color) return;
     paintedScheme = color;
     const sc = SCHEMES[color] || SCHEMES.y;
-    const uFace = q('pllt-face-u');
-    if (uFace) Array.from(uFace.children).forEach((c) => { c.style.background = COLOR_HEX[sc.U]; });
-    const fFace = q('pllt-face-f');
-    if (fFace) Array.from(fFace.children).forEach((c, i) => {
-      if (i >= 3) c.style.background = COLOR_HEX[sc.F];
-    });
-    const rFace = q('pllt-face-r');
-    if (rFace) Array.from(rFace.children).forEach((c, i) => {
-      if (i >= 3) c.style.background = COLOR_HEX[sc.R];
+    uCells.forEach((c) => { c.style.background = COLOR_HEX[sc.U]; });
+    SIDES.forEach((k) => {
+      const hex = COLOR_HEX[sc[k]];
+      lowCells[k].forEach((c) => { c.style.background = hex; });
     });
   }
 
@@ -10188,11 +10261,16 @@ const PllTrainer = (function () {
     if (!item) { finish(); return; }
     applyScheme(item.up);
     const sc = SCHEMES[item.up] || SCHEMES.y;
-    // ここが1問ぶんの描画のすべて。style を6回書くだけ。
-    for (let i = 0; i < 3; i++) {
-      cellsF[i].style.background = COLOR_HEX[sc[item.front[i]]];
-      cellsR[i].style.background = COLOR_HEX[sc[item.right[i]]];
-    }
+    // ここが1問ぶんの描画のすべて。4面ぶんの上段12マスに色を書き、
+    // キューブの向きを1つ差し替えるだけ。見えない2面もついでに塗って
+    // おけば、次にそのアングルが来たときに何もしなくてよい。
+    SIDES.forEach((k) => {
+      const idx = FACE_RING[k], cells = topCells[k];
+      for (let i = 0; i < 3; i++) cells[i].style.background = COLOR_HEX[sc[item.ring[idx[i]]]];
+    });
+    // 向きは1つのカスタムプロパティだけ。姿勢の式はCSS側に1か所しかない。
+    const cube = q('pllt-cube');
+    if (cube) cube.style.setProperty('--pllt-spin', (ANGLES[item.angle] || ANGLES.FR).spin + 'deg');
     const prog = q('pllt-progress');
     if (prog) prog.textContent = (session.index + 1) + ' / ' + session.queue.length;
     session.shownAt = performance.now();
