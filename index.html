@@ -10654,7 +10654,7 @@ const PllTrainer = (function () {
           title: tx('plltStatsResetTitle'),
           body: tx('plltStatsResetBody'),
           ok: tx('plltStatsReset'),
-          cancel: tx('confirmCancel'),
+          cancel: tx('plltBack'),
           onOk: finish
         });
       } else if (confirm(tx('plltStatsResetTitle'))) finish();
@@ -10701,7 +10701,7 @@ const PllTrainer = (function () {
           title: tx('plltQuitTitle'),
           body: tx('plltQuitBody'),
           ok: tx('plltQuitOk'),
-          cancel: tx('confirmCancel'),
+          cancel: tx('plltBack'),
           onOk: () => { abort(); setView('setup'); }
         });
         return;
