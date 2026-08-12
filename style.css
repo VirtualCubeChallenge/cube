@@ -5354,3 +5354,582 @@
   .shop-card:active { transform: none; }
 }
 /* === SHOP : CSS ここまで ================================================= */
+
+/* =========================================================================
+   === PLL 2側面判断トレーナー : CSS ここから =============================
+   既存のダークUI（#08080b の背景 / #1c1c22 のパネル / #3a3a48 の枠 /
+   アクセントは var(--tc)）にそろえてある。
+
+   ▼ 速さのための決めごと
+     ・画面(設定/実技/リザルト)は data-view の出し分けだけ。DOM は作り直さない
+     ・出題ごとに変わるのは側面上段6マスの background だけ。レイアウトは動かない
+     ・正誤フラッシュとバナーは opacity / transform のみ = 合成だけで描ける
+   ========================================================================= */
+
+#pllt-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #08080b;
+  /* 確認ダイアログ(#confirm-overlay, z-index:80)より下、
+     ほかのオーバーレイ(30)より上。 */
+  z-index: 42;
+  color: #e6e6ee;
+  /* ドリル中に長押しで選択メニューが出ると連打の邪魔になる。 */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+#pllt-overlay.show { display: block; }
+
+.pllt-view { display: none; }
+#pllt-overlay[data-view="setup"]  .pllt-setup,
+#pllt-overlay[data-view="result"] .pllt-result { display: flex; }
+#pllt-overlay[data-view="drill"]  .pllt-drill  { display: flex; }
+
+/* ---- 設定 / リザルトの共通パネル ------------------------------------- */
+.pllt-setup, .pllt-result {
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+.pllt-panel {
+  position: relative;
+  background: #1c1c22;
+  border: 1px solid #3a3a48;
+  border-radius: 14px;
+  width: min(94vw, 460px);
+  max-height: 92vh;
+  max-height: 92dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.pllt-panel-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 18px;
+  text-align: center;
+}
+.pllt-panel h2 {
+  font-size: 17px;
+  margin: 0 0 4px;
+  letter-spacing: .02em;
+}
+.pllt-lead {
+  font-size: 11px;
+  color: #8b8b9c;
+  margin: 0 0 16px;
+}
+
+/* ---- 設定の各項目 ----------------------------------------------------- */
+.pllt-field { margin-bottom: 16px; text-align: left; }
+.pllt-field-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #9a9aac;
+  margin-bottom: 6px;
+  letter-spacing: .04em;
+}
+.pllt-tabs, .pllt-modes { display: flex; gap: 6px; }
+.pllt-tab, .pllt-mode {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 10px 4px;
+  border-radius: 9px;
+  background: #23232c;
+  border: 1px solid #3a3a48;
+  color: #b8b8c4;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: color .12s, border-color .12s, background .12s;
+}
+.pllt-tab.on, .pllt-mode.on {
+  color: var(--tc);
+  border-color: var(--tc);
+  background: rgba(var(--tc-rgb), 0.12);
+}
+.pllt-mode { font-size: 12px; }
+
+.pllt-swatches { display: flex; gap: 8px; }
+.pllt-swatch {
+  flex: 1 1 0;
+  height: 38px;
+  border-radius: 9px;
+  border: 2px solid #3a3a48;
+  cursor: pointer;
+  touch-action: manipulation;
+  position: relative;
+  transition: transform .12s, border-color .12s, box-shadow .12s;
+}
+.pllt-swatch.on {
+  border-color: var(--tc);
+  box-shadow: 0 0 0 2px rgba(var(--tc-rgb), .35);
+  transform: translateY(-2px);
+}
+/* 複数選べるので、選ばれていない色ははっきり沈ませる。
+   選ばれている色にはチェックを重ねて、数がひと目で分かるようにする。 */
+.pllt-swatch:not(.on) { opacity: .34; }
+.pllt-swatch.on::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 34%;
+  height: 18%;
+  margin: -14% 0 0 -17%;
+  border-left: 3px solid rgba(0, 0, 0, .62);
+  border-bottom: 3px solid rgba(0, 0, 0, .62);
+  border-radius: 1px;
+  transform: rotate(-45deg);
+}
+.pllt-hint {
+  font-size: 11px;
+  color: #78788a;
+  margin: 7px 2px 0;
+  line-height: 1.5;
+  text-align: left;
+}
+.pllt-start {
+  width: 100%;
+  margin-top: 4px;
+  padding: 15px;
+  border-radius: 11px;
+  border: 1px solid var(--tc);
+  background: linear-gradient(180deg, rgba(var(--tc-rgb), .22), rgba(var(--tc-rgb), .08));
+  color: var(--tc);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.pllt-start:active {
+  background: var(--tc);
+  color: #04120f;
+}
+.pllt-sessions {
+  font-size: 10px;
+  color: #6d6d80;
+  margin: 10px 0 0;
+}
+
+/* ---- 実技画面 --------------------------------------------------------- */
+.pllt-drill {
+  position: absolute;
+  inset: 0;
+  flex-direction: column;
+  padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px));
+  gap: 8px;
+}
+.pllt-hud {
+  flex: 0 0 auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 6px;
+  padding: 8px 44px 8px 8px;
+  background: #14141a;
+  border: 1px solid #2c2c38;
+  border-radius: 11px;
+}
+.pllt-hud-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.15;
+  min-width: 62px;
+}
+.pllt-hud-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: #71718a;
+  letter-spacing: .06em;
+}
+.pllt-hud-item b {
+  font-size: 15px;
+  font-weight: 900;
+  color: #e6e6ee;
+  /* 数字の幅を固定して、1問ごとに桁が揺れないようにする。 */
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+.pllt-hud-time b {
+  color: var(--tc);
+  min-width: 4.2ch;
+  text-align: center;
+}
+.pllt-quit {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #3a3a48;
+  background: rgba(255,255,255,.06);
+  color: #c8c8d4;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.pllt-quit:active { background: var(--tc); color: #04120f; }
+
+/* ---- 3Dキューブ -------------------------------------------------------
+   Three.js は使わない。ここで見えている必要があるのは U・F・R の
+   27マスだけで、しかも1問で変わるのは6マス。CSS の preserve-3d で
+   組めば、出題は background を6回書き換えるだけになり、WebGL の
+   描画も本編のシーンへの干渉も起こらない。 */
+.pllt-stage-wrap {
+  flex: 1 1 auto;
+  min-height: 130px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pllt-stage {
+  /* 立方体の一辺。縦にも横にも収まる範囲でいちばん大きく取る。 */
+  --pllt-s: clamp(96px, min(44vw, 23vh), 190px);
+  perspective: 900px;
+  perspective-origin: 50% 42%;
+  /* 傾けた立方体の外接箱は一辺の 1.4 倍弱。枠からはみ出さないよう
+     親の大きさでも頭打ちにしておく。 */
+  width: calc(var(--pllt-s) * 1.45);
+  height: calc(var(--pllt-s) * 1.45);
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pllt-cube {
+  position: relative;
+  width: var(--pllt-s);
+  height: var(--pllt-s);
+  transform-style: preserve-3d;
+  /* FR面とU面がはっきり見える、実戦に近い角度で固定。 */
+  transform: translateY(calc(var(--pllt-s) * 0.10)) rotateX(-26deg) rotateY(-38deg);
+}
+/* 黒いフチ(枠と目地)はやめた。小さく描くと黒がステッカーを痩せさせて
+   色が読みにくくなるため、マスどうしは隙間なく敷きつめ、白い細線だけで
+   区切る。同じ色が隣り合っても線で分かれて見える。 */
+.pllt-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 0;
+  padding: 0;
+  background: transparent;
+  border-radius: 4%;
+  overflow: hidden;
+}
+/* 正準的な CSS キューブの置き方。translateZ で半辺ぶん押し出す。 */
+.pllt-face-f { transform: translateZ(calc(var(--pllt-s) / 2)); }
+.pllt-face-u { transform: rotateX(90deg) translateZ(calc(var(--pllt-s) / 2)); }
+.pllt-face-r { transform: rotateY(90deg) translateZ(calc(var(--pllt-s) / 2)); }
+.pllt-sticker {
+  display: block;
+  background: #33333f;
+  /* 区切りは白い細線1本だけ。面のフチにも同じ線が回るので、
+     立方体の輪郭もこれで出る。 */
+  box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.62);
+}
+/* 立体感は「上から光が当たっている」ぶんの明るさだけで出す。
+   影(黒)を重ねると、そのぶん色が沈んで判断しにくくなる。 */
+.pllt-face-u::after, .pllt-face-r::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 4%;
+  pointer-events: none;
+}
+.pllt-face-u::after { background: rgba(255,255,255,.13); }
+.pllt-face-r::after { background: rgba(255,255,255,.04); }
+
+/* ---- 不正解のとき出る「正解は◯◯」 ----------------------------------- */
+.pllt-banner {
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  transform: translate(-50%, 8px);
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(214, 58, 74, .16);
+  border: 1px solid rgba(255, 106, 122, .55);
+  color: #ff9aa6;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .12s ease, transform .12s ease;
+}
+.pllt-banner.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---- 回答ボタン -------------------------------------------------------
+   名前が分かっていても、21個を順番に並べると毎回「目で探す」時間が乗る。
+   角と辺の入れ替わりかた(CPの種類)で4つに割り、色も置き場所も固定した。
+   上級者が頭の中でPLLをしまっている区分けと同じなので、探さずに手が
+   伸びる。全体は5行（以前は7行）に収まり、そのぶんボタンを大きく取れる。 */
+.pllt-answers {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.pllt-group { display: flex; flex-direction: column; gap: 3px; }
+.pllt-group.g1 { --g: 255, 200, 97; }   /* 角のみ   */
+.pllt-group.g2 { --g: 111, 216, 255; }  /* 辺のみ   */
+.pllt-group.g3 { --g: 126, 224, 143; }  /* 隣接交換 */
+.pllt-group.g4 { --g: 199, 155, 255; }  /* 対角交換 */
+.pllt-group-label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  padding-left: 3px;
+  color: rgba(var(--g), .78);
+}
+.pllt-group-row {
+  display: grid;
+  grid-auto-rows: minmax(44px, auto);
+  gap: 5px;
+}
+.pllt-ans {
+  border-radius: 10px;
+  background: rgba(var(--g), .08);
+  border: 1px solid rgba(var(--g), .34);
+  color: #e9e9f1;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: .02em;
+  cursor: pointer;
+  touch-action: manipulation;
+  /* 押した瞬間の反応は transform と色だけ = 再レイアウトが起きない。 */
+  transition: transform .06s ease, background .06s ease;
+}
+.pllt-ans:active {
+  transform: scale(.93);
+  background: rgba(var(--g), .30);
+  border-color: rgb(var(--g));
+  color: #fff;
+}
+.pllt-answers.locked .pllt-ans { pointer-events: none; opacity: .4; }
+.pllt-answers.locked .pllt-ans.reveal {
+  opacity: 1;
+  border-color: #4fe0a8;
+  color: #4fe0a8;
+  background: rgba(79, 224, 168, .16);
+}
+/* 画面が広いときは、4グループを横に並べて指の移動距離を短くする。 */
+@media (min-width: 560px) {
+  .pllt-answers { flex-direction: row; align-items: flex-start; gap: 10px; }
+  .pllt-group { flex: 1 1 0; }
+  .pllt-group.g3 { flex: 2 1 0; }
+}
+
+/* ---- 正誤フラッシュ ---------------------------------------------------
+   opacity だけを動かすので、次の問題の描画をいっさい邪魔しない。 */
+.pllt-flash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 5;
+}
+.pllt-flash.ok {
+  background: radial-gradient(ellipse at center, rgba(79,224,168,.34), rgba(79,224,168,.05) 70%);
+  animation: pllt-flash 260ms ease-out;
+}
+.pllt-flash.ng {
+  background: radial-gradient(ellipse at center, rgba(255,86,104,.38), rgba(255,86,104,.06) 70%);
+  animation: pllt-flash 260ms ease-out;
+}
+@keyframes pllt-flash {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ---- リザルト --------------------------------------------------------- */
+.pllt-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 12px 0 18px;
+}
+.pllt-sum-cell {
+  background: #15151b;
+  border: 1px solid #2c2c38;
+  border-radius: 10px;
+  padding: 10px 4px;
+}
+.pllt-sum-label {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  color: #71718a;
+  letter-spacing: .04em;
+  margin-bottom: 3px;
+}
+.pllt-sum-cell b {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--tc);
+  font-variant-numeric: tabular-nums;
+}
+.pllt-sum-cell b i {
+  font-style: normal;
+  font-size: 10px;
+  color: #8b8b9c;
+  margin-left: 2px;
+}
+.pllt-res-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #9a9aac;
+  text-align: left;
+  margin: 0 0 6px;
+}
+.pllt-res-head, .pllt-res-row {
+  display: grid;
+  grid-template-columns: 1.6fr .7fr 1fr 1fr;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 8px;
+}
+.pllt-res-head {
+  font-size: 9px;
+  font-weight: 700;
+  color: #71718a;
+  letter-spacing: .04em;
+  border-bottom: 1px solid #2c2c38;
+}
+.pllt-res-row {
+  font-size: 12px;
+  border-bottom: 1px solid #23232c;
+  font-variant-numeric: tabular-nums;
+}
+.pllt-res-row.weak { background: rgba(255, 106, 122, .07); }
+.pllt-res-cell { text-align: right; color: #c8c8d4; }
+.pllt-res-cell.name {
+  text-align: left;
+  font-weight: 800;
+  color: #e6e6ee;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.pllt-weak-tag {
+  font-size: 8.5px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 5px;
+  background: rgba(255, 106, 122, .18);
+  border: 1px solid rgba(255, 106, 122, .45);
+  color: #ff9aa6;
+  white-space: nowrap;
+}
+.pllt-res-rows { max-height: 38vh; overflow-y: auto; overscroll-behavior: contain; }
+.pllt-result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 16px;
+}
+.pllt-result-actions .action-btn { padding: 12px 14px; font-size: 12px; }
+.pllt-result-actions .action-btn.disabled {
+  opacity: .38;
+  pointer-events: none;
+}
+
+/* ---- PLL一覧からトレーニングへ入る導線 -------------------------------- */
+.pllt-open-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin: 0 0 12px;
+  padding: 12px 10px;
+  border-radius: 11px;
+  border: 1px solid var(--tc);
+  background: linear-gradient(180deg, rgba(var(--tc-rgb), .18), rgba(var(--tc-rgb), .05));
+  color: var(--tc);
+  font-weight: 800;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.pllt-open-btn:active { background: var(--tc); color: #04120f; }
+.pllt-open-btn .pllt-open-name { font-size: 13px; }
+.pllt-open-btn .pllt-open-sub {
+  font-size: 10px;
+  font-weight: 600;
+  opacity: .75;
+}
+
+/* 縦の狭い端末では、回答ボタンを詰めてキューブの居場所を確保する。 */
+@media (max-height: 640px) {
+  .pllt-answers { gap: 5px; }
+  .pllt-group-row { grid-auto-rows: minmax(38px, auto); }
+  .pllt-group-label { font-size: 8px; }
+  .pllt-ans { font-size: 15px; }
+  .pllt-stage-wrap { min-height: 100px; }
+  .pllt-hud-item b { font-size: 14px; }
+}
+
+/* ---- 「見えた瞬間」モードの案内と、止まったことの合図 ----------------
+   計測を止める操作なので、押せる場所であることと、止まったことの両方が
+   ひと目で分かる必要がある。止まった合図はタイマーの色と、キューブが
+   一度だけ小さく沈む動きの2つ。どちらも合成だけで描ける。 */
+#pllt-overlay[data-timing="peek"] .pllt-stage-wrap { cursor: pointer; }
+.pllt-peek-hint {
+  position: absolute;
+  left: 50%;
+  top: 2px;
+  transform: translateX(-50%);
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--tc-rgb), .32);
+  background: rgba(var(--tc-rgb), .07);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: rgba(var(--tc-rgb), .8);
+  pointer-events: none;
+  display: none;
+}
+#pllt-overlay[data-timing="peek"] .pllt-peek-hint { display: block; }
+#pllt-overlay.peeked .pllt-peek-hint { visibility: hidden; }
+/* 計測が止まったことがひと目で分かるよう、タイマーを止め色にする。 */
+#pllt-overlay.peeked .pllt-hud-time b { color: #4fe0a8; }
+#pllt-overlay.peeked .pllt-hud-time .pllt-hud-label { color: #4fe0a8; opacity: .7; }
+/* 止めた瞬間にキューブが一度だけ小さく沈む。手ごたえの合図。 */
+#pllt-overlay.peeked .pllt-cube { animation: pllt-peek-tap 200ms ease-out; }
+@keyframes pllt-peek-tap {
+  0%   { transform: translateY(calc(var(--pllt-s) * 0.10)) rotateX(-26deg) rotateY(-38deg) scale(1); }
+  45%  { transform: translateY(calc(var(--pllt-s) * 0.10)) rotateX(-26deg) rotateY(-38deg) scale(.955); }
+  100% { transform: translateY(calc(var(--pllt-s) * 0.10)) rotateX(-26deg) rotateY(-38deg) scale(1); }
+}
+
+/* 動きを減らす設定の端末では、フラッシュを控えめな一瞬に。 */
+@media (prefers-reduced-motion: reduce) {
+  .pllt-flash.ok, .pllt-flash.ng { animation-duration: 120ms; }
+  .pllt-ans:active { transform: none; }
+  #pllt-overlay.peeked .pllt-cube { animation: none; }
+}
+/* === PLL 2側面判断トレーナー : CSS ここまで ============================= */
