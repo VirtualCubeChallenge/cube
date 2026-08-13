@@ -6094,31 +6094,6 @@
   50%      { filter: drop-shadow(0 0 6px rgba(255, 45, 69, .80)); }
 }
 
-/* ---- PLL一覧からトレーニングへ入る導線 -------------------------------- */
-.pllt-open-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  margin: 0 0 12px;
-  padding: 12px 10px;
-  border-radius: 11px;
-  border: 1px solid var(--tc);
-  background: linear-gradient(180deg, rgba(var(--tc-rgb), .18), rgba(var(--tc-rgb), .05));
-  color: var(--tc);
-  font-weight: 800;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-.pllt-open-btn:active { background: var(--tc); color: #04120f; }
-.pllt-open-btn .pllt-open-name { font-size: 13px; }
-.pllt-open-btn .pllt-open-sub {
-  font-size: 10px;
-  font-weight: 600;
-  opacity: .75;
-}
-
 /* 横に広くて縦が足りないとき（タブレットの横向きなど）は、キューブと
    回答を左右に分ける。縦に積むとキューブが潰れるか、ボタンが画面外に
    出てしまうため。 */
