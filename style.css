@@ -6519,16 +6519,22 @@
 }
 
 /* =========================================================================
-   2側面判断ガチャ
+   寿司屋ガチャ「回転シャード寿司」
    -------------------------------------------------------------------------
-   ・入口はショップの見出し「ショップ」のすぐ右のピル（.shop-gacha-entry）。
-   ・本体は全画面の #gacha-overlay。キューブは2つ目のWebGL文脈を作らない
-     ために CSS 3D（.gc-cube）。粒はぜんぶ canvas 1枚（#gc-canvas）。
-   ・画面を揺らすのは .gc-stage だけ、しかも左右のみ。body や html を縦に
-     揺らすと iPad でラバーバンドが跳ねて画面がギザギザ動くため。
+   本編は暗くて静かで理詰め。この画面だけ、色も書体も動きもぜんぶ裏返す。
+     本編                     ここ
+     背景 #08080b（ほぼ黒）→  生成り #fdf3dd（明るい紙）
+     線   細い・水色発光    →  太い墨線・朱色
+     動き ためて滑らかに     →  跳ねる・行き過ぎて戻る
+     角   丸くて均一         →  木札・暖簾の直線
+   ・入口はショップの見出しのすぐ右の木札（.shop-gacha-entry）。
+   ・絵はぜんぶ CSS と inline SVG。画像は1枚も足していない。
+   ・粒はぜんぶ canvas 1枚（#gc-canvas）。
+   ・画面を左右に振る演出は「見づらい」ため使わない。動かすのは
+     大将・お皿・木札といった中の役者だけ。
    ========================================================================= */
 
-/* ---- ショップ側の入口ピル ---------------------------------------------- */
+/* ---- ショップ側の入口（木札）------------------------------------------- */
 .shop-title-row {
   display: flex;
   align-items: center;
@@ -6536,40 +6542,48 @@
   min-width: 0;
 }
 .shop-gacha-entry {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 9px 3px 7px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, rgba(var(--tc-rgb), .18), rgba(255, 255, 255, .05));
-  border: 1px solid rgba(var(--tc-rgb), .55);
-  color: #eaf6ff;
+  padding: 4px 10px;
+  /* 木札の形：上だけ角を落とす */
+  border-radius: 3px 3px 6px 6px;
+  background: linear-gradient(160deg, #f0d9a8, #d9ab63);
+  border: 1px solid #8a5a20;
+  border-color: #8a5a20;
+  color: #4a2c0a;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 900;
   font-variant-numeric: tabular-nums;
   cursor: pointer;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .35);
   -webkit-tap-highlight-color: transparent;
-  transition: transform .12s ease, box-shadow .18s ease;
+  transition: transform .12s ease;
 }
-.shop-gacha-entry:active { transform: scale(.95); }
-.shop-gacha-entry .sge-ico { font-size: 12px; line-height: 1; }
+.shop-gacha-entry::before {
+  content: '鮨';
+  font-size: 10px;
+  color: #8c2f28;
+}
+.shop-gacha-entry:active { transform: translateY(2px); box-shadow: none; }
+.shop-gacha-entry .sge-ico { display: none; }
 .shop-gacha-entry .sge-max {
   font-style: normal;
   font-size: 9px;
-  letter-spacing: .06em;
-  color: #ffd24a;
+  letter-spacing: .04em;
+  color: #8c2f28;
   display: none;
 }
-/* 上限に達しているときだけ、静かに金色で脈打って「使いどき」を知らせる */
+/* 満席（カンスト）のときだけ、赤提灯みたいに灯る */
 .shop-gacha-entry.is-full {
-  border-color: rgba(255, 210, 74, .85);
-  color: #ffe9a8;
-  animation: gc-entry-pulse 1.9s ease-in-out infinite;
+  background: linear-gradient(160deg, #ffd9a0, #e8a13f);
+  animation: gc-fuda-glow 1.6s ease-in-out infinite;
 }
 .shop-gacha-entry.is-full .sge-max { display: inline; }
-@keyframes gc-entry-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 210, 74, .0); }
-  50%      { box-shadow: 0 0 12px 2px rgba(255, 210, 74, .45); }
+@keyframes gc-fuda-glow {
+  0%, 100% { box-shadow: 0 2px 0 rgba(0,0,0,.35), 0 0 0 0 rgba(224, 82, 61, 0); }
+  50%      { box-shadow: 0 2px 0 rgba(0,0,0,.35), 0 0 14px 3px rgba(224, 82, 61, .65); }
 }
 
 /* ---- トレーニング側のチケット表示 --------------------------------------
@@ -6602,27 +6616,54 @@
 }
 
 /* =========================================================================
-   ガチャ本体
+   寿司屋の空間
    ========================================================================= */
 #gacha-overlay {
   position: fixed;
   inset: 0;
-  z-index: 10150;              /* スキン獲得(10200)より後ろ、ランク演出(10105)より前 */
+  z-index: 10150;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  background: radial-gradient(120% 90% at 50% 40%, #14141c 0%, #08080b 62%, #050507 100%);
+  background: #fdf3dd;                   /* 生成り。ここで世界が切り替わる */
+  color: #2b2b2b;
   opacity: 0;
   pointer-events: none;
-  transition: opacity .22s ease;
+  transition: opacity .2s ease;
   overflow: hidden;
-  padding: calc(env(safe-area-inset-top, 0px) + 10px) 12px
+  padding: calc(env(safe-area-inset-top, 0px) + 8px) 12px
            calc(env(safe-area-inset-bottom, 0px) + 12px);
   -webkit-tap-highlight-color: transparent;
 }
 #gacha-overlay[hidden] { display: none; }
 #gacha-overlay.is-open { opacity: 1; pointer-events: auto; }
+
+/* 青海波の壁。円弧を重ねた繰り返し模様を、グラデーションだけで作る。 */
+.gc-wall {
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 62%;
+  background-color: #1f6f9c;
+  background-image:
+    radial-gradient(circle at 50% 100%, transparent 62%, rgba(255,255,255,.30) 63% 68%, transparent 69%),
+    radial-gradient(circle at 0%   100%, transparent 62%, rgba(255,255,255,.30) 63% 68%, transparent 69%),
+    radial-gradient(circle at 100% 100%, transparent 62%, rgba(255,255,255,.30) 63% 68%, transparent 69%);
+  background-size: 44px 22px;
+  z-index: 0;
+}
+/* 檜のカウンター。手前に向かって明るくなる。 */
+.gc-counter {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 38%;
+  background:
+    repeating-linear-gradient(92deg, rgba(140, 90, 30, .10) 0 3px, transparent 3px 26px),
+    linear-gradient(#c9954e, #e8c98f 34%, #f6e2b8);
+  border-top: 4px solid #8a5a20;
+  box-shadow: 0 -6px 18px rgba(120, 70, 20, .3);
+  z-index: 0;
+}
 
 .gc-canvas {
   position: absolute;
@@ -6630,13 +6671,64 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 4;
+  z-index: 6;
+}
+
+/* ---- 暖簾 --------------------------------------------------------------
+   ふだんは上に上がっていて、店が開いている。チケットがカンストすると
+   下りてきて「もう握れない（＝早く食べて）」を絵で伝える。 */
+.gc-noren {
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 96px;
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+  z-index: 7;
+  pointer-events: none;
+  transform: translateY(-58%);
+  transition: transform .5s cubic-bezier(.2, 1.5, .4, 1);
+}
+.gc-noren.is-closed { transform: translateY(0); }
+.gc-noren-bar {
+  position: absolute;
+  left: -4%; right: -4%; top: 8px;
+  height: 7px;
+  border-radius: 4px;
+  background: linear-gradient(#7a4a18, #4a2c0a);
+}
+.gc-noren-cloth {
+  position: relative;
+  width: 58px;
+  max-width: 22vw;
+  margin-top: 10px;
+  background: linear-gradient(#8c2f28, #6d211c);
+  border-radius: 2px 2px 5px 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: 50% 0;
+  animation: gc-noren-sway 3.4s ease-in-out infinite;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, .25);
+}
+.gc-noren-cloth:nth-child(3) { animation-delay: -.9s; }
+.gc-noren-cloth:nth-child(4) { animation-delay: -1.8s; }
+.gc-noren-cloth span {
+  color: #fdf3dd;
+  font-size: 22px;
+  font-weight: 900;
+  writing-mode: vertical-rl;
+  letter-spacing: .1em;
+}
+@keyframes gc-noren-sway {
+  0%, 100% { transform: rotate(-1.1deg); }
+  50%      { transform: rotate(1.1deg); }
 }
 
 /* ---- ヘッダー ----------------------------------------------------------- */
 .gc-head {
   position: relative;
-  z-index: 6;
+  z-index: 8;
   width: 100%;
   max-width: 460px;
   display: flex;
@@ -6645,268 +6737,271 @@
 }
 .gc-head h2 {
   margin: 0;
-  font-size: 15px;
-  font-weight: 900;
-  letter-spacing: .02em;
-  color: #eaf6ff;
   flex: 1 1 auto;
   min-width: 0;
   text-align: left;
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  color: #fdf3dd;
+  text-shadow: 2px 2px 0 #8c2f28, -1px -1px 0 #8c2f28,
+               1px -1px 0 #8c2f28, -1px 1px 0 #8c2f28;
+}
+/* 壁に掛かった品書きの木札 */
+.gc-fuda {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 11px;
+  border-radius: 3px 3px 7px 7px;
+  background: linear-gradient(160deg, #f3dcae, #d9ab63);
+  border: 1px solid #8a5a20;
+  color: #4a2c0a;
+  font-size: 13px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .3);
+}
+.gc-fuda::before { content: '貫'; font-size: 10px; color: #8c2f28; }
+.gc-fuda .gc-fuda-max {
+  font-style: normal;
+  font-size: 9px;
+  color: #8c2f28;
+  display: none;
+}
+.gc-fuda.is-full { background: linear-gradient(160deg, #ffdca6, #e8a13f); }
+.gc-fuda.is-full .gc-fuda-max { display: inline; }
+.gc-fuda.is-spend b { animation: gc-fuda-drop .3s ease-out; }
+@keyframes gc-fuda-drop {
+  0%   { transform: translateY(-5px) rotate(-6deg); opacity: .4; }
+  100% { transform: translateY(0) rotate(0); opacity: 1; }
 }
 .gc-close {
   flex: 0 0 auto;
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: 1px solid #3a3a48;
-  background: rgba(255, 255, 255, .05);
-  color: #cfd8e6;
+  border: 2px solid #8a5a20;
+  background: #fdf3dd;
+  color: #8c2f28;
   font-size: 15px;
+  font-weight: 900;
   line-height: 1;
   cursor: pointer;
 }
-.gc-close:active { transform: scale(.94); }
-.gc-tk {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 11px 4px 9px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, .06);
-  border: 1px solid rgba(var(--tc-rgb), .55);
-  font-size: 12px;
-  font-weight: 800;
-  color: #eaf6ff;
-  font-variant-numeric: tabular-nums;
-}
-.gc-tk .gc-tk-max {
-  font-style: normal;
-  font-size: 9px;
-  color: #ffd24a;
-  letter-spacing: .06em;
-  display: none;
-}
-.gc-tk.is-full { border-color: rgba(255, 210, 74, .85); color: #ffe9a8; }
-.gc-tk.is-full .gc-tk-max { display: inline; }
-.gc-tk.is-spend b { animation: gc-tk-drop .3s ease-out; }
-@keyframes gc-tk-drop {
-  0%   { transform: translateY(-4px); opacity: .4; }
-  100% { transform: translateY(0);    opacity: 1; }
-}
+.gc-close:active { transform: scale(.92); }
 
-/* ---- ステージ（キューブが立つところ）------------------------------------ */
+/* ---- 舞台 --------------------------------------------------------------- */
 .gc-stage {
   position: relative;
   z-index: 5;
   flex: 1 1 auto;
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  perspective: 900px;
-  perspective-origin: 50% 46%;
-  will-change: transform;
-}
-/* 画面を左右に振る演出は「見づらい」ため廃止。かわりに、そろえたときと
-   同じ決め演出（金色に光りながらその場で360°回ってズームパルス）を出す。
-   数字は本編の glowAndSpinCube() と同じ:
-     900ms / ease-out cubic / 回転 2π / ズーム 1 → 1.16 → 1 */
-
-.gc-shell {
-  --gc-s: clamp(132px, 42vw, 210px);
-  --gc-zoom: 1;
-  width: var(--gc-s);
-  height: var(--gc-s);
-  transform-style: preserve-3d;
-  transform: scale(var(--gc-zoom));
-  transition: transform .18s ease;
-  will-change: transform;
-}
-/* 決めスピン。回すのは外側の殻。中の .gc-cube は「今どこを向いているか」を
-   --gc-spin で持っているので、そこに手を出さずに済む（2π ぶん回すので
-   終わったときの向きも変わらない）。 */
-.gc-shell.is-finish {
-  animation: gc-finish .9s cubic-bezier(.215, .61, .355, 1) both;
-}
-@keyframes gc-finish {
-  0%   { transform: rotateY(0deg)   scale(1); }
-  50%  { transform: rotateY(180deg) scale(1.16); }
-  100% { transform: rotateY(360deg) scale(1); }
-}
-/* ピカーンと金色に光る。3D側は emissive を金へ寄せているので、
-   こちらは明るさと色みで同じ見え方に寄せる。 */
-.gc-cube.is-gold .gc-face { animation: gc-face-gold .9s ease-in-out both; }
-@keyframes gc-face-gold {
-  0%   { filter: brightness(3.4) saturate(.3);
-         box-shadow: inset 0 0 0 2px #fff, 0 0 60px rgba(255, 213, 74, .95); }
-  50%  { filter: brightness(1.55) saturate(1.5) hue-rotate(-8deg);
-         box-shadow: inset 0 0 0 2px rgba(255, 240, 190, 1),
-                     0 0 70px rgba(255, 213, 74, .9),
-                     0 0 130px rgba(255, 213, 74, .5); }
-  100% { filter: none; }
+  max-width: 460px;
+  perspective: 800px;
 }
 
-.gc-cube {
-  position: absolute;
-  inset: 0;
-  transform-style: preserve-3d;
-  transform: rotateX(-24deg) rotateY(var(--gc-spin, -32deg));
-  will-change: transform;
-}
-.gc-face {
-  position: absolute;
-  inset: 0;
-  border-radius: 10px;
-  /* マスの区切りは白い細線だけ。黒い目地を入れると暗く沈んで見えるため
-     （2側面判断のキューブと同じ考え方）。 */
-  background-image:
-    linear-gradient(to right,  transparent 0 calc(33.333% - 1px), rgba(255,255,255,.55) calc(33.333% - 1px) calc(33.333% + 1px), transparent calc(33.333% + 1px) calc(66.666% - 1px), rgba(255,255,255,.55) calc(66.666% - 1px) calc(66.666% + 1px), transparent calc(66.666% + 1px)),
-    linear-gradient(to bottom, transparent 0 calc(33.333% - 1px), rgba(255,255,255,.55) calc(33.333% - 1px) calc(33.333% + 1px), transparent calc(33.333% + 1px) calc(66.666% - 1px), rgba(255,255,255,.55) calc(66.666% - 1px) calc(66.666% + 1px), transparent calc(66.666% + 1px)),
-    linear-gradient(140deg, var(--c1), var(--c2));
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .5),
-              0 0 18px rgba(var(--tc-rgb), .28);
-  backface-visibility: hidden;
-}
-/* プリズム＝6面それぞれが違う光り方をする、そろった状態の飾り */
-.gc-f-u { --c1: #fff6b8; --c2: #ffd24a; transform: rotateX( 90deg) translateZ(calc(var(--gc-s) / 2)); }
-.gc-f-d { --c1: #d6fbff; --c2: #66e6ff; transform: rotateX(-90deg) translateZ(calc(var(--gc-s) / 2)); }
-.gc-f-f { --c1: #b9ffd9; --c2: #21e39a; transform: translateZ(calc(var(--gc-s) / 2)); }
-.gc-f-b { --c1: #ffc9ec; --c2: #ff5fd2; transform: rotateY(180deg) translateZ(calc(var(--gc-s) / 2)); }
-.gc-f-r { --c1: #ffd2b8; --c2: #ff7a3d; transform: rotateY( 90deg) translateZ(calc(var(--gc-s) / 2)); }
-.gc-f-l { --c1: #c9d8ff; --c2: #5b7cff; transform: rotateY(-90deg) translateZ(calc(var(--gc-s) / 2)); }
-
-/* 回している間、面のふちがぼうっと光る */
-.gc-cube.is-hot .gc-face {
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .9),
-              0 0 44px rgba(255, 255, 255, .55),
-              0 0 90px rgba(var(--tc-rgb), .5);
-}
-/* カチッとハマった瞬間、面が白く飛ぶ */
-.gc-cube.is-snap .gc-face { animation: gc-face-snap .42s ease-out; }
-@keyframes gc-face-snap {
-  0%   { filter: brightness(4.2) saturate(.2); }
-  100% { filter: none; }
-}
-
-/* ---- 光の柱・輪・フラッシュ・レーザー ------------------------------------ */
-.gc-beam {
+/* ---- 大将 --------------------------------------------------------------- */
+.gc-taisho {
   position: absolute;
   left: 50%;
-  top: -10%;
-  width: 34vw;
-  max-width: 260px;
-  height: 130%;
-  transform: translateX(-50%) scaleY(0);
-  transform-origin: 50% 50%;
-  background: linear-gradient(to bottom, transparent, rgba(255,255,255,.85), rgba(var(--tc-rgb), .5), transparent);
-  filter: blur(9px);
+  top: 2%;
+  width: clamp(150px, 44vw, 220px);
+  transform: translateX(-50%);
+  z-index: 2;
+}
+.gc-taisho-svg { display: block; width: 100%; height: auto; }
+/* 構える：ぐっと沈む */
+.gc-taisho.is-ready { animation: gc-crouch .14s ease-out both; }
+@keyframes gc-crouch {
+  to { transform: translateX(-50%) translateY(6px) scaleY(.96); }
+}
+/* 爆速で握る：小刻みに震える。上下は2pxまで（画面ごと動いて見えない量） */
+.gc-taisho.is-working { animation: gc-work .07s linear infinite; }
+@keyframes gc-work {
+  0%   { transform: translateX(-50%) translate(-3px, 1px) rotate(-1deg); }
+  25%  { transform: translateX(-50%) translate(3px, -2px) rotate(1deg); }
+  50%  { transform: translateX(-50%) translate(-2px, 2px) rotate(-1.4deg); }
+  75%  { transform: translateX(-50%) translate(3px, 0px) rotate(1.2deg); }
+  100% { transform: translateX(-50%) translate(-3px, 1px) rotate(-1deg); }
+}
+/* 叫ぶ：ぐいっと伸び上がる */
+.gc-taisho.is-shout { animation: gc-shout .5s cubic-bezier(.2, 1.7, .4, 1) both; }
+@keyframes gc-shout {
+  0%   { transform: translateX(-50%) scale(1); }
+  35%  { transform: translateX(-50%) scale(1.16) translateY(-8px); }
+  100% { transform: translateX(-50%) scale(1); }
+}
+/* 残像：同じシルエットを左右にずらして薄く重ねる */
+.gc-ghost {
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  opacity: 0;
+  color: #1f6f9c;
+  -webkit-mask: radial-gradient(ellipse 42% 24% at 50% 46%, #000 60%, transparent 61%);
+  mask: radial-gradient(ellipse 42% 24% at 50% 46%, #000 60%, transparent 61%);
+  pointer-events: none;
+}
+.gc-taisho.is-working .gc-ghost { animation: gc-ghost .16s linear infinite; }
+.gc-ghost.g1 { transform: translateX(-13px); }
+.gc-ghost.g2 { transform: translateX(13px); animation-delay: -.05s; }
+.gc-ghost.g3 { transform: translateX(0) scale(1.04); animation-delay: -.1s; }
+@keyframes gc-ghost {
+  0%, 100% { opacity: 0; }
+  50%      { opacity: .3; }
+}
+/* 大当たりで目が七色にギラリ */
+.gc-eyes.is-rainbow ellipse { animation: gc-eye .9s linear infinite; }
+@keyframes gc-eye {
+  0%   { fill: #e0523d; }
+  25%  { fill: #ffd24a; }
+  50%  { fill: #21c46a; }
+  75%  { fill: #3aa0ff; }
+  100% { fill: #c46bff; }
+}
+.gc-mouth.is-open { d: path('M84 122 q16 22 32 0 q-16 10 -32 0z'); fill: #8c2f28; }
+
+/* ---- 掛け声の吹き出し ---------------------------------------------------- */
+.gc-bubble {
+  position: absolute;
+  left: 50%;
+  top: 1%;
+  z-index: 9;
+  transform: translateX(-50%) scale(.4);
+  padding: 7px 15px;
+  border-radius: 999px;
+  background: #fdf3dd;
+  border: 3px solid #2b2b2b;
+  color: #8c2f28;
+  font-size: clamp(14px, 4.4vw, 19px);
+  font-weight: 900;
+  white-space: nowrap;
   opacity: 0;
   pointer-events: none;
-  z-index: 5;
+  box-shadow: 3px 3px 0 #2b2b2b;
 }
-.gc-beam.is-on { animation: gc-beam .72s ease-out; }
-@keyframes gc-beam {
-  0%   { opacity: 0;  transform: translateX(-50%) scaleY(.1); }
-  18%  { opacity: 1;  transform: translateX(-50%) scaleY(1); }
-  100% { opacity: 0;  transform: translateX(-50%) scaleY(1.1); }
+.gc-bubble.is-on { animation: gc-bubble 1.5s cubic-bezier(.2, 1.8, .4, 1) both; }
+.gc-bubble.is-big { font-size: clamp(17px, 6vw, 27px); color: #e0523d; }
+@keyframes gc-bubble {
+  0%   { opacity: 0; transform: translateX(-50%) scale(.3) rotate(-8deg); }
+  16%  { opacity: 1; transform: translateX(-50%) scale(1.14) rotate(3deg); }
+  26%  { transform: translateX(-50%) scale(1) rotate(-1.5deg); }
+  80%  { opacity: 1; transform: translateX(-50%) scale(1) rotate(1.5deg); }
+  100% { opacity: 0; transform: translateX(-50%) scale(.95); }
 }
 
-.gc-rings { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
-.gc-ring {
+/* ---- お皿 ---------------------------------------------------------------
+   握り終わりに、カウンター越しへ「シュッ」と180°回して差し出す。
+   回すのは Y軸。手前に来るぶん大きくなる。 */
+.gc-plate-wrap {
   position: absolute;
   left: 50%;
-  top: 46%;
-  width: 40px;
-  height: 40px;
-  margin: -20px 0 0 -20px;
+  bottom: 4%;
+  width: clamp(150px, 46vw, 230px);
+  transform: translateX(-50%);
+  transform-style: preserve-3d;
+  z-index: 4;
+}
+.gc-plate {
+  --gc-spin: 0deg;
+  transform-style: preserve-3d;
+  transform: rotateX(58deg) rotateY(var(--gc-spin)) scale(.62) translateZ(-40px);
+  opacity: 0;
+  will-change: transform;
+}
+.gc-plate.is-served {
+  animation: gc-serve .42s cubic-bezier(.16, .9, .2, 1.25) both;
+}
+@keyframes gc-serve {
+  0%   { opacity: .2; transform: rotateX(58deg) rotateY(0deg)   scale(.62) translateZ(-40px); }
+  70%  { opacity: 1;  transform: rotateX(50deg) rotateY(160deg) scale(1.1) translateZ(20px); }
+  100% { opacity: 1;  transform: rotateX(52deg) rotateY(180deg) scale(1)   translateZ(0); }
+}
+.gc-plate.is-idle { opacity: 1; transform: rotateX(52deg) rotateY(180deg) scale(1); }
+.gc-plate-face {
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
   border-radius: 50%;
-  border: 3px solid rgba(255, 255, 255, .9);
-  opacity: 0;
+  background: radial-gradient(circle at 42% 34%, #ffffff, #e6e0d2 62%, #c9c0ac);
+  border: 4px solid #2b2b2b;
+  box-shadow: 0 14px 22px rgba(90, 55, 15, .38);
 }
-.gc-ring.is-on { animation: gc-ring .78s cubic-bezier(.15, .7, .3, 1) forwards; }
-.gc-ring.r2.is-on { animation-delay: .09s; border-color: rgba(var(--tc-rgb), .9); }
-.gc-ring.r3.is-on { animation-delay: .18s; border-color: rgba(255, 255, 255, .55); }
-@keyframes gc-ring {
-  0%   { opacity: .95; transform: scale(.2); }
-  100% { opacity: 0;   transform: scale(13); }
-}
-
-.gc-flash {
+/* 皿の縁の藍の線（染付） */
+.gc-plate-face::after {
+  content: '';
   position: absolute;
-  inset: 0;
-  background: #fff;
-  opacity: 0;
-  pointer-events: none;
-  z-index: 7;
-}
-.gc-flash.is-on   { animation: gc-flash .42s ease-out; }
-.gc-flash.is-tease{ animation: gc-tease .34s steps(1, end); }
-@keyframes gc-flash { 0% { opacity: .95; } 100% { opacity: 0; } }
-/* 大当たり確定の直前だけ出る、3回の高速フラッシュ（予告） */
-@keyframes gc-tease {
-  0%, 100%          { opacity: 0; }
-  4%, 20%, 36%      { opacity: .85; }
-  12%, 28%, 44%     { opacity: 0; }
+  inset: 9%;
+  border-radius: 50%;
+  border: 3px dashed rgba(31, 111, 156, .55);
 }
 
-.gc-dim {
-  position: absolute;
-  inset: 0;
-  background: #000;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .34s ease;
-  z-index: 6;
-}
-.gc-dim.is-on { opacity: 1; }
-
-/* 七色レーザー：中心から放射状に伸びる細い光。DOMは8本だけ。 */
-.gc-lasers {
+/* ---- 寿司ひとつ ---------------------------------------------------------- */
+.gc-sushi {
   position: absolute;
   left: 50%;
   top: 46%;
-  width: 0;
-  height: 0;
-  pointer-events: none;
-  z-index: 7;
+  width: 52%;
+  transform: translate(-50%, -50%) rotate(-8deg);
   opacity: 0;
 }
-.gc-lasers.is-on { animation: gc-lasers 1.5s ease-out forwards; }
-@keyframes gc-lasers {
-  0%   { opacity: 0;   transform: rotate(0deg)   scale(.2); }
-  12%  { opacity: 1;   transform: rotate(14deg)  scale(1); }
-  100% { opacity: 0;   transform: rotate(70deg)  scale(1.3); }
+.gc-sushi.is-on { animation: gc-sushi-drop .5s cubic-bezier(.2, 1.9, .4, 1) both; }
+@keyframes gc-sushi-drop {
+  0%   { opacity: 0; transform: translate(-50%, -190%) rotate(-30deg) scale(.7); }
+  60%  { opacity: 1; transform: translate(-50%, -42%) rotate(4deg) scale(1.12); }
+  100% { opacity: 1; transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
 }
-.gc-lasers i {
+/* シャリ */
+.gc-shari {
+  position: relative;
+  height: 22px;
+  border-radius: 12px 12px 14px 14px;
+  background: linear-gradient(#ffffff, #ece4d2);
+  border: 3px solid #2b2b2b;
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .06);
+}
+/* ネタ。水色のときは青く光る怪しいやつ、大当たりは大トロ。 */
+.gc-neta {
+  height: 20px;
+  margin-bottom: -6px;
+  border-radius: 14px 14px 6px 6px;
+  border: 3px solid #2b2b2b;
+  background: linear-gradient(160deg, #9fe9ff, #35b6e8);
+  box-shadow: 0 0 16px rgba(60, 200, 255, .9);
+  animation: gc-neta-glow 1.1s ease-in-out infinite;
+}
+@keyframes gc-neta-glow {
+  0%, 100% { box-shadow: 0 0 12px rgba(60, 200, 255, .7); }
+  50%      { box-shadow: 0 0 26px rgba(60, 200, 255, 1); }
+}
+.gc-sushi.is-toro .gc-neta {
+  background:
+    repeating-linear-gradient(102deg, rgba(255,255,255,.85) 0 2px, transparent 2px 7px),
+    linear-gradient(160deg, #ff8f8f, #e0523d);
+  box-shadow: 0 0 24px rgba(255, 190, 80, .95);
+  animation: none;
+}
+.gc-nori {
   position: absolute;
-  left: 0;
-  top: -3px;
-  width: 150vmax;
-  height: 6px;
-  transform-origin: 0 50%;
-  border-radius: 3px;
-  filter: blur(1px);
+  left: 40%;
+  top: -4px;
+  width: 20%;
+  height: 34px;
+  background: #22303a;
+  border: 2px solid #2b2b2b;
+  display: none;
 }
-.gc-lasers i:nth-child(1) { transform: rotate(0deg);   background: linear-gradient(90deg, #fff, #ff4d6d 40%, transparent); }
-.gc-lasers i:nth-child(2) { transform: rotate(45deg);  background: linear-gradient(90deg, #fff, #ff9f45 40%, transparent); }
-.gc-lasers i:nth-child(3) { transform: rotate(90deg);  background: linear-gradient(90deg, #fff, #ffe45e 40%, transparent); }
-.gc-lasers i:nth-child(4) { transform: rotate(135deg); background: linear-gradient(90deg, #fff, #6bff9e 40%, transparent); }
-.gc-lasers i:nth-child(5) { transform: rotate(180deg); background: linear-gradient(90deg, #fff, #5be3ff 40%, transparent); }
-.gc-lasers i:nth-child(6) { transform: rotate(225deg); background: linear-gradient(90deg, #fff, #6b8bff 40%, transparent); }
-.gc-lasers i:nth-child(7) { transform: rotate(270deg); background: linear-gradient(90deg, #fff, #c46bff 40%, transparent); }
-.gc-lasers i:nth-child(8) { transform: rotate(315deg); background: linear-gradient(90deg, #fff, #ff6bd6 40%, transparent); }
+.gc-sushi.is-toro .gc-nori { display: block; }
 
-/* ---- 結果の数字 --------------------------------------------------------- */
+/* ---- 数値POP ------------------------------------------------------------ */
 .gc-pop {
   position: absolute;
   left: 50%;
-  top: 46%;
+  top: 40%;
+  z-index: 9;
   transform: translate(-50%, -50%);
-  z-index: 8;
-  display: flex;
-  align-items: center;
-  gap: 8px;
   opacity: 0;
   pointer-events: none;
   font-weight: 900;
@@ -6914,73 +7009,116 @@
   white-space: nowrap;
 }
 .gc-pop b {
-  font-size: clamp(38px, 13vw, 74px);
+  font-size: clamp(40px, 14vw, 78px);
   line-height: 1;
-  color: #eafcff;
-  text-shadow: 0 0 18px rgba(var(--tc-rgb), .95), 0 0 46px rgba(var(--tc-rgb), .6),
-               0 4px 0 rgba(0, 0, 0, .35);
+  color: #35b6e8;
+  text-shadow: 3px 3px 0 #fdf3dd, 6px 6px 0 #2b2b2b;
+  -webkit-text-stroke: 3px #2b2b2b;
+  paint-order: stroke fill;
 }
-.gc-pop.is-on { animation: gc-pop 1.5s cubic-bezier(.2, .9, .25, 1) forwards; }
+.gc-pop.is-on { animation: gc-pop 1.5s cubic-bezier(.2, 1.9, .3, 1) both; }
 @keyframes gc-pop {
-  0%   { opacity: 0; transform: translate(-50%, -50%) scale(.4); }
-  14%  { opacity: 1; transform: translate(-50%, -50%) scale(1.18); }
-  26%  {             transform: translate(-50%, -50%) scale(1); }
-  78%  { opacity: 1; transform: translate(-50%, -56%) scale(1); }
-  100% { opacity: 0; transform: translate(-50%, -74%) scale(.94); }
+  0%   { opacity: 0; transform: translate(-50%, -30%) scale(.3) rotate(-12deg); }
+  15%  { opacity: 1; transform: translate(-50%, -55%) scale(1.25) rotate(5deg); }
+  28%  { transform: translate(-50%, -50%) scale(1) rotate(-2deg); }
+  80%  { opacity: 1; transform: translate(-50%, -54%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -78%) scale(.92); }
 }
 
-/* 大当たりのカットイン。金の帯が横に流れる。 */
-.gc-cutin {
+/* ---- 大当たりの高級木札 --------------------------------------------------- */
+.gc-kifuda {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 46%;
-  transform: translateY(-50%);
-  z-index: 8;
+  left: 50%;
+  top: 40%;
+  z-index: 10;
+  transform: translate(-50%, -50%);
+  padding: 14px 26px 18px;
+  border-radius: 6px 6px 12px 12px;
+  background: linear-gradient(160deg, #fff3c4, #e8b53f 55%, #b8801c);
+  border: 4px solid #4a2c0a;
+  box-shadow: 0 10px 0 #4a2c0a, 0 18px 34px rgba(0, 0, 0, .45);
   text-align: center;
   opacity: 0;
   pointer-events: none;
 }
-.gc-cutin .gc-cutin-band {
+.gc-kifuda .gc-kifuda-top {
   display: block;
-  font-size: 11px;
+  font-size: clamp(13px, 4vw, 18px);
   font-weight: 900;
-  letter-spacing: .34em;
-  color: #ffe9a8;
-  margin-bottom: 2px;
+  color: #8c2f28;
+  letter-spacing: .12em;
 }
-.gc-cutin b {
+.gc-kifuda b {
   display: block;
-  font-size: clamp(52px, 19vw, 132px);
-  line-height: .96;
+  font-size: clamp(42px, 15vw, 88px);
+  line-height: 1;
   font-weight: 900;
   font-variant-numeric: tabular-nums;
-  color: #fff;
-  background: linear-gradient(100deg, #fff 12%, #ffe45e 30%, #ff6bd6 48%, #5be3ff 64%, #fff 86%);
-  background-size: 260% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 22px rgba(255, 255, 255, .8))
-          drop-shadow(0 0 52px rgba(255, 107, 214, .6));
+  color: #4a2c0a;
+  text-shadow: 2px 2px 0 rgba(255, 255, 255, .6);
 }
-.gc-cutin.is-on { animation: gc-cutin 1.9s cubic-bezier(.16, .9, .2, 1) forwards; }
-.gc-cutin.is-on b { animation: gc-cutin-shine 1.5s linear infinite; }
-@keyframes gc-cutin {
-  0%   { opacity: 0; transform: translateY(-50%) scale(2.6) skewX(-16deg); }
-  10%  { opacity: 1; transform: translateY(-50%) scale(1)   skewX(0deg); }
-  84%  { opacity: 1; transform: translateY(-50%) scale(1.04); }
-  100% { opacity: 0; transform: translateY(-50%) scale(1.14); }
-}
-@keyframes gc-cutin-shine {
-  0%   { background-position: 210% 0; }
-  100% { background-position: -40% 0; }
+.gc-kifuda.is-on { animation: gc-kifuda 2.1s cubic-bezier(.1, 1.6, .3, 1) both; }
+@keyframes gc-kifuda {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(3.4) rotate(-14deg); }
+  12%  { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(3deg); }
+  18%  { transform: translate(-50%, -50%) scale(1.08) rotate(-2deg); }
+  24%  { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+  86%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -56%) scale(1.06); }
 }
 
-/* ---- フッター（ボタンとヒント）------------------------------------------ */
+/* ---- 暗転・フラッシュ・後光 ----------------------------------------------- */
+.gc-dim {
+  position: absolute; inset: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 8;
+  transition: opacity .3s ease;
+}
+.gc-dim.is-on { opacity: 1; }
+
+.gc-flash {
+  position: absolute; inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9;
+}
+.gc-flash.is-on    { animation: gc-flash .4s ease-out; }
+.gc-flash.is-tease { animation: gc-tease .34s steps(1, end); }
+@keyframes gc-flash { 0% { opacity: .95; } 100% { opacity: 0; } }
+@keyframes gc-tease {
+  0%, 100%      { opacity: 0; }
+  4%, 20%, 36%  { opacity: .9; }
+  12%, 28%, 44% { opacity: 0; }
+}
+
+/* 集中線（後光）。円錐グラデ1枚で作る。 */
+.gc-rays {
+  position: absolute;
+  left: 50%; top: 42%;
+  width: 220vmax; height: 220vmax;
+  margin: -110vmax 0 0 -110vmax;
+  z-index: 3;
+  opacity: 0;
+  pointer-events: none;
+  background: repeating-conic-gradient(from 0deg,
+    rgba(255, 210, 74, .85) 0deg 3deg, transparent 3deg 9deg);
+  -webkit-mask: radial-gradient(circle, transparent 8%, #000 26%);
+  mask: radial-gradient(circle, transparent 8%, #000 26%);
+}
+.gc-rays.is-on { animation: gc-rays 1.9s linear both; }
+@keyframes gc-rays {
+  0%   { opacity: 0;   transform: rotate(0deg) scale(.4); }
+  10%  { opacity: .95; transform: rotate(9deg) scale(1); }
+  100% { opacity: 0;   transform: rotate(56deg) scale(1.1); }
+}
+
+/* ---- フッター ------------------------------------------------------------ */
 .gc-foot {
   position: relative;
-  z-index: 6;
+  z-index: 8;
   width: 100%;
   max-width: 460px;
   display: flex;
@@ -6990,46 +7128,49 @@
 .gc-hint {
   margin: 0;
   font-size: 11px;
+  font-weight: 700;
   line-height: 1.5;
-  color: #8a95a5;
+  color: #6d4a1c;
   text-align: center;
   min-height: 1.5em;
 }
-.gc-hint.is-warn { color: #ffd24a; }
+.gc-hint.is-warn { color: #8c2f28; }
 .gc-buttons {
   display: grid;
   grid-template-columns: 1.4fr 1fr 1fr;
   gap: 8px;
 }
+/* ボタンも木札。押すと沈む（影が消える）。 */
 .gc-btn {
-  padding: 13px 4px;
-  border-radius: 12px;
-  border: 1px solid #3a3a48;
-  background: rgba(255, 255, 255, .05);
-  color: #eaf6ff;
+  padding: 13px 4px 15px;
+  border-radius: 4px 4px 9px 9px;
+  border: 3px solid #4a2c0a;
+  background: linear-gradient(160deg, #f3dcae, #d9ab63);
+  color: #4a2c0a;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 900;
   cursor: pointer;
-  transition: transform .1s ease, opacity .18s ease;
+  box-shadow: 0 4px 0 #4a2c0a;
+  transition: transform .08s ease, box-shadow .08s ease, opacity .18s ease;
   -webkit-tap-highlight-color: transparent;
 }
-.gc-btn:active { transform: scale(.96); }
+.gc-btn:active { transform: translateY(4px); box-shadow: none; }
 .gc-btn.is-primary {
-  background: linear-gradient(135deg, rgba(var(--tc-rgb), .34), rgba(var(--tc-rgb), .12));
-  border-color: rgba(var(--tc-rgb), .8);
-  box-shadow: 0 0 18px rgba(var(--tc-rgb), .28);
+  background: linear-gradient(160deg, #ff9d7a, #e0523d);
+  color: #fff6e8;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, .35);
 }
-.gc-btn[disabled] { opacity: .32; pointer-events: none; }
+.gc-btn[disabled] { opacity: .38; pointer-events: none; box-shadow: 0 4px 0 #4a2c0a; }
 
-/* ---- まとめ引きの結果パネル --------------------------------------------- */
+/* ---- お会計（まとめ引きの結果）-------------------------------------------- */
 .gc-summary {
   position: absolute;
   inset: 0;
-  z-index: 9;
+  z-index: 11;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(6, 6, 9, .88);
+  background: rgba(40, 24, 6, .78);
   padding: 16px;
 }
 .gc-summary[hidden] { display: none; }
@@ -7038,58 +7179,65 @@
   max-height: 74vh;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
-  background: #1c1c22;
-  border: 1px solid #3a3a48;
-  border-radius: 14px;
+  background: #fdf3dd;
+  border: 4px solid #4a2c0a;
+  border-radius: 4px;
   padding: 16px;
   text-align: center;
+  box-shadow: 0 8px 0 #4a2c0a;
 }
 .gc-summary-card h3 {
   margin: 0 0 10px;
-  font-size: 14px;
-  color: #eaf6ff;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: .14em;
+  color: #8c2f28;
 }
 .gc-sum-line {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 8px 4px;
-  border-top: 1px solid #2c2c38;
+  padding: 9px 4px;
+  border-top: 2px dashed #c9a86a;
   font-size: 13px;
-  color: #dfe6f2;
+  font-weight: 700;
+  color: #4a2c0a;
   font-variant-numeric: tabular-nums;
 }
-.gc-sum-line b { font-size: 15px; font-weight: 900; }
-.gc-sum-line.is-rainbow b {
-  background: linear-gradient(100deg, #ffe45e, #ff6bd6, #5be3ff);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-.gc-sum-note { margin: 10px 0 0; font-size: 11px; color: #8a95a5; }
+.gc-sum-line b { font-size: 16px; font-weight: 900; }
+.gc-sum-line.is-rainbow b { color: #b8801c; }
+.gc-sum-note { margin: 10px 0 0; font-size: 12px; font-weight: 700; color: #8c2f28; }
 .gc-sum-ok {
   margin-top: 14px;
   width: 100%;
   padding: 12px;
-  border-radius: 11px;
-  border: 1px solid rgba(var(--tc-rgb), .8);
-  background: linear-gradient(135deg, rgba(var(--tc-rgb), .3), rgba(var(--tc-rgb), .1));
-  color: #eaf6ff;
-  font-size: 13px;
-  font-weight: 800;
+  border-radius: 4px 4px 9px 9px;
+  border: 3px solid #4a2c0a;
+  background: linear-gradient(160deg, #ff9d7a, #e0523d);
+  color: #fff6e8;
+  font-size: 14px;
+  font-weight: 900;
   cursor: pointer;
+  box-shadow: 0 4px 0 #4a2c0a;
 }
+.gc-sum-ok:active { transform: translateY(4px); box-shadow: none; }
 
-/* 動きを減らす設定では、回転とズームをやめて結果だけ見せる */
+/* 動きを減らす設定：跳ねと震えを止め、結果だけ静かに見せる */
 @media (prefers-reduced-motion: reduce) {
-  .gc-shell.is-finish, .gc-cube.is-gold .gc-face { animation: none; }
-  .gc-cube { transition: none !important; }
-  .gc-lasers.is-on, .gc-beam.is-on { animation-duration: .3s; }
+  .gc-taisho.is-working, .gc-taisho.is-shout, .gc-taisho.is-ready,
+  .gc-ghost, .gc-noren-cloth, .gc-neta { animation: none; }
+  .gc-plate.is-served { animation-duration: .2s; }
+  .gc-rays.is-on { animation-duration: .4s; }
 }
 
 /* 画面が狭いときはボタンを2段にして、指の当たりを大きく保つ */
 @media (max-width: 360px) {
   .gc-buttons { grid-template-columns: 1fr 1fr; }
   .gc-btn.is-primary { grid-column: 1 / -1; }
+}
+/* 背の低い横向きでは、大将を小さくして皿とボタンの場所を確保する */
+@media (max-height: 520px) {
+  .gc-taisho { width: clamp(110px, 26vw, 150px); }
+  .gc-noren { display: none; }
 }

@@ -2929,3 +2929,174 @@
     });
   });
 })();
+
+/* =========================================================================
+   寿司屋ガチャ「回転シャード寿司」の文言
+   既存の辞書は触らず、無いキーだけを足すマージ方式。
+   掛け声は日本語の江戸前の口上そのものが持ち味なので、他言語でも
+   「寿司屋の威勢のいい声」に読める言い回しへ寄せてある（直訳しない）。
+   ========================================================================= */
+(function () {
+  if (typeof I18N === 'undefined') return;
+  var SUSHI_I18N = {
+    'ja': {
+      sushiTitle:       '回転シャード寿司',
+      sushiWelcome:     'へいらっしゃい！',
+      sushiServeCyan:   'へい！シャード一丁！',
+      sushiServeRainbow:'大トロ一丁ォォォ！！',
+      sushiDraw1:       '一貫にぎる',
+      sushiDraw10:      '十貫',
+      sushiDrawAll:     '爆速連握り',
+      sushiHintGet:     '2側面判断で1問正解するごとに一貫ぶんたまります',
+      sushiHintFull:    'ネタ切れです。のれんが下りる前に食べてください',
+      sushiHintNone:    '本日のぶんは売り切れです',
+      sushiConfirmBody: '{n}貫ぶん、一気に握ります。',
+      sushiTally:       'お会計',
+      sushiPieces:      '{n}貫',
+      sushiToroCount:   '大トロ {n}貫',
+      sushiGochiso:     'ごちそうさま'
+    },
+    'en': {
+      sushiTitle:       'Spinning Shard Sushi',
+      sushiWelcome:     'Welcome in!',
+      sushiServeCyan:   'One shard, coming up!',
+      sushiServeRainbow:'FATTY TUNAAA!!',
+      sushiDraw1:       'Order one',
+      sushiDraw10:      'Order ten',
+      sushiDrawAll:     'Turbo service',
+      sushiHintGet:     'Each correct 2-sided answer earns one piece',
+      sushiHintFull:    'Counter is full! Eat up before the curtain drops',
+      sushiHintNone:    'Sold out for today',
+      sushiConfirmBody: 'The chef will make all {n} pieces at once.',
+      sushiTally:       'The bill',
+      sushiPieces:      '{n} pieces',
+      sushiToroCount:   '{n} fatty tuna',
+      sushiGochiso:     'Thanks for the meal'
+    },
+    'zh-CN': {
+      sushiTitle:       '回转晶片寿司',
+      sushiWelcome:     '欢迎光临！',
+      sushiServeCyan:   '晶片一份，来嘞！',
+      sushiServeRainbow:'大肥金枪鱼一份————！！',
+      sushiDraw1:       '来一贯',
+      sushiDraw10:      '来十贯',
+      sushiDrawAll:     '极速连握',
+      sushiHintGet:     '两面判断每答对1题可攒一贯',
+      sushiHintFull:    '食材满了！趁门帘没放下快吃',
+      sushiHintNone:    '今天的已经卖完了',
+      sushiConfirmBody: '将一口气握 {n} 贯。',
+      sushiTally:       '结账',
+      sushiPieces:      '{n} 贯',
+      sushiToroCount:   '大肥金枪鱼 {n} 贯',
+      sushiGochiso:     '多谢款待'
+    },
+    'zh-TW': {
+      sushiTitle:       '迴轉晶片壽司',
+      sushiWelcome:     '歡迎光臨！',
+      sushiServeCyan:   '晶片一份，來囉！',
+      sushiServeRainbow:'大鮪魚肚一份————！！',
+      sushiDraw1:       '來一貫',
+      sushiDraw10:      '來十貫',
+      sushiDrawAll:     '極速連握',
+      sushiHintGet:     '兩面判斷每答對1題可攢一貫',
+      sushiHintFull:    '食材滿了！趁門簾沒放下快吃',
+      sushiHintNone:    '今天的已經賣完了',
+      sushiConfirmBody: '將一口氣握 {n} 貫。',
+      sushiTally:       '結帳',
+      sushiPieces:      '{n} 貫',
+      sushiToroCount:   '大鮪魚肚 {n} 貫',
+      sushiGochiso:     '多謝款待'
+    },
+    'ko': {
+      sushiTitle:       '회전 샤드 스시',
+      sushiWelcome:     '어서 오세요!',
+      sushiServeCyan:   '샤드 하나 나갑니다!',
+      sushiServeRainbow:'대뱃살 하나아아!!',
+      sushiDraw1:       '한 점',
+      sushiDraw10:      '열 점',
+      sushiDrawAll:     '초고속 연타',
+      sushiHintGet:     '2면 판단에서 1문제 맞힐 때마다 한 점씩 쌓입니다',
+      sushiHintFull:    '재료가 가득! 포렴 내리기 전에 드세요',
+      sushiHintNone:    '오늘 치는 다 팔렸습니다',
+      sushiConfirmBody: '{n}점을 한 번에 쥡니다.',
+      sushiTally:       '계산',
+      sushiPieces:      '{n}점',
+      sushiToroCount:   '대뱃살 {n}점',
+      sushiGochiso:     '잘 먹었습니다'
+    },
+    'es': {
+      sushiTitle:       'Sushi de Fragmentos',
+      sushiWelcome:     '¡Adelante!',
+      sushiServeCyan:   '¡Un fragmento, marchando!',
+      sushiServeRainbow:'¡¡TOROOO!!',
+      sushiDraw1:       'Pedir una',
+      sushiDraw10:      'Pedir diez',
+      sushiDrawAll:     'Servicio turbo',
+      sushiHintGet:     'Cada acierto en 2 caras te da una pieza',
+      sushiHintFull:    '¡Barra llena! Come antes de que baje la cortina',
+      sushiHintNone:    'Agotado por hoy',
+      sushiConfirmBody: 'El chef hará las {n} piezas de golpe.',
+      sushiTally:       'La cuenta',
+      sushiPieces:      '{n} piezas',
+      sushiToroCount:   '{n} de toro',
+      sushiGochiso:     'Gracias por la comida'
+    },
+    'id': {
+      sushiTitle:       'Sushi Serpihan Putar',
+      sushiWelcome:     'Silakan masuk!',
+      sushiServeCyan:   'Satu serpihan, siap!',
+      sushiServeRainbow:'TORO SATUUU!!',
+      sushiDraw1:       'Pesan satu',
+      sushiDraw10:      'Pesan sepuluh',
+      sushiDrawAll:     'Layanan kilat',
+      sushiHintGet:     'Tiap jawaban benar di 2 Sisi dapat satu potong',
+      sushiHintFull:    'Meja penuh! Habiskan sebelum tirai turun',
+      sushiHintNone:    'Habis untuk hari ini',
+      sushiConfirmBody: 'Koki akan membuat {n} potong sekaligus.',
+      sushiTally:       'Bon',
+      sushiPieces:      '{n} potong',
+      sushiToroCount:   '{n} toro',
+      sushiGochiso:     'Terima kasih makanannya'
+    },
+    'ru': {
+      sushiTitle:       'Суши «Вертящийся осколок»',
+      sushiWelcome:     'Добро пожаловать!',
+      sushiServeCyan:   'Один осколок, готово!',
+      sushiServeRainbow:'ЖИРНЫЙ ТУНЕ-Е-ЕЦ!!',
+      sushiDraw1:       'Один кусочек',
+      sushiDraw10:      'Десять',
+      sushiDrawAll:     'Турбо-подача',
+      sushiHintGet:     'Каждый верный ответ в «2 стороны» — один кусочек',
+      sushiHintFull:    'Стойка полна! Ешьте, пока не опустили штору',
+      sushiHintNone:    'На сегодня всё распродано',
+      sushiConfirmBody: 'Повар слепит все {n} кусочков разом.',
+      sushiTally:       'Счёт',
+      sushiPieces:      'Кусочков: {n}',
+      sushiToroCount:   'Торо: {n}',
+      sushiGochiso:     'Спасибо за угощение'
+    },
+    'pt-BR': {
+      sushiTitle:       'Sushi de Fragmentos',
+      sushiWelcome:     'Bem-vindo!',
+      sushiServeCyan:   'Um fragmento, saindo!',
+      sushiServeRainbow:'TOROOO!!',
+      sushiDraw1:       'Pedir uma',
+      sushiDraw10:      'Pedir dez',
+      sushiDrawAll:     'Serviço turbo',
+      sushiHintGet:     'Cada acerto no 2 lados rende uma peça',
+      sushiHintFull:    'Balcão cheio! Coma antes de a cortina descer',
+      sushiHintNone:    'Esgotado por hoje',
+      sushiConfirmBody: 'O chef fará as {n} peças de uma vez.',
+      sushiTally:       'A conta',
+      sushiPieces:      '{n} peças',
+      sushiToroCount:   '{n} de toro',
+      sushiGochiso:     'Obrigado pela refeição'
+    }
+  };
+  Object.keys(SUSHI_I18N).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(SUSHI_I18N[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = SUSHI_I18N[lang][k];
+    });
+  });
+})();
