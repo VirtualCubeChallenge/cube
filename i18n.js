@@ -3114,63 +3114,72 @@
       sushiOp1: 'かつて、世界を統べる最速のキューバーがいた。',
       sushiOp2: '極限の回転効率を追い求めた男が、最後に辿り着いた境地——',
       sushiOp3: 'それは、「寿司を握ること」だった。',
-      sushiOp4: '回転シャード寿司、開店。'
+      sushiOp4: '回転シャード寿司\n開店！',
+      sushiOpTap: 'タップで次へ'
     },
     'en': {
       sushiLocked: 'Play 2-Sided Recognition at least once to unlock',
       sushiOp1: 'Once, there was the fastest cuber the world had ever known.',
       sushiOp2: 'He chased perfect turning efficiency to its very limit — and found, at the end...',
       sushiOp3: 'that his true calling was making sushi.',
-      sushiOp4: 'Spinning Shard Sushi is now open.'
+      sushiOp4: 'Spinning Shard Sushi\nNow Open!',
+      sushiOpTap: 'Tap to continue'
     },
     'zh-CN': {
       sushiLocked: '游玩一次两面判断即可解锁',
       sushiOp1: '曾经，有一位统御世界的最速魔方手。',
       sushiOp2: '那个把转动效率追到极限的男人，最后抵达的境界是——',
       sushiOp3: '「捏寿司」。',
-      sushiOp4: '回转晶片寿司，开张。'
+      sushiOp4: '回转晶片寿司\n开张！',
+      sushiOpTap: '点击继续'
     },
     'zh-TW': {
       sushiLocked: '遊玩一次兩面判斷即可解鎖',
       sushiOp1: '曾經，有一位統御世界的最速魔術方塊手。',
       sushiOp2: '那個把轉動效率追到極限的男人，最後抵達的境界是——',
       sushiOp3: '「捏壽司」。',
-      sushiOp4: '迴轉晶片壽司，開張。'
+      sushiOp4: '迴轉晶片壽司\n開張！',
+      sushiOpTap: '點擊繼續'
     },
     'ko': {
       sushiLocked: '2면 판단을 1회 이상 플레이하면 해금됩니다',
       sushiOp1: '한때, 세계를 제패한 가장 빠른 큐버가 있었다.',
       sushiOp2: '극한의 회전 효율을 좇던 사내가 마지막에 다다른 경지——',
       sushiOp3: '그것은 「초밥을 쥐는 일」이었다.',
-      sushiOp4: '회전 샤드 스시, 개점.'
+      sushiOp4: '회전 샤드 스시\n개점！',
+      sushiOpTap: '탭하여 계속'
     },
     'es': {
       sushiLocked: 'Juega al menos una vez a Reconocimiento de 2 caras para desbloquear',
       sushiOp1: 'Hubo una vez el cubero más rápido que el mundo conoció.',
       sushiOp2: 'Persiguió la eficiencia de giro hasta el límite, y al final halló...',
       sushiOp3: 'que lo suyo era hacer sushi.',
-      sushiOp4: 'Sushi de Fragmentos abre sus puertas.'
+      sushiOp4: 'Sushi de Fragmentos\n¡Ya abierto!',
+      sushiOpTap: 'Toca para continuar'
     },
     'id': {
       sushiLocked: 'Mainkan Penilaian 2 Sisi minimal sekali untuk membuka',
       sushiOp1: 'Dahulu, ada cuber tercepat yang pernah dikenal dunia.',
       sushiOp2: 'Ia mengejar efisiensi putaran hingga batasnya, dan akhirnya menemukan...',
       sushiOp3: 'bahwa panggilan sejatinya adalah membuat sushi.',
-      sushiOp4: 'Sushi Serpihan Putar kini buka.'
+      sushiOp4: 'Sushi Serpihan Putar\nKini Buka!',
+      sushiOpTap: 'Ketuk untuk lanjut'
     },
     'ru': {
       sushiLocked: 'Сыграйте в «Определение по 2 сторонам» хотя бы раз',
       sushiOp1: 'Когда-то был самый быстрый спидкубер на свете.',
       sushiOp2: 'Он довёл эффективность вращений до предела и в конце понял...',
       sushiOp3: 'что его призвание — лепить суши.',
-      sushiOp4: 'Суши «Вертящийся осколок» открыты.'
+      sushiOp4: 'Суши «Вертящийся осколок»\nОткрыто!',
+      sushiOpTap: 'Нажмите, чтобы продолжить'
     },
     'pt-BR': {
       sushiLocked: 'Jogue Reconhecimento de 2 lados ao menos uma vez para desbloquear',
       sushiOp1: 'Houve uma vez o cuber mais rápido que o mundo já viu.',
       sushiOp2: 'Ele perseguiu a eficiência de giro até o limite, e no fim descobriu...',
       sushiOp3: 'que sua verdadeira vocação era fazer sushi.',
-      sushiOp4: 'Sushi de Fragmentos está aberto.'
+      sushiOp4: 'Sushi de Fragmentos\nJá aberto!',
+      sushiOpTap: 'Toque para continuar'
     }
   };
   Object.keys(OP_I18N).forEach(function (lang) {

@@ -7332,9 +7332,13 @@
 .gc-op-kanban {
   top: 50%;
   transform: translateY(-50%);
-  font-size: clamp(26px, 9vw, 54px);
+  font-size: clamp(24px, 8.4vw, 50px);
   font-weight: 900;
-  letter-spacing: .12em;
+  letter-spacing: .1em;
+  /* 「回転シャード寿司 / 開店！」の2行。文字数が言語でまるで違うので、
+     どこで折るかはブラウザ任せにせず辞書の改行をそのまま使う。 */
+  white-space: pre-line;
+  line-height: 1.28;
   background: linear-gradient(100deg, #fff3c4 10%, #e8b53f 40%, #fff8d8 55%, #b8801c 80%);
   background-size: 220% 100%;
   -webkit-background-clip: text;
@@ -7358,6 +7362,27 @@
   0%   { background-position: 200% 0; }
   100% { background-position: -60% 0; }
 }
+/* 「タップで次へ」。急かして見えないよう、1行目が出てから静かに添える。 */
+.gc-op-tap {
+  position: absolute;
+  left: 0; right: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+  margin: 0;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  color: rgba(243, 233, 210, .5);
+  opacity: 0;
+  transition: opacity .5s ease;
+  pointer-events: none;
+}
+.gc-op-tap.is-on { opacity: 1; animation: gc-op-tap 2.2s ease-in-out infinite; }
+@keyframes gc-op-tap {
+  0%, 100% { opacity: .32; }
+  50%      { opacity: .8; }
+}
+
 /* 明転。黒から一気に白へ抜けて、店が現れる。 */
 .gc-op.is-dawn { animation: gc-op-dawn .6s ease-out forwards; }
 @keyframes gc-op-dawn {
@@ -7378,6 +7403,6 @@
 .shop-gacha-entry.is-locked b { opacity: .55; }
 
 @media (prefers-reduced-motion: reduce) {
-  .gc-op::before, .gc-op-line.is-hold { animation: none; }
+  .gc-op::before, .gc-op-line.is-hold, .gc-op-tap.is-on { animation: none; }
   .gc-op-kanban.is-on { animation: gc-op-kanban .5s ease-out forwards; }
 }
