@@ -7241,3 +7241,142 @@
   .gc-taisho { width: clamp(110px, 26vw, 150px); }
   .gc-noren { display: none; }
 }
+
+/* =========================================================================
+   初回だけ流れる10秒の口上（オープニング）
+   -------------------------------------------------------------------------
+   ・カット不可。だから「閉じる」もボタンもこの層の下に完全に隠す。
+     見えていて押せないのがいちばん腹が立つので、そもそも見せない。
+   ・筆文字は端末にある明朝／楷書を順に当てる。無い環境でも serif に
+     落ちるだけで、10秒の流れは壊れない。
+   ・止まっているのは字だけで、背景はゆっくり動かし続ける（完全な静止は
+     「固まった」と誤解されるため）。
+   ========================================================================= */
+.gc-op {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: none;
+  background: #000;
+  overflow: hidden;
+  /* カット不可の要。ここで全部のタップを吸う。 */
+  pointer-events: auto;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+#gacha-overlay.gc-op-on .gc-op { display: block; }
+/* 口上のあいだ、店のものは何ひとつ見せない */
+#gacha-overlay.gc-op-on .gc-head,
+#gacha-overlay.gc-op-on .gc-foot,
+#gacha-overlay.gc-op-on .gc-stage,
+#gacha-overlay.gc-op-on .gc-noren,
+#gacha-overlay.gc-op-on .gc-wall,
+#gacha-overlay.gc-op-on .gc-counter { visibility: hidden; }
+
+/* 墨がにじむような背景のうごき。完全な静止を避ける。 */
+.gc-op::before {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(circle at 50% 46%, rgba(70, 40, 20, .5), transparent 62%);
+  animation: gc-op-breathe 6s ease-in-out infinite;
+}
+@keyframes gc-op-breathe {
+  0%, 100% { transform: scale(1);    opacity: .5; }
+  50%      { transform: scale(1.12); opacity: .9; }
+}
+
+.gc-op-line,
+.gc-op-kanban {
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  text-align: center;
+  opacity: 0;
+  /* 筆文字。端末にある明朝／楷書を順に当てる。 */
+  font-family: 'Yu Mincho', 'YuMincho', 'Hiragino Mincho ProN', 'Kaiti SC',
+               'Songti SC', 'Nanum Myeongjo', serif;
+  font-weight: 700;
+  letter-spacing: .08em;
+  line-height: 1.7;
+  color: #f3e9d2;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, .9);
+}
+.gc-op-line.l1 { top: 14%; font-size: clamp(15px, 4.6vw, 24px); }
+.gc-op-line.l2 { top: 40%; font-size: clamp(16px, 5vw, 27px); }
+.gc-op-line.l3 { top: 63%; font-size: clamp(17px, 5.4vw, 29px); color: #ffe9b8; }
+
+/* 一行ずつ、墨を置くようにゆっくり出て、そのまま残る。 */
+.gc-op-line.is-on { animation: gc-op-in 1.1s ease-out forwards; }
+@keyframes gc-op-in {
+  0%   { opacity: 0; transform: translateY(14px) scale(.98); filter: blur(6px); }
+  100% { opacity: 1; transform: translateY(0)    scale(1);   filter: blur(0); }
+}
+/* 3行目だけ、太鼓のドドン！に合わせてぐっと詰め寄る。 */
+.gc-op-line.l3.is-on { animation: gc-op-in3 1.1s cubic-bezier(.2, 1.4, .3, 1) forwards; }
+@keyframes gc-op-in3 {
+  0%   { opacity: 0; transform: scale(1.5);  filter: blur(10px); }
+  40%  { opacity: 1; transform: scale(.97);  filter: blur(0); }
+  100% { opacity: 1; transform: scale(1); }
+}
+/* 出たあとの余韻。字がわずかに息をする。 */
+.gc-op-line.is-hold { animation: gc-op-hold 3s ease-in-out infinite; }
+@keyframes gc-op-hold {
+  0%, 100% { text-shadow: 0 2px 14px rgba(0, 0, 0, .9); }
+  50%      { text-shadow: 0 2px 22px rgba(255, 200, 120, .45); }
+}
+
+/* 4行目：金の看板。ドカンと出る。 */
+.gc-op-kanban {
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: clamp(26px, 9vw, 54px);
+  font-weight: 900;
+  letter-spacing: .12em;
+  background: linear-gradient(100deg, #fff3c4 10%, #e8b53f 40%, #fff8d8 55%, #b8801c 80%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 20px rgba(255, 200, 90, .8))
+          drop-shadow(0 4px 0 rgba(0, 0, 0, .6));
+}
+.gc-op-kanban.is-on {
+  animation: gc-op-kanban 2s cubic-bezier(.1, 1.5, .3, 1) forwards,
+             gc-op-shine 2.4s linear infinite;
+}
+@keyframes gc-op-kanban {
+  0%   { opacity: 0; transform: translateY(-50%) scale(4) rotate(-8deg); }
+  14%  { opacity: 1; transform: translateY(-50%) scale(1) rotate(2deg); }
+  20%  { transform: translateY(-50%) scale(1.06) rotate(-1deg); }
+  26%  { transform: translateY(-50%) scale(1) rotate(0deg); }
+  100% { opacity: 1; transform: translateY(-50%) scale(1); }
+}
+@keyframes gc-op-shine {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -60% 0; }
+}
+/* 明転。黒から一気に白へ抜けて、店が現れる。 */
+.gc-op.is-dawn { animation: gc-op-dawn .6s ease-out forwards; }
+@keyframes gc-op-dawn {
+  0%   { background: #000; }
+  45%  { background: #fff; }
+  100% { background: #fff; opacity: 0; }
+}
+
+/* ロックされているときのショップ側の木札 */
+.shop-gacha-entry.is-locked {
+  background: linear-gradient(160deg, #b9b3a6, #8e887c);
+  border-color: #5f5a51;
+  color: #3d3a34;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .3);
+  animation: none;
+}
+.shop-gacha-entry.is-locked::before { content: '錠'; color: #5f5a51; }
+.shop-gacha-entry.is-locked b { opacity: .55; }
+
+@media (prefers-reduced-motion: reduce) {
+  .gc-op::before, .gc-op-line.is-hold { animation: none; }
+  .gc-op-kanban.is-on { animation: gc-op-kanban .5s ease-out forwards; }
+}
