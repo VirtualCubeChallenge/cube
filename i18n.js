@@ -2750,3 +2750,182 @@
     });
   });
 })();
+
+/* =========================================================================
+   2側面判断ガチャ（ショップ内）の文言
+   既存の辞書は触らず、無いキーだけを足すマージ方式。
+   カットインの「10,000」やチケットのアイコンは非翻訳なのでキーを持たない。
+   ========================================================================= */
+(function () {
+  if (typeof I18N === 'undefined') return;
+  var GACHA_I18N = {
+    'ja': {
+      gachaTitle:      '2側面判断ガチャ',
+      gachaTicket:     '2側面判断チケット',
+      gachaMax:        'MAX',
+      gachaDraw1:      '1回引く',
+      gachaDraw10:     '10連',
+      gachaDrawAll:    '全部引く',
+      gachaHintGet:    'PLL 2側面判断で1問正解するごとに1枚たまります',
+      gachaHintFull:   'チケットが上限です。引いて使いましょう',
+      gachaHintNone:   'チケットがありません',
+      gachaConfirmAll: '全部引く',
+      gachaConfirmBody:'2側面判断チケットを {n}枚 使います。',
+      gachaResult:     'けっか',
+      gachaDrew:       '{n}回引きました',
+      gachaHits:       '大当たり {n}回',
+      gachaEarned:     '獲得チケット',
+      gachaSkip:       'タップでスキップ'
+    },
+    'en': {
+      gachaTitle:      '2-Sided Gacha',
+      gachaTicket:     '2-Sided Ticket',
+      gachaMax:        'MAX',
+      gachaDraw1:      'Draw',
+      gachaDraw10:     'Draw 10',
+      gachaDrawAll:    'Draw all',
+      gachaHintGet:    'Earn 1 ticket for every correct answer in PLL 2-Sided',
+      gachaHintFull:   'Tickets are at the cap. Spend some!',
+      gachaHintNone:   'No tickets yet',
+      gachaConfirmAll: 'Draw all',
+      gachaConfirmBody:'This uses {n} tickets.',
+      gachaResult:     'Results',
+      gachaDrew:       '{n} draws',
+      gachaHits:       '{n} jackpots',
+      gachaEarned:     'Tickets earned',
+      gachaSkip:       'Tap to skip'
+    },
+    'zh-CN': {
+      gachaTitle:      '两面判断扭蛋',
+      gachaTicket:     '两面判断券',
+      gachaMax:        'MAX',
+      gachaDraw1:      '抽一次',
+      gachaDraw10:     '十连',
+      gachaDrawAll:    '全部抽完',
+      gachaHintGet:    'PLL 两面判断每答对1题可获得1张',
+      gachaHintFull:   '券已达上限，快去抽吧',
+      gachaHintNone:   '没有券',
+      gachaConfirmAll: '全部抽完',
+      gachaConfirmBody:'将使用 {n} 张两面判断券。',
+      gachaResult:     '结果',
+      gachaDrew:       '抽了 {n} 次',
+      gachaHits:       '大奖 {n} 次',
+      gachaEarned:     '获得券',
+      gachaSkip:       '点击跳过'
+    },
+    'zh-TW': {
+      gachaTitle:      '兩面判斷扭蛋',
+      gachaTicket:     '兩面判斷券',
+      gachaMax:        'MAX',
+      gachaDraw1:      '抽一次',
+      gachaDraw10:     '十連',
+      gachaDrawAll:    '全部抽完',
+      gachaHintGet:    'PLL 兩面判斷每答對1題可獲得1張',
+      gachaHintFull:   '券已達上限，快去抽吧',
+      gachaHintNone:   '沒有券',
+      gachaConfirmAll: '全部抽完',
+      gachaConfirmBody:'將使用 {n} 張兩面判斷券。',
+      gachaResult:     '結果',
+      gachaDrew:       '抽了 {n} 次',
+      gachaHits:       '大獎 {n} 次',
+      gachaEarned:     '獲得券',
+      gachaSkip:       '點擊跳過'
+    },
+    'ko': {
+      gachaTitle:      '2면 판단 뽑기',
+      gachaTicket:     '2면 판단 티켓',
+      gachaMax:        'MAX',
+      gachaDraw1:      '1회 뽑기',
+      gachaDraw10:     '10연차',
+      gachaDrawAll:    '전부 뽑기',
+      gachaHintGet:    'PLL 2면 판단에서 1문제 정답마다 1장 쌓입니다',
+      gachaHintFull:   '티켓이 상한입니다. 뽑아서 사용하세요',
+      gachaHintNone:   '티켓이 없습니다',
+      gachaConfirmAll: '전부 뽑기',
+      gachaConfirmBody:'2면 판단 티켓을 {n}장 사용합니다.',
+      gachaResult:     '결과',
+      gachaDrew:       '{n}회 뽑았습니다',
+      gachaHits:       '대박 {n}회',
+      gachaEarned:     '획득 티켓',
+      gachaSkip:       '탭하여 건너뛰기'
+    },
+    'es': {
+      gachaTitle:      'Gacha de 2 caras',
+      gachaTicket:     'Ticket de 2 caras',
+      gachaMax:        'MAX',
+      gachaDraw1:      'Tirar',
+      gachaDraw10:     'Tirar 10',
+      gachaDrawAll:    'Tirar todo',
+      gachaHintGet:    'Gana 1 ticket por cada acierto en PLL 2 caras',
+      gachaHintFull:   'Tickets al máximo. ¡Úsalos!',
+      gachaHintNone:   'No tienes tickets',
+      gachaConfirmAll: 'Tirar todo',
+      gachaConfirmBody:'Se usarán {n} tickets.',
+      gachaResult:     'Resultados',
+      gachaDrew:       '{n} tiradas',
+      gachaHits:       '{n} premios gordos',
+      gachaEarned:     'Tickets ganados',
+      gachaSkip:       'Toca para saltar'
+    },
+    'id': {
+      gachaTitle:      'Gacha 2 Sisi',
+      gachaTicket:     'Tiket 2 Sisi',
+      gachaMax:        'MAX',
+      gachaDraw1:      'Tarik',
+      gachaDraw10:     'Tarik 10',
+      gachaDrawAll:    'Tarik semua',
+      gachaHintGet:    'Dapat 1 tiket tiap jawaban benar di PLL 2 Sisi',
+      gachaHintFull:   'Tiket sudah penuh. Ayo pakai!',
+      gachaHintNone:   'Belum ada tiket',
+      gachaConfirmAll: 'Tarik semua',
+      gachaConfirmBody:'Akan memakai {n} tiket.',
+      gachaResult:     'Hasil',
+      gachaDrew:       '{n} tarikan',
+      gachaHits:       '{n} jackpot',
+      gachaEarned:     'Tiket didapat',
+      gachaSkip:       'Ketuk untuk lewati'
+    },
+    'ru': {
+      gachaTitle:      'Гача 2 сторон',
+      gachaTicket:     'Билет 2 сторон',
+      gachaMax:        'MAX',
+      gachaDraw1:      'Крутить',
+      gachaDraw10:     '10 подряд',
+      gachaDrawAll:    'Всё сразу',
+      gachaHintGet:    'За каждый верный ответ в PLL 2 стороны — 1 билет',
+      gachaHintFull:   'Билетов максимум. Пора крутить!',
+      gachaHintNone:   'Билетов нет',
+      gachaConfirmAll: 'Всё сразу',
+      gachaConfirmBody:'Будет потрачено билетов: {n}.',
+      gachaResult:     'Итог',
+      gachaDrew:       'Прокрутов: {n}',
+      gachaHits:       'Джекпотов: {n}',
+      gachaEarned:     'Получено билетов',
+      gachaSkip:       'Нажмите, чтобы пропустить'
+    },
+    'pt-BR': {
+      gachaTitle:      'Gacha de 2 lados',
+      gachaTicket:     'Bilhete de 2 lados',
+      gachaMax:        'MAX',
+      gachaDraw1:      'Girar',
+      gachaDraw10:     'Girar 10',
+      gachaDrawAll:    'Girar tudo',
+      gachaHintGet:    'Ganhe 1 bilhete por acerto no PLL 2 lados',
+      gachaHintFull:   'Bilhetes no limite. Use-os!',
+      gachaHintNone:   'Sem bilhetes',
+      gachaConfirmAll: 'Girar tudo',
+      gachaConfirmBody:'Serão usados {n} bilhetes.',
+      gachaResult:     'Resultado',
+      gachaDrew:       '{n} giros',
+      gachaHits:       '{n} jackpots',
+      gachaEarned:     'Bilhetes ganhos',
+      gachaSkip:       'Toque para pular'
+    }
+  };
+  Object.keys(GACHA_I18N).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(GACHA_I18N[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = GACHA_I18N[lang][k];
+    });
+  });
+})();

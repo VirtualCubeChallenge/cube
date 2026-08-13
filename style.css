@@ -6517,3 +6517,575 @@
     animation: sg-rise .2s ease forwards;
   }
 }
+
+/* =========================================================================
+   2側面判断ガチャ
+   -------------------------------------------------------------------------
+   ・入口はショップの見出し「ショップ」のすぐ右のピル（.shop-gacha-entry）。
+   ・本体は全画面の #gacha-overlay。キューブは2つ目のWebGL文脈を作らない
+     ために CSS 3D（.gc-cube）。粒はぜんぶ canvas 1枚（#gc-canvas）。
+   ・画面を揺らすのは .gc-stage だけ、しかも左右のみ。body や html を縦に
+     揺らすと iPad でラバーバンドが跳ねて画面がギザギザ動くため。
+   ========================================================================= */
+
+/* ---- ショップ側の入口ピル ---------------------------------------------- */
+.shop-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.shop-gacha-entry {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px 3px 7px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(var(--tc-rgb), .18), rgba(255, 255, 255, .05));
+  border: 1px solid rgba(var(--tc-rgb), .55);
+  color: #eaf6ff;
+  font-size: 11px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .12s ease, box-shadow .18s ease;
+}
+.shop-gacha-entry:active { transform: scale(.95); }
+.shop-gacha-entry .sge-ico { font-size: 12px; line-height: 1; }
+.shop-gacha-entry .sge-max {
+  font-style: normal;
+  font-size: 9px;
+  letter-spacing: .06em;
+  color: #ffd24a;
+  display: none;
+}
+/* 上限に達しているときだけ、静かに金色で脈打って「使いどき」を知らせる */
+.shop-gacha-entry.is-full {
+  border-color: rgba(255, 210, 74, .85);
+  color: #ffe9a8;
+  animation: gc-entry-pulse 1.9s ease-in-out infinite;
+}
+.shop-gacha-entry.is-full .sge-max { display: inline; }
+@keyframes gc-entry-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 210, 74, .0); }
+  50%      { box-shadow: 0 0 12px 2px rgba(255, 210, 74, .45); }
+}
+
+/* ---- トレーニング側のチケット表示 -------------------------------------- */
+.pllt-hud-tk b { font-variant-numeric: tabular-nums; }
+.pllt-hud-tk.is-full b { color: #ffd24a; }
+.pllt-hud-tk.is-bump b { animation: gc-tk-bump .5s ease-out; }
+@keyframes gc-tk-bump {
+  0%   { transform: scale(1);    color: #ffd24a; }
+  35%  { transform: scale(1.28); color: #fff2c2; }
+  100% { transform: scale(1);    color: #ffd24a; }
+}
+.pllt-ticket-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 10px 0 2px;
+}
+.pllt-ticket-row .pllt-tk-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(var(--tc-rgb), .5);
+  font-size: 12px;
+  font-weight: 800;
+  color: #eaf6ff;
+  font-variant-numeric: tabular-nums;
+}
+.pllt-ticket-row .pllt-tk-badge.is-full {
+  border-color: rgba(255, 210, 74, .8);
+  color: #ffe9a8;
+}
+
+/* =========================================================================
+   ガチャ本体
+   ========================================================================= */
+#gacha-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10150;              /* スキン獲得(10200)より後ろ、ランク演出(10105)より前 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  background: radial-gradient(120% 90% at 50% 40%, #14141c 0%, #08080b 62%, #050507 100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s ease;
+  overflow: hidden;
+  padding: calc(env(safe-area-inset-top, 0px) + 10px) 12px
+           calc(env(safe-area-inset-bottom, 0px) + 12px);
+  -webkit-tap-highlight-color: transparent;
+}
+#gacha-overlay[hidden] { display: none; }
+#gacha-overlay.is-open { opacity: 1; pointer-events: auto; }
+
+.gc-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* ---- ヘッダー ----------------------------------------------------------- */
+.gc-head {
+  position: relative;
+  z-index: 6;
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.gc-head h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: .02em;
+  color: #eaf6ff;
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left;
+}
+.gc-close {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #3a3a48;
+  background: rgba(255, 255, 255, .05);
+  color: #cfd8e6;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+.gc-close:active { transform: scale(.94); }
+.gc-tk {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 11px 4px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(var(--tc-rgb), .55);
+  font-size: 12px;
+  font-weight: 800;
+  color: #eaf6ff;
+  font-variant-numeric: tabular-nums;
+}
+.gc-tk .gc-tk-max {
+  font-style: normal;
+  font-size: 9px;
+  color: #ffd24a;
+  letter-spacing: .06em;
+  display: none;
+}
+.gc-tk.is-full { border-color: rgba(255, 210, 74, .85); color: #ffe9a8; }
+.gc-tk.is-full .gc-tk-max { display: inline; }
+.gc-tk.is-spend b { animation: gc-tk-drop .3s ease-out; }
+@keyframes gc-tk-drop {
+  0%   { transform: translateY(-4px); opacity: .4; }
+  100% { transform: translateY(0);    opacity: 1; }
+}
+
+/* ---- ステージ（キューブが立つところ）------------------------------------ */
+.gc-stage {
+  position: relative;
+  z-index: 5;
+  flex: 1 1 auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 900px;
+  perspective-origin: 50% 46%;
+  will-change: transform;
+}
+/* 揺れは左右だけ。縦や回転を入れると iPad で画面が跳ねる。 */
+.gc-stage.is-shake { animation: gc-shake .42s cubic-bezier(.36, .07, .19, .97) both; }
+@keyframes gc-shake {
+  10%, 90% { transform: translate3d(-11px, 0, 0); }
+  20%, 80% { transform: translate3d(15px, 0, 0); }
+  30%, 70% { transform: translate3d(-19px, 0, 0); }
+  40%, 60% { transform: translate3d(19px, 0, 0); }
+  50%      { transform: translate3d(-13px, 0, 0); }
+}
+.gc-stage.is-shake-big { animation: gc-shake-big .62s cubic-bezier(.36, .07, .19, .97) both; }
+@keyframes gc-shake-big {
+  8%, 92%  { transform: translate3d(-18px, 0, 0); }
+  16%, 84% { transform: translate3d(24px, 0, 0); }
+  24%, 76% { transform: translate3d(-30px, 0, 0); }
+  32%, 68% { transform: translate3d(30px, 0, 0); }
+  40%, 60% { transform: translate3d(-24px, 0, 0); }
+  50%      { transform: translate3d(18px, 0, 0); }
+}
+
+.gc-shell {
+  --gc-s: clamp(132px, 42vw, 210px);
+  --gc-zoom: 1;
+  width: var(--gc-s);
+  height: var(--gc-s);
+  transform-style: preserve-3d;
+  transform: scale(var(--gc-zoom));
+  transition: transform .18s ease;
+  will-change: transform;
+}
+.gc-cube {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(-24deg) rotateY(var(--gc-spin, -32deg));
+  will-change: transform;
+}
+.gc-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  /* マスの区切りは白い細線だけ。黒い目地を入れると暗く沈んで見えるため
+     （2側面判断のキューブと同じ考え方）。 */
+  background-image:
+    linear-gradient(to right,  transparent 0 calc(33.333% - 1px), rgba(255,255,255,.55) calc(33.333% - 1px) calc(33.333% + 1px), transparent calc(33.333% + 1px) calc(66.666% - 1px), rgba(255,255,255,.55) calc(66.666% - 1px) calc(66.666% + 1px), transparent calc(66.666% + 1px)),
+    linear-gradient(to bottom, transparent 0 calc(33.333% - 1px), rgba(255,255,255,.55) calc(33.333% - 1px) calc(33.333% + 1px), transparent calc(33.333% + 1px) calc(66.666% - 1px), rgba(255,255,255,.55) calc(66.666% - 1px) calc(66.666% + 1px), transparent calc(66.666% + 1px)),
+    linear-gradient(140deg, var(--c1), var(--c2));
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .5),
+              0 0 18px rgba(var(--tc-rgb), .28);
+  backface-visibility: hidden;
+}
+/* プリズム＝6面それぞれが違う光り方をする、そろった状態の飾り */
+.gc-f-u { --c1: #fff6b8; --c2: #ffd24a; transform: rotateX( 90deg) translateZ(calc(var(--gc-s) / 2)); }
+.gc-f-d { --c1: #d6fbff; --c2: #66e6ff; transform: rotateX(-90deg) translateZ(calc(var(--gc-s) / 2)); }
+.gc-f-f { --c1: #b9ffd9; --c2: #21e39a; transform: translateZ(calc(var(--gc-s) / 2)); }
+.gc-f-b { --c1: #ffc9ec; --c2: #ff5fd2; transform: rotateY(180deg) translateZ(calc(var(--gc-s) / 2)); }
+.gc-f-r { --c1: #ffd2b8; --c2: #ff7a3d; transform: rotateY( 90deg) translateZ(calc(var(--gc-s) / 2)); }
+.gc-f-l { --c1: #c9d8ff; --c2: #5b7cff; transform: rotateY(-90deg) translateZ(calc(var(--gc-s) / 2)); }
+
+/* 回している間、面のふちがぼうっと光る */
+.gc-cube.is-hot .gc-face {
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .9),
+              0 0 44px rgba(255, 255, 255, .55),
+              0 0 90px rgba(var(--tc-rgb), .5);
+}
+/* カチッとハマった瞬間、面が白く飛ぶ */
+.gc-cube.is-snap .gc-face { animation: gc-face-snap .42s ease-out; }
+@keyframes gc-face-snap {
+  0%   { filter: brightness(4.2) saturate(.2); }
+  100% { filter: none; }
+}
+
+/* ---- 光の柱・輪・フラッシュ・レーザー ------------------------------------ */
+.gc-beam {
+  position: absolute;
+  left: 50%;
+  top: -10%;
+  width: 34vw;
+  max-width: 260px;
+  height: 130%;
+  transform: translateX(-50%) scaleY(0);
+  transform-origin: 50% 50%;
+  background: linear-gradient(to bottom, transparent, rgba(255,255,255,.85), rgba(var(--tc-rgb), .5), transparent);
+  filter: blur(9px);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+.gc-beam.is-on { animation: gc-beam .72s ease-out; }
+@keyframes gc-beam {
+  0%   { opacity: 0;  transform: translateX(-50%) scaleY(.1); }
+  18%  { opacity: 1;  transform: translateX(-50%) scaleY(1); }
+  100% { opacity: 0;  transform: translateX(-50%) scaleY(1.1); }
+}
+
+.gc-rings { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
+.gc-ring {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, .9);
+  opacity: 0;
+}
+.gc-ring.is-on { animation: gc-ring .78s cubic-bezier(.15, .7, .3, 1) forwards; }
+.gc-ring.r2.is-on { animation-delay: .09s; border-color: rgba(var(--tc-rgb), .9); }
+.gc-ring.r3.is-on { animation-delay: .18s; border-color: rgba(255, 255, 255, .55); }
+@keyframes gc-ring {
+  0%   { opacity: .95; transform: scale(.2); }
+  100% { opacity: 0;   transform: scale(13); }
+}
+
+.gc-flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 7;
+}
+.gc-flash.is-on   { animation: gc-flash .42s ease-out; }
+.gc-flash.is-tease{ animation: gc-tease .34s steps(1, end); }
+@keyframes gc-flash { 0% { opacity: .95; } 100% { opacity: 0; } }
+/* 大当たり確定の直前だけ出る、3回の高速フラッシュ（予告） */
+@keyframes gc-tease {
+  0%, 100%          { opacity: 0; }
+  4%, 20%, 36%      { opacity: .85; }
+  12%, 28%, 44%     { opacity: 0; }
+}
+
+.gc-dim {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .34s ease;
+  z-index: 6;
+}
+.gc-dim.is-on { opacity: 1; }
+
+/* 七色レーザー：中心から放射状に伸びる細い光。DOMは8本だけ。 */
+.gc-lasers {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 7;
+  opacity: 0;
+}
+.gc-lasers.is-on { animation: gc-lasers 1.5s ease-out forwards; }
+@keyframes gc-lasers {
+  0%   { opacity: 0;   transform: rotate(0deg)   scale(.2); }
+  12%  { opacity: 1;   transform: rotate(14deg)  scale(1); }
+  100% { opacity: 0;   transform: rotate(70deg)  scale(1.3); }
+}
+.gc-lasers i {
+  position: absolute;
+  left: 0;
+  top: -3px;
+  width: 150vmax;
+  height: 6px;
+  transform-origin: 0 50%;
+  border-radius: 3px;
+  filter: blur(1px);
+}
+.gc-lasers i:nth-child(1) { transform: rotate(0deg);   background: linear-gradient(90deg, #fff, #ff4d6d 40%, transparent); }
+.gc-lasers i:nth-child(2) { transform: rotate(45deg);  background: linear-gradient(90deg, #fff, #ff9f45 40%, transparent); }
+.gc-lasers i:nth-child(3) { transform: rotate(90deg);  background: linear-gradient(90deg, #fff, #ffe45e 40%, transparent); }
+.gc-lasers i:nth-child(4) { transform: rotate(135deg); background: linear-gradient(90deg, #fff, #6bff9e 40%, transparent); }
+.gc-lasers i:nth-child(5) { transform: rotate(180deg); background: linear-gradient(90deg, #fff, #5be3ff 40%, transparent); }
+.gc-lasers i:nth-child(6) { transform: rotate(225deg); background: linear-gradient(90deg, #fff, #6b8bff 40%, transparent); }
+.gc-lasers i:nth-child(7) { transform: rotate(270deg); background: linear-gradient(90deg, #fff, #c46bff 40%, transparent); }
+.gc-lasers i:nth-child(8) { transform: rotate(315deg); background: linear-gradient(90deg, #fff, #ff6bd6 40%, transparent); }
+
+/* ---- 結果の数字 --------------------------------------------------------- */
+.gc-pop {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  transform: translate(-50%, -50%);
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  pointer-events: none;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.gc-pop b {
+  font-size: clamp(38px, 13vw, 74px);
+  line-height: 1;
+  color: #eafcff;
+  text-shadow: 0 0 18px rgba(var(--tc-rgb), .95), 0 0 46px rgba(var(--tc-rgb), .6),
+               0 4px 0 rgba(0, 0, 0, .35);
+}
+.gc-pop.is-on { animation: gc-pop 1.5s cubic-bezier(.2, .9, .25, 1) forwards; }
+@keyframes gc-pop {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(.4); }
+  14%  { opacity: 1; transform: translate(-50%, -50%) scale(1.18); }
+  26%  {             transform: translate(-50%, -50%) scale(1); }
+  78%  { opacity: 1; transform: translate(-50%, -56%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -74%) scale(.94); }
+}
+
+/* 大当たりのカットイン。金の帯が横に流れる。 */
+.gc-cutin {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 46%;
+  transform: translateY(-50%);
+  z-index: 8;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+}
+.gc-cutin .gc-cutin-band {
+  display: block;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .34em;
+  color: #ffe9a8;
+  margin-bottom: 2px;
+}
+.gc-cutin b {
+  display: block;
+  font-size: clamp(52px, 19vw, 132px);
+  line-height: .96;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  background: linear-gradient(100deg, #fff 12%, #ffe45e 30%, #ff6bd6 48%, #5be3ff 64%, #fff 86%);
+  background-size: 260% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 22px rgba(255, 255, 255, .8))
+          drop-shadow(0 0 52px rgba(255, 107, 214, .6));
+}
+.gc-cutin.is-on { animation: gc-cutin 1.9s cubic-bezier(.16, .9, .2, 1) forwards; }
+.gc-cutin.is-on b { animation: gc-cutin-shine 1.5s linear infinite; }
+@keyframes gc-cutin {
+  0%   { opacity: 0; transform: translateY(-50%) scale(2.6) skewX(-16deg); }
+  10%  { opacity: 1; transform: translateY(-50%) scale(1)   skewX(0deg); }
+  84%  { opacity: 1; transform: translateY(-50%) scale(1.04); }
+  100% { opacity: 0; transform: translateY(-50%) scale(1.14); }
+}
+@keyframes gc-cutin-shine {
+  0%   { background-position: 210% 0; }
+  100% { background-position: -40% 0; }
+}
+
+/* ---- フッター（ボタンとヒント）------------------------------------------ */
+.gc-foot {
+  position: relative;
+  z-index: 6;
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.gc-hint {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #8a95a5;
+  text-align: center;
+  min-height: 1.5em;
+}
+.gc-hint.is-warn { color: #ffd24a; }
+.gc-buttons {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 8px;
+}
+.gc-btn {
+  padding: 13px 4px;
+  border-radius: 12px;
+  border: 1px solid #3a3a48;
+  background: rgba(255, 255, 255, .05);
+  color: #eaf6ff;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .1s ease, opacity .18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.gc-btn:active { transform: scale(.96); }
+.gc-btn.is-primary {
+  background: linear-gradient(135deg, rgba(var(--tc-rgb), .34), rgba(var(--tc-rgb), .12));
+  border-color: rgba(var(--tc-rgb), .8);
+  box-shadow: 0 0 18px rgba(var(--tc-rgb), .28);
+}
+.gc-btn[disabled] { opacity: .32; pointer-events: none; }
+
+/* ---- まとめ引きの結果パネル --------------------------------------------- */
+.gc-summary {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(6, 6, 9, .88);
+  padding: 16px;
+}
+.gc-summary[hidden] { display: none; }
+.gc-summary-card {
+  width: min(90vw, 340px);
+  max-height: 74vh;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #1c1c22;
+  border: 1px solid #3a3a48;
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+}
+.gc-summary-card h3 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  color: #eaf6ff;
+}
+.gc-sum-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 4px;
+  border-top: 1px solid #2c2c38;
+  font-size: 13px;
+  color: #dfe6f2;
+  font-variant-numeric: tabular-nums;
+}
+.gc-sum-line b { font-size: 15px; font-weight: 900; }
+.gc-sum-line.is-rainbow b {
+  background: linear-gradient(100deg, #ffe45e, #ff6bd6, #5be3ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.gc-sum-note { margin: 10px 0 0; font-size: 11px; color: #8a95a5; }
+.gc-sum-ok {
+  margin-top: 14px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 11px;
+  border: 1px solid rgba(var(--tc-rgb), .8);
+  background: linear-gradient(135deg, rgba(var(--tc-rgb), .3), rgba(var(--tc-rgb), .1));
+  color: #eaf6ff;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* 動きを減らす設定では、回転とズームをやめて結果だけ見せる */
+@media (prefers-reduced-motion: reduce) {
+  .gc-stage.is-shake, .gc-stage.is-shake-big { animation: none; }
+  .gc-cube { transition: none !important; }
+  .gc-lasers.is-on, .gc-beam.is-on { animation-duration: .3s; }
+}
+
+/* 画面が狭いときはボタンを2段にして、指の当たりを大きく保つ */
+@media (max-width: 360px) {
+  .gc-buttons { grid-template-columns: 1fr 1fr; }
+  .gc-btn.is-primary { grid-column: 1 / -1; }
+}
