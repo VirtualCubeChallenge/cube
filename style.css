@@ -7168,6 +7168,9 @@
   color: #6d4a1c;
   text-align: center;
   min-height: 1.5em;
+  /* sushiHintNone は「仕組みの説明＋※現在は売り切れです」の2行。
+     辞書側の \n をそのまま改行として出す（折り返しは通常どおり効く）。 */
+  white-space: pre-line;
 }
 .gc-hint.is-warn { color: #8c2f28; }
 .gc-buttons {
