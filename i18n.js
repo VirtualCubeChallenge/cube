@@ -236,7 +236,7 @@
                 "tutMenuTitle": "メニューを開いてみよう",
                 "tutMenuBody": "右上の<span class=\"tut-em\">「≡」</span>をタップしてみてください。<br><br>記録の確認や各種設定は、ここから行えます！",
                 "tutMenuOpenTitle": "メニューの中身はこちら！",
-                "tutMenuOpenBody": "🏆 <b>記録</b> … ベストタイムを確認できます。<br><i class=\"tut-cube-icon\"></i> <b>トレーニング</b> … パターンを素早く見分ける特訓ができます。<br>🛍️ <b>ショップ</b> … キューブのカラーやアイテムが手に入ります。<br>⚙️ <b>設定</b> … 操作感や表示などを自由に変更できます。",
+                "tutMenuOpenBody": "🏆 <b>記録</b> … ベストタイムを確認できます。<br><i class=\"tut-cube-icon\"></i> <b>トレーニング</b> … パターンを素早く見分ける特訓ができます。<br>🛍️ <b>ショップ</b> … キューブのカラーやアイテムが手に入ります。<br>🍣 <b>寿司屋</b> … 特訓で「貫」を集め、大将に握ってもらってシャードを獲得！<br>⚙️ <b>設定</b> … 操作感や表示などを自由に変更できます。",
 
                 "tutShuffleTitle": "キューブをまぜてみよう",
                 "tutShuffleBody": "右側のシャッフルボタン(<span class=\"tut-em tut-icon\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"16 3 21 3 21 8\"></polyline><line x1=\"4\" y1=\"20\" x2=\"21\" y2=\"3\"></line><polyline points=\"21 16 21 21 16 21\"></polyline><line x1=\"15\" y1=\"15\" x2=\"21\" y2=\"21\"></line><line x1=\"4\" y1=\"4\" x2=\"9\" y2=\"9\"></line></svg></span>)を、<br>① <b>上へ持ち上げる</b><br>② そのまま <b>左へスライド</b><br><span class=\"tut-em\">「逆L字」</span>を描くイメージで操作してみよう！",
@@ -478,7 +478,7 @@
                 "tutMenuTitle": "Open the menu",
                 "tutMenuBody": "Tap <span class=\"tut-em\">≡</span> at the top right.<br>Whenever you're stuck, this is the place to go.",
                 "tutMenuOpenTitle": "Here's what's inside the menu!",
-                "tutMenuOpenBody": "🏆 <b>Records</b> … check your best times.<br><i class=\"tut-cube-icon\"></i> <b>Training</b> … drill yourself on spotting cases fast.<br>🛍️ <b>Shop</b> … get cube colours and items.<br>⚙️ <b>Settings</b> … freely adjust feel and display.",
+                "tutMenuOpenBody": "🏆 <b>Records</b> … check your best times.<br><i class=\"tut-cube-icon\"></i> <b>Training</b> … drill yourself on spotting cases fast.<br>🛍️ <b>Shop</b> … get cube colours and items.<br>🍣 <b>Sushi bar</b> … collect pieces in training, then let the chef make sushi for shards!<br>⚙️ <b>Settings</b> … freely adjust feel and display.",
 
                 "tutShuffleTitle": "Let's scramble it",
                 "tutShuffleBody": "Take the <span class=\"tut-em tut-icon\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"16 3 21 3 21 8\"></polyline><line x1=\"4\" y1=\"20\" x2=\"21\" y2=\"3\"></line><polyline points=\"21 16 21 21 16 21\"></polyline><line x1=\"15\" y1=\"15\" x2=\"21\" y2=\"21\"></line><line x1=\"4\" y1=\"4\" x2=\"9\" y2=\"9\"></line></svg></span> handle below ≡ and<br>① <b>lift it upward</b>, then<br>② <b>tip it slightly left</b>.<br>Think of drawing an <span class=\"tut-em\">L shape</span>.",
@@ -715,7 +715,7 @@
                 "tutMenuTitle": "打开菜单看看",
                 "tutMenuBody": "请点击右上角的<span class=\"tut-em\">「≡」</span>。<br><br>在这里可以查看记录、进行各种设置！",
                 "tutMenuOpenTitle": "菜单里有这些！",
-                "tutMenuOpenBody": "🏆 <b>记录</b>…可以查看最佳成绩。<br><i class=\"tut-cube-icon\"></i> <b>训练</b>…可以专门练习快速辨认公式。<br>🛍️ <b>商店</b>…可以获得魔方颜色和道具。<br>⚙️ <b>设置</b>…可以自由更改操作手感和显示等。",
+                "tutMenuOpenBody": "🏆 <b>记录</b>…可以查看最佳成绩。<br><i class=\"tut-cube-icon\"></i> <b>训练</b>…可以专门练习快速辨认公式。<br>🛍️ <b>商店</b>…可以获得魔方颜色和道具。<br>🍣 <b>寿司店</b>…在训练中攒「贯」，让大厨捏出寿司换取晶片！<br>⚙️ <b>设置</b>…可以自由更改操作手感和显示等。",
                 "tutHelpTitle": "不知道怎么办就用「💡帮助」",
                 "tutHelpBody": "点击屏幕下方的<span class=\"tut-em\">「💡帮助」</span>，就能<b>一步步跟着示范</b>完成复原。<br><br>遇到困难时，随时使用吧！",
                 "tutHelpBodyOff": "现在 💡帮助 处于隐藏状态。<br>可以随时在 ⚙️设置 的「帮助功能」中重新显示。",
@@ -950,7 +950,7 @@
     "tutMenuTitle": "打開選單看看",
     "tutMenuBody": "請點擊右上角的<span class=\"tut-em\">「≡」</span>。<br><br>在這裡可以查看紀錄、進行各種設定！",
     "tutMenuOpenTitle": "選單裡有這些！",
-    "tutMenuOpenBody": "🏆 <b>紀錄</b>…可以查看最佳成績。<br><i class=\"tut-cube-icon\"></i> <b>訓練</b>…可以專門練習快速辨認公式。<br>🛍️ <b>商店</b>…可以取得方塊顏色和道具。<br>⚙️ <b>設定</b>…可以自由變更操作手感和顯示等。",
+    "tutMenuOpenBody": "🏆 <b>紀錄</b>…可以查看最佳成績。<br><i class=\"tut-cube-icon\"></i> <b>訓練</b>…可以專門練習快速辨認公式。<br>🛍️ <b>商店</b>…可以取得方塊顏色和道具。<br>🍣 <b>壽司店</b>…在訓練中攢「貫」，讓師傅捏出壽司換取晶片！<br>⚙️ <b>設定</b>…可以自由變更操作手感和顯示等。",
     "tutHelpTitle": "不知道怎麼辦就用「💡幫助」",
     "tutHelpBody": "點擊畫面下方的<span class=\"tut-em\">「💡幫助」</span>，就能<b>一步步跟著範例</b>完成復原。<br><br>遇到困難時，隨時使用吧！",
     "tutHelpBodyOff": "現在 💡幫助 處於隱藏狀態。<br>可以隨時在 ⚙️設定 的「輔助功能」中重新顯示。",
@@ -1185,7 +1185,7 @@
                 "tutMenuTitle": "메뉴를 열어볼까요",
                 "tutMenuBody": "오른쪽 위의 <span class=\"tut-em\">「≡」</span>를 탭해 보세요.<br><br>기록 확인이나 각종 설정을 여기서 할 수 있어요!",
                 "tutMenuOpenTitle": "메뉴 안에는 이런 것들이!",
-                "tutMenuOpenBody": "🏆 <b>기록</b> … 최고 기록을 확인할 수 있어요.<br><i class=\"tut-cube-icon\"></i> <b>트레이닝</b> … 패턴을 빠르게 알아보는 훈련을 할 수 있어요.<br>🛍️ <b>상점</b> … 큐브 색상과 아이템을 얻을 수 있어요.<br>⚙️ <b>설정</b> … 조작감이나 화면 표시 등을 자유롭게 바꿀 수 있어요.",
+                "tutMenuOpenBody": "🏆 <b>기록</b> … 최고 기록을 확인할 수 있어요.<br><i class=\"tut-cube-icon\"></i> <b>트레이닝</b> … 패턴을 빠르게 알아보는 훈련을 할 수 있어요.<br>🛍️ <b>상점</b> … 큐브 색상과 아이템을 얻을 수 있어요.<br>🍣 <b>초밥집</b> … 훈련으로 「점」을 모아 대장이 쥔 초밥으로 샤드를 획득！<br>⚙️ <b>설정</b> … 조작감이나 화면 표시 등을 자유롭게 바꿀 수 있어요.",
                 "tutHelpTitle": "막히면 「💡도움말」",
                 "tutHelpBody": "화면 아래의 <span class=\"tut-em\">「💡도움말」</span>을 누르면 <b>예시를 보면서 한 수씩</b> 진행할 수 있어요.<br><br>막힐 때는 언제든 사용해 보세요!",
                 "tutHelpBodyOff": "지금은 💡도움말이 숨겨져 있어요.<br>⚙️설정의 「도움말 기능」에서 언제든 다시 표시할 수 있어요.",
@@ -1420,7 +1420,7 @@
             "tutMenuTitle": "Abre el menú",
             "tutMenuBody": "Toca el <span class=\"tut-em\">≡</span> de arriba a la derecha.<br><br>Desde ahí puedes ver tus récords y cambiar los ajustes.",
             "tutMenuOpenTitle": "¡Esto es lo que hay en el menú!",
-            "tutMenuOpenBody": "🏆 <b>Récords</b> … consulta tus mejores tiempos.<br><i class=\"tut-cube-icon\"></i> <b>Entrenamiento</b> … practica para reconocer los casos al instante.<br>🛍️ <b>Tienda</b> … consigue colores para el cubo y objetos.<br>⚙️ <b>Ajustes</b> … cambia libremente la sensación de manejo y la pantalla.",
+            "tutMenuOpenBody": "🏆 <b>Récords</b> … consulta tus mejores tiempos.<br><i class=\"tut-cube-icon\"></i> <b>Entrenamiento</b> … practica para reconocer los casos al instante.<br>🛍️ <b>Tienda</b> … consigue colores para el cubo y objetos.<br>🍣 <b>Sushi</b> … reúne piezas entrenando y consigue fragmentos con el sushi del chef.<br>⚙️ <b>Ajustes</b> … cambia libremente la sensación de manejo y la pantalla.",
             "tutHelpTitle": "¿Atascado? Toca 💡 Ayuda",
             "tutHelpBody": "Con <span class=\"tut-em\">💡 Ayuda</span>, abajo en la pantalla, avanzas <b>movimiento a movimiento</b> siguiendo el ejemplo.<br><br>Cuando te atasques, ¡úsala sin dudarlo!",
             "tutHelpBodyOff": "Ahora mismo la 💡 Ayuda está oculta.<br>Puedes volver a mostrarla cuando quieras desde ⚙️ Ajustes.",
@@ -1655,7 +1655,7 @@
             "tutMenuTitle": "Coba buka menunya",
             "tutMenuBody": "Ketuk <span class=\"tut-em\">≡</span> di kanan atas.<br><br>Dari sini kamu bisa melihat rekor dan mengatur berbagai hal!",
             "tutMenuOpenTitle": "Inilah isi menunya!",
-            "tutMenuOpenBody": "🏆 <b>Rekor</b> … lihat waktu terbaikmu.<br><i class=\"tut-cube-icon\"></i> <b>Latihan</b> … berlatih mengenali kasus dengan cepat.<br>🛍️ <b>Toko</b> … dapatkan warna kubus dan item.<br>⚙️ <b>Pengaturan</b> … ubah sensasi kontrol dan tampilan sesukamu.",
+            "tutMenuOpenBody": "🏆 <b>Rekor</b> … lihat waktu terbaikmu.<br><i class=\"tut-cube-icon\"></i> <b>Latihan</b> … berlatih mengenali kasus dengan cepat.<br>🛍️ <b>Toko</b> … dapatkan warna kubus dan item.<br>🍣 <b>Sushi</b> … kumpulkan potong lewat latihan, lalu raih serpihan dari sushi koki!<br>⚙️ <b>Pengaturan</b> … ubah sensasi kontrol dan tampilan sesukamu.",
             "tutHelpTitle": "Bingung? Pakai 💡 Bantuan",
             "tutHelpBody": "Kalau kamu menekan <span class=\"tut-em\">💡 Bantuan</span> di bagian bawah layar, kamu bisa maju <b>satu gerakan demi satu gerakan</b> sambil melihat contohnya.<br><br>Kalau sedang bingung, pakai saja kapan pun!",
             "tutHelpBodyOff": "Saat ini 💡 Bantuan sedang disembunyikan.<br>Kamu bisa memunculkannya lagi kapan saja lewat ⚙️ Pengaturan.",
@@ -1890,7 +1890,7 @@
             "tutMenuTitle": "Откроем меню",
             "tutMenuBody": "Нажмите <span class=\"tut-em\">≡</span> в правом верхнем углу.<br><br>Отсюда можно посмотреть рекорды и изменить настройки!",
             "tutMenuOpenTitle": "Вот что есть в меню!",
-            "tutMenuOpenBody": "🏆 <b>Рекорды</b> … посмотрите свои лучшие результаты.<br><i class=\"tut-cube-icon\"></i> <b>Тренировка</b> … отработайте быстрое распознавание случаев.<br>🛍️ <b>Магазин</b> … получите новые цвета кубика и предметы.<br>⚙️ <b>Настройки</b> … свободно меняйте отклик управления и отображение.",
+            "tutMenuOpenBody": "🏆 <b>Рекорды</b> … посмотрите свои лучшие результаты.<br><i class=\"tut-cube-icon\"></i> <b>Тренировка</b> … отработайте быстрое распознавание случаев.<br>🛍️ <b>Магазин</b> … получите новые цвета кубика и предметы.<br>🍣 <b>Суши</b> … копите кусочки на тренировке и получайте осколки за суши от повара!<br>⚙️ <b>Настройки</b> … свободно меняйте отклик управления и отображение.",
             "tutHelpTitle": "Застряли? Нажмите 💡",
             "tutHelpBody": "Если нажать <span class=\"tut-em\">💡 Подсказка</span> внизу экрана, можно продвигаться <b>по одному ходу</b>, глядя на образец.<br><br>Когда не знаете, что делать, пользуйтесь в любой момент!",
             "tutHelpBodyOff": "Сейчас 💡 Подсказка скрыта.<br>Вернуть её можно в любой момент в ⚙️ Настройках.",
@@ -2125,7 +2125,7 @@
             "tutMenuTitle": "Vamos abrir o menu",
             "tutMenuBody": "Toque no <span class=\"tut-em\">≡</span> no canto superior direito.<br><br>É por aqui que você vê os recordes e mexe nos ajustes!",
             "tutMenuOpenTitle": "Veja o que tem no menu!",
-            "tutMenuOpenBody": "🏆 <b>Recordes</b> … confira seus melhores tempos.<br><i class=\"tut-cube-icon\"></i> <b>Treino</b> … treine para reconhecer os casos num instante.<br>🛍️ <b>Loja</b> … consiga cores de cubo e itens.<br>⚙️ <b>Ajustes</b> … personalize a sensação de uso e a exibição à vontade.",
+            "tutMenuOpenBody": "🏆 <b>Recordes</b> … confira seus melhores tempos.<br><i class=\"tut-cube-icon\"></i> <b>Treino</b> … treine para reconhecer os casos num instante.<br>🛍️ <b>Loja</b> … consiga cores de cubo e itens.<br>🍣 <b>Sushi</b> … junte peças treinando e ganhe fragmentos com o sushi do chef!<br>⚙️ <b>Ajustes</b> … personalize a sensação de uso e a exibição à vontade.",
             "tutHelpTitle": "Travou? Toque em 💡 Ajuda",
             "tutHelpBody": "Tocando em <span class=\"tut-em\">💡 Ajuda</span> na parte de baixo da tela, você avança <b>um movimento por vez</b> seguindo o exemplo.<br><br>Quando travar, use sem medo!",
             "tutHelpBodyOff": "No momento a 💡 Ajuda está oculta.<br>Você pode mostrá-la de novo quando quiser pelos ⚙️ Ajustes.",
@@ -2189,7 +2189,7 @@
       shopConfirmTitle:"「{name}」を引き換えますか？",
       shopConfirmBody:"{shard}を {cost}使います。",
       shopShardCyan:"水色シャード", shopShardRainbow:"虹シャード",
-      menuShop:"🛍️ ショップ", shopTitle:"ショップ",
+      menuShop:"🛍️ ショップ　🍣 寿司屋", shopTitle:"ショップ",
       shopLead:"シャードでメインカラーを引き換えます",
       shopThemes:"メインカラー",
       shopUsing:"使用中", shopEquip:"この色にする", shopRedeem:"引き換える",
@@ -2204,7 +2204,7 @@
       shopConfirmTitle:"Redeem {name}?",
       shopConfirmBody:"This spends {cost} {shard}.",
       shopShardCyan:"cyan shards", shopShardRainbow:"rainbow shards",
-      menuShop:"🛍️ Shop", shopTitle:"Shop",
+      menuShop:"🛍️ Shop　🍣 Sushi Bar", shopTitle:"Shop",
       shopLead:"Redeem shards for a main color",
       shopThemes:"Main color",
       shopUsing:"In use", shopEquip:"Use this color", shopRedeem:"Redeem",
@@ -2219,7 +2219,7 @@
       shopConfirmTitle:"要兑换{name}吗？",
       shopConfirmBody:"将消耗 {cost} 个{shard}。",
       shopShardCyan:"水色碎片", shopShardRainbow:"彩虹碎片",
-      menuShop:"🛍️ 商店", shopTitle:"商店",
+      menuShop:"🛍️ 商店　🍣 寿司店", shopTitle:"商店",
       shopLead:"用碎片兑换主色调",
       shopThemes:"主色调",
       shopUsing:"使用中", shopEquip:"使用此颜色", shopRedeem:"兑换",
@@ -2234,7 +2234,7 @@
       shopConfirmTitle:"要兌換{name}嗎？",
       shopConfirmBody:"將消耗 {cost} 個{shard}。",
       shopShardCyan:"水藍碎片", shopShardRainbow:"彩虹碎片",
-      menuShop:"🛍️ 商店", shopTitle:"商店",
+      menuShop:"🛍️ 商店　🍣 壽司店", shopTitle:"商店",
       shopLead:"用碎片兌換主色調",
       shopThemes:"主色調",
       shopUsing:"使用中", shopEquip:"使用此顏色", shopRedeem:"兌換",
@@ -2249,7 +2249,7 @@
       shopConfirmTitle:"{name}(으)로 교환할까요?",
       shopConfirmBody:"{shard} {cost}개를 사용합니다.",
       shopShardCyan:"하늘색 조각", shopShardRainbow:"무지개 조각",
-      menuShop:"🛍️ 상점", shopTitle:"상점",
+      menuShop:"🛍️ 상점　🍣 초밥집", shopTitle:"상점",
       shopLead:"조각으로 메인 색상을 교환합니다",
       shopThemes:"메인 색상",
       shopUsing:"사용 중", shopEquip:"이 색으로 변경", shopRedeem:"교환하기",
@@ -2264,7 +2264,7 @@
       shopConfirmTitle:"¿Canjear {name}?",
       shopConfirmBody:"Gastarás {cost} {shard}.",
       shopShardCyan:"fragmentos cian", shopShardRainbow:"fragmentos arcoíris",
-      menuShop:"🛍️ Tienda", shopTitle:"Tienda",
+      menuShop:"🛍️ Tienda　🍣 Sushi", shopTitle:"Tienda",
       shopLead:"Canjea fragmentos por un color principal",
       shopThemes:"Color principal",
       shopUsing:"En uso", shopEquip:"Usar este color", shopRedeem:"Canjear",
@@ -2279,7 +2279,7 @@
       shopConfirmTitle:"Tukar {name}?",
       shopConfirmBody:"Ini memakai {cost} {shard}.",
       shopShardCyan:"serpihan biru", shopShardRainbow:"serpihan pelangi",
-      menuShop:"🛍️ Toko", shopTitle:"Toko",
+      menuShop:"🛍️ Toko　🍣 Sushi", shopTitle:"Toko",
       shopLead:"Tukar serpihan jadi warna utama",
       shopThemes:"Warna utama",
       shopUsing:"Dipakai", shopEquip:"Pakai warna ini", shopRedeem:"Tukar",
@@ -2294,7 +2294,7 @@
       shopConfirmTitle:"Обменять на «{name}»?",
       shopConfirmBody:"Будет потрачено {cost} ({shard}).",
       shopShardCyan:"голубые осколки", shopShardRainbow:"радужные осколки",
-      menuShop:"🛍️ Магазин", shopTitle:"Магазин",
+      menuShop:"🛍️ Магазин　🍣 Суши", shopTitle:"Магазин",
       shopLead:"Обменяйте осколки на основной цвет",
       shopThemes:"Основной цвет",
       shopUsing:"Используется", shopEquip:"Выбрать этот цвет", shopRedeem:"Обменять",
@@ -2309,7 +2309,7 @@
       shopConfirmTitle:"Trocar por {name}?",
       shopConfirmBody:"Isso gasta {cost} {shard}.",
       shopShardCyan:"fragmentos ciano", shopShardRainbow:"fragmentos arco-íris",
-      menuShop:"🛍️ Loja", shopTitle:"Loja",
+      menuShop:"🛍️ Loja　🍣 Sushi", shopTitle:"Loja",
       shopLead:"Troque fragmentos por uma cor principal",
       shopThemes:"Cor principal",
       shopUsing:"Em uso", shopEquip:"Usar esta cor", shopRedeem:"Trocar",
@@ -2748,5 +2748,477 @@
     Object.keys(MELON_I18N[lang]).forEach(function (k) {
       if (I18N[lang][k] === undefined) I18N[lang][k] = MELON_I18N[lang][k];
     });
+  });
+})();
+
+/* =========================================================================
+   2側面判断ガチャ（ショップ内）の文言
+   既存の辞書は触らず、無いキーだけを足すマージ方式。
+   カットインの「10,000」やチケットのアイコンは非翻訳なのでキーを持たない。
+   ========================================================================= */
+(function () {
+  if (typeof I18N === 'undefined') return;
+  var GACHA_I18N = {
+    'ja': {
+      gachaTitle:      '2側面判断ガチャ',
+      gachaTicket:     '2側面判断チケット',
+      gachaMax:        'MAX',
+      gachaDraw1:      '1回引く',
+      gachaDraw10:     '10連',
+      gachaDrawAll:    '全部引く',
+      gachaHintGet:    'PLL 2側面判断で1問正解するごとに1枚たまります',
+      gachaHintFull:   'チケットが上限です。引いて使いましょう',
+      gachaHintNone:   'チケットがありません',
+      gachaConfirmAll: '全部引く',
+      gachaConfirmBody:'2側面判断チケットを {n}枚 使います。',
+      gachaResult:     'けっか',
+      gachaDrew:       '{n}回引きました',
+      gachaHits:       '大当たり {n}回',
+      gachaEarned:     '獲得チケット',
+      gachaSkip:       'タップでスキップ'
+    },
+    'en': {
+      gachaTitle:      '2-Sided Gacha',
+      gachaTicket:     '2-Sided Ticket',
+      gachaMax:        'MAX',
+      gachaDraw1:      'Draw',
+      gachaDraw10:     'Draw 10',
+      gachaDrawAll:    'Draw all',
+      gachaHintGet:    'Earn 1 ticket for every correct answer in PLL 2-Sided',
+      gachaHintFull:   'Tickets are at the cap. Spend some!',
+      gachaHintNone:   'No tickets yet',
+      gachaConfirmAll: 'Draw all',
+      gachaConfirmBody:'This uses {n} tickets.',
+      gachaResult:     'Results',
+      gachaDrew:       '{n} draws',
+      gachaHits:       '{n} jackpots',
+      gachaEarned:     'Tickets earned',
+      gachaSkip:       'Tap to skip'
+    },
+    'zh-CN': {
+      gachaTitle:      '两面判断扭蛋',
+      gachaTicket:     '两面判断券',
+      gachaMax:        'MAX',
+      gachaDraw1:      '抽一次',
+      gachaDraw10:     '十连',
+      gachaDrawAll:    '全部抽完',
+      gachaHintGet:    'PLL 两面判断每答对1题可获得1张',
+      gachaHintFull:   '券已达上限，快去抽吧',
+      gachaHintNone:   '没有券',
+      gachaConfirmAll: '全部抽完',
+      gachaConfirmBody:'将使用 {n} 张两面判断券。',
+      gachaResult:     '结果',
+      gachaDrew:       '抽了 {n} 次',
+      gachaHits:       '大奖 {n} 次',
+      gachaEarned:     '获得券',
+      gachaSkip:       '点击跳过'
+    },
+    'zh-TW': {
+      gachaTitle:      '兩面判斷扭蛋',
+      gachaTicket:     '兩面判斷券',
+      gachaMax:        'MAX',
+      gachaDraw1:      '抽一次',
+      gachaDraw10:     '十連',
+      gachaDrawAll:    '全部抽完',
+      gachaHintGet:    'PLL 兩面判斷每答對1題可獲得1張',
+      gachaHintFull:   '券已達上限，快去抽吧',
+      gachaHintNone:   '沒有券',
+      gachaConfirmAll: '全部抽完',
+      gachaConfirmBody:'將使用 {n} 張兩面判斷券。',
+      gachaResult:     '結果',
+      gachaDrew:       '抽了 {n} 次',
+      gachaHits:       '大獎 {n} 次',
+      gachaEarned:     '獲得券',
+      gachaSkip:       '點擊跳過'
+    },
+    'ko': {
+      gachaTitle:      '2면 판단 뽑기',
+      gachaTicket:     '2면 판단 티켓',
+      gachaMax:        'MAX',
+      gachaDraw1:      '1회 뽑기',
+      gachaDraw10:     '10연차',
+      gachaDrawAll:    '전부 뽑기',
+      gachaHintGet:    'PLL 2면 판단에서 1문제 정답마다 1장 쌓입니다',
+      gachaHintFull:   '티켓이 상한입니다. 뽑아서 사용하세요',
+      gachaHintNone:   '티켓이 없습니다',
+      gachaConfirmAll: '전부 뽑기',
+      gachaConfirmBody:'2면 판단 티켓을 {n}장 사용합니다.',
+      gachaResult:     '결과',
+      gachaDrew:       '{n}회 뽑았습니다',
+      gachaHits:       '대박 {n}회',
+      gachaEarned:     '획득 티켓',
+      gachaSkip:       '탭하여 건너뛰기'
+    },
+    'es': {
+      gachaTitle:      'Gacha de 2 caras',
+      gachaTicket:     'Ticket de 2 caras',
+      gachaMax:        'MAX',
+      gachaDraw1:      'Tirar',
+      gachaDraw10:     'Tirar 10',
+      gachaDrawAll:    'Tirar todo',
+      gachaHintGet:    'Gana 1 ticket por cada acierto en PLL 2 caras',
+      gachaHintFull:   'Tickets al máximo. ¡Úsalos!',
+      gachaHintNone:   'No tienes tickets',
+      gachaConfirmAll: 'Tirar todo',
+      gachaConfirmBody:'Se usarán {n} tickets.',
+      gachaResult:     'Resultados',
+      gachaDrew:       '{n} tiradas',
+      gachaHits:       '{n} premios gordos',
+      gachaEarned:     'Tickets ganados',
+      gachaSkip:       'Toca para saltar'
+    },
+    'id': {
+      gachaTitle:      'Gacha 2 Sisi',
+      gachaTicket:     'Tiket 2 Sisi',
+      gachaMax:        'MAX',
+      gachaDraw1:      'Tarik',
+      gachaDraw10:     'Tarik 10',
+      gachaDrawAll:    'Tarik semua',
+      gachaHintGet:    'Dapat 1 tiket tiap jawaban benar di PLL 2 Sisi',
+      gachaHintFull:   'Tiket sudah penuh. Ayo pakai!',
+      gachaHintNone:   'Belum ada tiket',
+      gachaConfirmAll: 'Tarik semua',
+      gachaConfirmBody:'Akan memakai {n} tiket.',
+      gachaResult:     'Hasil',
+      gachaDrew:       '{n} tarikan',
+      gachaHits:       '{n} jackpot',
+      gachaEarned:     'Tiket didapat',
+      gachaSkip:       'Ketuk untuk lewati'
+    },
+    'ru': {
+      gachaTitle:      'Гача 2 сторон',
+      gachaTicket:     'Билет 2 сторон',
+      gachaMax:        'MAX',
+      gachaDraw1:      'Крутить',
+      gachaDraw10:     '10 подряд',
+      gachaDrawAll:    'Всё сразу',
+      gachaHintGet:    'За каждый верный ответ в PLL 2 стороны — 1 билет',
+      gachaHintFull:   'Билетов максимум. Пора крутить!',
+      gachaHintNone:   'Билетов нет',
+      gachaConfirmAll: 'Всё сразу',
+      gachaConfirmBody:'Будет потрачено билетов: {n}.',
+      gachaResult:     'Итог',
+      gachaDrew:       'Прокрутов: {n}',
+      gachaHits:       'Джекпотов: {n}',
+      gachaEarned:     'Получено билетов',
+      gachaSkip:       'Нажмите, чтобы пропустить'
+    },
+    'pt-BR': {
+      gachaTitle:      'Gacha de 2 lados',
+      gachaTicket:     'Bilhete de 2 lados',
+      gachaMax:        'MAX',
+      gachaDraw1:      'Girar',
+      gachaDraw10:     'Girar 10',
+      gachaDrawAll:    'Girar tudo',
+      gachaHintGet:    'Ganhe 1 bilhete por acerto no PLL 2 lados',
+      gachaHintFull:   'Bilhetes no limite. Use-os!',
+      gachaHintNone:   'Sem bilhetes',
+      gachaConfirmAll: 'Girar tudo',
+      gachaConfirmBody:'Serão usados {n} bilhetes.',
+      gachaResult:     'Resultado',
+      gachaDrew:       '{n} giros',
+      gachaHits:       '{n} jackpots',
+      gachaEarned:     'Bilhetes ganhos',
+      gachaSkip:       'Toque para pular'
+    }
+  };
+  Object.keys(GACHA_I18N).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(GACHA_I18N[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = GACHA_I18N[lang][k];
+    });
+  });
+})();
+
+/* =========================================================================
+   寿司屋ガチャ「回転シャード寿司」の文言
+   既存の辞書は触らず、無いキーだけを足すマージ方式。
+   掛け声は日本語の江戸前の口上そのものが持ち味なので、他言語でも
+   「寿司屋の威勢のいい声」に読める言い回しへ寄せてある（直訳しない）。
+   ========================================================================= */
+(function () {
+  if (typeof I18N === 'undefined') return;
+  var SUSHI_I18N = {
+    'ja': {
+      sushiTitle:       '回転シャード寿司',
+      sushiWelcome:     'へいらっしゃい！',
+      sushiServeCyan:   'へい！シャード一丁！',
+      sushiServeRainbow:'大トロ一丁ォォォ！！',
+      sushiDraw1:       '一貫にぎる',
+      sushiDraw10:      '十貫',
+      sushiDrawAll:     '爆速連握り',
+      sushiHintGet:     '2側面判断で1問正解するごとに一貫ぶんたまります',
+      sushiHintFull:    'ネタ切れです。のれんが下りる前に食べてください',
+      sushiHintNone:    '本日分は売り切れです',
+      sushiConfirmBody: '{n}貫ぶん、一気に握ります。',
+      sushiTally:       'お会計',
+      sushiPieces:      '{n}貫',
+      sushiToroCount:   '大トロ {n}貫',
+      sushiGochiso:     'ごちそうさま'
+    },
+    'en': {
+      sushiTitle:       'Spinning Shard Sushi',
+      sushiWelcome:     'Welcome in!',
+      sushiServeCyan:   'One shard, coming up!',
+      sushiServeRainbow:'FATTY TUNAAA!!',
+      sushiDraw1:       'Order one',
+      sushiDraw10:      'Order ten',
+      sushiDrawAll:     'Turbo service',
+      sushiHintGet:     'Each correct 2-sided answer earns one piece',
+      sushiHintFull:    'Counter is full! Eat up before the curtain drops',
+      sushiHintNone:    'Sold out for today',
+      sushiConfirmBody: 'The chef will make all {n} pieces at once.',
+      sushiTally:       'The bill',
+      sushiPieces:      '{n} pieces',
+      sushiToroCount:   '{n} fatty tuna',
+      sushiGochiso:     'Thanks for the meal'
+    },
+    'zh-CN': {
+      sushiTitle:       '回转晶片寿司',
+      sushiWelcome:     '欢迎光临！',
+      sushiServeCyan:   '晶片一份，来嘞！',
+      sushiServeRainbow:'大肥金枪鱼一份————！！',
+      sushiDraw1:       '来一贯',
+      sushiDraw10:      '来十贯',
+      sushiDrawAll:     '极速连握',
+      sushiHintGet:     '两面判断每答对1题可攒一贯',
+      sushiHintFull:    '食材满了！趁门帘没放下快吃',
+      sushiHintNone:    '今天的已经卖完了',
+      sushiConfirmBody: '将一口气握 {n} 贯。',
+      sushiTally:       '结账',
+      sushiPieces:      '{n} 贯',
+      sushiToroCount:   '大肥金枪鱼 {n} 贯',
+      sushiGochiso:     '多谢款待'
+    },
+    'zh-TW': {
+      sushiTitle:       '迴轉晶片壽司',
+      sushiWelcome:     '歡迎光臨！',
+      sushiServeCyan:   '晶片一份，來囉！',
+      sushiServeRainbow:'大鮪魚肚一份————！！',
+      sushiDraw1:       '來一貫',
+      sushiDraw10:      '來十貫',
+      sushiDrawAll:     '極速連握',
+      sushiHintGet:     '兩面判斷每答對1題可攢一貫',
+      sushiHintFull:    '食材滿了！趁門簾沒放下快吃',
+      sushiHintNone:    '今天的已經賣完了',
+      sushiConfirmBody: '將一口氣握 {n} 貫。',
+      sushiTally:       '結帳',
+      sushiPieces:      '{n} 貫',
+      sushiToroCount:   '大鮪魚肚 {n} 貫',
+      sushiGochiso:     '多謝款待'
+    },
+    'ko': {
+      sushiTitle:       '회전 샤드 스시',
+      sushiWelcome:     '어서 오세요!',
+      sushiServeCyan:   '샤드 하나 나갑니다!',
+      sushiServeRainbow:'대뱃살 하나아아!!',
+      sushiDraw1:       '한 점',
+      sushiDraw10:      '열 점',
+      sushiDrawAll:     '초고속 연타',
+      sushiHintGet:     '2면 판단에서 1문제 맞힐 때마다 한 점씩 쌓입니다',
+      sushiHintFull:    '재료가 가득! 포렴 내리기 전에 드세요',
+      sushiHintNone:    '오늘 치는 다 팔렸습니다',
+      sushiConfirmBody: '{n}점을 한 번에 쥡니다.',
+      sushiTally:       '계산',
+      sushiPieces:      '{n}점',
+      sushiToroCount:   '대뱃살 {n}점',
+      sushiGochiso:     '잘 먹었습니다'
+    },
+    'es': {
+      sushiTitle:       'Sushi de Fragmentos',
+      sushiWelcome:     '¡Adelante!',
+      sushiServeCyan:   '¡Un fragmento, marchando!',
+      sushiServeRainbow:'¡¡TOROOO!!',
+      sushiDraw1:       'Pedir una',
+      sushiDraw10:      'Pedir diez',
+      sushiDrawAll:     'Servicio turbo',
+      sushiHintGet:     'Cada acierto en 2 caras te da una pieza',
+      sushiHintFull:    '¡Barra llena! Come antes de que baje la cortina',
+      sushiHintNone:    'Agotado por hoy',
+      sushiConfirmBody: 'El chef hará las {n} piezas de golpe.',
+      sushiTally:       'La cuenta',
+      sushiPieces:      '{n} piezas',
+      sushiToroCount:   '{n} de toro',
+      sushiGochiso:     'Gracias por la comida'
+    },
+    'id': {
+      sushiTitle:       'Sushi Serpihan Putar',
+      sushiWelcome:     'Silakan masuk!',
+      sushiServeCyan:   'Satu serpihan, siap!',
+      sushiServeRainbow:'TORO SATUUU!!',
+      sushiDraw1:       'Pesan satu',
+      sushiDraw10:      'Pesan sepuluh',
+      sushiDrawAll:     'Layanan kilat',
+      sushiHintGet:     'Tiap jawaban benar di 2 Sisi dapat satu potong',
+      sushiHintFull:    'Meja penuh! Habiskan sebelum tirai turun',
+      sushiHintNone:    'Habis untuk hari ini',
+      sushiConfirmBody: 'Koki akan membuat {n} potong sekaligus.',
+      sushiTally:       'Bon',
+      sushiPieces:      '{n} potong',
+      sushiToroCount:   '{n} toro',
+      sushiGochiso:     'Terima kasih makanannya'
+    },
+    'ru': {
+      sushiTitle:       'Суши «Вертящийся осколок»',
+      sushiWelcome:     'Добро пожаловать!',
+      sushiServeCyan:   'Один осколок, готово!',
+      sushiServeRainbow:'ЖИРНЫЙ ТУНЕ-Е-ЕЦ!!',
+      sushiDraw1:       'Один кусочек',
+      sushiDraw10:      'Десять',
+      sushiDrawAll:     'Турбо-подача',
+      sushiHintGet:     'Каждый верный ответ в «2 стороны» — один кусочек',
+      sushiHintFull:    'Стойка полна! Ешьте, пока не опустили штору',
+      sushiHintNone:    'На сегодня всё распродано',
+      sushiConfirmBody: 'Повар слепит все {n} кусочков разом.',
+      sushiTally:       'Счёт',
+      sushiPieces:      'Кусочков: {n}',
+      sushiToroCount:   'Торо: {n}',
+      sushiGochiso:     'Спасибо за угощение'
+    },
+    'pt-BR': {
+      sushiTitle:       'Sushi de Fragmentos',
+      sushiWelcome:     'Bem-vindo!',
+      sushiServeCyan:   'Um fragmento, saindo!',
+      sushiServeRainbow:'TOROOO!!',
+      sushiDraw1:       'Pedir uma',
+      sushiDraw10:      'Pedir dez',
+      sushiDrawAll:     'Serviço turbo',
+      sushiHintGet:     'Cada acerto no 2 lados rende uma peça',
+      sushiHintFull:    'Balcão cheio! Coma antes de a cortina descer',
+      sushiHintNone:    'Esgotado por hoje',
+      sushiConfirmBody: 'O chef fará as {n} peças de uma vez.',
+      sushiTally:       'A conta',
+      sushiPieces:      '{n} peças',
+      sushiToroCount:   '{n} de toro',
+      sushiGochiso:     'Obrigado pela refeição'
+    }
+  };
+  Object.keys(SUSHI_I18N).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(SUSHI_I18N[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = SUSHI_I18N[lang][k];
+    });
+  });
+})();
+
+/* =========================================================================
+   寿司屋ガチャ：解放条件の案内と、初回だけ流れる10秒の口上
+   口上は「本編の重々しい語り」を装ってから最後にひっくり返す落とし話。
+   だから3行目までは各言語でも真顔で書き、4行目で一気に軽くする。
+   ========================================================================= */
+(function () {
+  if (typeof I18N === 'undefined') return;
+  var OP_I18N = {
+    'ja': {
+      sushiLocked: '2側面判断を1回以上プレイすると解放されます',
+      sushiOp1: 'かつて、世界を統べる最速のキューバーがいた。',
+      sushiOp2: '極限の回転効率を追い求めた男が、最後に辿り着いた境地——',
+      sushiOp3: 'それは、「寿司を握ること」だった。',
+      sushiOp4: '回転シャード寿司\n開店！',
+      sushiOpTap: 'タップで次へ'
+    },
+    'en': {
+      sushiLocked: 'Play 2-Sided Recognition at least once to unlock',
+      sushiOp1: 'Once, there was the fastest cuber the world had ever known.',
+      sushiOp2: 'He chased perfect turning efficiency to its very limit — and found, at the end...',
+      sushiOp3: 'that his true calling was making sushi.',
+      sushiOp4: 'Spinning Shard Sushi\nNow Open!',
+      sushiOpTap: 'Tap to continue'
+    },
+    'zh-CN': {
+      sushiLocked: '游玩一次两面判断即可解锁',
+      sushiOp1: '曾经，有一位统御世界的最速魔方手。',
+      sushiOp2: '那个把转动效率追到极限的男人，最后抵达的境界是——',
+      sushiOp3: '「捏寿司」。',
+      sushiOp4: '回转晶片寿司\n开张！',
+      sushiOpTap: '点击继续'
+    },
+    'zh-TW': {
+      sushiLocked: '遊玩一次兩面判斷即可解鎖',
+      sushiOp1: '曾經，有一位統御世界的最速魔術方塊手。',
+      sushiOp2: '那個把轉動效率追到極限的男人，最後抵達的境界是——',
+      sushiOp3: '「捏壽司」。',
+      sushiOp4: '迴轉晶片壽司\n開張！',
+      sushiOpTap: '點擊繼續'
+    },
+    'ko': {
+      sushiLocked: '2면 판단을 1회 이상 플레이하면 해금됩니다',
+      sushiOp1: '한때, 세계를 제패한 가장 빠른 큐버가 있었다.',
+      sushiOp2: '극한의 회전 효율을 좇던 사내가 마지막에 다다른 경지——',
+      sushiOp3: '그것은 「초밥을 쥐는 일」이었다.',
+      sushiOp4: '회전 샤드 스시\n개점！',
+      sushiOpTap: '탭하여 계속'
+    },
+    'es': {
+      sushiLocked: 'Juega al menos una vez a Reconocimiento de 2 caras para desbloquear',
+      sushiOp1: 'Hubo una vez el cubero más rápido que el mundo conoció.',
+      sushiOp2: 'Persiguió la eficiencia de giro hasta el límite, y al final halló...',
+      sushiOp3: 'que lo suyo era hacer sushi.',
+      sushiOp4: 'Sushi de Fragmentos\n¡Ya abierto!',
+      sushiOpTap: 'Toca para continuar'
+    },
+    'id': {
+      sushiLocked: 'Mainkan Penilaian 2 Sisi minimal sekali untuk membuka',
+      sushiOp1: 'Dahulu, ada cuber tercepat yang pernah dikenal dunia.',
+      sushiOp2: 'Ia mengejar efisiensi putaran hingga batasnya, dan akhirnya menemukan...',
+      sushiOp3: 'bahwa panggilan sejatinya adalah membuat sushi.',
+      sushiOp4: 'Sushi Serpihan Putar\nKini Buka!',
+      sushiOpTap: 'Ketuk untuk lanjut'
+    },
+    'ru': {
+      sushiLocked: 'Сыграйте в «Определение по 2 сторонам» хотя бы раз',
+      sushiOp1: 'Когда-то был самый быстрый спидкубер на свете.',
+      sushiOp2: 'Он довёл эффективность вращений до предела и в конце понял...',
+      sushiOp3: 'что его призвание — лепить суши.',
+      sushiOp4: 'Суши «Вертящийся осколок»\nОткрыто!',
+      sushiOpTap: 'Нажмите, чтобы продолжить'
+    },
+    'pt-BR': {
+      sushiLocked: 'Jogue Reconhecimento de 2 lados ao menos uma vez para desbloquear',
+      sushiOp1: 'Houve uma vez o cuber mais rápido que o mundo já viu.',
+      sushiOp2: 'Ele perseguiu a eficiência de giro até o limite, e no fim descobriu...',
+      sushiOp3: 'que sua verdadeira vocação era fazer sushi.',
+      sushiOp4: 'Sushi de Fragmentos\nJá aberto!',
+      sushiOpTap: 'Toque para continuar'
+    }
+  };
+  Object.keys(OP_I18N).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(OP_I18N[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = OP_I18N[lang][k];
+    });
+  });
+})();
+
+/* =========================================================================
+   お会計（寿司屋ガチャのまとめ引き結果）用の短い呼び名。
+   虹シャードとの対比が同じ画面の中で取れているので、水色のほうは
+   色を言わずただ「シャード」でよい。ショップの残高表記(shopShardCyan)は
+   虹と並ばない場所でも使うため、そちらは色つきのまま残す。
+   ========================================================================= */
+(function () {
+  if (typeof I18N === 'undefined') return;
+  var PLAIN = {
+    'ja': 'シャード',      'en': 'shards',        'zh-CN': '碎片',
+    'zh-TW': '碎片',       'ko': '조각',           'es': 'fragmentos',
+    'id': 'serpihan',      'ru': 'осколки',       'pt-BR': 'fragmentos'
+  };
+  Object.keys(PLAIN).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    if (I18N[lang].sushiShardPlain === undefined) I18N[lang].sushiShardPlain = PLAIN[lang];
+  });
+})();
+
+/* リザルトに出す「ためた貫」。寿司屋と同じ通貨の呼び方に揃える。 */
+(function () {
+  if (typeof I18N === 'undefined') return;
+  var EARNED = {
+    'ja': 'ためた貫',        'en': 'Pieces earned',   'zh-CN': '攒到的贯',
+    'zh-TW': '攢到的貫',      'ko': '모은 점',          'es': 'Piezas ganadas',
+    'id': 'Potong terkumpul', 'ru': 'Набрано кусочков', 'pt-BR': 'Peças ganhas'
+  };
+  Object.keys(EARNED).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    if (I18N[lang].sushiEarned === undefined) I18N[lang].sushiEarned = EARNED[lang];
   });
 })();
