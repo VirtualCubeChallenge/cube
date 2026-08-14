@@ -7197,6 +7197,59 @@
 }
 .gc-btn[disabled] { opacity: .38; pointer-events: none; box-shadow: 0 4px 0 #4a2c0a; }
 
+/* 貫が尽きたときだけ出る、2側面判断への呼び込み。
+   木札のボタンとは違う「弟子の一言」の見た目にするため、紙の短冊っぽく
+   角を丸めて余白多めに。矢印だけそっと右へ揺れて先を示す。 */
+.gc-train-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+  padding: 12px 10px 14px;
+  border: 3px solid #4a2c0a;
+  border-radius: 10px;
+  background: linear-gradient(160deg, #fffaf0, #f3dcae);
+  box-shadow: 0 4px 0 #4a2c0a;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .08s ease, box-shadow .08s ease;
+  animation: gc-train-cta-breathe 2.6s ease-in-out infinite;
+}
+.gc-train-cta[hidden] { display: none; }
+.gc-train-cta:active { transform: translateY(4px); box-shadow: none; animation: none; }
+.gc-train-cta-shout {
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  color: #8c2f28;
+}
+.gc-train-cta-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 900;
+  color: #4a2c0a;
+}
+.gc-train-cta-arrow {
+  font-size: 15px;
+  font-weight: 900;
+  color: #e0523d;
+  animation: gc-train-cta-arrow 1.1s ease-in-out infinite;
+}
+@keyframes gc-train-cta-breathe {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-2px); }
+}
+@keyframes gc-train-cta-arrow {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gc-train-cta, .gc-train-cta-arrow { animation: none; }
+}
+
 /* ---- お会計（まとめ引きの結果）-------------------------------------------- */
 .gc-summary {
   position: absolute;

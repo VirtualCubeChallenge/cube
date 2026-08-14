@@ -3222,3 +3222,27 @@
     if (I18N[lang].sushiEarned === undefined) I18N[lang].sushiEarned = EARNED[lang];
   });
 })();
+
+/* 貫が0のときだけ出る、2側面判断への呼び込みボタン。
+   弟子が大将に一声かけて修行(トレーニング)へ出る、という寸劇の台詞なので
+   直訳せず「威勢のいい師弟のやり取り」に読める言い回しに寄せてある。 */
+(function () {
+  if (typeof I18N === 'undefined') return;
+  var TRAIN = {
+    'ja':    { sushiTrainCtaShout: '大将！！',    sushiTrainCtaLine: '修行に行ってきます！！',        sushiTrainCtaAria: '2側面判断のトレーニングへ行く' },
+    'en':    { sushiTrainCtaShout: 'Boss!!',      sushiTrainCtaLine: 'Off to train!!',                sushiTrainCtaAria: 'Go to 2-sided recognition training' },
+    'zh-CN': { sushiTrainCtaShout: '师傅！！',     sushiTrainCtaLine: '我去特训了！！',                 sushiTrainCtaAria: '前往2侧面判断特训' },
+    'zh-TW': { sushiTrainCtaShout: '師傅！！',     sushiTrainCtaLine: '我去特訓了！！',                 sushiTrainCtaAria: '前往2側面判斷特訓' },
+    'ko':    { sushiTrainCtaShout: '대장님！！',   sushiTrainCtaLine: '수련하고 오겠습니다！！',        sushiTrainCtaAria: '2면 판별 트레이닝으로 이동' },
+    'es':    { sushiTrainCtaShout: '¡Jefe!!',     sushiTrainCtaLine: '¡Me voy a entrenar!!',          sushiTrainCtaAria: 'Ir al entrenamiento de reconocimiento de 2 lados' },
+    'id':    { sushiTrainCtaShout: 'Bos!!',       sushiTrainCtaLine: 'Aku pergi berlatih dulu!!',      sushiTrainCtaAria: 'Buka latihan pengenalan 2 sisi' },
+    'ru':    { sushiTrainCtaShout: 'Шеф!!',       sushiTrainCtaLine: 'Иду тренироваться!!',           sushiTrainCtaAria: 'Перейти к тренировке распознавания по 2 сторонам' },
+    'pt-BR': { sushiTrainCtaShout: 'Chefe!!',     sushiTrainCtaLine: 'Vou treinar!!',                 sushiTrainCtaAria: 'Ir para o treino de reconhecimento de 2 lados' }
+  };
+  Object.keys(TRAIN).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(TRAIN[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = TRAIN[lang][k];
+    });
+  });
+})();
