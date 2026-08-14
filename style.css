@@ -5904,17 +5904,24 @@
   white-space: nowrap;
 }
 .pllt-res-rows { max-height: 38vh; overflow-y: auto; overscroll-behavior: contain; }
+/* 左=戻る／右=もう一度挑戦。2つを同じ幅で並べる。
+   言語によって語の長さがまるで違うので、幅は中身ではなく半分ずつで決める。 */
 .pllt-result-actions {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
-  justify-content: center;
   margin-top: 16px;
 }
-.pllt-result-actions .action-btn { padding: 12px 14px; font-size: 12px; }
-.pllt-result-actions .action-btn.disabled {
-  opacity: .38;
-  pointer-events: none;
+.pllt-result-actions .action-btn {
+  padding: 12px 14px;
+  font-size: 13px;
+  text-align: center;
+}
+/* 右のほうが主たる行き先なので、こちらだけ色を持たせる。 */
+.pllt-result-actions #pllt-retry {
+  background: rgba(var(--tc-rgb), .16);
+  border: 1px solid rgba(var(--tc-rgb), .55);
+  color: var(--tc);
 }
 
 /* ---- 通算成績 ---------------------------------------------------------
