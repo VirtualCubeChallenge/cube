@@ -3189,3 +3189,22 @@
     });
   });
 })();
+
+/* =========================================================================
+   お会計（寿司屋ガチャのまとめ引き結果）用の短い呼び名。
+   虹シャードとの対比が同じ画面の中で取れているので、水色のほうは
+   色を言わずただ「シャード」でよい。ショップの残高表記(shopShardCyan)は
+   虹と並ばない場所でも使うため、そちらは色つきのまま残す。
+   ========================================================================= */
+(function () {
+  if (typeof I18N === 'undefined') return;
+  var PLAIN = {
+    'ja': 'シャード',      'en': 'shards',        'zh-CN': '碎片',
+    'zh-TW': '碎片',       'ko': '조각',           'es': 'fragmentos',
+    'id': 'serpihan',      'ru': 'осколки',       'pt-BR': 'fragmentos'
+  };
+  Object.keys(PLAIN).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    if (I18N[lang].sushiShardPlain === undefined) I18N[lang].sushiShardPlain = PLAIN[lang];
+  });
+})();
