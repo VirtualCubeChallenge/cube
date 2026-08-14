@@ -4584,9 +4584,12 @@
 .rr.open{ opacity:1; visibility:visible; }
 .rr-scrim{
   position:absolute; inset:0;
-  /* 「ランクアップの時、暗くなりすぎ」との指摘で明るく調整（.72/.92→.42/.62）。 */
-  background:radial-gradient(80% 60% at 50% 42%, rgba(10,16,26,.42), rgba(4,6,10,.62));
-  backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
+  /* 配信で見づらいとの指摘を受け、さらに明るく（.42/.62→.16/.28）。
+     暗さでキューブを隠すのではなく、カードの縁取り・文字色側で
+     読みやすさを出す方針に寄せた。ぼかしも実質見た目が変わらない程度
+     まで弱めた。 */
+  background:radial-gradient(80% 60% at 50% 42%, rgba(10,16,26,.16), rgba(4,6,10,.28));
+  backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px);
 }
 .rr-card{
   position:relative; width:min(340px,100%);
@@ -4830,10 +4833,12 @@
 .rank-fx > *{ position:absolute; inset:0; opacity:0; }
 
 /* ---- tier4 : 暗転のヴェール -------------------------------------------- */
+/* 配信での見やすさ重視で大幅に明るく（ピーク.92→.5、中間.72→.4）。
+   「タメ」の間もキューブの輪郭がうっすら見える程度に留める。 */
 .rfx-veil{ background:#04060a; }
 .rfx-veil.go{ animation:rfxVeil 2.3s ease-in-out forwards; }
 @keyframes rfxVeil{
-  0%{ opacity:0; } 14%{ opacity:.92; } 72%{ opacity:.72; } 100%{ opacity:0; }
+  0%{ opacity:0; } 14%{ opacity:.5; } 72%{ opacity:.4; } 100%{ opacity:0; }
 }
 
 /* ---- tier4 : 中央を突き抜ける光の柱 ------------------------------------ */
