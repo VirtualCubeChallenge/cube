@@ -2947,9 +2947,9 @@
       sushiDraw1:       '一貫にぎる',
       sushiDraw10:      '十貫',
       sushiDrawAll:     '爆速連握り',
-      sushiHintGet:     '2側面判断で1問正解するごとに一貫ぶんたまります',
+      sushiHintGet:     '',
       sushiHintFull:    'ネタ切れです。のれんが下りる前に食べてください',
-      sushiHintNone:    '本日分は売り切れです',
+      sushiHintNone:    'PLL2側面判断で一問正解するごとに一貫たまります。\n　　　　　※現在は売り切れです。',
       sushiConfirmBody: '{n}貫ぶん、一気に握ります。',
       sushiTally:       'お会計',
       sushiPieces:      '{n}貫',
@@ -2964,9 +2964,9 @@
       sushiDraw1:       'Order one',
       sushiDraw10:      'Order ten',
       sushiDrawAll:     'Turbo service',
-      sushiHintGet:     'Each correct 2-sided answer earns one piece',
+      sushiHintGet:     '',
       sushiHintFull:    'Counter is full! Eat up before the curtain drops',
-      sushiHintNone:    'Sold out for today',
+      sushiHintNone:    'Earn 1 piece for every correct answer in PLL 2-Sided.\n     *Currently sold out.',
       sushiConfirmBody: 'The chef will make all {n} pieces at once.',
       sushiTally:       'The bill',
       sushiPieces:      '{n} pieces',
@@ -2981,9 +2981,9 @@
       sushiDraw1:       '来一贯',
       sushiDraw10:      '来十贯',
       sushiDrawAll:     '极速连握',
-      sushiHintGet:     '两面判断每答对1题可攒一贯',
+      sushiHintGet:     '',
       sushiHintFull:    '食材满了！趁门帘没放下快吃',
-      sushiHintNone:    '今天的已经卖完了',
+      sushiHintNone:    'PLL 两面判断每答对1题可攒一贯。\n　　　　　※目前已售罄。',
       sushiConfirmBody: '将一口气握 {n} 贯。',
       sushiTally:       '结账',
       sushiPieces:      '{n} 贯',
@@ -2998,9 +2998,9 @@
       sushiDraw1:       '來一貫',
       sushiDraw10:      '來十貫',
       sushiDrawAll:     '極速連握',
-      sushiHintGet:     '兩面判斷每答對1題可攢一貫',
+      sushiHintGet:     '',
       sushiHintFull:    '食材滿了！趁門簾沒放下快吃',
-      sushiHintNone:    '今天的已經賣完了',
+      sushiHintNone:    'PLL 兩面判斷每答對1題可攢一貫。\n　　　　　※目前已售罄。',
       sushiConfirmBody: '將一口氣握 {n} 貫。',
       sushiTally:       '結帳',
       sushiPieces:      '{n} 貫',
@@ -3015,9 +3015,9 @@
       sushiDraw1:       '한 점',
       sushiDraw10:      '열 점',
       sushiDrawAll:     '초고속 연타',
-      sushiHintGet:     '2면 판단에서 1문제 맞힐 때마다 한 점씩 쌓입니다',
+      sushiHintGet:     '',
       sushiHintFull:    '재료가 가득! 포렴 내리기 전에 드세요',
-      sushiHintNone:    '오늘 치는 다 팔렸습니다',
+      sushiHintNone:    'PLL 2면 판단에서 1문제 정답마다 한 점씩 쌓입니다.\n     ※현재는 품절입니다.',
       sushiConfirmBody: '{n}점을 한 번에 쥡니다.',
       sushiTally:       '계산',
       sushiPieces:      '{n}점',
@@ -3032,9 +3032,9 @@
       sushiDraw1:       'Pedir una',
       sushiDraw10:      'Pedir diez',
       sushiDrawAll:     'Servicio turbo',
-      sushiHintGet:     'Cada acierto en 2 caras te da una pieza',
+      sushiHintGet:     '',
       sushiHintFull:    '¡Barra llena! Come antes de que baje la cortina',
-      sushiHintNone:    'Agotado por hoy',
+      sushiHintNone:    'Gana una pieza por cada acierto en PLL 2 caras.\n     *Por ahora, agotado.',
       sushiConfirmBody: 'El chef hará las {n} piezas de golpe.',
       sushiTally:       'La cuenta',
       sushiPieces:      '{n} piezas',
@@ -3049,9 +3049,9 @@
       sushiDraw1:       'Pesan satu',
       sushiDraw10:      'Pesan sepuluh',
       sushiDrawAll:     'Layanan kilat',
-      sushiHintGet:     'Tiap jawaban benar di 2 Sisi dapat satu potong',
+      sushiHintGet:     '',
       sushiHintFull:    'Meja penuh! Habiskan sebelum tirai turun',
-      sushiHintNone:    'Habis untuk hari ini',
+      sushiHintNone:    'Dapat satu potong tiap jawaban benar di PLL 2 Sisi.\n     *Untuk saat ini habis.',
       sushiConfirmBody: 'Koki akan membuat {n} potong sekaligus.',
       sushiTally:       'Bon',
       sushiPieces:      '{n} potong',
@@ -3066,9 +3066,9 @@
       sushiDraw1:       'Один кусочек',
       sushiDraw10:      'Десять',
       sushiDrawAll:     'Турбо-подача',
-      sushiHintGet:     'Каждый верный ответ в «2 стороны» — один кусочек',
+      sushiHintGet:     '',
       sushiHintFull:    'Стойка полна! Ешьте, пока не опустили штору',
-      sushiHintNone:    'На сегодня всё распродано',
+      sushiHintNone:    'За каждый верный ответ в PLL 2 стороны — один кусочек.\n     *Сейчас распродано.',
       sushiConfirmBody: 'Повар слепит все {n} кусочков разом.',
       sushiTally:       'Счёт',
       sushiPieces:      'Кусочков: {n}',
@@ -3083,9 +3083,9 @@
       sushiDraw1:       'Pedir uma',
       sushiDraw10:      'Pedir dez',
       sushiDrawAll:     'Serviço turbo',
-      sushiHintGet:     'Cada acerto no 2 lados rende uma peça',
+      sushiHintGet:     '',
       sushiHintFull:    'Balcão cheio! Coma antes de a cortina descer',
-      sushiHintNone:    'Esgotado por hoje',
+      sushiHintNone:    'Ganhe uma peça por acerto no PLL 2 lados.\n     *No momento, esgotado.',
       sushiConfirmBody: 'O chef fará as {n} peças de uma vez.',
       sushiTally:       'A conta',
       sushiPieces:      '{n} peças',
@@ -3220,5 +3220,29 @@
   Object.keys(EARNED).forEach(function (lang) {
     if (!I18N[lang]) I18N[lang] = {};
     if (I18N[lang].sushiEarned === undefined) I18N[lang].sushiEarned = EARNED[lang];
+  });
+})();
+
+/* 貫が0のときだけ出る、2側面判断への呼び込みボタン。
+   弟子が大将に一声かけて修行(トレーニング)へ出る、という寸劇の台詞なので
+   直訳せず「威勢のいい師弟のやり取り」に読める言い回しに寄せてある。 */
+(function () {
+  if (typeof I18N === 'undefined') return;
+  var TRAIN = {
+    'ja':    { sushiTrainCtaShout: '大将！！',    sushiTrainCtaLine: '修行に行ってきます！！',        sushiTrainCtaAria: '2側面判断のトレーニングへ行く' },
+    'en':    { sushiTrainCtaShout: 'Boss!!',      sushiTrainCtaLine: 'Off to train!!',                sushiTrainCtaAria: 'Go to 2-sided recognition training' },
+    'zh-CN': { sushiTrainCtaShout: '师傅！！',     sushiTrainCtaLine: '我去特训了！！',                 sushiTrainCtaAria: '前往2侧面判断特训' },
+    'zh-TW': { sushiTrainCtaShout: '師傅！！',     sushiTrainCtaLine: '我去特訓了！！',                 sushiTrainCtaAria: '前往2側面判斷特訓' },
+    'ko':    { sushiTrainCtaShout: '대장님！！',   sushiTrainCtaLine: '수련하고 오겠습니다！！',        sushiTrainCtaAria: '2면 판별 트레이닝으로 이동' },
+    'es':    { sushiTrainCtaShout: '¡Jefe!!',     sushiTrainCtaLine: '¡Me voy a entrenar!!',          sushiTrainCtaAria: 'Ir al entrenamiento de reconocimiento de 2 lados' },
+    'id':    { sushiTrainCtaShout: 'Bos!!',       sushiTrainCtaLine: 'Aku pergi berlatih dulu!!',      sushiTrainCtaAria: 'Buka latihan pengenalan 2 sisi' },
+    'ru':    { sushiTrainCtaShout: 'Шеф!!',       sushiTrainCtaLine: 'Иду тренироваться!!',           sushiTrainCtaAria: 'Перейти к тренировке распознавания по 2 сторонам' },
+    'pt-BR': { sushiTrainCtaShout: 'Chefe!!',     sushiTrainCtaLine: 'Vou treinar!!',                 sushiTrainCtaAria: 'Ir para o treino de reconhecimento de 2 lados' }
+  };
+  Object.keys(TRAIN).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(TRAIN[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = TRAIN[lang][k];
+    });
   });
 })();
