@@ -6609,23 +6609,46 @@
   flex-wrap: wrap;
   margin: 10px 0 2px;
 }
-.pllt-ticket-row .pllt-tk-badge {
+/* ためた貫の木札。寿司屋の入口(.shop-gacha-entry)と同じ形にして、
+   同じ通貨の話だと一目で分かるようにする。ただしここは暗いリザルト
+   画面なので、木の色は店で使っているものより落として馴染ませる。 */
+.pllt-ticket-row .pllt-kan-fuda {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, .06);
-  border: 1px solid rgba(var(--tc-rgb), .5);
+  gap: 7px;
+  padding: 6px 13px 7px;
+  /* 上だけ角を落として木札の形に */
+  border-radius: 3px 3px 7px 7px;
+  background: linear-gradient(160deg, #6a5334, #4a3a22);
+  border: 1px solid #8a6a3a;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .45);
   font-size: 12px;
   font-weight: 800;
-  color: #eaf6ff;
+  color: #f0e2c2;
   font-variant-numeric: tabular-nums;
 }
-.pllt-ticket-row .pllt-tk-badge.is-full {
-  border-color: rgba(255, 210, 74, .8);
-  color: #ffe9a8;
+/* 焼き印のような「貫」の一文字 */
+.pllt-ticket-row .pllt-kan-mark {
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+  color: #ffd9a0;
+  padding: 2px 5px 3px;
+  border: 1px solid rgba(255, 217, 160, .5);
+  border-radius: 3px;
 }
+.pllt-ticket-row .pllt-kan-label { color: #cbb894; font-weight: 700; }
+.pllt-ticket-row .pllt-kan-fuda b {
+  font-size: 15px;
+  font-weight: 900;
+  color: #ffe9c2;
+}
+/* 上限に達していたら、赤提灯のように灯して「使いどき」を知らせる */
+.pllt-ticket-row .pllt-kan-fuda.is-full {
+  background: linear-gradient(160deg, #7a5a2a, #5a4020);
+  border-color: #e8a13f;
+}
+.pllt-ticket-row .pllt-kan-fuda.is-full b { color: #ffd24a; }
 
 /* =========================================================================
    寿司屋の空間

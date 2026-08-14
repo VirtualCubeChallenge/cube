@@ -3208,3 +3208,17 @@
     if (I18N[lang].sushiShardPlain === undefined) I18N[lang].sushiShardPlain = PLAIN[lang];
   });
 })();
+
+/* リザルトに出す「ためた貫」。寿司屋と同じ通貨の呼び方に揃える。 */
+(function () {
+  if (typeof I18N === 'undefined') return;
+  var EARNED = {
+    'ja': 'ためた貫',        'en': 'Pieces earned',   'zh-CN': '攒到的贯',
+    'zh-TW': '攢到的貫',      'ko': '모은 점',          'es': 'Piezas ganadas',
+    'id': 'Potong terkumpul', 'ru': 'Набрано кусочков', 'pt-BR': 'Peças ganhas'
+  };
+  Object.keys(EARNED).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    if (I18N[lang].sushiEarned === undefined) I18N[lang].sushiEarned = EARNED[lang];
+  });
+})();
