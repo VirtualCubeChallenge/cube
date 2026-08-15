@@ -6280,26 +6280,42 @@
 }
 
 /* ---- 背後の光のライン（サンバースト）2枚を逆回転させる ---------------- */
+/* 【大きさについて】この2枚は「回り続けるサンバースト」で、演出が
+   出ているあいだ止まらない＝いちばん長く負荷がかかる。もとは
+   200vmax 角（＝画面の長辺の2倍の正方形）だったが、マスクで実際に
+   見えているのは中心から 60vmax / 68vmax までの帯だけで、外側は
+   ずっと透明なまま描かれていた。
+   面積は一辺の2乗で効くので、画面が大きいほど無駄も一気にふくらむ。
+   iPad(1024×1366)だと 200vmax = 2732px 角 ＝ 約750万CSSピクセル、
+   Retina では実ピクセルでその4倍を、conic-gradient とマスク付きで
+   毎フレーム回すことになり、これが「iPadだけ滑らかでない」の正体。
+   そこで元の見た目を変えないまま器だけ縮める。マスクの％は
+   「closest-side＝要素の半分」に対する割合なので、器を縮めたぶん
+   ％を同じ比率で大きくすれば、画面上の見え方は元と同じになる。
+     burst : 半径 5/24/60vmax → 器の半分を 65vmax に  → 7.7/36.9/92.3%
+     burst2: 半径 8/30/68vmax → 器の半分を 72vmax に  → 11.1/41.7/94.4%
+   面積は burst が 42%、burst2 が 52% に減る。 */
 .sg-burst, .sg-burst2{
   position: absolute; top: 42%; left: 50%;
-  width: 200vmax; height: 200vmax; margin: -100vmax 0 0 -100vmax;
   opacity: 0; pointer-events: none;
   transition: opacity .5s ease; will-change: transform;
 }
 .sg-burst{
+  width: 130vmax; height: 130vmax; margin: -65vmax 0 0 -65vmax;
   background: conic-gradient(from 0deg,
       rgba(var(--tc-rgb),.34) 0deg 4deg, transparent 4deg 18deg,
       rgba(255,255,255,.20) 18deg 20deg, transparent 20deg 34deg,
       rgba(var(--tc-rgb),.26) 34deg 40deg, transparent 40deg 60deg);
-  -webkit-mask-image: radial-gradient(closest-side, transparent 5%, #000 24%, transparent 60%);
-          mask-image: radial-gradient(closest-side, transparent 5%, #000 24%, transparent 60%);
+  -webkit-mask-image: radial-gradient(closest-side, transparent 7.7%, #000 36.9%, transparent 92.3%);
+          mask-image: radial-gradient(closest-side, transparent 7.7%, #000 36.9%, transparent 92.3%);
 }
 .sg-burst2{
+  width: 144vmax; height: 144vmax; margin: -72vmax 0 0 -72vmax;
   background: conic-gradient(from 12deg,
       rgba(255,215,106,.22) 0deg 2deg, transparent 2deg 26deg,
       rgba(255,255,255,.10) 26deg 27deg, transparent 27deg 45deg);
-  -webkit-mask-image: radial-gradient(closest-side, transparent 8%, #000 30%, transparent 68%);
-          mask-image: radial-gradient(closest-side, transparent 8%, #000 30%, transparent 68%);
+  -webkit-mask-image: radial-gradient(closest-side, transparent 11.1%, #000 41.7%, transparent 94.4%);
+          mask-image: radial-gradient(closest-side, transparent 11.1%, #000 41.7%, transparent 94.4%);
 }
 .is-open .sg-burst.is-lit { opacity: .9;  animation: sg-spin 11s linear infinite; }
 .is-open .sg-burst2.is-lit{ opacity: .75; animation: sg-spin 17s linear infinite reverse; }
@@ -6321,11 +6337,15 @@
 }
 
 /* ---- 出現のフラッシュ（ホワイトアウト）------------------------------- */
+/* こちらも同じ理由で器を縮める。見えているのは中心から 52% までで、
+   拡大も最大 .92 倍どまり。半分を 110vmax → 60vmax にして、
+   グラデーションの％を 110/60 倍（約1.833）に読み替えると、
+   画面上の大きさは元のまま面積だけ 30% に減る。 */
 .sg-flash{
-  position: absolute; top: 42%; left: 50%; width: 220vmax; height: 220vmax;
-  margin: -110vmax 0 0 -110vmax; border-radius: 50%; opacity: 0;
-  background: radial-gradient(circle, #fff 0%, rgba(255,255,255,.95) 18%,
-              rgba(var(--tc-rgb),.62) 32%, transparent 52%);
+  position: absolute; top: 42%; left: 50%; width: 120vmax; height: 120vmax;
+  margin: -60vmax 0 0 -60vmax; border-radius: 50%; opacity: 0;
+  background: radial-gradient(circle, #fff 0%, rgba(255,255,255,.95) 33%,
+              rgba(var(--tc-rgb),.62) 58.7%, transparent 95.3%);
   pointer-events: none; will-change: transform, opacity;
 }
 .sg-flash.is-fire{ animation: sg-flash .78s cubic-bezier(.2,.85,.3,1) forwards; }
