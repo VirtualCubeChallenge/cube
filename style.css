@@ -1519,6 +1519,12 @@
       align-items: center;
       justify-content: center;
     }
+    /* 記録画面の見出し「ガイドあり ⚑」内のバッジは地の文と並ぶので、
+       リスト内の同じバッジ(.record-badge.help)より少し下げて基準線を合わせる。 */
+    .recordsAssistHead-badge {
+      vertical-align: -2px;
+      margin: 0 1px;
+    }
     .record-badge.oll {
       background: rgba(var(--tc-rgb), 0.15);
       color: var(--tc);
