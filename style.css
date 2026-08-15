@@ -1515,6 +1515,9 @@
       color: #ffdd57;
       border: 1px solid rgba(255, 221, 87, 0.45);
       padding: 2px 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
     .record-badge.oll {
       background: rgba(var(--tc-rgb), 0.15);
