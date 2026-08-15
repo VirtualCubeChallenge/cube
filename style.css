@@ -1752,7 +1752,29 @@
       flex-direction: row;
       gap: 8px;
     }
-    #help-btn .help-icon { font-size: 21px; line-height: 1; }
+    #help-btn .help-icon { font-size: 21px; line-height: 1; display: flex; }
+    #help-btn .help-icon-svg { display: block; }
+    /* 電球アイコン: 上半分(球体の輪郭+光条)だけがふわっと発光し、下半分(ベース)
+       は #8fa3a0 の線画のまま沈める。--hi-rgb は通常時 --tc-rgb を継承し、
+       #help-btn.on のときだけ琥珀(255,213,74)に差し替わるので、キーフレームは
+       共通のまま両方の状態で使い回せる。 */
+    #help-btn .help-icon-glow {
+      --hi-rgb: var(--tc-rgb);
+      color: var(--tc);
+      filter: drop-shadow(0 0 3px rgba(var(--hi-rgb), .9)) drop-shadow(0 0 7px rgba(var(--hi-rgb), .55));
+      animation: help-icon-glow-pulse 2.2s ease-in-out infinite;
+    }
+    #help-btn.on .help-icon-glow {
+      --hi-rgb: 255, 213, 74;
+      color: #ffd54a;
+    }
+    @keyframes help-icon-glow-pulse {
+      0%, 100% { filter: drop-shadow(0 0 3px rgba(var(--hi-rgb), .9)) drop-shadow(0 0 7px rgba(var(--hi-rgb), .55)); }
+      50%      { filter: drop-shadow(0 0 5px rgba(var(--hi-rgb), 1))  drop-shadow(0 0 12px rgba(var(--hi-rgb), .85)); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #help-btn .help-icon-glow { animation: none; }
+    }
     #help-btn .help-label { font-size: 15px; font-weight: 800; letter-spacing: 0.5px; }
     #help-btn.on {
       border-color: #ffd54a;
