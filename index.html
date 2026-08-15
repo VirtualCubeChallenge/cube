@@ -3270,6 +3270,13 @@
           localStorage.setItem(TAP_KEY, tapCubeEnabled ? '1' : '0');
         } catch (err) { /* storage unavailable -- the mode still applies */ }
       }
+      // 回転記号モード（ボタンで回す）を選んだ人は、設定の「回転を高速に
+      // する」を既定でONにしておく。記号操作に慣れている前提の操作方法な
+      // ので、待ち時間なく次々に回せたほうが快適なため。
+      if (pendingModeChoice === false && !fastTurns) {
+        fastTurns = true;
+        applySpeedMode();
+      }
       welcomeOverlay.classList.remove('show');
       // 「指でなぞる（タップキューブ）」で始めるときは、そろったキューブ
       // ではなくシャッフル済みの状態から始める。そろったキューブを渡されても
