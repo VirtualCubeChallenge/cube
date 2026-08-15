@@ -4195,7 +4195,12 @@
     });
 
     if (openTutorialBtn) {
-      openTutorialBtn.addEventListener('click', () => {
+      // 設定パネル内の他のボタンを押そうとして指が滑り、この
+      // 「チュートリアル画面へ」に当たって即座にチュートリアルが
+      // 始まってしまう、という誤タップの報告があったため、ここだけは
+      // ワンクッション確認を挟む(取り返しがつかない操作ではないが、
+      // 誤操作からの離脱コストが高いため)。
+      function startTutorialFromSettings() {
         settingsOverlay.style.display = 'none';
         // チュートリアルは「キューブを指でなぞる」操作前提で作られている。
         // 回転記号モードのまま見直すと、記号ボタンが表示されたままチュート
@@ -4209,6 +4214,15 @@
         // 見直しは最初から。途中再開は「離脱してすぐ戻ってきた」場合の
         // 救済であって、自分から見に来た人が求めているものではない。
         startTutorialWhenReady(0);
+      }
+      openTutorialBtn.addEventListener('click', () => {
+        askConfirm({
+          title: t('tutorialConfirmTitle'),
+          body: t('tutorialConfirmBody'),
+          ok: t('tutorialConfirmOk'),
+          cancel: t('confirmCancel'),
+          onOk: startTutorialFromSettings
+        });
       });
     }
     // 中断して離脱していた場合は、次の起動でその続きから出す。
