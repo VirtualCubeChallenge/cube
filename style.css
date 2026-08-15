@@ -1068,10 +1068,9 @@
       height: 52px;
     }
     .help-vis-btn .help-vis-icon {
-      display: flex;
+      font-size: 22px;
       line-height: 1;
     }
-    .help-vis-btn .help-vis-icon svg { display: block; }
     .help-vis-btn .alg-vis-state {
       font-size: 12px;
       letter-spacing: 1px;
@@ -1515,15 +1514,6 @@
       color: #ffdd57;
       border: 1px solid rgba(255, 221, 87, 0.45);
       padding: 2px 4px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-    /* 記録画面の見出し「ガイドあり ⚑」内のバッジは地の文と並ぶので、
-       リスト内の同じバッジ(.record-badge.help)より少し下げて基準線を合わせる。 */
-    .recordsAssistHead-badge {
-      vertical-align: -2px;
-      margin: 0 1px;
     }
     .record-badge.oll {
       background: rgba(var(--tc-rgb), 0.15);
@@ -6145,7 +6135,7 @@
   filter: drop-shadow(0 0 3px rgba(0, 255, 204, .55));
 }
 
-/* ---- ドロワーの「トレーニング」のアイコン ------------------------------
+
    絵文字ではなく、赤いルービックキューブを等角投影で描いたSVG。
    他の行（🏆/🛍️/⚙️）は絵文字1文字＋半角スペースなので、
    アイコン幅と gap をそれに合わせて字下げ位置を揃える。
