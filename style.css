@@ -1068,9 +1068,10 @@
       height: 52px;
     }
     .help-vis-btn .help-vis-icon {
-      font-size: 22px;
+      display: flex;
       line-height: 1;
     }
+    .help-vis-btn .help-vis-icon svg { display: block; }
     .help-vis-btn .alg-vis-state {
       font-size: 12px;
       letter-spacing: 1px;
@@ -6125,6 +6126,14 @@
   vertical-align: -0.22em;
   background: url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2032%2032%22%20aria-hidden=%22true%22%20focusable=%22false%22%3E%20%3Ccircle%20cx=%2216%22%20cy=%2213.5%22%20r=%227.3%22%20stroke=%22%2300ffcc%22%20stroke-width=%221.8%22%20fill=%22rgba(0,255,204,.14)%22/%3E%20%3Cline%20x1=%2216%22%20y1=%222.5%22%20x2=%2216%22%20y2=%225.4%22%20stroke=%22%2300ffcc%22%20stroke-width=%222.4%22%20stroke-linecap=%22round%22/%3E%20%3Cline%20x1=%227.3%22%20y1=%227%22%20x2=%229.3%22%20y2=%229%22%20stroke=%22%2300ffcc%22%20stroke-width=%222.4%22%20stroke-linecap=%22round%22/%3E%20%3Cline%20x1=%2224.7%22%20y1=%227%22%20x2=%2222.7%22%20y2=%229%22%20stroke=%22%2300ffcc%22%20stroke-width=%222.4%22%20stroke-linecap=%22round%22/%3E%20%3Cpath%20d=%22M12.7%2020.4h6.6v2.2c0%20.5-.4%201-1%201h-4.6c-.6%200-1-.5-1-1v-2.2z%22%20stroke=%22%238fa3a0%22%20stroke-width=%221.6%22%20stroke-linejoin=%22round%22%20fill=%22none%22/%3E%20%3C/svg%3E") center / contain no-repeat;
   filter: drop-shadow(0 0 2px rgba(0, 255, 204, .5));
+}
+/* タイトル(#tut-title、迷ったら「…ヘルプ」)専用の大きめサイズ。本文中の
+   .tut-help-icon(1.15em)より一回り大きくして見出しの太字と釣り合わせる。 */
+.tut-help-icon-lg {
+  width: 1.55em;
+  height: 1.55em;
+  vertical-align: -0.32em;
+  filter: drop-shadow(0 0 3px rgba(0, 255, 204, .55));
 }
 
 /* ---- ドロワーの「トレーニング」のアイコン ------------------------------
