@@ -5299,6 +5299,10 @@
     135deg, transparent 46%, #6f7889 46%, #6f7889 54%, transparent 54%);
 }
 
+/* キューブカラーの見本。6面ぶんの色を斜めストライプで見せる（JS側で
+   --sw に linear-gradient を差し込む）。丸角からのはみ出しだけ防ぐ。 */
+.shop-swatch.is-scheme { overflow: hidden; }
+
 .shop-swatch.is-prism { overflow: hidden; }
 .shop-swatch.is-prism::before {
   content: '';
