@@ -3284,63 +3284,63 @@
   var SCHEME_I18N = {
     'ja': {
       shopSchemes: 'キューブカラー',
-      shopSchemesLead: 'キューブ本体の配色を蛍光カラーに変えます',
+      shopSchemesLead: 'キューブのカラーテーマを変更できます',
       shopSchemeEquip: 'これにする',
       shopSchemeDefault: '標準',
       shopSchemeNeonElectric: 'エレクトリック'
     },
     'en': {
       shopSchemes: 'Cube Colors',
-      shopSchemesLead: 'Recolor the cube itself in neon',
+      shopSchemesLead: "You can change the cube's color theme",
       shopSchemeEquip: 'Use this',
       shopSchemeDefault: 'Default',
       shopSchemeNeonElectric: 'Electric'
     },
     'zh-CN': {
       shopSchemes: '方块颜色',
-      shopSchemesLead: '把方块本体换成荧光配色',
+      shopSchemesLead: '可以更改方块的配色主题',
       shopSchemeEquip: '使用此配色',
       shopSchemeDefault: '标准',
       shopSchemeNeonElectric: '电光'
     },
     'zh-TW': {
       shopSchemes: '方塊顏色',
-      shopSchemesLead: '把方塊本體換成螢光配色',
+      shopSchemesLead: '可以更改方塊的配色主題',
       shopSchemeEquip: '使用此配色',
       shopSchemeDefault: '標準',
       shopSchemeNeonElectric: '電光'
     },
     'ko': {
       shopSchemes: '큐브 컬러',
-      shopSchemesLead: '큐브 자체를 형광 컬러로 바꿉니다',
+      shopSchemesLead: '큐브의 컬러 테마를 바꿀 수 있습니다',
       shopSchemeEquip: '이걸로 하기',
       shopSchemeDefault: '기본',
       shopSchemeNeonElectric: '일렉트릭'
     },
     'es': {
       shopSchemes: 'Colores del cubo',
-      shopSchemesLead: 'Cambia los colores del propio cubo a neón',
+      shopSchemesLead: 'Puedes cambiar el tema de color del cubo',
       shopSchemeEquip: 'Usar este',
       shopSchemeDefault: 'Estándar',
       shopSchemeNeonElectric: 'Eléctrico'
     },
     'id': {
       shopSchemes: 'Warna Kubus',
-      shopSchemesLead: 'Ubah warna kubus itu sendiri jadi neon',
+      shopSchemesLead: 'Kamu bisa mengubah tema warna kubus',
       shopSchemeEquip: 'Pakai ini',
       shopSchemeDefault: 'Standar',
       shopSchemeNeonElectric: 'Electric'
     },
     'ru': {
       shopSchemes: 'Цвета кубика',
-      shopSchemesLead: 'Перекрашивает сам кубик в неоновые цвета',
+      shopSchemesLead: 'Можно изменить цветовую тему кубика',
       shopSchemeEquip: 'Выбрать',
       shopSchemeDefault: 'Стандарт',
       shopSchemeNeonElectric: 'Электрик'
     },
     'pt-BR': {
       shopSchemes: 'Cores do cubo',
-      shopSchemesLead: 'Muda as cores do próprio cubo para neon',
+      shopSchemesLead: 'Você pode mudar o tema de cor do cubo',
       shopSchemeEquip: 'Usar este',
       shopSchemeDefault: 'Padrão',
       shopSchemeNeonElectric: 'Elétrico'
