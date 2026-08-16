@@ -881,6 +881,52 @@
     #layout-overlay.show {
       display: flex;
     }
+    #transfer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #08080b;
+      z-index: 31;
+      align-items: center;
+      justify-content: center;
+    }
+    #transfer-overlay.show {
+      display: flex;
+    }
+    #transfer-overlay .settings-hint {
+      text-align: left;
+    }
+    .transfer-section-title {
+      font-size: 14px;
+      text-align: left;
+      margin: 18px 0 4px;
+      color: var(--tc);
+    }
+    .transfer-code-box {
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 8px;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #3a3a48;
+      background: #131318;
+      color: #e6e6ee;
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      resize: vertical;
+      word-break: break-all;
+    }
+    .transfer-code-box:read-only {
+      color: #9c9ca8;
+    }
+    .transfer-status {
+      min-height: 1.2em;
+      margin-top: 6px;
+      text-align: left;
+    }
+    .transfer-status.is-good { color: #4fd1a5; }
+    .transfer-status.is-bad { color: #ff6d6d; }
     /* A settings row shaped like a navigation link (label + chevron),
        matching the "drill into a sub-screen" pattern rather than an inline
        editor, so the main Settings screen stays short and uncluttered. */
