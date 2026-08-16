@@ -1217,6 +1217,33 @@
       justify-content: center;
       flex-wrap: wrap;
     }
+    /* 「データの引き継ぎ」は毎回使う機能ではないので、他の設定項目と
+       同じ並びの太字リンクにはしない。閉じるボタンの下・右寄りに、
+       控えめな小さなテキストリンクとして添える。 */
+    .settings-footer-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+    .settings-footer-link {
+      background: none;
+      border: none;
+      padding: 4px 2px;
+      color: #86868f;
+      font-size: 12px;
+      cursor: pointer;
+      touch-action: manipulation;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .settings-footer-link:active {
+      color: var(--tc);
+    }
+    .settings-footer-arrow {
+      font-size: 12px;
+      opacity: 0.8;
+    }
 
     #records-overlay {
       display: none;
