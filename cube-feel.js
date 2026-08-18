@@ -124,11 +124,18 @@
 
   const rnd = (spread) => 1 + (Math.random() * 2 - 1) * spread;
 
-  // 出口。少しだけ左右に振り、耳に痛い高域を落としてから出す。
+  /* 出口。低い成分をばっさり落として「ボトッ」を消し、高域は残す。
+     実物のキューブに胴鳴りはほとんど無く、聞こえているのは薄い樹脂が
+     カチャカチャ当たる音なので、480Hz以下は要らない。 */
   function outlet(ctx, pan) {
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 480;
+    hp.Q.value = 0.7;
     const lp = ctx.createBiquadFilter();
     lp.type = 'lowpass';
-    lp.frequency.value = 9000;
+    lp.frequency.value = 13500;
+    hp.connect(lp);
     let tail = lp;
     if (pan && ctx.createStereoPanner) {
       const p = ctx.createStereoPanner();
@@ -137,14 +144,14 @@
       tail = p;
     }
     tail.connect(ctx.destination);
-    return lp;
+    return hp;
   }
 
-  /* 短いノイズの粒。カチッの部品として重ねて使う。 */
+  /* 短いノイズの粒。これを何粒も撒いて「カチャカチャ」を作る。 */
   function burst(ctx, at, o) {
     const src = noiseSource(ctx);
     const bp = ctx.createBiquadFilter();
-    bp.type = 'bandpass';
+    bp.type = o.type || 'bandpass';
     bp.frequency.value = o.freq;
     bp.Q.value = o.q;
     const g = ctx.createGain();
@@ -156,39 +163,60 @@
     src.stop(at + o.dur + 0.02);
   }
 
-  /* ① 回している間の摩擦音。速く回すほど短く、高く、鋭くなる。 */
+  /* ① 回している間の「サラ…」。乾いた高めの摩擦音。
+     低い帯域を混ぜるとゴーッと重くなるので、1.6kHz から上だけで作る。 */
   function playSwish(ctx, at, durSec, out, level) {
     const src = noiseSource(ctx);
     const bp = ctx.createBiquadFilter();
     bp.type = 'bandpass';
-    bp.Q.value = 0.65;
-    bp.frequency.setValueAtTime(620 * rnd(0.08), at);
-    bp.frequency.linearRampToValueAtTime(2400 * rnd(0.08), at + durSec);
+    bp.Q.value = 0.5;
+    bp.frequency.setValueAtTime(1600 * rnd(0.1), at);
+    bp.frequency.linearRampToValueAtTime(4600 * rnd(0.1), at + durSec);
     const g = ctx.createGain();
     g.gain.setValueAtTime(0.00008, at);
-    g.gain.exponentialRampToValueAtTime(0.16 * level * rnd(0.15), at + durSec * 0.6);
+    g.gain.exponentialRampToValueAtTime(0.13 * level * rnd(0.18), at + durSec * 0.55);
     g.gain.exponentialRampToValueAtTime(0.00008, at + durSec * 1.02);
     src.connect(bp); bp.connect(g); g.connect(out);
     src.start(at, Math.random() * 0.3);
     src.stop(at + durSec * 1.1);
   }
 
-  /* ② 収まる瞬間の衝撃音。3つの成分を数ミリ秒ずらして重ねる。 */
+  /* ② 収まる瞬間の「カチャッ」。
+     ここが肝。実物は一発の衝突ではなく、9個のパーツが数ミリ秒ずれて
+     次々に着地する＝小さな粒が数個ばらける音になる。1粒だけで作ると、
+     どれだけ帯域をいじっても「コツン」という単発から抜け出せない。
+     そこで 2〜6kHz の粒を4つ前後、間隔も高さも音量もばらばらに撒く。 */
   function playSeat(ctx, at, out, level) {
-    // 胴鳴り（低め・少し長く残る）
-    burst(ctx, at, { freq: 430 * rnd(0.10), q: 2.6, dur: 0.055, vol: 0.72 * level * rnd(0.15), out: out });
-    // 本体のかみ合い（この帯域が「カチッ」の芯）
-    burst(ctx, at + 0.0012, { freq: 1250 * rnd(0.08), q: 3.4, dur: 0.030, vol: 0.88 * level * rnd(0.15), out: out });
-    // 角が擦れて当たる高い成分（ごく短く）
-    burst(ctx, at + 0.0025, { freq: 3600 * rnd(0.08), q: 1.5, dur: 0.011, vol: 0.44 * level * rnd(0.2), out: out });
+    // 芯になる最初の当たり（いちばん強い1粒）
+    burst(ctx, at, {
+      freq: 2900 * rnd(0.12), q: 1.6, dur: 0.009,
+      vol: 0.85 * level * rnd(0.15), out: out
+    });
+    // 続いて着地する小さな粒たち。数も時刻も毎回ちがう。
+    const grains = 3 + (Math.random() < 0.45 ? 1 : 0);
+    for (let i = 0; i < grains; i++) {
+      burst(ctx, at + (0.0018 + i * 0.0032) * rnd(0.55), {
+        freq: 2200 + Math.random() * 4200, q: 1.1 + Math.random() * 1.6,
+        dur: 0.005 + Math.random() * 0.006,
+        vol: (0.30 + Math.random() * 0.28) * level, out: out
+      });
+    }
+    // 余韻の「サラ」。乾いた尾を少しだけ足すと、粒が硬すぎなくなる。
+    burst(ctx, at + 0.004, {
+      type: 'highpass', freq: 3800, q: 0.5, dur: 0.030,
+      vol: 0.16 * level * rnd(0.2), out: out
+    });
   }
 
-  /* ③ マグレブが押し戻されて座り直す、ごく小さな二度目の音。 */
+  /* ③ マグレブが押し戻されて座り直す、ごく小さな二度目の当たり。 */
   function playReseat(ctx, at, out, level) {
-    burst(ctx, at, { freq: 2100 * rnd(0.1), q: 2.2, dur: 0.010, vol: 0.24 * level * rnd(0.25), out: out });
+    burst(ctx, at, {
+      freq: 3400 * rnd(0.15), q: 1.4, dur: 0.007,
+      vol: 0.30 * level * rnd(0.25), out: out
+    });
   }
 
-
+  /* --- 設定値（0 = OFF, 1〜5 = 強さ） ----------------------------------- */
 
   let magnet = 3;
   let maglev = 2;
