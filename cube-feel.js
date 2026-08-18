@@ -88,6 +88,11 @@
      最後に調整した「45°から鳴って90°で消える音」がそのまま復活する。 */
   const SOUND_ENABLED = false;
 
+  /* ダイヤルの節度感（1〜5を選ぶときのカチッ）。回転音とは独立。
+     読み込み直後のアンロック判定でも参照するので、ここで宣言しておく
+     （実装は下の「ダイヤルの節度感」の項）。 */
+  const DIAL_SOUND = true;
+
   let actx = null;
   let noiseBuf = null;
   let audioBroken = false;
@@ -132,7 +137,7 @@
       s.start(0);
     } catch (err) { /* 続行 */ }
   }
-  if (SOUND_ENABLED) {
+  if (SOUND_ENABLED || DIAL_SOUND) {
     UNLOCK_EVENTS.forEach(function (ev) {
       document.addEventListener(ev, unlockAudio, { capture: true, passive: true });
     });
@@ -251,6 +256,80 @@
     gsrc.connect(gbp); gbp.connect(gg); gg.connect(out);
     gsrc.start(at, Math.random() * 0.3);
     gsrc.stop(last + 0.02);
+  }
+
+  /* ============================================================
+     ダイヤルの節度感（カチッ）
+
+     1〜5を選んでいるあいだの手応え。回転音とは別扱いで、こちらは
+     鳴らす（SOUND_ENABLED とは独立した DIAL_SOUND で管理）。
+
+     安っぽく聞こえる音は、たいてい「ノイズを鳴らしっぱなしにしている」
+     か「decay が長すぎる」かのどちらか。ここでは 1.2ms だけノイズを
+     叩き込み、あとは Q の高いフィルタの共鳴だけで鳴らして 4ms で
+     消している（打楽器の物理モデルと同じ考え方）。立ち上がりは
+     0.29ms＝波形がほぼ垂直に立つので、硬い部品が噛み合った感じになる。
+
+     3本の共鳴を重ねているのは、単一の高さだと電子的なピーになるため。
+       2350Hz  … 節度の芯
+       4900Hz  … 金属質な縁
+        880Hz  … わずかな重み。これが無いと軽い作り物になる
+     帯域は 1.8〜3.5kHz が6割で、耳に痛い 7kHz 以上はほぼ無い。 */
+
+  // 出口（ダイヤル用）。回転音より狭く、低くまとめる。
+  function dialChain(ctx) {
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 400;
+    hp.Q.value = 0.7;
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 8000;
+    hp.connect(lp);
+    lp.connect(ctx.destination);
+    return hp;
+  }
+
+  /* 一瞬だけ叩いて共鳴させる。exc（叩く長さ）を伸ばすと途端に
+     「シャッ」という擦れ音になるので、ここは短く保つこと。 */
+  function ping(ctx, at, o) {
+    const src = noiseSource(ctx);
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = o.freq;
+    bp.Q.value = o.q;
+    const g = ctx.createGain();
+    // 立ち上がりにランプを使わない＝一瞬で最大。ここが硬さの決め手。
+    g.gain.setValueAtTime(o.vol, at);
+    // 減衰は「元の音量の 0.0006 倍まで」と比率で決める。こうしておくと
+    // 音量を変えても減衰の速さ（＝音の長さ）が変わらない。
+    g.gain.exponentialRampToValueAtTime(o.vol * 0.0006, at + o.dur);
+    src.connect(bp); bp.connect(g); g.connect(o.out);
+    src.start(at, Math.random() * 0.3);
+    src.stop(at + 0.0012);
+  }
+
+  let lastTickAt = 0;
+  /* strength: 1 = 目盛りを1つ送った / 0.75 = ON・OFF の切り替え */
+  function playDialTick(strength) {
+    if (!DIAL_SOUND || reduceMotion) return;
+    const ctx = ac();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    // 勢いよく回したときに音が団子にならないよう、最短間隔を設ける
+    if (now - lastTickAt < 0.022) return;
+    lastTickAt = now;
+
+    const out = dialChain(ctx);
+    const v = (strength == null ? 1 : strength);
+    // 高級感は「毎回ほぼ同じ音」から出るので、ゆらぎはごく控えめに。
+    // 回転音（±8〜15%）と違い、ここは±3%程度に抑えている。
+    const tune = rnd(0.03);
+    ping(ctx, now, { freq: 2350 * tune, q: 28, dur: 0.014, vol: 5.45 * v * rnd(0.06), out: out });
+    ping(ctx, now + 0.0004, { freq: 4900 * tune, q: 16, dur: 0.007, vol: 2.29 * v * rnd(0.08), out: out });
+    ping(ctx, now + 0.0002, { freq: 880 * tune, q: 9, dur: 0.011, vol: 0.65 * v * rnd(0.06), out: out });
+
+    if (global.__audioIdleSuspend) global.__audioIdleSuspend(ctx, 1500);
   }
 
   /* --- 設定値（0 = OFF, 1〜5 = 強さ） ----------------------------------- */
@@ -776,6 +855,8 @@
     let fadeTimer = null;
     let sweepTimer = null;
     let sweepEnd = null;
+    let armed = false;              // 組み立て中は鳴らさない
+    let lastShown = levelFromDeg(ringDeg);
 
     function levelFromDeg(deg) {
       const idx = ((Math.round(-deg / STEP) % MAX_LEVEL) + MAX_LEVEL) % MAX_LEVEL;
@@ -785,6 +866,15 @@
       ringDeg = deg;
       ring.style.setProperty('--ring', deg + 'deg');
       const shown = levelFromDeg(deg);
+      /* 目盛りが1つ送られた瞬間に、音と振動を出す。ここ1か所で
+         見ておけば、指で回したとき・数字を直接押したとき・キーボードで
+         動かしたときの全部に効く（どれも最後はここを通るため）。
+         armed は組み立て中の初回描画で鳴らさないための足かせ。 */
+      if (armed && shown !== lastShown && getLevel() > 0) {
+        playDialTick(1);
+        buzz(8);
+      }
+      lastShown = shown;
       const on = getLevel() > 0 || fading;
       for (let i = 0; i < nums.length; i++) {
         nums[i].classList.toggle('is-sel', on && (i + 1) === shown);
@@ -891,6 +981,8 @@
     btn.addEventListener('click', () => {
       const on = getLevel() > 0;
       buzz(on ? 10 : [8, 30, 8]);
+      // 目盛り送りより少しだけ弱く。切り替えの手応えとして添える程度。
+      playDialTick(on ? 0.6 : 0.8);
       clearTimeout(fadeTimer);
       if (on) {
         // OFFへ：波を内側へ吸い込みつつ、光は0.9秒かけて落とす
@@ -940,10 +1032,8 @@
       // -180〜180 に畳んでおく（12時をまたいだ瞬間に1回転飛ぶのを防ぐ）
       d = ((d + 180) % 360 + 360) % 360 - 180;
       moved = Math.max(moved, Math.abs(d));
-      const before = levelFromDeg(ringDeg);
+      // 目盛りが送られたときの音と振動は paintRing の中で出している
       paintRing(startDeg + d);
-      // 数字が1つ送られるたびに、黒電話の爪送りのような短い振動を入れる
-      if (levelFromDeg(ringDeg) !== before) buzz(8);
       e.preventDefault();
     });
 
@@ -953,7 +1043,6 @@
       try { ring.releasePointerCapture(e.pointerId); } catch (err) { /* 済み */ }
       // ほとんど動かしていなければ「数字を直接タップした」とみなす
       if (moved < 5 && downTarget) {
-        buzz(10);
         commit(Number(downTarget.dataset.level), true);
         return;
       }
@@ -977,6 +1066,7 @@
     });
 
     paintState();
+    armed = true;   // ここから先の変化はユーザー操作によるもの
     return {
       cell: cell,
       capEl: cap,
