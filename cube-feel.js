@@ -583,7 +583,44 @@
     '.feel-dial.is-on .feel-dial-btn{color:var(--tc);border-color:var(--tc);',
     '  box-shadow:0 0 14px rgba(0,0,0,.45)}',
     '.feel-dial-btn:active{transform:scale(.94)}',
-    '.feel-dial-hint{margin-top:10px}'
+    '.feel-dial-hint{margin-top:10px}',
+
+    /* --- ON/OFF の切り替え演出 ---------------------------------------
+       ONは「磁力が外へ広がる」、OFFは「灯りがゆっくり落ちる」。
+       どちらも transform と opacity しか動かさないので、スマホでも
+       カクつかない。 */
+
+    /* 常時のほのかな光。ONで点き、OFFでは 0.9 秒かけて静かに消える。
+       消えるときだけ時間を長くしているのが、この演出の肝。 */
+    '.feel-dial-glow{position:absolute;inset:-3px;border-radius:50%;pointer-events:none;',
+    '  box-shadow:0 0 22px 1px var(--tc),inset 0 0 14px -4px var(--tc);',
+    '  opacity:0;transition:opacity .9s cubic-bezier(.3,0,.6,1)}',
+    '.feel-dial.is-on .feel-dial-glow{opacity:.42;transition:opacity .22s ease-out}',
+
+    /* ONの瞬間だけ、中心から外へ抜けていく波紋。2枚を少しずらして
+       出すと、ひと押しで磁場が立ち上がったように見える。 */
+    '.feel-dial-pulse{position:absolute;left:50%;top:50%;width:62px;height:62px;',
+    '  margin:-31px 0 0 -31px;border-radius:50%;border:2px solid var(--tc);',
+    '  pointer-events:none;opacity:0;transform:scale(.5);z-index:1}',
+    '.feel-dial-pulse.go{animation:feelPulse .62s cubic-bezier(.15,.75,.3,1) forwards}',
+    '.feel-dial-pulse.lag.go{animation-delay:.09s;animation-duration:.72s}',
+    '@keyframes feelPulse{',
+    '  0%{opacity:.8;transform:scale(.5)}',
+    '  60%{opacity:.28}',
+    '  100%{opacity:0;transform:scale(2.05)}}',
+
+    /* OFFにした直後だけ、光っていた数字を急に消さず、同じ0.9秒で
+       いっしょに落とす。ここを一瞬で消すと「ブツッと切れた」感じになる。 */
+    '.feel-dial.is-fading .feel-dial-ring{transition:border-color .9s ease,opacity .9s ease}',
+    '.feel-dial.is-fading .feel-dial-num{transition:color .9s ease,background .9s ease,',
+    '  box-shadow .9s ease}',
+
+    '@media (prefers-reduced-motion: reduce){',
+    '  .feel-dial-pulse{display:none}',
+    '  .feel-dial-glow{transition-duration:.15s}',
+    '  .feel-dial.is-fading .feel-dial-ring,.feel-dial.is-fading .feel-dial-num{',
+    '    transition-duration:.15s}',
+    '}'
   ].join('');
 
   function injectCSS() {
@@ -650,6 +687,22 @@
     }
     dial.appendChild(ring);
 
+    // ほのかな光と、ONの瞬間に広がる波紋2枚。どちらも触れない飾りなので
+    // ring の外（回転しない側）に置き、読み上げからも隠す。
+    const glow = document.createElement('span');
+    glow.className = 'feel-dial-glow';
+    glow.setAttribute('aria-hidden', 'true');
+    dial.appendChild(glow);
+
+    const pulses = [];
+    for (let k = 0; k < 2; k++) {
+      const pu = document.createElement('span');
+      pu.className = 'feel-dial-pulse' + (k ? ' lag' : '');
+      pu.setAttribute('aria-hidden', 'true');
+      dial.appendChild(pu);
+      pulses.push(pu);
+    }
+
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'feel-dial-btn';
@@ -665,6 +718,10 @@
     let lastOn = getLevel() || 3;   // OFF から復帰したときに戻る強さ
     let anim = null;                // 回転アニメのハンドル
     let dragging = false;
+    // OFF にした直後の「光が落ちきるまで」の 0.9 秒。この間は選んでいた
+    // 数字の色をまだ落とさず、光といっしょにゆっくり暗くする。
+    let fading = false;
+    let fadeTimer = null;
 
     function levelFromDeg(deg) {
       const idx = ((Math.round(-deg / STEP) % MAX_LEVEL) + MAX_LEVEL) % MAX_LEVEL;
@@ -674,7 +731,7 @@
       ringDeg = deg;
       ring.style.setProperty('--ring', deg + 'deg');
       const shown = levelFromDeg(deg);
-      const on = getLevel() > 0;
+      const on = getLevel() > 0 || fading;
       for (let i = 0; i < nums.length; i++) {
         nums[i].classList.toggle('is-sel', on && (i + 1) === shown);
       }
@@ -724,10 +781,40 @@
       paintState();
     }
 
+    /* ONの瞬間に、中心から外へ波紋を1度だけ走らせる。
+       同じ要素を使い回すので、アニメを付け直す前にクラスを外して
+       レイアウトを一度読み、再生をリセットしてから付ける。
+       （外して付けるだけだと、ブラウザが「変化なし」とみなして
+         2回目以降が再生されない） */
+    function playOnPulse() {
+      if (reduceMotion) return;
+      pulses.forEach(function (pu) {
+        pu.classList.remove('go');
+        void pu.offsetWidth;
+        pu.classList.add('go');
+      });
+    }
+
     // --- 中心ボタン: ON / OFF ---
     btn.addEventListener('click', () => {
       const on = getLevel() > 0;
       buzz(on ? 10 : [8, 30, 8]);
+      clearTimeout(fadeTimer);
+      if (on) {
+        // OFFへ：光が落ちきるまでのあいだ .is-fading を付けておく
+        fading = true;
+        dial.classList.add('is-fading');
+        fadeTimer = setTimeout(function () {
+          fading = false;
+          dial.classList.remove('is-fading');
+          paintRing(ringDeg);   // ここでようやく数字の選択表示を落とす
+        }, 900);
+      } else {
+        // ONへ：フェード中だったら中断して、すぐ光らせる
+        fading = false;
+        dial.classList.remove('is-fading');
+        playOnPulse();
+      }
       commit(on ? 0 : lastOn, true);
     });
 
