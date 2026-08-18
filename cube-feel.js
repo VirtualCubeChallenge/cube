@@ -3,18 +3,21 @@
    アニメーション・ドライバ（磁力アシスト + マグレブ微振動）
 
    このファイルは index.html の状態管理・描画・UI には一切触らない。
-   やることは3つだけ:
+   やることは4つだけ:
      1. 角度を時間で動かす関数（CubeFeel.play）を提供する
      2. 強さの設定値を保存/復元する（localStorage）
-     3. 設定パネルにスライダー2本を差し込む（DOM挿入のみ）
+     3. 設定パネルに黒電話ふうのダイヤルを2つ差し込む（DOM挿入のみ）
+     4. そのダイヤル用の CSS を <style> で足す（style.css は無改変のまま）
 
    index.html 側は「requestAnimationFrame のループを CubeFeel.play に
    置き換える」だけでよい。呼ばれなければ何も起きないので、読み込んだ
    だけでは既存の挙動は変わらない。
 
+   ★ 設定値は OFF / 1〜5 の6段階（内部では level/5 = 0〜1 に正規化）
+
    ★ 3フェーズの時間割（1手ぶん）
      ┌ drive ────────┬ snap ──┬ bounce ─┐
-     0°            75°      90°   92→89→90°
+     0°            76°      90°   91→89→90°
      指で回している   磁石が    マグレブの
      ぶん(減速)      吸い込む  反発で揺り返す
 
@@ -31,11 +34,15 @@
   const KEY_MAGNET = 'rubiks-cube-feel-magnet';
   const KEY_MAGLEV = 'rubiks-cube-feel-maglev';
 
-  /* --- チューニング定数 -------------------------------------------------
-     ここだけ触れば「回し心地」の効き幅を丸ごと変えられる。 */
+  const MAX_LEVEL = 5;
 
-  // 磁力が働きはじめる「残り角度」。0%で残り4°、100%で残り22°から吸い込む。
-  // 90°の手回しなら 86° → 68° の間で吸い込み開始が動く（既定55%で約75°）。
+  /* --- チューニング定数 -------------------------------------------------
+     ここだけ触れば「回し心地」の効き幅を丸ごと変えられる。
+     下の数値は「レベル5（＝最大）のときの値」。レベル1〜4はこの間を
+     等分した強さになる。 */
+
+  // 磁力が働きはじめる「残り角度」。レベル1で残り約7.6°、レベル5で残り22°。
+  // 90°の手回しなら 82° → 68° の間で吸い込み開始が動く（既定レベル3で約76°）。
   const ZONE_MIN_DEG = 4;
   const ZONE_MAX_DEG = 22;
 
@@ -43,7 +50,7 @@
   const SNAP_SHARE_WEAK = 0.34;
   const SNAP_SHARE_STRONG = 0.16;
 
-  // マグレブの行き過ぎ量（最大）。実効の最初の山はこの約72%なので、
+  // マグレブの行き過ぎ量（レベル5のとき）。実効の最初の山はこの約72%なので、
   // 4.2° → 90°に対して +3.0°（＝92度台）まで行き過ぎる。
   const AMP_MAX_DEG = 4.2;
 
@@ -53,21 +60,26 @@
   const CYCLES_MIN = 1.5;
   const CYCLES_MAX = 1.95;
 
-  /* --- 設定値 ---------------------------------------------------------- */
+  /* --- 設定値（0 = OFF, 1〜5 = 強さ） ----------------------------------- */
 
-  let magnet = 55;   // 0-100 磁力の強さ
-  let maglev = 35;   // 0-100 マグレブの反発力
+  let magnet = 3;
+  let maglev = 2;
 
-  function clamp100(n) {
+  function clampLevel(n) {
     n = Math.round(Number(n));
     if (!Number.isFinite(n)) return 0;
-    return n < 0 ? 0 : (n > 100 ? 100 : n);
+    return n < 0 ? 0 : (n > MAX_LEVEL ? MAX_LEVEL : n);
+  }
+  // 以前の0〜100%表記で保存された値も拾えるようにしておく。
+  function readLevel(raw, fallback) {
+    if (raw === null || raw === undefined || raw === '') return fallback;
+    const n = Number(raw);
+    if (!Number.isFinite(n)) return fallback;
+    return clampLevel(n > MAX_LEVEL ? n / 20 : n);
   }
   try {
-    const m = localStorage.getItem(KEY_MAGNET);
-    const b = localStorage.getItem(KEY_MAGLEV);
-    if (m !== null) magnet = clamp100(m);
-    if (b !== null) maglev = clamp100(b);
+    magnet = readLevel(localStorage.getItem(KEY_MAGNET), magnet);
+    maglev = readLevel(localStorage.getItem(KEY_MAGLEV), maglev);
   } catch (err) { /* ストレージが使えないときは既定値のまま */ }
 
   function save() {
@@ -125,12 +137,13 @@
     const dir = span >= 0 ? 1 : -1;
     const D = Math.max(16, opts.duration || 100);
 
-    const m = magnet / 100;
-    const b = maglev / 100;
+    // レベル(0〜5)を 0〜1 に正規化してから式に入れる。
+    const m = magnet / MAX_LEVEL;
+    const b = maglev / MAX_LEVEL;
 
     // --- 磁力 ---
-    // 磁力0のときは、従来どおり ease-out-cubic 一本（＝挙動が変わらない）。
-    const useMagnet = m > 0.001 && dist > 1e-4;
+    // OFF のときは、従来どおり ease-out-cubic 一本（＝挙動が変わらない）。
+    const useMagnet = magnet > 0 && dist > 1e-4;
     // 吸い込み区間は「残り角度」で決める。180°回しでも「最後の十数度」で
     // 吸い込むことになり、90°回しと同じ手触りになる。
     const zone = Math.min((ZONE_MIN_DEG + (ZONE_MAX_DEG - ZONE_MIN_DEG) * m) * DEG, dist * 0.45);
@@ -141,7 +154,7 @@
 
     // --- マグレブ ---
     const scale = (opts.bounceScale == null) ? 1 : opts.bounceScale;
-    const useBounce = (opts.bounce !== false) && b > 0.001 && !reduceMotion && !!opts.onBounce;
+    const useBounce = (opts.bounce !== false) && maglev > 0 && !reduceMotion && !!opts.onBounce;
     const amp = AMP_MAX_DEG * DEG * b * scale;
     const bounceDur = BOUNCE_MS_MIN + (BOUNCE_MS_MAX - BOUNCE_MS_MIN) * b;
     const cycles = CYCLES_MIN + (CYCLES_MAX - CYCLES_MIN) * b;
@@ -225,11 +238,12 @@
 
   const CubeFeel = {
     play: play,
+    MAX_LEVEL: MAX_LEVEL,
     get magnet() { return magnet; },
     get maglev() { return maglev; },
     set: function (nextMagnet, nextMaglev) {
-      if (nextMagnet != null) magnet = clamp100(nextMagnet);
-      if (nextMaglev != null) maglev = clamp100(nextMaglev);
+      if (nextMagnet != null) magnet = clampLevel(nextMagnet);
+      if (nextMaglev != null) maglev = clampLevel(nextMaglev);
       save();
     }
   };
@@ -240,67 +254,49 @@
      ============================================================ */
   const FEEL_I18N = {
     ja: {
-      feelSectionTitle: '回し心地（マグネット）',
       feelMagnetLabel: '磁力の強さ',
-      feelMagnetHint: '90°の手前から磁石に吸い込まれるように残りを決めます（0でOFF）',
       feelMaglevLabel: 'マグレブの反発力',
-      feelMaglevHint: '止まった瞬間に「ブルッ」とわずかに揺り返します（0でOFF）'
+      feelDialHint: '中心を押してON／OFF。まわりのダイヤルを回すと1〜5で強さを選べます'
     },
     en: {
-      feelSectionTitle: 'Turn feel (magnets)',
       feelMagnetLabel: 'Magnet strength',
-      feelMagnetHint: 'Near 90°, the last few degrees snap home as if pulled in (0 = off)',
       feelMaglevLabel: 'MagLev bounce',
-      feelMaglevHint: 'A tiny wobble the instant the turn lands (0 = off)'
+      feelDialHint: 'Tap the centre for ON/OFF. Spin the dial around it to pick 1-5'
     },
     'zh-CN': {
-      feelSectionTitle: '手感（磁力）',
       feelMagnetLabel: '磁力强度',
-      feelMagnetHint: '接近90°时像被磁铁吸住一样自动补完剩余角度（0为关闭）',
       feelMaglevLabel: '磁悬浮回弹',
-      feelMaglevHint: '停下的瞬间轻微抖动一下（0为关闭）'
+      feelDialHint: '点中间开关，转动周围的拨盘可在1〜5之间选择强度'
     },
     'zh-TW': {
-      feelSectionTitle: '手感（磁力）',
       feelMagnetLabel: '磁力強度',
-      feelMagnetHint: '接近90°時像被磁鐵吸住一樣自動補完剩下的角度（0為關閉）',
       feelMaglevLabel: '磁浮回彈',
-      feelMaglevHint: '停下的瞬間會輕輕震一下（0為關閉）'
+      feelDialHint: '點中間開關，轉動周圍的轉盤可在1〜5之間選擇強度'
     },
     ko: {
-      feelSectionTitle: '돌리는 느낌(자석)',
       feelMagnetLabel: '자력 세기',
-      feelMagnetHint: '90°에 가까워지면 자석에 빨려들듯 남은 각도를 단숨에 채웁니다 (0이면 끔)',
       feelMaglevLabel: '마그레브 반발력',
-      feelMaglevHint: '멈추는 순간 아주 살짝 떨림이 생깁니다 (0이면 끔)'
+      feelDialHint: '가운데를 눌러 ON/OFF. 둘레의 다이얼을 돌려 1~5로 세기를 고릅니다'
     },
     es: {
-      feelSectionTitle: 'Sensación de giro (imanes)',
       feelMagnetLabel: 'Fuerza del imán',
-      feelMagnetHint: 'Cerca de los 90°, los últimos grados se cierran como atraídos por un imán (0 = desactivado)',
       feelMaglevLabel: 'Rebote MagLev',
-      feelMaglevHint: 'Un temblor mínimo justo al terminar el giro (0 = desactivado)'
+      feelDialHint: 'Toca el centro para activar. Gira el dial alrededor para elegir de 1 a 5'
     },
     id: {
-      feelSectionTitle: 'Rasa putaran (magnet)',
       feelMagnetLabel: 'Kekuatan magnet',
-      feelMagnetHint: 'Mendekati 90°, sisa sudutnya tertarik menutup seperti oleh magnet (0 = mati)',
       feelMaglevLabel: 'Pantulan MagLev',
-      feelMaglevHint: 'Getaran kecil tepat saat putaran berhenti (0 = mati)'
+      feelDialHint: 'Ketuk bagian tengah untuk ON/OFF. Putar dial di sekelilingnya untuk memilih 1-5'
     },
     ru: {
-      feelSectionTitle: 'Ощущение вращения (магниты)',
       feelMagnetLabel: 'Сила магнита',
-      feelMagnetHint: 'У 90° последние градусы дотягиваются, словно магнитом (0 — выкл.)',
       feelMaglevLabel: 'Отдача MagLev',
-      feelMaglevHint: 'Едва заметная дрожь в момент остановки (0 — выкл.)'
+      feelDialHint: 'Нажмите центр для вкл./выкл. Поверните диск вокруг, чтобы выбрать от 1 до 5'
     },
     'pt-BR': {
-      feelSectionTitle: 'Sensação do giro (ímãs)',
       feelMagnetLabel: 'Força do ímã',
-      feelMagnetHint: 'Perto dos 90°, os últimos graus fecham como se puxados por um ímã (0 = desligado)',
       feelMaglevLabel: 'Rebote MagLev',
-      feelMaglevHint: 'Um tremor mínimo no instante em que o giro termina (0 = desligado)'
+      feelDialHint: 'Toque no centro para ligar/desligar. Gire o disco ao redor para escolher de 1 a 5'
     }
   };
   if (typeof I18N !== 'undefined' && I18N) {
@@ -313,9 +309,64 @@
   }
 
   /* ============================================================
-     設定パネルへのスライダー2本の差し込み
-     既存の .size-row / .size-value / .size-slider / .settings-hint を
-     そのまま使うので、style.css には手を入れなくてよい。
+     黒電話ふうダイヤルの見た目
+     style.css を無改変のままにしたいので、このファイルから <style> を
+     1枚だけ足す。あとで style.css へ引っ越しても動作は同じ。
+     アクセントは既存のテーマ変数 --tc をそのまま使う。
+     ============================================================ */
+  const CSS = [
+    '#feel-settings{margin:16px 0 4px}',
+    '.feel-dials{display:flex;gap:10px;justify-content:center;align-items:flex-start;flex-wrap:wrap}',
+    '.feel-dial-cell{flex:1 1 128px;max-width:170px;display:flex;flex-direction:column;',
+    '  align-items:center;gap:8px}',
+    '.feel-dial-cap{font-size:13px;font-weight:800;color:#e8e8f0;text-align:center;line-height:1.3}',
+    /* ダイヤル本体。touch-action:none で、回している最中に設定パネルが
+       一緒にスクロールしてしまうのを防ぐ。 */
+    '.feel-dial{position:relative;width:128px;height:128px;flex:none;touch-action:none;',
+    '  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}',
+    /* 12時の位置の「読み取り窓」の目印 */
+    '.feel-dial::before{content:"";position:absolute;left:50%;top:-3px;transform:translateX(-50%);',
+    '  border-left:6px solid transparent;border-right:6px solid transparent;',
+    '  border-top:9px solid var(--tc);opacity:.85;z-index:3}',
+    '.feel-dial-ring{position:absolute;inset:0;border-radius:50%;border:2px solid #3a3a48;',
+    '  touch-action:none;',
+    '  background:radial-gradient(circle at 50% 32%,#2b2b36,#16161c 72%);',
+    '  transform:rotate(var(--ring,0deg));will-change:transform;',
+    '  transition:border-color .18s ease,opacity .18s ease,box-shadow .18s ease}',
+    '.feel-dial.is-on .feel-dial-ring{border-color:var(--tc);box-shadow:0 6px 16px rgba(0,0,0,.4)}',
+    '.feel-dial.is-off .feel-dial-ring{opacity:.4}',
+    '.feel-dial-ring:focus-visible{outline:2px solid var(--tc);outline-offset:3px}',
+    /* 数字。--pos は各数字の定位置、--ring はダイヤルの回転量。
+       逆回転を掛けることで、ダイヤルが回っても数字は常に上向きのまま。 */
+    '.feel-dial-num{position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;',
+    '  display:flex;align-items:center;justify-content:center;border-radius:50%;',
+    '  font:800 13px/1 ui-monospace,monospace;color:#8f8fa6;background:#20202a;',
+    '  transform:rotate(var(--pos)) translateY(-45px) rotate(calc(-1 * (var(--pos) + var(--ring,0deg))));',
+    '  transition:color .15s ease,background .15s ease,box-shadow .15s ease}',
+    '.feel-dial.is-on .feel-dial-num.is-sel{color:#12121a;background:var(--tc);',
+    '  box-shadow:0 0 12px var(--tc)}',
+    /* 中心のON/OFFボタン */
+    '.feel-dial-btn{position:absolute;left:50%;top:50%;width:62px;height:62px;margin:-31px 0 0 -31px;',
+    '  border-radius:50%;border:2px solid #4a4a5c;background:#1b1b22;color:#9a9ab0;',
+    '  font:800 13px/1 system-ui,sans-serif;letter-spacing:1.5px;cursor:pointer;z-index:2;',
+    '  display:flex;align-items:center;justify-content:center;padding:0;',
+    '  transition:color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .1s ease}',
+    '.feel-dial.is-on .feel-dial-btn{color:var(--tc);border-color:var(--tc);',
+    '  box-shadow:0 0 14px rgba(0,0,0,.45)}',
+    '.feel-dial-btn:active{transform:scale(.94)}',
+    '.feel-dial-hint{margin-top:10px}'
+  ].join('');
+
+  function injectCSS() {
+    if (document.getElementById('feel-style')) return;
+    const st = document.createElement('style');
+    st.id = 'feel-style';
+    st.textContent = CSS;
+    document.head.appendChild(st);
+  }
+
+  /* ============================================================
+     黒電話ふうダイヤルの組み立て
      ============================================================ */
   function tr(key, fallback) {
     try {
@@ -327,65 +378,245 @@
     return fallback;
   }
 
+  function buzz(pattern) {
+    try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (err) { /* 非対応 */ }
+  }
+
+  const STEP = 360 / MAX_LEVEL;   // 数字1つぶんの角度（5等分なので72°）
+
+  /* ダイヤル1つ分を組み立てて返す。
+       labelKey/labelFallback … 見出しの辞書キーと既定文言
+       getLevel / setLevel    … 磁力かマグレブか、値の出し入れだけ差し替える */
+  function makeDial(labelKey, labelFallback, getLevel, setLevel) {
+    const cell = document.createElement('div');
+    cell.className = 'feel-dial-cell';
+
+    const cap = document.createElement('div');
+    cap.className = 'feel-dial-cap';
+    cap.setAttribute('data-i18n', labelKey);
+    cap.textContent = tr(labelKey, labelFallback);
+    cell.appendChild(cap);
+
+    const dial = document.createElement('div');
+    dial.className = 'feel-dial';
+
+    const ring = document.createElement('div');
+    ring.className = 'feel-dial-ring';
+    ring.setAttribute('role', 'slider');
+    ring.setAttribute('tabindex', '0');
+    ring.setAttribute('aria-valuemin', '0');
+    ring.setAttribute('aria-valuemax', String(MAX_LEVEL));
+    ring.setAttribute('data-i18n-aria', labelKey);
+    ring.setAttribute('aria-label', tr(labelKey, labelFallback));
+
+    const nums = [];
+    for (let i = 0; i < MAX_LEVEL; i++) {
+      const el = document.createElement('span');
+      el.className = 'feel-dial-num';
+      el.textContent = String(i + 1);
+      el.style.setProperty('--pos', (i * STEP) + 'deg');
+      el.dataset.level = String(i + 1);
+      ring.appendChild(el);
+      nums.push(el);
+    }
+    dial.appendChild(ring);
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'feel-dial-btn';
+    btn.setAttribute('role', 'switch');
+    dial.appendChild(btn);
+    cell.appendChild(dial);
+
+    /* --- 状態 ---
+       ringDeg は「ダイヤルを何度回してあるか」。数字 L を12時に持ってくる
+       には -(L-1)*STEP。OFF のあいだも角度は保持しておき、ONに戻したとき
+       同じ位置から再開できるようにする。 */
+    let ringDeg = -(Math.max(getLevel(), 1) - 1) * STEP;
+    let lastOn = getLevel() || 3;   // OFF から復帰したときに戻る強さ
+    let anim = null;                // 回転アニメのハンドル
+    let dragging = false;
+
+    function levelFromDeg(deg) {
+      const idx = ((Math.round(-deg / STEP) % MAX_LEVEL) + MAX_LEVEL) % MAX_LEVEL;
+      return idx + 1;
+    }
+    function paintRing(deg) {
+      ringDeg = deg;
+      ring.style.setProperty('--ring', deg + 'deg');
+      const shown = levelFromDeg(deg);
+      const on = getLevel() > 0;
+      for (let i = 0; i < nums.length; i++) {
+        nums[i].classList.toggle('is-sel', on && (i + 1) === shown);
+      }
+    }
+    function paintState() {
+      const lv = getLevel();
+      const on = lv > 0;
+      dial.classList.toggle('is-on', on);
+      dial.classList.toggle('is-off', !on);
+      btn.textContent = on ? 'ON' : 'OFF';
+      btn.setAttribute('aria-checked', String(on));
+      ring.setAttribute('aria-valuenow', String(lv));
+      ring.setAttribute('aria-valuetext', on ? String(lv) : 'OFF');
+      paintRing(ringDeg);
+    }
+
+    /* 目的の数字まで回す。ここでも CubeFeel.play を使っているので、いま
+       選んでいる磁力/マグレブの手触りが、そのままダイヤルの止まり方に出る
+       （＝設定パネルの中だけで効き具合を確かめられる）。 */
+    function spinTo(level, animate) {
+      if (anim) { anim.settle(); anim = null; }
+      const target = -(level - 1) * STEP;
+      // 現在角から見て近いほうへ回す（5→1のまたぎも最短で）
+      let d = target - ringDeg;
+      d = ((d + 180) % 360 + 360) % 360 - 180;
+      const to = ringDeg + d;
+      if (!animate || Math.abs(d) < 0.01) { paintRing(to); return; }
+      anim = play({
+        from: ringDeg * DEG,
+        to: to * DEG,
+        duration: 170,
+        onUpdate: function (a) { paintRing(a / DEG); },
+        onArrive: function () { paintRing(to); return true; },
+        onBounce: function (off) { paintRing(to + off / DEG); },
+        onEnd: function () { paintRing(to); anim = null; }
+      });
+    }
+
+    function commit(level, animate) {
+      const lv = clampLevel(level);
+      if (lv > 0) lastOn = lv;
+      setLevel(lv);
+      save();
+      // OFF にするときはダイヤルを動かさない。暗くなるだけで位置は
+      // そのまま残り、ONに戻したときに続きから回りはじめる。
+      if (lv > 0) spinTo(lv, animate);
+      paintState();
+    }
+
+    // --- 中心ボタン: ON / OFF ---
+    btn.addEventListener('click', () => {
+      const on = getLevel() > 0;
+      buzz(on ? 10 : [8, 30, 8]);
+      commit(on ? 0 : lastOn, true);
+    });
+
+    // --- ダイヤルを回す ---
+    let startAngle = 0, startDeg = 0, moved = 0, downTarget = null;
+
+    function angleAt(ev) {
+      const r = dial.getBoundingClientRect();
+      const dx = ev.clientX - (r.left + r.width / 2);
+      const dy = ev.clientY - (r.top + r.height / 2);
+      return Math.atan2(dy, dx) / DEG;
+    }
+
+    ring.addEventListener('pointerdown', (e) => {
+      if (getLevel() === 0) return;       // OFF のあいだは回らない
+      if (anim) { anim.settle(); anim = null; }
+      dragging = true;
+      moved = 0;
+      downTarget = e.target.closest ? e.target.closest('.feel-dial-num') : null;
+      startAngle = angleAt(e);
+      startDeg = ringDeg;
+      try { ring.setPointerCapture(e.pointerId); } catch (err) { /* 非対応 */ }
+      e.preventDefault();
+    });
+
+    ring.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      let d = angleAt(e) - startAngle;
+      // -180〜180 に畳んでおく（12時をまたいだ瞬間に1回転飛ぶのを防ぐ）
+      d = ((d + 180) % 360 + 360) % 360 - 180;
+      moved = Math.max(moved, Math.abs(d));
+      const before = levelFromDeg(ringDeg);
+      paintRing(startDeg + d);
+      // 数字が1つ送られるたびに、黒電話の爪送りのような短い振動を入れる
+      if (levelFromDeg(ringDeg) !== before) buzz(8);
+      e.preventDefault();
+    });
+
+    function releaseDial(e) {
+      if (!dragging) return;
+      dragging = false;
+      try { ring.releasePointerCapture(e.pointerId); } catch (err) { /* 済み */ }
+      // ほとんど動かしていなければ「数字を直接タップした」とみなす
+      if (moved < 5 && downTarget) {
+        buzz(10);
+        commit(Number(downTarget.dataset.level), true);
+        return;
+      }
+      buzz(12);
+      commit(levelFromDeg(ringDeg), true);
+    }
+    ring.addEventListener('pointerup', releaseDial);
+    ring.addEventListener('pointercancel', releaseDial);
+
+    // --- キーボード操作 ---
+    ring.addEventListener('keydown', (e) => {
+      const lv = getLevel();
+      let next = null;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowUp') next = Math.min(MAX_LEVEL, lv + 1);
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') next = Math.max(0, lv - 1);
+      else if (e.key === 'Home') next = 0;
+      else if (e.key === 'End') next = MAX_LEVEL;
+      if (next === null) return;
+      e.preventDefault();
+      commit(next, true);
+    });
+
+    paintState();
+    return {
+      cell: cell,
+      capEl: cap,
+      ringEl: ring,
+      labelKey: labelKey,
+      fallback: labelFallback
+    };
+  }
+
   function buildUI() {
     const anchor = document.getElementById('size-hint');
-    if (!anchor || document.getElementById('feel-magnet-slider')) return;
+    if (!anchor || document.getElementById('feel-settings')) return;
+    injectCSS();
 
     const wrap = document.createElement('div');
     wrap.id = 'feel-settings';
-    wrap.innerHTML = [
-      '<div class="size-row">',
-      '  <span class="settings-toggle-label" data-i18n="feelMagnetLabel">磁力の強さ</span>',
-      '  <span class="size-value" id="feel-magnet-value">55%</span>',
-      '</div>',
-      '<input type="range" id="feel-magnet-slider" class="size-slider" min="0" max="100" step="1"',
-      '       data-i18n-aria="feelMagnetLabel" aria-label="磁力の強さ">',
-      '<p class="settings-hint" id="feel-magnet-hint" data-i18n="feelMagnetHint"></p>',
-      '<div class="size-row">',
-      '  <span class="settings-toggle-label" data-i18n="feelMaglevLabel">マグレブの反発力</span>',
-      '  <span class="size-value" id="feel-maglev-value">35%</span>',
-      '</div>',
-      '<input type="range" id="feel-maglev-slider" class="size-slider" min="0" max="100" step="1"',
-      '       data-i18n-aria="feelMaglevLabel" aria-label="マグレブの反発力">',
-      '<p class="settings-hint" id="feel-maglev-hint" data-i18n="feelMaglevHint"></p>'
-    ].join('\n');
+
+    const row = document.createElement('div');
+    row.className = 'feel-dials';
+
+    const magDial = makeDial('feelMagnetLabel', '磁力の強さ',
+      function () { return magnet; },
+      function (v) { magnet = v; });
+    const levDial = makeDial('feelMaglevLabel', 'マグレブの反発力',
+      function () { return maglev; },
+      function (v) { maglev = v; });
+    row.appendChild(magDial.cell);
+    row.appendChild(levDial.cell);
+    wrap.appendChild(row);
+
+    const hint = document.createElement('p');
+    hint.className = 'settings-hint feel-dial-hint';
+    hint.id = 'feel-dial-hint';
+    hint.setAttribute('data-i18n', 'feelDialHint');
+    hint.textContent = tr('feelDialHint', '中心を押してON／OFF。まわりのダイヤルを回すと1〜5で強さを選べます');
+    wrap.appendChild(hint);
+
     anchor.insertAdjacentElement('afterend', wrap);
 
-    const magSlider = wrap.querySelector('#feel-magnet-slider');
-    const magValue = wrap.querySelector('#feel-magnet-value');
-    const levSlider = wrap.querySelector('#feel-maglev-slider');
-    const levValue = wrap.querySelector('#feel-maglev-value');
-
-    const label = (n) => (n === 0 ? 'OFF' : n + '%');
-    function paint() {
-      magSlider.value = String(magnet);
-      levSlider.value = String(maglev);
-      magValue.textContent = label(magnet);
-      levValue.textContent = label(maglev);
-      wrap.querySelector('#feel-magnet-hint').textContent =
-        tr('feelMagnetHint', '90°の手前から磁石に吸い込まれるように残りを決めます（0でOFF）');
-      wrap.querySelector('#feel-maglev-hint').textContent =
-        tr('feelMaglevHint', '止まった瞬間に「ブルッ」とわずかに揺り返します（0でOFF）');
-      const magLabel = wrap.querySelector('[data-i18n="feelMagnetLabel"]');
-      const levLabel = wrap.querySelector('[data-i18n="feelMaglevLabel"]');
-      magLabel.textContent = tr('feelMagnetLabel', '磁力の強さ');
-      levLabel.textContent = tr('feelMaglevLabel', 'マグレブの反発力');
-    }
-    paint();
-
-    magSlider.addEventListener('input', () => {
-      magnet = clamp100(magSlider.value);
-      magValue.textContent = label(magnet);
-      save();
-    });
-    levSlider.addEventListener('input', () => {
-      maglev = clamp100(levSlider.value);
-      levValue.textContent = label(maglev);
-      save();
-    });
-
     // 言語が切り替わったら文言を描き直す（applyI18n から呼ばれる）。
-    if (typeof onI18n === 'function') onI18n(paint);
+    if (typeof onI18n === 'function') {
+      onI18n(function () {
+        [magDial, levDial].forEach(function (d) {
+          const s = tr(d.labelKey, d.fallback);
+          d.capEl.textContent = s;
+          d.ringEl.setAttribute('aria-label', s);
+        });
+        hint.textContent = tr('feelDialHint', hint.textContent);
+      });
+    }
   }
 
   if (document.readyState === 'loading') {
