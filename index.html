@@ -1296,7 +1296,7 @@
        I18N への追記と設定スライダーの差し込みを兼ねるので、i18n.js より
        あと・本体スクリプトより先に読み込む。読み込んだだけでは何も起きず、
        本体の回転処理が CubeFeel.play() を呼んだときだけ効く。 -->
-  <script src="cube-feel.js?v=20260818m"></script>
+  <script src="cube-feel.js?v=20260818n"></script>
   <!-- 触り心地のマイクロインタラクション（押下感・波紋・画面遷移）。
        CSS の注入まで自分で行うので、style.css には手を入れていない。
        この1行を外せば、見た目も挙動もそっくり元に戻る。 -->
@@ -1321,18 +1321,83 @@
   <script>
   (function () {
     'use strict';
-    var timers = new WeakMap();
-    /* 音を鳴らした直後に呼ぶ。指定ミリ秒(既定1.2秒)のあいだ次の音が
-       来なければ、その AudioContext を眠らせる。次に鳴らすときは各
-       モジュールが元から持っている resume() が起こしてくれる。 */
+
+    /* ======================================================================
+       AudioContext は「アプリ全体で1つ」に統一する
+
+       ここを共通化した理由。iOS Safari は1ページで作れる AudioContext の
+       数に上限があり（歴史的に4個）、超えたぶんは例外も出さずに黙って
+       音が出なくなる。しかもホーム画面に追加したPWAでは、前に作った
+       ぶんが残ったまま復帰することがあるため、
+         「鳴るときと、まったく鳴らないときがある」
+       という再現しづらい形で出る。
+       このアプリはガチャ・ランクアップ・2側面判断・PLLタイムアタック・
+       スイカ演出・ダイヤルの節度音と、モジュールごとに1つずつ作っていて
+       上限に届いていた。全部でこの1つを共有すれば、その心配は消える。
+
+       もうひとつ、iOS だけ 'interrupted' という状態がある。着信・他アプリの
+       再生・PWAを閉じて戻る、などで入る。よくある
+         if (ctx.state === 'suspended') ctx.resume();
+       という書き方では 'interrupted' を拾えないので、そのまま二度と
+       鳴らなくなる。ここでは running 以外なら resume を試すようにし、
+       さらに画面復帰と最初のタッチでも起こし直している。
+       ====================================================================== */
+    var shared = null;
+
+    window.__audioCtx = function () {
+      if (shared) { wake(); return shared; }
+      try {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        shared = new AC();
+      } catch (e) { shared = null; }
+      return shared;
+    };
+
+    function wake() {
+      if (!shared) return;
+      try {
+        // 'suspended' も 'interrupted' もまとめて起こす
+        if (shared.state !== 'running' && typeof shared.resume === 'function') {
+          shared.resume();
+        }
+      } catch (e) { /* 起こせない環境は放置 */ }
+    }
+    window.__audioWake = wake;
+
+    // 画面に戻ってきたとき、そして最初のタッチで必ず起こす。
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') wake();
+    });
+    ['pointerdown', 'touchstart', 'mousedown', 'keydown'].forEach(function (ev) {
+      document.addEventListener(ev, wake, { capture: true, passive: true });
+    });
+
+    /* ----------------------------------------------------------------------
+       画面録画中に「ぶーん」という低いハム音が入る不具合の対策。
+       AudioContext は一度 running になると、鳴らす音が無くても開きっぱなしに
+       なる＝端末の音声出力経路をつかんだままになる。ふだんのスピーカー再生
+       では無音なので気づかないが、iOS の画面録画はこの「開いているが無音」の
+       出力ストリームごと録るため、アンプのノイズフロアが延々と乗る。
+       そこで「最後の音から少し経ったら suspend する」後始末を置く。
+
+       共有にしたので、待ち時間は各モジュールの申告のうち“いちばん遅い”
+       ものを採用する。短いほうで上書きすると、ダイヤルの節度音(1.5秒)が
+       ガチャ演出(5秒)の途中で音を切ってしまうため。
+       ---------------------------------------------------------------------- */
+    var timer = null;
+    var deadline = 0;
     window.__audioIdleSuspend = function (ctx, ms) {
-      if (!ctx || typeof ctx.suspend !== 'function') return;
-      var prev = timers.get(ctx);
-      if (prev) clearTimeout(prev);
-      timers.set(ctx, setTimeout(function () {
-        timers.delete(ctx);
-        try { if (ctx.state === 'running') ctx.suspend(); } catch (e) { /* 非対応環境は放置 */ }
-      }, ms || 1200));
+      var target = shared || ctx;
+      if (!target || typeof target.suspend !== 'function') return;
+      var until = Date.now() + (ms || 1200);
+      if (until <= deadline && timer) return;   // すでに、もっと先まで待つ予定
+      deadline = until;
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(function () {
+        timer = null; deadline = 0;
+        try { if (target.state === 'running') target.suspend(); } catch (e) { /* 放置 */ }
+      }, until - Date.now());
     };
   })();
   </script>
@@ -1663,7 +1728,8 @@
       try {
         var AC = window.AudioContext || window.webkitAudioContext;
         if (!AC) return;
-        if (!audioCtx) audioCtx = new AC();
+        if (!audioCtx) audioCtx = window.__audioCtx ? window.__audioCtx() : new AC();
+        if (!audioCtx) return;
         if (audioCtx.state === 'suspended') audioCtx.resume();
         var ctx = audioCtx, now = ctx.currentTime;
 
@@ -9383,8 +9449,9 @@ const ShardJackpot = (function () {
   function audio() {
     if (!CONFIG.sound) return null;
     try {
-      if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
-      if (actx.state === 'suspended') actx.resume();
+      if (!actx) actx = window.__audioCtx ? window.__audioCtx() : new (window.AudioContext || window.webkitAudioContext)();
+      if (!actx) return null;
+      if (actx.state !== 'running') actx.resume();
       // 鳴り終わったら眠らせる（録画時のハム音対策。head の helper 参照）。
       if (window.__audioIdleSuspend) window.__audioIdleSuspend(actx, 5000);
       return actx;
@@ -10236,8 +10303,9 @@ const RankFX = (function () {
   function ensureAC() {
     if (!RankFX.sound) return null;
     try {
-      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
-      if (ac.state === 'suspended') ac.resume();
+      ac = ac || (window.__audioCtx ? window.__audioCtx() : new (window.AudioContext || window.webkitAudioContext)());
+      if (!ac) return null;
+      if (ac.state !== 'running') ac.resume();
       // 鳴り終わったら眠らせる（録画時のハム音対策。head の helper 参照）。
       // 演出は数秒続くので、余裕をみて長めに待ってから閉じる。
       if (window.__audioIdleSuspend) window.__audioIdleSuspend(ac, 5000);
@@ -10478,7 +10546,9 @@ const RankResult = (function () {
   function tone(freq, dur, type, vol) {
     if (!config.sound) return;
     try {
-      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      ac = ac || (window.__audioCtx ? window.__audioCtx() : new (window.AudioContext || window.webkitAudioContext)());
+      if (!ac) return;
+      if (ac.state !== 'running') ac.resume();
       const o = ac.createOscillator(), g = ac.createGain();
       o.type = type || 'triangle'; o.frequency.value = freq;
       g.gain.setValueAtTime(0.0001, ac.currentTime);
@@ -12356,8 +12426,11 @@ const Gacha = (function () {
       return ac;
     }
     try {
-      const C = window.AudioContext || window.webkitAudioContext;
-      if (C) ac = new C();
+      ac = window.__audioCtx ? window.__audioCtx() : null;
+      if (!ac) {
+        const C = window.AudioContext || window.webkitAudioContext;
+        if (C) ac = new C();
+      }
     } catch (e) { ac = null; }
     if (ac && window.__audioIdleSuspend) window.__audioIdleSuspend(ac, 8000);
     return ac;
@@ -13845,8 +13918,9 @@ const PllTrainer = (function () {
   function beep(ok) {
     if (!CFG.SOUND) return;
     try {
-      if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
-      if (actx.state === 'suspended') actx.resume();
+      if (!actx) actx = window.__audioCtx ? window.__audioCtx() : new (window.AudioContext || window.webkitAudioContext)();
+      if (!actx) return;
+      if (actx.state !== 'running') actx.resume();
       const now = actx.currentTime;
       const o = actx.createOscillator(), g = actx.createGain();
       o.type = ok ? 'triangle' : 'square';
@@ -13864,8 +13938,9 @@ const PllTrainer = (function () {
   function beepTick(last) {
     if (!CFG.SOUND) return;
     try {
-      if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
-      if (actx.state === 'suspended') actx.resume();
+      if (!actx) actx = window.__audioCtx ? window.__audioCtx() : new (window.AudioContext || window.webkitAudioContext)();
+      if (!actx) return;
+      if (actx.state !== 'running') actx.resume();
       const now = actx.currentTime;
       const o = actx.createOscillator(), g = actx.createGain();
       o.type = 'sine';

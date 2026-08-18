@@ -101,11 +101,21 @@
     if (audioBroken) return null;
     try {
       if (!actx) {
-        const C = global.AudioContext || global.webkitAudioContext;
-        if (!C) { audioBroken = true; return null; }
-        actx = new C();
+        // アプリ全体で1つの AudioContext を共有する（index.html の head に
+        // ある共通ヘルパー）。iOS は1ページで作れる数に上限があり、
+        // モジュールごとに作ると上限に届いて「鳴るときと鳴らないときが
+        // ある」という形で音が死ぬため。
+        if (global.__audioCtx) actx = global.__audioCtx();
+        if (!actx) {
+          const C = global.AudioContext || global.webkitAudioContext;
+          if (!C) { audioBroken = true; return null; }
+          actx = new C();
+        }
       }
-      if (actx.state === 'suspended') actx.resume();
+      // iOS には 'interrupted' という状態がある（着信・他アプリの再生・
+      // PWAを閉じて戻る等）。'suspended' だけを見ていると拾えないので、
+      // running 以外ならまとめて起こす。
+      if (actx.state !== 'running') actx.resume();
       // 鳴り終わったら眠らせる（画面録画時のハム音対策。index.html の
       // head にある共通ヘルパー。無い環境でもそのまま動く）。
       if (global.__audioIdleSuspend) global.__audioIdleSuspend(actx, 1500);
@@ -145,7 +155,7 @@
   // タブに戻ってきたときに眠ったままだと、最初の1手が無音になる。
   document.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'visible' && unlocked && actx) {
-      try { if (actx.state === 'suspended') actx.resume(); } catch (err) { /* 無視 */ }
+      try { if (actx.state !== 'running') actx.resume(); } catch (err) { /* 無視 */ }
     }
   });
 
