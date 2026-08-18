@@ -160,15 +160,15 @@
 
   /* 出口。低い唸りと、耳に刺さる超高域の両方を落として、
      人が「プラスチックが噛み合った」と感じる帯域だけを通す。
-     360Hz以下＝ぼとつきのもと、9kHz以上＝シャリつきのもの。 */
+     800Hz以下＝ぼてつきのもと、11kHz以上＝シャリつきのもと。 */
   function outlet(ctx, pan) {
     const hp = ctx.createBiquadFilter();
     hp.type = 'highpass';
-    hp.frequency.value = 360;
+    hp.frequency.value = 800;
     hp.Q.value = 0.7;
     const lp = ctx.createBiquadFilter();
     lp.type = 'lowpass';
-    lp.frequency.value = 9000;
+    lp.frequency.value = 11000;
     hp.connect(lp);
     let tail = lp;
     if (pan && ctx.createStereoPanner) {
@@ -195,7 +195,7 @@
      短い＝速く決まるので、実物と同じ関係になる）。
 
      中身は2枚重ね:
-       ① 擦れの本体 … 帯域を絞ったノイズ。周波数は 2.7k→1.4kHz へ
+       ① 擦れの本体 … 帯域を絞ったノイズ。周波数は 4.2k→2.4kHz へ
           下がる。回転が遅くなるにつれて擦れの音が低くなる、あの動き。
        ② ざらつきの粒 … 薄く重ねる細かい当たり。これが無いと
           「シャー」という一様な音になり、樹脂の質感が出ない。 */
@@ -205,8 +205,8 @@
     const bp = ctx.createBiquadFilter();
     bp.type = 'bandpass';
     bp.Q.value = 0.9;
-    bp.frequency.setValueAtTime(2700 * rnd(0.10), at);
-    bp.frequency.exponentialRampToValueAtTime(1400 * rnd(0.10), at + durSec);
+    bp.frequency.setValueAtTime(4200 * rnd(0.10), at);
+    bp.frequency.exponentialRampToValueAtTime(2400 * rnd(0.10), at + durSec);
     const g = ctx.createGain();
     const peak = 0.50 * level * rnd(0.15);
     const rise = Math.min(0.006, durSec * 0.10);
@@ -224,7 +224,7 @@
     const gsrc = noiseSource(ctx);
     const gbp = ctx.createBiquadFilter();
     gbp.type = 'bandpass';
-    gbp.frequency.value = 2200 * rnd(0.12);
+    gbp.frequency.value = 3600 * rnd(0.12);
     gbp.Q.value = 1.8;
     const gg = ctx.createGain();
     gg.gain.setValueAtTime(0.00008, at);
@@ -233,7 +233,7 @@
     for (let i = 0; i < n; i++) {
       // 粒も、後ろへ行くほど弱くする（本体と一緒に消えていく）
       const t = at + (durSec * 0.72 * (i + Math.random() * 0.8)) / n;
-      const dur = 0.004 + Math.random() * 0.005;
+      const dur = 0.003 + Math.random() * 0.004;
       const v = 0.50 * level * (1 - (i / n) * 0.75) * (0.5 + Math.random() * 0.8);
       if (t <= last) continue;
       gg.gain.setValueAtTime(v, t);
