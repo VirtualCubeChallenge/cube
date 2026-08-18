@@ -1297,6 +1297,10 @@
        あと・本体スクリプトより先に読み込む。読み込んだだけでは何も起きず、
        本体の回転処理が CubeFeel.play() を呼んだときだけ効く。 -->
   <script src="cube-feel.js?v=20260818a"></script>
+  <!-- 触り心地のマイクロインタラクション（押下感・波紋・画面遷移）。
+       CSS の注入まで自分で行うので、style.css には手を入れていない。
+       この1行を外せば、見た目も挙動もそっくり元に戻る。 -->
+  <script src="ui-polish.js?v=20260818a"></script>
   <!-- 大きな定数テーブルは index.html から切り出してある。どちらもトップレベルで
        const を宣言しているだけなので、このあとのスクリプトから普通に参照できる。 -->
   <script src="solver.js?v=20260818a"></script>
@@ -3275,28 +3279,28 @@
     const layoutCloseX = document.getElementById('layout-close-x');
 
     menuAction(settingsBtn, () => {
-      settingsOverlay.style.display = 'flex';
+      settingsOverlay.classList.add('show');
     });
     settingsCloseBtn.addEventListener('click', () => {
-      settingsOverlay.style.display = 'none';
+      settingsOverlay.classList.remove('show');
     });
     const settingsCloseX = document.getElementById('settings-close-x');
     settingsCloseX.addEventListener('click', () => {
-      settingsOverlay.style.display = 'none';
+      settingsOverlay.classList.remove('show');
     });
     openLayoutBtn.addEventListener('click', () => {
       selectedSlotIndex = null;
       renderSettingsGrid();
-      settingsOverlay.style.display = 'none';
+      settingsOverlay.classList.remove('show');
       layoutOverlay.classList.add('show');
     });
     layoutBackBtn.addEventListener('click', () => {
       layoutOverlay.classList.remove('show');
-      settingsOverlay.style.display = 'flex';
+      settingsOverlay.classList.add('show');
     });
     layoutCloseX.addEventListener('click', () => {
       layoutOverlay.classList.remove('show');
-      settingsOverlay.style.display = 'flex';
+      settingsOverlay.classList.add('show');
     });
 
     /* ------------------------------------------------------------
@@ -3323,7 +3327,7 @@
       }
       function closeToSettings() {
         overlay.classList.remove('show');
-        settingsOverlay.style.display = 'flex';
+        settingsOverlay.classList.add('show');
       }
 
       openBtn.addEventListener('click', () => {
@@ -3332,7 +3336,7 @@
         setStatus(exportStatus, '', null);
         importInput.value = '';
         setStatus(importStatus, '', null);
-        settingsOverlay.style.display = 'none';
+        settingsOverlay.classList.remove('show');
         overlay.classList.add('show');
       });
       backBtn.addEventListener('click', closeToSettings);
@@ -3485,7 +3489,7 @@
       } catch (err) { /* unavailable */ }
     });
     openWelcomeBtn.addEventListener('click', () => {
-      settingsOverlay.style.display = 'none';
+      settingsOverlay.classList.remove('show');
       // Re-opened deliberately: start from whatever is actually in use.
       openWelcome(tapCubeEnabled);
     });
@@ -3719,7 +3723,7 @@
     // 画面を開くだけなら何も壊れない(✕ で戻れる)ので、ここでは聞かない。
     // 確認は実際に言語を選んだ瞬間に出す。
     openLangBtn.addEventListener('click', () => {
-      settingsOverlay.style.display = 'none';
+      settingsOverlay.classList.remove('show');
       openLang(false);
     });
     langCloseBtn.addEventListener('click', () => {
@@ -4395,7 +4399,7 @@
       // ワンクッション確認を挟む(取り返しがつかない操作ではないが、
       // 誤操作からの離脱コストが高いため)。
       function startTutorialFromSettings() {
-        settingsOverlay.style.display = 'none';
+        settingsOverlay.classList.remove('show');
         // チュートリアルは「キューブを指でなぞる」操作前提で作られている。
         // 回転記号モードのまま見直すと、記号ボタンが表示されたままチュート
         // リアルが進んでしまい、説明とUIが噛み合わないバグになる。見直しを
