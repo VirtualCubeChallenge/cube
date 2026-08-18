@@ -286,8 +286,37 @@
         880Hz  … わずかな重み。これが無いと軽い作り物になる
      帯域は 1.8〜3.5kHz が6割で、耳に痛い 7kHz 以上はほぼ無い。 */
 
-  // 出口（ダイヤル用）。回転音より狭く、低くまとめる。
-  function dialChain(ctx) {
+  /* ごく短い残響のもと（インパルス応答）。
+     ONにしたときだけ、音のうしろにほんの少し空気を足すために使う。
+     ノイズを 220ms かけて減衰させたものを1回だけ作って使い回す。
+     最後にエネルギーで正規化しているので、下の wet の値がそのまま
+     「乾いた音に対する残響の量」になり、調整しやすい。 */
+  let irBuf = null;
+  function reverbIR(ctx) {
+    if (irBuf && irBuf.sampleRate === ctx.sampleRate) return irBuf;
+    const n = Math.floor(ctx.sampleRate * 0.22);
+    const buf = ctx.createBuffer(1, n, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    let lp = 0, sum = 0;
+    for (let i = 0; i < n; i++) {
+      const fade = 1 - i / n;
+      const v = (Math.random() * 2 - 1) * fade * fade * fade;   // ≒ (1-t)^3 の減衰
+      lp = lp * 0.72 + v * 0.28;                                 // 角を丸める
+      d[i] = lp;
+      sum += lp * lp;
+    }
+    // 頭の3msは立ち上げる（ここが急だと「タンッ」という反射音になる）
+    const ramp = Math.floor(ctx.sampleRate * 0.003);
+    for (let i = 0; i < ramp; i++) d[i] *= i / ramp;
+    const norm = 1 / Math.sqrt(sum || 1);
+    for (let i = 0; i < n; i++) d[i] *= norm;
+    irBuf = buf;
+    return buf;
+  }
+
+  /* 出口（ダイヤル用）。回転音より狭く、低くまとめる。
+     wet に 0 より大きい値を渡すと、そのぶんだけ残響を混ぜる。 */
+  function dialChain(ctx, wet) {
     const hp = ctx.createBiquadFilter();
     hp.type = 'highpass';
     hp.frequency.value = 400;
@@ -297,6 +326,23 @@
     lp.frequency.value = 8000;
     hp.connect(lp);
     lp.connect(ctx.destination);
+
+    if (wet > 0 && ctx.createConvolver) {
+      try {
+        const cv = ctx.createConvolver();
+        cv.buffer = reverbIR(ctx);
+        // 12msの間を置いてから響かせる。間を置かずに重ねると、音が
+        // ぼやけて「濡れた」感じになり、部屋の広がりに聞こえない。
+        const pre = ctx.createDelay(0.05);
+        pre.delayTime.value = 0.012;
+        const wg = ctx.createGain();
+        wg.gain.value = wet;
+        lp.connect(pre);
+        pre.connect(cv);
+        cv.connect(wg);
+        wg.connect(ctx.destination);
+      } catch (err) { /* 使えない環境では乾いた音だけ */ }
+    }
     return hp;
   }
 
@@ -320,8 +366,9 @@
   }
 
   let lastTickAt = 0;
-  /* strength: 1 = 目盛りを1つ送った / 0.75 = ON・OFF の切り替え */
-  function playDialTick(strength) {
+  /* strength: 1 = 目盛りを1つ送った / 0.6〜0.85 = ON・OFF の切り替え
+     wet: 0 で残響なし。ONにしたときだけ少しだけ足す。 */
+  function playDialTick(strength, wet) {
     if (!DIAL_SOUND || reduceMotion) return;
     const ctx = ac();
     if (!ctx) return;
@@ -330,7 +377,7 @@
     if (now - lastTickAt < 0.022) return;
     lastTickAt = now;
 
-    const out = dialChain(ctx);
+    const out = dialChain(ctx, wet || 0);
     const v = (strength == null ? 1 : strength);
     // 高級感は「毎回ほぼ同じ音」から出るので、ゆらぎはごく控えめに。
     // 回転音（±8〜15%）と違い、ここは±3%程度に抑えている。
@@ -992,7 +1039,9 @@
       const on = getLevel() > 0;
       buzz(on ? 10 : [8, 30, 8]);
       // 目盛り送りより少しだけ弱く。切り替えの手応えとして添える程度。
-      playDialTick(on ? 0.6 : 0.8);
+      // ONにするときだけ、うしろにほんの少し空気を残す（乾いた音の
+      // 1割ほどの残響が130msで消える）。OFFは乾いたまま落とす。
+      playDialTick(on ? 0.6 : 0.85, on ? 0 : 0.4);
       clearTimeout(fadeTimer);
       if (on) {
         // OFFへ：波を内側へ吸い込みつつ、光は0.9秒かけて落とす
