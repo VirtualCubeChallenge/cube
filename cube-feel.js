@@ -88,6 +88,13 @@
 
   function ac() {
     if (audioBroken) return null;
+    // cube-sfx.js があるときは、そちらの AudioContext を借りる。
+    // 別々に作ると currentTime の基準がずれて、録音の音と合成音を
+    // 同じ時刻に予約したつもりが噛み合わなくなる。
+    if (!actx && global.CubeSFX && global.CubeSFX.context) {
+      const shared = global.CubeSFX.context();
+      if (shared) actx = shared;
+    }
     try {
       if (!actx) {
         const C = global.AudioContext || global.webkitAudioContext;
@@ -316,18 +323,36 @@
       if (ctx) {
         const now = ctx.currentTime;
         const seatAt = now + (driveDur + snapDur) / 1000;
-        // 出口（左右振り＋高域を抑えるフィルタ）は1手につき1本だけ作り、
-        // 3種類の音で共有する。1手あたりのノード数を抑えるため。
-        const out = outlet(ctx, opts.pan || 0);
+        const pan = opts.pan || 0;
         // 速い回しほど短く強い音になる（実物と同じ関係）
         const level = Math.min(1.35, 0.8 + (100 / D) * 0.35);
-        // 既定では「収まった瞬間」の一発だけ。回している最中の摩擦音は
-        // SWISH を true にすると戻る（初版と同じ構成になる）。
-        if (SWISH) playSwish(ctx, now, (driveDur + snapDur) / 1000, out, level);
-        playSeat(ctx, seatAt, out, level);
-        // 揺り返しがあるときだけ、戻ってきて座り直す音を小さく足す
-        if (useBounce) {
-          playReseat(ctx, seatAt + (bounceDur * 0.34) / 1000, out, level * b);
+        const sfx = global.CubeSFX;
+
+        // ① 録音ファイルがあればそれを鳴らす（cube-sfx.js）。
+        //    when に「90°に収まる時刻」を渡すので、画面が止まる瞬間と
+        //    音がフレーム単位で一致する。ピッチのゆらぎは cube-sfx 側。
+        const sampled = !!(sfx && sfx.play('snap', {
+          when: seatAt, gain: level * 0.9, pan: pan
+        }));
+
+        // ② ファイルがまだ無い/読めないときは、これまでどおり合成音で鳴らす。
+        //    音が完全に消えることはない。
+        if (!sampled) {
+          // 出口（左右振り＋高域を抑えるフィルタ）は1手につき1本だけ作る。
+          const out = outlet(ctx, pan);
+          if (SWISH) playSwish(ctx, now, (driveDur + snapDur) / 1000, out, level);
+          playSeat(ctx, seatAt, out, level);
+          if (useBounce) {
+            playReseat(ctx, seatAt + (bounceDur * 0.34) / 1000, out, level * b);
+          }
+        } else if (useBounce) {
+          // 揺り返しで座り直す小さな音。専用ファイルが無ければ
+          // cube-sfx 側が snap を小さめ・高めに流用する。
+          sfx.play('reseat', {
+            when: seatAt + (bounceDur * 0.34) / 1000,
+            gain: level * b * 0.45, pan: pan,
+            rate: 1.25 + Math.random() * 0.2
+          });
         }
       }
     }
