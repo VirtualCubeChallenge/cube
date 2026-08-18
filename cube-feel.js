@@ -585,38 +585,64 @@
     '.feel-dial-btn:active{transform:scale(.94)}',
     '.feel-dial-hint{margin-top:10px}',
 
-    /* --- ON/OFF の切り替え演出 ---------------------------------------
-       ONは「磁力が外へ広がる」、OFFは「灯りがゆっくり落ちる」。
-       どちらも transform と opacity しか動かさないので、スマホでも
-       カクつかない。 */
+    /* --- ON/OFF の演出 ------------------------------------------------
+       ONは中心から外へ波が広がり、その波が下の説明文に届いた瞬間に
+       文字の色が走り抜ける。OFFは波が内側へ吸い込まれ、光が落ちる。
+       動かすのは transform / opacity / background-size だけ。 */
 
-    /* 常時のほのかな光。ONで点き、OFFでは 0.9 秒かけて静かに消える。
-       消えるときだけ時間を長くしているのが、この演出の肝。 */
+    /* 常時のほのかな光。点くのは速く、消えるのは遅い。
+       この非対称が「灯りが落ちる」感じの正体。 */
     '.feel-dial-glow{position:absolute;inset:-3px;border-radius:50%;pointer-events:none;',
     '  box-shadow:0 0 22px 1px var(--tc),inset 0 0 14px -4px var(--tc);',
     '  opacity:0;transition:opacity .9s cubic-bezier(.3,0,.6,1)}',
     '.feel-dial.is-on .feel-dial-glow{opacity:.42;transition:opacity .22s ease-out}',
 
-    /* ONの瞬間だけ、中心から外へ抜けていく波紋。2枚を少しずらして
-       出すと、ひと押しで磁場が立ち上がったように見える。 */
-    '.feel-dial-pulse{position:absolute;left:50%;top:50%;width:62px;height:62px;',
+    /* 広がる波。ダイヤルの外まで抜けるので、はみ出しを止めないよう
+       親には overflow を掛けていない。3枚を少しずつ遅らせて出す。 */
+    '.feel-dial-wave{position:absolute;left:50%;top:50%;width:62px;height:62px;',
     '  margin:-31px 0 0 -31px;border-radius:50%;border:2px solid var(--tc);',
+    '  box-shadow:0 0 18px -2px var(--tc),inset 0 0 12px -4px var(--tc);',
+    '  background:radial-gradient(circle,rgba(var(--tc-rgb),.16),rgba(var(--tc-rgb),0) 68%);',
     '  pointer-events:none;opacity:0;transform:scale(.5);z-index:1}',
-    '.feel-dial-pulse.go{animation:feelPulse .62s cubic-bezier(.15,.75,.3,1) forwards}',
-    '.feel-dial-pulse.lag.go{animation-delay:.09s;animation-duration:.72s}',
-    '@keyframes feelPulse{',
-    '  0%{opacity:.8;transform:scale(.5)}',
-    '  60%{opacity:.28}',
-    '  100%{opacity:0;transform:scale(2.05)}}',
+    '.feel-dial-wave.go{animation:feelWaveOut .78s cubic-bezier(.12,.72,.26,1) forwards}',
+    '.feel-dial-wave.w2.go{animation-delay:.10s}',
+    '.feel-dial-wave.w3.go{animation-delay:.20s;opacity:0}',
+    '@keyframes feelWaveOut{',
+    '  0%{opacity:.85;transform:scale(.5);border-width:3px}',
+    '  55%{opacity:.42}',
+    '  100%{opacity:0;transform:scale(4.2);border-width:1px}}',
+    /* OFFのときは逆再生。外から中心へ吸い込まれて消える。 */
+    '.feel-dial-wave.in{animation:feelWaveIn .5s cubic-bezier(.3,.1,.2,1) forwards}',
+    '.feel-dial-wave.w2.in{animation-delay:.07s}',
+    '.feel-dial-wave.w3.in{animation-delay:.14s}',
+    '@keyframes feelWaveIn{',
+    '  0%{opacity:.5;transform:scale(2.6);border-width:1px}',
+    '  100%{opacity:0;transform:scale(.46);border-width:3px}}',
 
-    /* OFFにした直後だけ、光っていた数字を急に消さず、同じ0.9秒で
-       いっしょに落とす。ここを一瞬で消すと「ブツッと切れた」感じになる。 */
+    /* 波が届いた瞬間の説明文。文字そのものを背景で塗り、その背景を
+       押したダイヤルの真下(--wx)から左右へ広げる。文字の形で切り抜く
+       ので、色が波のように文面を走り抜けていく。 */
+    '@supports ((-webkit-background-clip:text) or (background-clip:text)){',
+    '  .feel-dial-hint.is-wave{-webkit-background-clip:text;background-clip:text;',
+    '    color:transparent;background-color:#aaa;background-repeat:no-repeat;',
+    '    background-position:var(--wx,50%) 50%;',
+    '    background-image:radial-gradient(circle closest-side,',
+    '      #ffffff 0 18%,var(--tc) 30% 52%,rgba(170,170,170,1) 78%);',
+    '    animation:feelTextWave .9s cubic-bezier(.15,.7,.3,1) forwards}',
+    '}',
+    '@keyframes feelTextWave{',
+    '  0%{background-size:0% 1200%}',
+    '  100%{background-size:420% 1200%}}',
+
+    /* OFFにした直後だけ、光っていた数字を急に消さず、光といっしょに
+       同じ0.9秒で落とす。一瞬で消すと「ブツッと切れた」感じになる。 */
     '.feel-dial.is-fading .feel-dial-ring{transition:border-color .9s ease,opacity .9s ease}',
     '.feel-dial.is-fading .feel-dial-num{transition:color .9s ease,background .9s ease,',
     '  box-shadow .9s ease}',
 
     '@media (prefers-reduced-motion: reduce){',
-    '  .feel-dial-pulse{display:none}',
+    '  .feel-dial-wave{display:none}',
+    '  .feel-dial-hint.is-wave{animation:none}',
     '  .feel-dial-glow{transition-duration:.15s}',
     '  .feel-dial.is-fading .feel-dial-ring,.feel-dial.is-fading .feel-dial-num{',
     '    transition-duration:.15s}',
@@ -649,6 +675,10 @@
   }
 
   const STEP = 360 / MAX_LEVEL;   // 数字1つぶんの角度（5等分なので72°）
+
+  /* 説明文の要素。波が届いたときに色を走らせる相手なので、
+     ダイヤル側から参照できるようここに置く（buildUI で入る）。 */
+  let hintEl = null;
 
   /* ダイヤル1つ分を組み立てて返す。
        labelKey/labelFallback … 見出しの辞書キーと既定文言
@@ -694,13 +724,13 @@
     glow.setAttribute('aria-hidden', 'true');
     dial.appendChild(glow);
 
-    const pulses = [];
-    for (let k = 0; k < 2; k++) {
-      const pu = document.createElement('span');
-      pu.className = 'feel-dial-pulse' + (k ? ' lag' : '');
-      pu.setAttribute('aria-hidden', 'true');
-      dial.appendChild(pu);
-      pulses.push(pu);
+    const waves = [];
+    for (let k = 0; k < 3; k++) {
+      const wv = document.createElement('span');
+      wv.className = 'feel-dial-wave' + (k ? ' w' + (k + 1) : '');
+      wv.setAttribute('aria-hidden', 'true');
+      dial.appendChild(wv);
+      waves.push(wv);
     }
 
     const btn = document.createElement('button');
@@ -722,6 +752,8 @@
     // 数字の色をまだ落とさず、光といっしょにゆっくり暗くする。
     let fading = false;
     let fadeTimer = null;
+    let sweepTimer = null;
+    let sweepEnd = null;
 
     function levelFromDeg(deg) {
       const idx = ((Math.round(-deg / STEP) % MAX_LEVEL) + MAX_LEVEL) % MAX_LEVEL;
@@ -781,18 +813,54 @@
       paintState();
     }
 
-    /* ONの瞬間に、中心から外へ波紋を1度だけ走らせる。
-       同じ要素を使い回すので、アニメを付け直す前にクラスを外して
-       レイアウトを一度読み、再生をリセットしてから付ける。
-       （外して付けるだけだと、ブラウザが「変化なし」とみなして
-         2回目以降が再生されない） */
-    function playOnPulse() {
+    /* 波を出す。dir が 'out' ならON（外へ広がる）、'in' ならOFF（吸い込む）。
+       同じ要素を使い回すので、クラスを外してレイアウトを一度読み、
+       再生位置をリセットしてから付け直す。これをやらないと、
+       ブラウザが「変化なし」とみなして2回目以降が再生されない。 */
+    function runWaves(dir) {
       if (reduceMotion) return;
-      pulses.forEach(function (pu) {
-        pu.classList.remove('go');
-        void pu.offsetWidth;
-        pu.classList.add('go');
+      waves.forEach(function (wv) {
+        wv.classList.remove('go', 'in');
+        void wv.offsetWidth;
+        wv.classList.add(dir === 'in' ? 'in' : 'go');
       });
+    }
+
+    /* 広がった波が、下の説明文に「届いた瞬間」に色を走らせる。
+       距離は実測する。押したダイヤルの中心から説明文までの実際の
+       ピクセル数を測り、波の速さから逆算して遅延を決めるので、
+       画面の大きさや文字の折り返しが変わっても、届くタイミングが
+       ずれない。色が始まる位置(--wx)も、押したダイヤルの真下になる。 */
+    function sweepHint() {
+      const hint = hintEl;
+      if (!hint || reduceMotion) return;
+      let delay = 260;
+      try {
+        const dr = dial.getBoundingClientRect();
+        const hr = hint.getBoundingClientRect();
+        const cx = dr.left + dr.width / 2;
+        const cy = dr.top + dr.height / 2;
+        // 波の見た目の半径は 0.5倍 → 4.2倍（0.78秒）で広がる
+        const r0 = dr.width * 0.5 * 0.5;
+        const r1 = dr.width * 0.5 * 4.2;
+        const reach = Math.max(0, hr.top + hr.height * 0.5 - cy);
+        delay = Math.max(60, Math.min(700, ((reach - r0) / (r1 - r0)) * 780));
+        // 文字の色が湧き出す位置＝ダイヤルの中心の真下
+        const pct = ((cx - hr.left) / Math.max(1, hr.width)) * 100;
+        hint.style.setProperty('--wx', Math.max(0, Math.min(100, pct)).toFixed(1) + '%');
+      } catch (err) { /* 測れなければ既定の遅延で出す */ }
+
+      clearTimeout(sweepTimer);
+      clearTimeout(sweepEnd);
+      hint.classList.remove('is-wave');
+      sweepTimer = setTimeout(function () {
+        void hint.offsetWidth;
+        hint.classList.add('is-wave');
+        // 走り終えたら元の色に戻す（塗ったままにしない）
+        sweepEnd = setTimeout(function () {
+          hint.classList.remove('is-wave');
+        }, 1100);
+      }, delay);
     }
 
     // --- 中心ボタン: ON / OFF ---
@@ -801,19 +869,21 @@
       buzz(on ? 10 : [8, 30, 8]);
       clearTimeout(fadeTimer);
       if (on) {
-        // OFFへ：光が落ちきるまでのあいだ .is-fading を付けておく
+        // OFFへ：波を内側へ吸い込みつつ、光は0.9秒かけて落とす
         fading = true;
         dial.classList.add('is-fading');
+        runWaves('in');
         fadeTimer = setTimeout(function () {
           fading = false;
           dial.classList.remove('is-fading');
           paintRing(ringDeg);   // ここでようやく数字の選択表示を落とす
         }, 900);
       } else {
-        // ONへ：フェード中だったら中断して、すぐ光らせる
+        // ONへ：フェード中なら中断し、外へ波を放って文字まで届かせる
         fading = false;
         dial.classList.remove('is-fading');
-        playOnPulse();
+        runWaves('out');
+        sweepHint();
       }
       commit(on ? 0 : lastOn, true);
     });
@@ -914,6 +984,7 @@
     wrap.appendChild(row);
 
     const hint = document.createElement('p');
+    hintEl = hint;
     hint.className = 'settings-hint feel-dial-hint';
     hint.id = 'feel-dial-hint';
     hint.setAttribute('data-i18n', 'feelDialHint');
