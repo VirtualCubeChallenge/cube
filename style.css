@@ -1175,13 +1175,22 @@
       color: var(--fc-text);
       border: 1px solid #3a3a48;
       border-radius: 8px;
-      padding: 14px 0 10px;
+      /* 上下の余白は同じに。以前は padding: 14px 0 10px と上下で
+         違ううえ、縦方向の寄せ(justify-content)を指定していなかったので、
+         中の文字が枠の上端から数えた位置に置かれ、行の高さ(42px/58px)に
+         対して下寄りに見えていた。余白を対称にしたうえで
+         justify-content: center を指定し、枠の高さがいくつでも
+         文字が必ず中心に来るようにする。
+         枠の見た目の大きさは min-height で以前と揃えている。 */
+      padding: 4px 0;
+      min-height: 44px;
       font-size: 18px;
       font-weight: bold;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       gap: 4px;
     }
     .slot-btn.selected {
