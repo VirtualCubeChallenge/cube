@@ -4865,8 +4865,11 @@
         from: dragAngle,
         to: snappedAngle,
         duration: turnDuration(),
-        // 揺れるのがキューブ全体なので、1手ぶんより控えめにする。
-        bounceScale: 0.55,
+        // 持ち替え（キューブ全体の向き変え）は「列を回す」動作ではないので、
+        // マグレブの揺り返しは出さない。競技用キューブでも、手の中で
+        // 持ち替えたときにブルッと震えるのは面を回した瞬間だけ。
+        // 吸い込み（磁力アシスト）だけは効かせて、90°にきちんと収める。
+        bounce: false,
         onUpdate: applyViewAngle,
         onArrive: function () {
           cubeGroup.quaternion.copy(endQuaternion);
@@ -4890,7 +4893,6 @@
           }
           return true;
         },
-        onBounce: function (offset) { applyViewAngle(snappedAngle + offset); },
         onEnd: function () {
           // 引き戻し中は tutRevertView 側が isSnapping を解除する。
           if (reverting) return;
