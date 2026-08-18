@@ -626,13 +626,26 @@
     '  .feel-dial-hint.is-wave{-webkit-background-clip:text;background-clip:text;',
     '    color:transparent;background-color:#aaa;background-repeat:no-repeat;',
     '    background-position:var(--wx,50%) 50%;',
+    /* 色は「面」ではなく「帯」。内側も外側も元のグレーで、その間に
+       白→テーマ色の帯だけがある。帯が広がって文字を通り過ぎるので、
+       通ったあとは自然に元の色へ戻る＝最後に消えるときの段差が出ない。
+       塗りつぶしにしていたときは、終わった瞬間に全部の色が一斉に
+       消えるため「ピタッと切れた」ように見えていた。 */
     '    background-image:radial-gradient(circle closest-side,',
-    '      #ffffff 0 18%,var(--tc) 30% 52%,rgba(170,170,170,1) 78%);',
-    '    animation:feelTextWave .9s cubic-bezier(.15,.7,.3,1) forwards}',
+    '      #aaaaaa 0 26%,rgba(255,255,255,.96) 42%,var(--tc) 56%,',
+    '      rgba(170,170,170,.75) 72%,#aaaaaa 88%);',
+    '    animation:feelTextWave 1.15s linear forwards}',
     '}',
+    /* 広がり方は、途中の刻みで速さを作る。イージング関数まかせにすると
+       出だしで一気に文字を渡りきってしまい、あとは動いていないのに
+       時間だけ過ぎる＝最後だけ唐突に終わる。ここでは
+       前半 1.20 → 中盤 0.96 → 終盤 0.61（文字幅/秒）と落としていき、
+       最後の文字にかかる帯がゆっくり薄れながら抜けるようにしている。 */
     '@keyframes feelTextWave{',
-    '  0%{background-size:0% 1200%}',
-    '  100%{background-size:420% 1200%}}',
+    '  0%{background-size:0% 1400%}',
+    '  40%{background-size:260% 1400%}',
+    '  70%{background-size:420% 1400%}',
+    '  100%{background-size:520% 1400%}}',
 
     /* OFFにした直後だけ、光っていた数字を急に消さず、光といっしょに
        同じ0.9秒で落とす。一瞬で消すと「ブツッと切れた」感じになる。 */
@@ -729,6 +742,15 @@
       const wv = document.createElement('span');
       wv.className = 'feel-dial-wave' + (k ? ' w' + (k + 1) : '');
       wv.setAttribute('aria-hidden', 'true');
+      /* 走り終えたら go / in を必ず外す。付けっぱなしにすると、設定を
+         閉じて開き直すたびに演出が勝手に再生されてしまう。CSSアニメは
+         display:none から表示に戻った瞬間に頭から再生し直される仕様の
+         ため、クラスが残っていると「開くたびに波が出る」ことになる。
+         外しても見た目は変わらない（アニメの終わりと素の状態がどちらも
+         透明なので、消えたところで止まって見える）。 */
+      wv.addEventListener('animationend', function () {
+        wv.classList.remove('go', 'in');
+      });
       dial.appendChild(wv);
       waves.push(wv);
     }
@@ -857,9 +879,11 @@
         void hint.offsetWidth;
         hint.classList.add('is-wave');
         // 走り終えたら元の色に戻す（塗ったままにしない）
+        // 帯が抜けきったあとに外す。抜けきった時点で文字はもう元の
+        // グレーに戻っているので、外した瞬間の見た目の変化はない。
         sweepEnd = setTimeout(function () {
           hint.classList.remove('is-wave');
-        }, 1100);
+        }, 1400);
       }, delay);
     }
 
