@@ -88,13 +88,6 @@
 
   function ac() {
     if (audioBroken) return null;
-    // cube-sfx.js があるときは、そちらの AudioContext を借りる。
-    // 別々に作ると currentTime の基準がずれて、録音の音と合成音を
-    // 同じ時刻に予約したつもりが噛み合わなくなる。
-    if (!actx && global.CubeSFX && global.CubeSFX.context) {
-      const shared = global.CubeSFX.context();
-      if (shared) actx = shared;
-    }
     try {
       if (!actx) {
         const C = global.AudioContext || global.webkitAudioContext;
@@ -108,6 +101,40 @@
       return actx;
     } catch (err) { audioBroken = true; return null; }
   }
+
+  /* --- 最初のタッチで音を出せるようにする ------------------------------
+     iOS/Android のブラウザは、ユーザーが触るまで音を鳴らせない。
+     しかも iOS は resume() だけでは足りず、実際に音を1つ鳴らすまで
+     出力経路を開かない。そこで最初の1タッチで、長さ1サンプルの無音を
+     鳴らして確実にこじ開けておく。これをやっておかないと、
+     いちばん最初の1手だけ無音になることがある。 */
+  let unlocked = false;
+  const UNLOCK_EVENTS = ['pointerdown', 'touchstart', 'mousedown', 'keydown'];
+  function unlockAudio() {
+    if (unlocked) return;
+    const c = ac();
+    UNLOCK_EVENTS.forEach(function (ev) {
+      document.removeEventListener(ev, unlockAudio, { capture: true });
+    });
+    if (!c) return;
+    unlocked = true;
+    try {
+      const b = c.createBuffer(1, 1, c.sampleRate);
+      const s = c.createBufferSource();
+      s.buffer = b;
+      s.connect(c.destination);
+      s.start(0);
+    } catch (err) { /* 続行 */ }
+  }
+  UNLOCK_EVENTS.forEach(function (ev) {
+    document.addEventListener(ev, unlockAudio, { capture: true, passive: true });
+  });
+  // タブに戻ってきたときに眠ったままだと、最初の1手が無音になる。
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible' && unlocked && actx) {
+      try { if (actx.state === 'suspended') actx.resume(); } catch (err) { /* 無視 */ }
+    }
+  });
 
   // ノイズ源は一度だけ作って使い回す。純粋なホワイトノイズは「サー」と
   // 人工的なので、軽い積分を混ぜてピンクノイズ寄りに寄せてある。
@@ -131,13 +158,18 @@
 
   const rnd = (spread) => 1 + (Math.random() * 2 - 1) * spread;
 
-  /* 出口。少しだけ左右に振り、耳に痛い高域を落としてから出す。
-     初版と同じく低域は削っていない。胴鳴りの重さが「実物らしさ」に
-     効いていたので、ここで切らないのが正解だった。 */
+  /* 出口。低い唸りと、耳に刺さる超高域の両方を落として、
+     人が「プラスチックが噛み合った」と感じる帯域だけを通す。
+     360Hz以下＝ぼとつきのもと、9kHz以上＝シャリつきのもの。 */
   function outlet(ctx, pan) {
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 360;
+    hp.Q.value = 0.7;
     const lp = ctx.createBiquadFilter();
     lp.type = 'lowpass';
     lp.frequency.value = 9000;
+    hp.connect(lp);
     let tail = lp;
     if (pan && ctx.createStereoPanner) {
       const p = ctx.createStereoPanner();
@@ -146,7 +178,7 @@
       tail = p;
     }
     tail.connect(ctx.destination);
-    return lp;
+    return hp;
   }
 
   /* 回している間の摩擦音を鳴らすかどうか。
@@ -187,24 +219,37 @@
     src.stop(at + durSec * 1.1);
   }
 
-  /* 収まる瞬間の衝撃音。3つの成分を数ミリ秒ずらして重ねる。
+  /* 収まる瞬間の音。
 
-     いろいろ試したすえ、この初版の配合に戻した。高域だけで組んだものは
-     たしかに硬く乾くのだが、実物の手ごたえは 430Hz の胴鳴りが支えていて、
-     そこを削ると軽い作り物になってしまう。低・中・高の3層を、ずらして
-     重ねるこの形がいちばん本物に近い。 */
+     ここの配合は、耳で聞いた2つの失敗から数値で割り出したもの。
+       ・低域が多い版 → 「ぼとぼと」（<500Hz が 26%、0.5-1.5k が 44%）
+       ・実物の録音    → 「シャリシャリ」（9-12kHz だけで 50%、低域はほぼ無し）
+     どちらも極端だったので、その中間、1.5〜4kHz を主役にした配合に
+     している。実測の帯域バランスは
+       <500Hz 2% / 0.5-1.5k 21% / 1.5-4k 57% / 4-8k 19% / 8k超 1%
+     で、「芯はあるが重くない」ところを狙っている。
+
+     3つの当たりに加えて、少し遅れて着地する粒を2つ。実物は9個の
+     パーツが数ミリ秒ずれて収まるので、単発にすると硬い作り物になる。 */
   function playSeat(ctx, at, out, level) {
-    // 胴鳴り（低め・少し長く残る）
-    burst(ctx, at, { freq: 430 * rnd(0.10), q: 2.6, dur: 0.055, vol: 0.72 * level * rnd(0.15), out: out });
-    // 本体のかみ合い（この帯域が「カチッ」の芯）
-    burst(ctx, at + 0.0012, { freq: 1250 * rnd(0.08), q: 3.4, dur: 0.030, vol: 0.88 * level * rnd(0.15), out: out });
-    // 角が擦れて当たる高い成分（ごく短く）
-    burst(ctx, at + 0.0025, { freq: 3600 * rnd(0.08), q: 1.5, dur: 0.011, vol: 0.44 * level * rnd(0.2), out: out });
+    // わずかな胴鳴り（これを削ると軽くなりすぎる。増やすと「ぼと」になる）
+    burst(ctx, at, { freq: 760 * rnd(0.10), q: 2.4, dur: 0.024, vol: 0.48 * level * rnd(0.15), out: out });
+    // 主役。ここが「カチッ」の芯
+    burst(ctx, at + 0.0012, { freq: 1900 * rnd(0.08), q: 3.0, dur: 0.022, vol: 1.40 * level * rnd(0.12), out: out });
+    // かみ合いのエッジ
+    burst(ctx, at + 0.0026, { freq: 3300 * rnd(0.08), q: 2.0, dur: 0.010, vol: 0.87 * level * rnd(0.15), out: out });
+    // 抜けをひとつまみ（入れすぎるとシャリつく）
+    burst(ctx, at + 0.0034, { freq: 5200 * rnd(0.10), q: 1.6, dur: 0.006, vol: 0.64 * level * rnd(0.2), out: out });
+    // 続いて着地する他のパーツ。10ms以内に収める。
+    burst(ctx, at + 0.0048 * rnd(0.3), { freq: 2600 * rnd(0.12), q: 2.4, dur: 0.007, vol: 0.42 * level * rnd(0.25), out: out });
+    if (Math.random() < 0.7) {
+      burst(ctx, at + 0.0095 * rnd(0.3), { freq: 2300 * rnd(0.14), q: 2.6, dur: 0.006, vol: 0.31 * level * rnd(0.3), out: out });
+    }
   }
 
-  /* マグレブが押し戻されて座り直す、ごく小さな二度目の音。 */
+  /* マグレブが押し戻されて座り直す、ごく小さな二度目の当たり。 */
   function playReseat(ctx, at, out, level) {
-    burst(ctx, at, { freq: 2100 * rnd(0.1), q: 2.2, dur: 0.010, vol: 0.24 * level * rnd(0.25), out: out });
+    burst(ctx, at, { freq: 2400 * rnd(0.12), q: 2.6, dur: 0.008, vol: 0.40 * level * rnd(0.25), out: out });
   }
 
   /* --- 設定値（0 = OFF, 1〜5 = 強さ） ----------------------------------- */
@@ -326,29 +371,17 @@
         const pan = opts.pan || 0;
         // 速い回しほど短く強い音になる（実物と同じ関係）
         const level = Math.min(1.35, 0.8 + (100 / D) * 0.35);
-        const sfx = global.CubeSFX;
-
-        // ① 録音ファイルがあればそれを鳴らす（cube-sfx.js）。
-        //    when に「90°に収まる時刻」を渡すので、画面が止まる瞬間と
-        //    音がフレーム単位で一致する。ピッチのゆらぎは cube-sfx 側。
-        const sampled = !!(sfx && sfx.play('snap', {
-          when: seatAt, gain: level * 0.9, pan: pan
-        }));
-
-        // ② ファイルがまだ無い/読めないときは、これまでどおり合成音で鳴らす。
-        //    音が完全に消えることはない。
-        if (!sampled) {
-          // 出口（左右振り＋高域を抑えるフィルタ）は1手につき1本だけ作る。
-          const out = outlet(ctx, pan);
-          if (SWISH) playSwish(ctx, now, (driveDur + snapDur) / 1000, out, level);
-          playSeat(ctx, seatAt, out, level);
-          if (useBounce) {
-            playReseat(ctx, seatAt + (bounceDur * 0.34) / 1000, out, level * b);
-          }
+        // 出口（左右振り＋帯域を整えるフィルタ）は1手につき1本だけ作り、
+        // すべての成分で共有する。1手あたりのノード数を抑えるため。
+        const out = outlet(ctx, pan);
+        // 既定では「収まった瞬間」の一発だけ。回している最中の摩擦音は
+        // SWISH を true にすると戻る。
+        if (SWISH) playSwish(ctx, now, (driveDur + snapDur) / 1000, out, level);
+        playSeat(ctx, seatAt, out, level);
+        // 揺り返しがあるときだけ、戻ってきて座り直す音を小さく足す
+        if (useBounce) {
+          playReseat(ctx, seatAt + (bounceDur * 0.34) / 1000, out, level * b);
         }
-        // 揺り返しの音は足さない。埋め込みの録音には、収まったあとに
-        // 他のパーツが着地する音がそのまま入っているため、重ねると
-        // かえって濁る（合成音のときだけ playReseat が鳴る）。
       }
     }
 
