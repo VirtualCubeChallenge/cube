@@ -345,15 +345,10 @@
           if (useBounce) {
             playReseat(ctx, seatAt + (bounceDur * 0.34) / 1000, out, level * b);
           }
-        } else if (useBounce) {
-          // 揺り返しで座り直す小さな音。専用ファイルが無ければ
-          // cube-sfx 側が snap を小さめ・高めに流用する。
-          sfx.play('reseat', {
-            when: seatAt + (bounceDur * 0.34) / 1000,
-            gain: level * b * 0.45, pan: pan,
-            rate: 1.25 + Math.random() * 0.2
-          });
         }
+        // 揺り返しの音は足さない。埋め込みの録音には、収まったあとに
+        // 他のパーツが着地する音がそのまま入っているため、重ねると
+        // かえって濁る（合成音のときだけ playReseat が鳴る）。
       }
     }
 
