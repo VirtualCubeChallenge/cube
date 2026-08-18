@@ -82,6 +82,12 @@
        瞬間と音がフレーム単位でぴったり合う。
      ============================================================ */
 
+  /* 回転音を鳴らすかどうか。
+     いまは音なしで運用する。合成の実装（playRoll ほか）と、iOS の
+     アンロック処理は下にそのまま残してあるので、ここを true に戻せば
+     最後に調整した「45°から鳴って90°で消える音」がそのまま復活する。 */
+  const SOUND_ENABLED = false;
+
   let actx = null;
   let noiseBuf = null;
   let audioBroken = false;
@@ -126,9 +132,11 @@
       s.start(0);
     } catch (err) { /* 続行 */ }
   }
-  UNLOCK_EVENTS.forEach(function (ev) {
-    document.addEventListener(ev, unlockAudio, { capture: true, passive: true });
-  });
+  if (SOUND_ENABLED) {
+    UNLOCK_EVENTS.forEach(function (ev) {
+      document.addEventListener(ev, unlockAudio, { capture: true, passive: true });
+    });
+  }
   // タブに戻ってきたときに眠ったままだと、最初の1手が無音になる。
   document.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'visible' && unlocked && actx) {
@@ -356,7 +364,7 @@
        opts.sound が真のときだけ鳴らす（面を回したときだけ＝持ち替えや
        設定ダイヤルでは鳴らさない）。到着時刻はこの時点で確定している
        ので、rAF を待たずに ctx.currentTime 基準で先に予約しておく。 */
-    if (opts.sound && !reduceMotion) {
+    if (SOUND_ENABLED && opts.sound && !reduceMotion) {
       const ctx = ac();
       if (ctx) {
         const now = ctx.currentTime;
