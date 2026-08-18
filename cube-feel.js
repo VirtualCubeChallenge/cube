@@ -287,20 +287,22 @@
      帯域は 1.8〜3.5kHz が6割で、耳に痛い 7kHz 以上はほぼ無い。 */
 
   /* ごく短い残響のもと（インパルス応答）。
-     ONにしたときだけ、音のうしろにほんの少し空気を足すために使う。
-     ノイズを 220ms かけて減衰させたものを1回だけ作って使い回す。
+     ONにしたときだけ、音のうしろに一瞬だけ空間を足すために使う。
+     ノイズを 320ms かけて減衰させたものを1回だけ作って使い回す。
      最後にエネルギーで正規化しているので、下の wet の値がそのまま
      「乾いた音に対する残響の量」になり、調整しやすい。 */
   let irBuf = null;
   function reverbIR(ctx) {
     if (irBuf && irBuf.sampleRate === ctx.sampleRate) return irBuf;
-    const n = Math.floor(ctx.sampleRate * 0.22);
+    const n = Math.floor(ctx.sampleRate * 0.32);
     const buf = ctx.createBuffer(1, n, ctx.sampleRate);
     const d = buf.getChannelData(0);
     let lp = 0, sum = 0;
     for (let i = 0; i < n; i++) {
       const fade = 1 - i / n;
-      const v = (Math.random() * 2 - 1) * fade * fade * fade;   // ≒ (1-t)^3 の減衰
+      // (1-t)^2.2 の減衰。^3 だと出だしで急に痩せて、耳に届く前に
+      // 消えてしまう。少し粘らせて「ふわっと開いて、すぐ閉じる」形に。
+      const v = (Math.random() * 2 - 1) * fade * fade * Math.sqrt(fade);
       lp = lp * 0.72 + v * 0.28;                                 // 角を丸める
       d[i] = lp;
       sum += lp * lp;
@@ -1056,9 +1058,10 @@
       const on = getLevel() > 0;
       buzz(on ? 10 : [8, 30, 8]);
       // 目盛り送りより少しだけ弱く。切り替えの手応えとして添える程度。
-      // ONにするときだけ、うしろにほんの少し空気を残す（乾いた音の
-      // 1割ほどの残響が130msで消える）。OFFは乾いたまま落とす。
-      playDialTick(on ? 0.6 : 0.85, on ? 0 : 0.4, true);
+      /* ONにするときだけ、一瞬だけ空間が開く。乾いた音の3割ほどの
+         残響が240msで消える量で、外へ広がる波の演出とちょうど重なる
+         （波が説明文に届くのが265ms）。OFFは乾いたまま落とす。 */
+      playDialTick(on ? 0.6 : 0.85, on ? 0 : 1.3, true);
       clearTimeout(fadeTimer);
       if (on) {
         // OFFへ：波を内側へ吸い込みつつ、光は0.9秒かけて落とす
