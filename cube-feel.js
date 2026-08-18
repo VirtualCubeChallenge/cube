@@ -126,11 +126,11 @@
 
   /* 出口。低い成分をばっさり落として「ボトッ」を消し、高域は残す。
      実物のキューブに胴鳴りはほとんど無く、聞こえているのは薄い樹脂が
-     カチャカチャ当たる音なので、480Hz以下は要らない。 */
+     シャカシャカ当たる音なので、900Hz以下は要らない。 */
   function outlet(ctx, pan) {
     const hp = ctx.createBiquadFilter();
     hp.type = 'highpass';
-    hp.frequency.value = 480;
+    hp.frequency.value = 900;
     hp.Q.value = 0.7;
     const lp = ctx.createBiquadFilter();
     lp.type = 'lowpass';
@@ -147,7 +147,7 @@
     return hp;
   }
 
-  /* 短いノイズの粒。これを何粒も撒いて「カチャカチャ」を作る。 */
+  /* 短いノイズの粒を1つ。単発の当たりに使う。 */
   function burst(ctx, at, o) {
     const src = noiseSource(ctx);
     const bp = ctx.createBiquadFilter();
@@ -163,56 +163,106 @@
     src.stop(at + o.dur + 0.02);
   }
 
-  /* ① 回している間の「サラ…」。乾いた高めの摩擦音。
-     低い帯域を混ぜるとゴーッと重くなるので、1.6kHz から上だけで作る。 */
+  /* 粒をまとめて撒く「シャカ」の素。
+
+     素朴に書くと粒1つにつきノード3個を作ることになり、1手で40個近くを
+     生成しては捨てることになる。そこで音源とフィルタは1組だけ用意し、
+     音量カーブに山を何個も刻む方式にした。粒がいくつ増えてもノードは
+     3個のまま＝スマホでも軽い。
+
+       o.grains … 粒の数
+       o.span   … 撒く時間の幅（秒）
+       o.dur    … 粒1つの長さの範囲 [最短, 最長]
+     時刻も長さも音量も1粒ずつ乱数でばらすので、同じ模様は二度と出ない。 */
+  function grainCluster(ctx, at, o) {
+    const src = noiseSource(ctx);
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = o.freq;
+    bp.Q.value = o.q;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.00008, at);
+
+    let last = at;
+    for (let i = 0; i < o.grains; i++) {
+      // 等間隔に置くと機械的になるので、区間の中でランダムに散らす
+      const t = at + (o.span * (i + Math.random() * 0.85)) / o.grains;
+      const dur = o.dur[0] + Math.random() * (o.dur[1] - o.dur[0]);
+      // 後の粒ほど少し弱く（当たりが収まっていく感じ）
+      const fade = 1 - (i / o.grains) * 0.55;
+      const vol = o.vol * fade * (0.55 + Math.random() * 0.75);
+      if (t <= last) continue;
+      g.gain.setValueAtTime(vol, t);
+      g.gain.exponentialRampToValueAtTime(0.00008, t + dur);
+      last = t + dur;
+    }
+    src.connect(bp); bp.connect(g); g.connect(o.out);
+    src.start(at, Math.random() * 0.3);
+    src.stop(last + 0.02);
+  }
+
+  /* ① 回している間の「シャカシャカ…」。
+     擦れるノイズ(下地)と、細かい当たりの粒(シャカ)の2枚重ね。
+     粒があることで「ゴー」ではなく「シャカシャカ」になる。 */
   function playSwish(ctx, at, durSec, out, level) {
     const src = noiseSource(ctx);
     const bp = ctx.createBiquadFilter();
     bp.type = 'bandpass';
-    bp.Q.value = 0.5;
-    bp.frequency.setValueAtTime(1600 * rnd(0.1), at);
-    bp.frequency.linearRampToValueAtTime(4600 * rnd(0.1), at + durSec);
+    bp.Q.value = 0.45;
+    bp.frequency.setValueAtTime(2600 * rnd(0.1), at);
+    bp.frequency.linearRampToValueAtTime(6200 * rnd(0.1), at + durSec);
     const g = ctx.createGain();
     g.gain.setValueAtTime(0.00008, at);
-    g.gain.exponentialRampToValueAtTime(0.13 * level * rnd(0.18), at + durSec * 0.55);
+    g.gain.exponentialRampToValueAtTime(0.075 * level * rnd(0.18), at + durSec * 0.55);
     g.gain.exponentialRampToValueAtTime(0.00008, at + durSec * 1.02);
     src.connect(bp); bp.connect(g); g.connect(out);
     src.start(at, Math.random() * 0.3);
     src.stop(at + durSec * 1.1);
+
+    // 回している最中の細かい当たり。100msなら6粒前後。
+    grainCluster(ctx, at + durSec * 0.12, {
+      freq: 5400 * rnd(0.12), q: 0.75,
+      grains: Math.max(3, Math.round(durSec * 62)),
+      span: durSec * 0.85, dur: [0.003, 0.007],
+      vol: 0.30 * level, out: out
+    });
   }
 
-  /* ② 収まる瞬間の「カチャッ」。
-     ここが肝。実物は一発の衝突ではなく、9個のパーツが数ミリ秒ずれて
-     次々に着地する＝小さな粒が数個ばらける音になる。1粒だけで作ると、
-     どれだけ帯域をいじっても「コツン」という単発から抜け出せない。
-     そこで 2〜6kHz の粒を4つ前後、間隔も高さも音量もばらばらに撒く。 */
+  /* ② 収まる瞬間の「シャカッ」。
+     実物は一発の衝突ではなく、9個のパーツが数ミリ秒ずれて次々に着地
+     する音。1粒だけで作るとどう帯域をいじっても「コツン」から抜け出せ
+     ないので、高さの違う粒の群れを2組、時間をずらして重ねている。 */
   function playSeat(ctx, at, out, level) {
-    // 芯になる最初の当たり（いちばん強い1粒）
+    // 芯になる最初の当たり
     burst(ctx, at, {
-      freq: 2900 * rnd(0.12), q: 1.6, dur: 0.009,
-      vol: 0.85 * level * rnd(0.15), out: out
+      freq: 4200 * rnd(0.12), q: 1.2, dur: 0.006,
+      vol: 0.80 * level * rnd(0.15), out: out
     });
-    // 続いて着地する小さな粒たち。数も時刻も毎回ちがう。
-    const grains = 3 + (Math.random() < 0.45 ? 1 : 0);
-    for (let i = 0; i < grains; i++) {
-      burst(ctx, at + (0.0018 + i * 0.0032) * rnd(0.55), {
-        freq: 2200 + Math.random() * 4200, q: 1.1 + Math.random() * 1.6,
-        dur: 0.005 + Math.random() * 0.006,
-        vol: (0.30 + Math.random() * 0.28) * level, out: out
-      });
-    }
-    // 余韻の「サラ」。乾いた尾を少しだけ足すと、粒が硬すぎなくなる。
+    // 続いて着地する粒の群れ（中心）
+    grainCluster(ctx, at + 0.0015, {
+      freq: 4400 * rnd(0.12), q: 1.0,
+      grains: 5, span: 0.018, dur: [0.003, 0.007],
+      vol: 0.62 * level, out: out
+    });
+    // さらに上の帯域で薄く長めに散らす＝「シャカ」の抜け
+    grainCluster(ctx, at + 0.003, {
+      freq: 7600 * rnd(0.12), q: 0.7,
+      grains: 6, span: 0.030, dur: [0.002, 0.005],
+      vol: 0.30 * level, out: out
+    });
+    // 乾いた尾。粒だけだと硬すぎるので、ごく薄く敷く。
     burst(ctx, at + 0.004, {
-      type: 'highpass', freq: 3800, q: 0.5, dur: 0.030,
-      vol: 0.16 * level * rnd(0.2), out: out
+      type: 'highpass', freq: 5200, q: 0.5, dur: 0.028,
+      vol: 0.13 * level * rnd(0.2), out: out
     });
   }
 
   /* ③ マグレブが押し戻されて座り直す、ごく小さな二度目の当たり。 */
   function playReseat(ctx, at, out, level) {
-    burst(ctx, at, {
-      freq: 3400 * rnd(0.15), q: 1.4, dur: 0.007,
-      vol: 0.30 * level * rnd(0.25), out: out
+    grainCluster(ctx, at, {
+      freq: 5200 * rnd(0.15), q: 1.0,
+      grains: 3, span: 0.012, dur: [0.002, 0.005],
+      vol: 0.34 * level, out: out
     });
   }
 
