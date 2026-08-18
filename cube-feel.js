@@ -363,30 +363,47 @@
     src.connect(bp); bp.connect(g); g.connect(o.out);
     src.start(at, Math.random() * 0.3);
     src.stop(at + 0.0012);
+    // 鳴り終わったら切り離す。連打したときに使い終わった部品が
+    // つながったまま溜まっていくのを防ぐ。
+    src.onended = function () {
+      try { src.disconnect(); bp.disconnect(); g.disconnect(); } catch (err) { /* 済み */ }
+    };
   }
 
   let lastTickAt = 0;
   /* strength: 1 = 目盛りを1つ送った / 0.6〜0.85 = ON・OFF の切り替え
-     wet: 0 で残響なし。ONにしたときだけ少しだけ足す。 */
-  function playDialTick(strength, wet) {
+     wet: 0 で残響なし。ONにしたときだけ少しだけ足す。
+     force: true なら間引きの対象外（ボタンを押した音は必ず鳴らす）。 */
+  function playDialTick(strength, wet, force) {
     if (!DIAL_SOUND || reduceMotion) return;
     const ctx = ac();
     if (!ctx) return;
-    const now = ctx.currentTime;
-    // 勢いよく回したときに音が団子にならないよう、最短間隔を設ける
-    if (now - lastTickAt < 0.022) return;
-    lastTickAt = now;
+
+    /* 眠っている AudioContext を起こすとき、resume() は「お願いする」だけで
+       すぐには起きない（数十ミリ秒かかる）。その間に currentTime は
+       止まったままなので、その値で予約すると、実際に動き出したときには
+       もう過ぎた時刻になっていて、短い音が丸ごと落ちることがある。
+       起きていないときは少し先に予約して、起き上がるのを待たせる。 */
+    const running = (ctx.state === 'running');
+    const at = ctx.currentTime + (running ? 0 : 0.035);
+
+    // 勢いよく回したときに音が団子にならないよう、最短間隔を設ける。
+    // ただし指で押したとき（ON/OFF・数字のタップ）は必ず鳴らす。
+    if (!force && at - lastTickAt < 0.012) return;
+    lastTickAt = at;
 
     const out = dialChain(ctx, wet || 0);
     const v = (strength == null ? 1 : strength);
     // 高級感は「毎回ほぼ同じ音」から出るので、ゆらぎはごく控えめに。
     // 回転音（±8〜15%）と違い、ここは±3%程度に抑えている。
     const tune = rnd(0.03);
-    ping(ctx, now, { freq: 2350 * tune, q: 28, dur: 0.014, vol: 5.45 * v * rnd(0.06), out: out });
-    ping(ctx, now + 0.0004, { freq: 4900 * tune, q: 16, dur: 0.007, vol: 2.29 * v * rnd(0.08), out: out });
-    ping(ctx, now + 0.0002, { freq: 880 * tune, q: 9, dur: 0.011, vol: 0.65 * v * rnd(0.06), out: out });
+    ping(ctx, at, { freq: 2350 * tune, q: 28, dur: 0.014, vol: 5.45 * v * rnd(0.06), out: out });
+    ping(ctx, at + 0.0004, { freq: 4900 * tune, q: 16, dur: 0.007, vol: 2.29 * v * rnd(0.08), out: out });
+    ping(ctx, at + 0.0002, { freq: 880 * tune, q: 9, dur: 0.011, vol: 0.65 * v * rnd(0.06), out: out });
 
-    if (global.__audioIdleSuspend) global.__audioIdleSuspend(ctx, 1500);
+    // 眠らせるまでの猶予。1.5秒だと、少し間を置いて押すたびに
+    // 眠っては起こすの繰り返しになり、上の取りこぼしを踏みやすい。
+    if (global.__audioIdleSuspend) global.__audioIdleSuspend(ctx, 5000);
   }
 
   /* --- 設定値（0 = OFF, 1〜5 = 強さ） ----------------------------------- */
@@ -1041,7 +1058,7 @@
       // 目盛り送りより少しだけ弱く。切り替えの手応えとして添える程度。
       // ONにするときだけ、うしろにほんの少し空気を残す（乾いた音の
       // 1割ほどの残響が130msで消える）。OFFは乾いたまま落とす。
-      playDialTick(on ? 0.6 : 0.85, on ? 0 : 0.4);
+      playDialTick(on ? 0.6 : 0.85, on ? 0 : 0.4, true);
       clearTimeout(fadeTimer);
       if (on) {
         // OFFへ：波を内側へ吸い込みつつ、光は0.9秒かけて落とす
