@@ -124,18 +124,13 @@
 
   const rnd = (spread) => 1 + (Math.random() * 2 - 1) * spread;
 
-  /* 出口。低い成分をばっさり落として「ボトッ」を消し、高域は残す。
-     実物のキューブに胴鳴りはほとんど無く、聞こえているのは薄い樹脂が
-     シャカシャカ当たる音なので、900Hz以下は要らない。 */
+  /* 出口。少しだけ左右に振り、耳に痛い高域を落としてから出す。
+     初版と同じく低域は削っていない。胴鳴りの重さが「実物らしさ」に
+     効いていたので、ここで切らないのが正解だった。 */
   function outlet(ctx, pan) {
-    const hp = ctx.createBiquadFilter();
-    hp.type = 'highpass';
-    hp.frequency.value = 900;
-    hp.Q.value = 0.7;
     const lp = ctx.createBiquadFilter();
     lp.type = 'lowpass';
-    lp.frequency.value = 13500;
-    hp.connect(lp);
+    lp.frequency.value = 9000;
     let tail = lp;
     if (pan && ctx.createStereoPanner) {
       const p = ctx.createStereoPanner();
@@ -144,61 +139,65 @@
       tail = p;
     }
     tail.connect(ctx.destination);
-    return hp;
+    return lp;
   }
 
-  /* プラスチックが当たる音の最小単位「タップ」。
+  /* 回している間の摩擦音を鳴らすかどうか。
+     初版では鳴らしていたが、「回している最中に音がするのは違う」との
+     判断で既定は false。true にすると初版とまったく同じ構成に戻る。 */
+  const SWISH = false;
 
-     ノイズを帯域で削るだけだと、どうしても「シャー」「ネチャ」といった
-     湿った質感が残る。実物のプラスチックが硬く聞こえるのは、
-       ・立ち上がりが一瞬（波形が垂直に立つ）
-       ・そのあと決まった高さで短く鳴って、すぐ死ぬ
-     という2点によるので、ここでは 1.5ms だけノイズを叩き込み、Q の高い
-     フィルタを共鳴させて鳴らす方式にしている（打楽器の物理モデルと
-     同じ考え方）。ノイズを鳴らし続けないので、音が伸びて濁らない。 */
-  function tap(ctx, at, o) {
+  /* 短いノイズの粒。カチッの部品として重ねて使う。 */
+  function burst(ctx, at, o) {
     const src = noiseSource(ctx);
     const bp = ctx.createBiquadFilter();
-    bp.type = 'bandpass';
+    bp.type = o.type || 'bandpass';
     bp.frequency.value = o.freq;
     bp.Q.value = o.q;
     const g = ctx.createGain();
-    // 立ち上がりはランプを使わない＝一瞬で最大。ここが硬さの決め手。
     g.gain.setValueAtTime(o.vol, at);
-    g.gain.exponentialRampToValueAtTime(0.00006, at + o.dur);
+    g.gain.exponentialRampToValueAtTime(0.00008, at + o.dur);
     src.connect(bp); bp.connect(g); g.connect(o.out);
+    // 読み出し位置を毎回ずらす＝毎回わずかに違う音になる
     src.start(at, Math.random() * 0.3);
-    src.stop(at + (o.exc || 0.0015));   // 叩くのは一瞬だけ
+    src.stop(at + o.dur + 0.02);
   }
 
-  /* 収まる瞬間の「カチッ」。
-     硬い樹脂の板が噛み合う音は、ひとつの高さではなく複数の共鳴が同時に
-     鳴っている。高さの違う共鳴を3本重ね、そのあとに他のパーツが着地する
-     小さなタップを2つだけ、ごく短い間隔で足している。
-     間隔を詰めるのが大事で、ばらけさせると途端にだらしなくなる。 */
+  /* 回している間の摩擦音（既定では鳴らさない。SWISH を参照）。 */
+  function playSwish(ctx, at, durSec, out, level) {
+    const src = noiseSource(ctx);
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.Q.value = 0.65;
+    bp.frequency.setValueAtTime(620 * rnd(0.08), at);
+    bp.frequency.linearRampToValueAtTime(2400 * rnd(0.08), at + durSec);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.00008, at);
+    g.gain.exponentialRampToValueAtTime(0.16 * level * rnd(0.15), at + durSec * 0.6);
+    g.gain.exponentialRampToValueAtTime(0.00008, at + durSec * 1.02);
+    src.connect(bp); bp.connect(g); g.connect(out);
+    src.start(at, Math.random() * 0.3);
+    src.stop(at + durSec * 1.1);
+  }
+
+  /* 収まる瞬間の衝撃音。3つの成分を数ミリ秒ずらして重ねる。
+
+     いろいろ試したすえ、この初版の配合に戻した。高域だけで組んだものは
+     たしかに硬く乾くのだが、実物の手ごたえは 430Hz の胴鳴りが支えていて、
+     そこを削ると軽い作り物になってしまう。低・中・高の3層を、ずらして
+     重ねるこの形がいちばん本物に近い。 */
   function playSeat(ctx, at, out, level) {
-    // 当たった瞬間のエッジ（ごく短い高域。輪郭だけ描く）
-    tap(ctx, at, { freq: 9000, q: 0.8, dur: 0.0035, exc: 0.0008, vol: 0.75 * level * rnd(0.15), out: out });
-    // 本体の共鳴3本。1手ごとに全体をわずかに上下させる（個体差の再現）
-    const tune = rnd(0.06);
-    tap(ctx, at, { freq: 2450 * tune, q: 9, dur: 0.020, vol: 1.45 * level * rnd(0.12), out: out });
-    tap(ctx, at + 0.0004, { freq: 4300 * tune, q: 11, dur: 0.013, vol: 1.30 * level * rnd(0.12), out: out });
-    tap(ctx, at + 0.0008, { freq: 6800 * tune, q: 8, dur: 0.008, vol: 0.85 * level * rnd(0.18), out: out });
-    // 続いて着地する他のパーツ。2粒だけ、12ms以内に収める。
-    const n = 1 + (Math.random() < 0.6 ? 1 : 0);
-    for (let i = 0; i < n; i++) {
-      const t = at + (0.0035 + i * 0.0042) * rnd(0.4);
-      tap(ctx, t, {
-        freq: (3200 + Math.random() * 3600) * tune, q: 7 + Math.random() * 5,
-        dur: 0.005 + Math.random() * 0.004,
-        vol: (0.40 + Math.random() * 0.30) * level, out: out
-      });
-    }
+    // 胴鳴り（低め・少し長く残る）
+    burst(ctx, at, { freq: 430 * rnd(0.10), q: 2.6, dur: 0.055, vol: 0.72 * level * rnd(0.15), out: out });
+    // 本体のかみ合い（この帯域が「カチッ」の芯）
+    burst(ctx, at + 0.0012, { freq: 1250 * rnd(0.08), q: 3.4, dur: 0.030, vol: 0.88 * level * rnd(0.15), out: out });
+    // 角が擦れて当たる高い成分（ごく短く）
+    burst(ctx, at + 0.0025, { freq: 3600 * rnd(0.08), q: 1.5, dur: 0.011, vol: 0.44 * level * rnd(0.2), out: out });
   }
 
-  /* マグレブが押し戻されて座り直す、ごく小さな二度目の当たり。 */
+  /* マグレブが押し戻されて座り直す、ごく小さな二度目の音。 */
   function playReseat(ctx, at, out, level) {
-    tap(ctx, at, { freq: 5200 * rnd(0.12), q: 9, dur: 0.006, vol: 0.58 * level * rnd(0.2), out: out });
+    burst(ctx, at, { freq: 2100 * rnd(0.1), q: 2.2, dur: 0.010, vol: 0.24 * level * rnd(0.25), out: out });
   }
 
   /* --- 設定値（0 = OFF, 1〜5 = 強さ） ----------------------------------- */
@@ -322,8 +321,9 @@
         const out = outlet(ctx, opts.pan || 0);
         // 速い回しほど短く強い音になる（実物と同じ関係）
         const level = Math.min(1.35, 0.8 + (100 / D) * 0.35);
-        // 鳴らすのは「収まった瞬間」の一発だけ。回している最中に音を
-        // 敷くと、実物にはない連続音になってしまう。
+        // 既定では「収まった瞬間」の一発だけ。回している最中の摩擦音は
+        // SWISH を true にすると戻る（初版と同じ構成になる）。
+        if (SWISH) playSwish(ctx, now, (driveDur + snapDur) / 1000, out, level);
         playSeat(ctx, seatAt, out, level);
         // 揺り返しがあるときだけ、戻ってきて座り直す音を小さく足す
         if (useBounce) {
