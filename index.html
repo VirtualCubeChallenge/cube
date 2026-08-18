@@ -5379,6 +5379,10 @@
           from: 0,
           to: targetAngle,
           duration: turnDuration(),
+          // 面を回したときだけ音を鳴らす（持ち替えや設定ダイヤルでは鳴らさない）。
+          // pan は回した列の左右位置。L面は左から、R面は右から聞こえる。
+          sound: true,
+          pan: (cfg.axis === 'x' ? cfg.layers[0] : 0) * 0.28,
           onUpdate: function (angle) {
             pivot.rotation[cfg.axis] = angle;
           },

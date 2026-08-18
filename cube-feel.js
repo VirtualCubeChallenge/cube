@@ -60,7 +60,135 @@
   const CYCLES_MIN = 1.5;
   const CYCLES_MAX = 1.95;
 
-  /* --- 設定値（0 = OFF, 1〜5 = 強さ） ----------------------------------- */
+  /* ============================================================
+     回転音（WebAudio で合成。音声ファイルは使わない）
+
+     本物のキューブが出している音は、大きく2つ。
+       ① 回している間の「シャッ」…… プラスチックどうしが擦れる摩擦音。
+          広い帯域のノイズで、回転が速いところで最も大きい。
+       ② 収まる瞬間の「カチッ」…… かみ合う衝撃。低い胴鳴りと、角が
+          当たる高い成分が同時に鳴り、20〜40msで消える。
+     どちらも音程を持たないので、オシレータ（純音）ではなくノイズを
+     フィルタで削り出す方式にしている。純音で作ると電子音になってしまう。
+
+     ★ 同じ音を繰り返さない工夫
+       実物は1手ごとに微妙に音が違う。ここでも鳴らすたびに周波数を±8%、
+       音量を±15%ゆらし、ノイズの読み出し位置も毎回ずらしている。
+       これが無いと、連続で回したとき機関銃のように不自然に揃う。
+
+     ★ 鳴らす時刻は「予約」する
+       到着時刻は play() の時点で計算ずみなので、rAF のコールバックを
+       待たずに ctx.currentTime 基準で先に予約する。画面が90°に届く
+       瞬間と音がフレーム単位でぴったり合う。
+     ============================================================ */
+
+  let actx = null;
+  let noiseBuf = null;
+  let audioBroken = false;
+
+  function ac() {
+    if (audioBroken) return null;
+    try {
+      if (!actx) {
+        const C = global.AudioContext || global.webkitAudioContext;
+        if (!C) { audioBroken = true; return null; }
+        actx = new C();
+      }
+      if (actx.state === 'suspended') actx.resume();
+      // 鳴り終わったら眠らせる（画面録画時のハム音対策。index.html の
+      // head にある共通ヘルパー。無い環境でもそのまま動く）。
+      if (global.__audioIdleSuspend) global.__audioIdleSuspend(actx, 1500);
+      return actx;
+    } catch (err) { audioBroken = true; return null; }
+  }
+
+  // ノイズ源は一度だけ作って使い回す。純粋なホワイトノイズは「サー」と
+  // 人工的なので、軽い積分を混ぜてピンクノイズ寄りに寄せてある。
+  function noiseSource(ctx) {
+    if (!noiseBuf || noiseBuf.sampleRate !== ctx.sampleRate) {
+      const len = Math.floor(ctx.sampleRate * 0.4);
+      noiseBuf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const d = noiseBuf.getChannelData(0);
+      let low = 0;
+      for (let i = 0; i < len; i++) {
+        const w = Math.random() * 2 - 1;
+        low = (low * 0.94) + w * 0.06;
+        d[i] = w * 0.6 + low * 2.6;
+      }
+    }
+    const src = ctx.createBufferSource();
+    src.buffer = noiseBuf;
+    src.loop = true;
+    return src;
+  }
+
+  const rnd = (spread) => 1 + (Math.random() * 2 - 1) * spread;
+
+  // 出口。少しだけ左右に振り、耳に痛い高域を落としてから出す。
+  function outlet(ctx, pan) {
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 9000;
+    let tail = lp;
+    if (pan && ctx.createStereoPanner) {
+      const p = ctx.createStereoPanner();
+      p.pan.value = Math.max(-0.5, Math.min(0.5, pan));
+      lp.connect(p);
+      tail = p;
+    }
+    tail.connect(ctx.destination);
+    return lp;
+  }
+
+  /* 短いノイズの粒。カチッの部品として重ねて使う。 */
+  function burst(ctx, at, o) {
+    const src = noiseSource(ctx);
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = o.freq;
+    bp.Q.value = o.q;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(o.vol, at);
+    g.gain.exponentialRampToValueAtTime(0.00008, at + o.dur);
+    src.connect(bp); bp.connect(g); g.connect(o.out);
+    // 読み出し位置を毎回ずらす＝毎回わずかに違う音になる
+    src.start(at, Math.random() * 0.3);
+    src.stop(at + o.dur + 0.02);
+  }
+
+  /* ① 回している間の摩擦音。速く回すほど短く、高く、鋭くなる。 */
+  function playSwish(ctx, at, durSec, out, level) {
+    const src = noiseSource(ctx);
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.Q.value = 0.65;
+    bp.frequency.setValueAtTime(620 * rnd(0.08), at);
+    bp.frequency.linearRampToValueAtTime(2400 * rnd(0.08), at + durSec);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.00008, at);
+    g.gain.exponentialRampToValueAtTime(0.16 * level * rnd(0.15), at + durSec * 0.6);
+    g.gain.exponentialRampToValueAtTime(0.00008, at + durSec * 1.02);
+    src.connect(bp); bp.connect(g); g.connect(out);
+    src.start(at, Math.random() * 0.3);
+    src.stop(at + durSec * 1.1);
+  }
+
+  /* ② 収まる瞬間の衝撃音。3つの成分を数ミリ秒ずらして重ねる。 */
+  function playSeat(ctx, at, out, level) {
+    // 胴鳴り（低め・少し長く残る）
+    burst(ctx, at, { freq: 430 * rnd(0.10), q: 2.6, dur: 0.055, vol: 0.72 * level * rnd(0.15), out: out });
+    // 本体のかみ合い（この帯域が「カチッ」の芯）
+    burst(ctx, at + 0.0012, { freq: 1250 * rnd(0.08), q: 3.4, dur: 0.030, vol: 0.88 * level * rnd(0.15), out: out });
+    // 角が擦れて当たる高い成分（ごく短く）
+    burst(ctx, at + 0.0025, { freq: 3600 * rnd(0.08), q: 1.5, dur: 0.011, vol: 0.44 * level * rnd(0.2), out: out });
+  }
+
+  /* ③ マグレブが押し戻されて座り直す、ごく小さな二度目の音。 */
+  function playReseat(ctx, at, out, level) {
+    burst(ctx, at, { freq: 2100 * rnd(0.1), q: 2.2, dur: 0.010, vol: 0.24 * level * rnd(0.25), out: out });
+  }
+
+
 
   let magnet = 3;
   let maglev = 2;
@@ -119,6 +247,8 @@
        duration,    // drive+snap の合計ミリ秒（既存の turnDuration() をそのまま渡す）
        bounce,      // false なら揺り返しなし（連続再生の途中の手など）
        bounceScale, // 揺り返しの倍率。既定1。キューブ全体の持ち替えは0.5程度が上品
+       sound,       // true なら回転音（摩擦音＋カチッ）を鳴らす。面を回すときだけ
+       pan,         // -0.5〜0.5。音の左右位置。回した列の位置を渡すと立体感が出る
        onUpdate(angle),  // drive/snap 中。絶対角(rad)が来る
        onArrive(),       // ぴったり to に着いた瞬間。false を返すと揺り返しを中止
        onBounce(offset), // 揺り返し中。to からの「ずれ」(rad, 符号つき)が来る
@@ -164,6 +294,29 @@
     let done = false;
     let tBounce = 0;
     const t0 = (global.performance && performance.now) ? performance.now() : Date.now();
+
+    /* --- 音の予約 -------------------------------------------------------
+       opts.sound が真のときだけ鳴らす（面を回したときだけ＝持ち替えや
+       設定ダイヤルでは鳴らさない）。到着時刻はこの時点で確定している
+       ので、rAF を待たずに ctx.currentTime 基準で先に予約しておく。 */
+    if (opts.sound && !reduceMotion) {
+      const ctx = ac();
+      if (ctx) {
+        const now = ctx.currentTime;
+        const seatAt = now + (driveDur + snapDur) / 1000;
+        // 出口（左右振り＋高域を抑えるフィルタ）は1手につき1本だけ作り、
+        // 3種類の音で共有する。1手あたりのノード数を抑えるため。
+        const out = outlet(ctx, opts.pan || 0);
+        // 速い回しほど短く強い音になる（実物と同じ関係）
+        const level = Math.min(1.35, 0.8 + (100 / D) * 0.35);
+        playSwish(ctx, now, (driveDur + snapDur) / 1000, out, level);
+        playSeat(ctx, seatAt, out, level);
+        // 揺り返しがあるときだけ、戻ってきて座り直す音を小さく足す
+        if (useBounce) {
+          playReseat(ctx, seatAt + (bounceDur * 0.34) / 1000, out, level * b);
+        }
+      }
+    }
 
     function end() {
       if (done) return;
