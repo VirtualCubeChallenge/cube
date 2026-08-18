@@ -181,75 +181,68 @@
     return hp;
   }
 
-  /* 回している間の摩擦音を鳴らすかどうか。
-     初版では鳴らしていたが、「回している最中に音がするのは違う」との
-     判断で既定は false。true にすると初版とまったく同じ構成に戻る。 */
-  const SWISH = false;
 
-  /* 短いノイズの粒。カチッの部品として重ねて使う。 */
-  function burst(ctx, at, o) {
-    const src = noiseSource(ctx);
-    const bp = ctx.createBiquadFilter();
-    bp.type = o.type || 'bandpass';
-    bp.frequency.value = o.freq;
-    bp.Q.value = o.q;
-    const g = ctx.createGain();
-    g.gain.setValueAtTime(o.vol, at);
-    g.gain.exponentialRampToValueAtTime(0.00008, at + o.dur);
-    src.connect(bp); bp.connect(g); g.connect(o.out);
-    // 読み出し位置を毎回ずらす＝毎回わずかに違う音になる
-    src.start(at, Math.random() * 0.3);
-    src.stop(at + o.dur + 0.02);
-  }
+  /* 回転そのものの音。
 
-  /* 回している間の摩擦音（既定では鳴らさない。SWISH を参照）。 */
-  function playSwish(ctx, at, durSec, out, level) {
+     ここが今回の考え直し。これまでは「90°に収まった瞬間に一発」だった
+     が、実物を回したときに耳に届いているのは、そこではない。パーツが
+     いちばん強く擦れ合うのは回っている途中で、90°に近づくころには
+     もう音は消えかけている。収まる瞬間に音を置くから「ペタペタ」と
+     貼りつくように聞こえていた。
+
+     そこで、45°を通過した瞬間から鳴りはじめ、90°に向かって減衰して
+     消える形にした。鳴っている長さは 65〜80ms 前後（磁力が強いほど
+     短い＝速く決まるので、実物と同じ関係になる）。
+
+     中身は2枚重ね:
+       ① 擦れの本体 … 帯域を絞ったノイズ。周波数は 2.7k→1.4kHz へ
+          下がる。回転が遅くなるにつれて擦れの音が低くなる、あの動き。
+       ② ざらつきの粒 … 薄く重ねる細かい当たり。これが無いと
+          「シャー」という一様な音になり、樹脂の質感が出ない。 */
+  function playRoll(ctx, at, durSec, out, level) {
+    // ① 擦れの本体
     const src = noiseSource(ctx);
     const bp = ctx.createBiquadFilter();
     bp.type = 'bandpass';
-    bp.Q.value = 0.65;
-    bp.frequency.setValueAtTime(620 * rnd(0.08), at);
-    bp.frequency.linearRampToValueAtTime(2400 * rnd(0.08), at + durSec);
+    bp.Q.value = 0.9;
+    bp.frequency.setValueAtTime(2700 * rnd(0.10), at);
+    bp.frequency.exponentialRampToValueAtTime(1400 * rnd(0.10), at + durSec);
     const g = ctx.createGain();
+    const peak = 0.50 * level * rnd(0.15);
+    const rise = Math.min(0.006, durSec * 0.10);
     g.gain.setValueAtTime(0.00008, at);
-    g.gain.exponentialRampToValueAtTime(0.16 * level * rnd(0.15), at + durSec * 0.6);
-    g.gain.exponentialRampToValueAtTime(0.00008, at + durSec * 1.02);
+    // 立ち上がりだけ直線、あとは指数で落とす。指数のほうが
+    // 「自然に消えていく」ように聞こえる。
+    g.gain.linearRampToValueAtTime(peak, at + rise);
+    g.gain.exponentialRampToValueAtTime(0.00008, at + durSec);
     src.connect(bp); bp.connect(g); g.connect(out);
     src.start(at, Math.random() * 0.3);
-    src.stop(at + durSec * 1.1);
-  }
+    src.stop(at + durSec + 0.01);
 
-  /* 収まる瞬間の音。
-
-     ここの配合は、耳で聞いた2つの失敗から数値で割り出したもの。
-       ・低域が多い版 → 「ぼとぼと」（<500Hz が 26%、0.5-1.5k が 44%）
-       ・実物の録音    → 「シャリシャリ」（9-12kHz だけで 50%、低域はほぼ無し）
-     どちらも極端だったので、その中間、1.5〜4kHz を主役にした配合に
-     している。実測の帯域バランスは
-       <500Hz 2% / 0.5-1.5k 21% / 1.5-4k 57% / 4-8k 19% / 8k超 1%
-     で、「芯はあるが重くない」ところを狙っている。
-
-     3つの当たりに加えて、少し遅れて着地する粒を2つ。実物は9個の
-     パーツが数ミリ秒ずれて収まるので、単発にすると硬い作り物になる。 */
-  function playSeat(ctx, at, out, level) {
-    // わずかな胴鳴り（これを削ると軽くなりすぎる。増やすと「ぼと」になる）
-    burst(ctx, at, { freq: 760 * rnd(0.10), q: 2.4, dur: 0.024, vol: 0.48 * level * rnd(0.15), out: out });
-    // 主役。ここが「カチッ」の芯
-    burst(ctx, at + 0.0012, { freq: 1900 * rnd(0.08), q: 3.0, dur: 0.022, vol: 1.40 * level * rnd(0.12), out: out });
-    // かみ合いのエッジ
-    burst(ctx, at + 0.0026, { freq: 3300 * rnd(0.08), q: 2.0, dur: 0.010, vol: 0.87 * level * rnd(0.15), out: out });
-    // 抜けをひとつまみ（入れすぎるとシャリつく）
-    burst(ctx, at + 0.0034, { freq: 5200 * rnd(0.10), q: 1.6, dur: 0.006, vol: 0.64 * level * rnd(0.2), out: out });
-    // 続いて着地する他のパーツ。10ms以内に収める。
-    burst(ctx, at + 0.0048 * rnd(0.3), { freq: 2600 * rnd(0.12), q: 2.4, dur: 0.007, vol: 0.42 * level * rnd(0.25), out: out });
-    if (Math.random() < 0.7) {
-      burst(ctx, at + 0.0095 * rnd(0.3), { freq: 2300 * rnd(0.14), q: 2.6, dur: 0.006, vol: 0.31 * level * rnd(0.3), out: out });
+    // ② ざらつきの粒。音量カーブに山を刻むだけなので、粒が何個でも
+    //    ノードは3個のまま＝スマホでも軽い。
+    const gsrc = noiseSource(ctx);
+    const gbp = ctx.createBiquadFilter();
+    gbp.type = 'bandpass';
+    gbp.frequency.value = 2200 * rnd(0.12);
+    gbp.Q.value = 1.8;
+    const gg = ctx.createGain();
+    gg.gain.setValueAtTime(0.00008, at);
+    const n = 3 + Math.round(Math.random() * 2);
+    let last = at;
+    for (let i = 0; i < n; i++) {
+      // 粒も、後ろへ行くほど弱くする（本体と一緒に消えていく）
+      const t = at + (durSec * 0.72 * (i + Math.random() * 0.8)) / n;
+      const dur = 0.004 + Math.random() * 0.005;
+      const v = 0.50 * level * (1 - (i / n) * 0.75) * (0.5 + Math.random() * 0.8);
+      if (t <= last) continue;
+      gg.gain.setValueAtTime(v, t);
+      gg.gain.exponentialRampToValueAtTime(0.00008, t + dur);
+      last = t + dur;
     }
-  }
-
-  /* マグレブが押し戻されて座り直す、ごく小さな二度目の当たり。 */
-  function playReseat(ctx, at, out, level) {
-    burst(ctx, at, { freq: 2400 * rnd(0.12), q: 2.6, dur: 0.008, vol: 0.40 * level * rnd(0.25), out: out });
+    gsrc.connect(gbp); gbp.connect(gg); gg.connect(out);
+    gsrc.start(at, Math.random() * 0.3);
+    gsrc.stop(last + 0.02);
   }
 
   /* --- 設定値（0 = OFF, 1〜5 = 強さ） ----------------------------------- */
@@ -371,16 +364,24 @@
         const pan = opts.pan || 0;
         // 速い回しほど短く強い音になる（実物と同じ関係）
         const level = Math.min(1.35, 0.8 + (100 / D) * 0.35);
-        // 出口（左右振り＋帯域を整えるフィルタ）は1手につき1本だけ作り、
-        // すべての成分で共有する。1手あたりのノード数を抑えるため。
+        // 出口（左右振り＋帯域を整えるフィルタ）は1手につき1本だけ作る。
         const out = outlet(ctx, pan);
-        // 既定では「収まった瞬間」の一発だけ。回している最中の摩擦音は
-        // SWISH を true にすると戻る。
-        if (SWISH) playSwish(ctx, now, (driveDur + snapDur) / 1000, out, level);
-        playSeat(ctx, seatAt, out, level);
-        // 揺り返しがあるときだけ、戻ってきて座り直す音を小さく足す
-        if (useBounce) {
-          playReseat(ctx, seatAt + (bounceDur * 0.34) / 1000, out, level * b);
+
+        /* 45°を通過する時刻を、角度カーブから逆算する。
+           drive中の角度は captureFrac * (p(2-p)) （p は drive の進み具合）
+           なので、これが 0.5 になる p を解くと p = 1 - √(1-k)。
+           磁力OFF のときは ease-out-cubic なので p = 1 - ∛0.5。
+           ＝ どの設定でも「ちょうど半分回ったところ」で鳴りはじめる。 */
+        let t45;
+        if (useMagnet) {
+          const k = Math.min(0.999, 0.5 / captureFrac);
+          t45 = driveDur * (1 - Math.sqrt(1 - k));
+        } else {
+          t45 = D * 0.2063;
+        }
+        const rollDur = (driveDur + snapDur - t45) / 1000;
+        if (rollDur > 0.012) {
+          playRoll(ctx, now + t45 / 1000, rollDur, out, level);
         }
       }
     }
