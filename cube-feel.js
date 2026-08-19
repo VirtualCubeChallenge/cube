@@ -258,26 +258,55 @@
   }
 
   let lastTickAt = 0;
-  /* strength: 1 = 目盛りを1つ送った / 0.75 = ON・OFF の切り替え
-     wet:      0 = 残響なし / 0.75 = ONのときだけ足す小さな余韻 */
-  function playDialTick(strength, wet) {
-    if (!DIAL_SOUND || reduceMotion) return;
-    const ctx = ac();
-    if (!ctx) return;
-    const now = ctx.currentTime;
+
+  /* 実際に音を組み立てて予約する。
+     【必ず少し先の時刻に予約する】
+     ctx.currentTime ちょうどに予約すると、組み立てているあいだに時計が
+     進んでしまい、音量エンベロープの頭を通り越して無音になることがある。
+     8ms だけ先に置けば、人の耳には同時と変わらないまま取りこぼさない。 */
+  const TICK_LEAD = 0.008;
+
+  function fireDialTick(ctx, strength, wet) {
+    const at = ctx.currentTime + TICK_LEAD;
     // 勢いよく回したときに音が団子にならないよう、最短間隔を設ける
-    if (now - lastTickAt < 0.022) return;
-    lastTickAt = now;
+    if (at - lastTickAt < 0.022) return;
+    lastTickAt = at;
 
     const out = dialChain(ctx, wet || 0);
     const v = (strength == null ? 1 : strength);
     // 高級感は「毎回ほぼ同じ音」から出るので、ゆらぎはごく控えめに。
     const tune = rnd(0.03);
-    ping(ctx, now,          { freq: 2350 * tune, q: 28, dur: 0.014, vol: 5.45 * v * rnd(0.06), out: out });
-    ping(ctx, now + 0.0004, { freq: 4900 * tune, q: 16, dur: 0.007, vol: 2.29 * v * rnd(0.08), out: out });
-    ping(ctx, now + 0.0002, { freq:  880 * tune, q:  9, dur: 0.011, vol: 0.65 * v * rnd(0.06), out: out });
+    ping(ctx, at,          { freq: 2350 * tune, q: 28, dur: 0.014, vol: 5.45 * v * rnd(0.06), out: out });
+    ping(ctx, at + 0.0004, { freq: 4900 * tune, q: 16, dur: 0.007, vol: 2.29 * v * rnd(0.08), out: out });
+    ping(ctx, at + 0.0002, { freq:  880 * tune, q:  9, dur: 0.011, vol: 0.65 * v * rnd(0.06), out: out });
 
     if (global.__audioIdleSuspend) global.__audioIdleSuspend(ctx, 1500);
+  }
+
+  /* strength: 1 = 目盛りを1つ送った / 0.75 = ON・OFF の切り替え
+     wet:      0 = 残響なし / 0.75 = ONのときだけ足す小さな余韻
+
+     【眠っているときは起こしてから鳴らす】
+     省電力のため、鳴り終わって1.5秒たつと AudioContext を眠らせている。
+     眠っているあいだは ctx.currentTime が止まっているので、その時刻を
+     基準に予約すると、起きた瞬間には予約時刻がすでに過去になっていて、
+     音量の立ち上がりを飛ばして無音のまま終わる。ON/OFF を押したとき
+     「鳴るときと鳴らないときがある」のはこれが原因。
+     resume() の完了を待ってから組み立てれば、必ず鳴る。 */
+  function playDialTick(strength, wet) {
+    if (!DIAL_SOUND || reduceMotion) return;
+    const ctx = ac();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') {
+      try {
+        const p = ctx.resume();
+        if (p && typeof p.then === 'function') {
+          p.then(function () { fireDialTick(ctx, strength, wet); }, function () { /* 起きなければ諦める */ });
+          return;
+        }
+      } catch (err) { /* 下でそのまま試す */ }
+    }
+    fireDialTick(ctx, strength, wet);
   }
 
   /* 出口。低い唸りと、耳に刺さる超高域の両方を落として、
