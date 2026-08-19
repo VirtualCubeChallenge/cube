@@ -609,6 +609,23 @@
     '  60%{opacity:.28}',
     '  100%{opacity:0;transform:scale(2.05)}}',
 
+    /* 波紋が通り過ぎるとき、まわりの数字と中心の文字にも光を渡す。
+       輪だけが広がって文字が無反応だと「絵が上を横切っただけ」に見え、
+       磁場が立ち上がった感じが出ない。
+       数字は transform で定位置に置いてあるので、ここでは transform を
+       一切さわらない（さわると座標の式ごと上書きされて飛んでいく）。
+       動かすのは色まわりだけなので、描画の負担も増えない。 */
+    '@keyframes feelNumWake{',
+    '  0%{box-shadow:0 0 0 0 rgba(var(--tc-rgb),0);filter:brightness(1)}',
+    '  30%{box-shadow:0 0 13px 3px rgba(var(--tc-rgb),.55);filter:brightness(1.95)}',
+    '  100%{box-shadow:0 0 0 0 rgba(var(--tc-rgb),0);filter:brightness(1)}}',
+    '.feel-dial-num.wake{animation:feelNumWake .46s ease-out}',
+    '@keyframes feelBtnWake{',
+    '  0%{filter:brightness(1)}',
+    '  28%{filter:brightness(2.1)}',
+    '  100%{filter:brightness(1)}}',
+    '.feel-dial-btn.wake{animation:feelBtnWake .40s ease-out}',
+
     /* OFFにした直後だけ、光っていた数字を急に消さず、同じ0.9秒で
        いっしょに落とす。ここを一瞬で消すと「ブツッと切れた」感じになる。 */
     '.feel-dial.is-fading .feel-dial-ring{transition:border-color .9s ease,opacity .9s ease}',
@@ -617,6 +634,7 @@
 
     '@media (prefers-reduced-motion: reduce){',
     '  .feel-dial-pulse{display:none}',
+    '  .feel-dial-num.wake,.feel-dial-btn.wake{animation:none}',
     '  .feel-dial-glow{transition-duration:.15s}',
     '  .feel-dial.is-fading .feel-dial-ring,.feel-dial.is-fading .feel-dial-num{',
     '    transition-duration:.15s}',
@@ -786,6 +804,15 @@
        レイアウトを一度読み、再生をリセットしてから付ける。
        （外して付けるだけだと、ブラウザが「変化なし」とみなして
          2回目以降が再生されない） */
+    /* クラスを外す→レイアウトを一度読む→付け直す、で再生をリセットする。
+       delay を渡せるようにしてあるのは、波が届いた瞬間に光らせるため。 */
+    function wake(el, delayMs) {
+      el.classList.remove('wake');
+      void el.offsetWidth;
+      el.style.animationDelay = delayMs + 'ms';
+      el.classList.add('wake');
+    }
+
     function playOnPulse() {
       if (reduceMotion) return;
       pulses.forEach(function (pu) {
@@ -793,6 +820,11 @@
         void pu.offsetWidth;
         pu.classList.add('go');
       });
+      // 波紋は中心(半径31px)から広がる。数字は半径45pxの位置にあるので、
+      // そこを輪が通過するのがおよそ 0.16 秒後。中心の ON は波の出どころ
+      // なので遅らせず、そこから外の数字へ光が渡っていくように見せる。
+      wake(btn, 0);
+      nums.forEach(function (el) { wake(el, 160); });
     }
 
     // --- 中心ボタン: ON / OFF ---
