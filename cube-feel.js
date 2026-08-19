@@ -88,11 +88,6 @@
      最後に調整した「45°から鳴って90°で消える音」がそのまま復活する。 */
   const SOUND_ENABLED = false;
 
-  /* ダイヤルの節度感（1〜5を選ぶときのカチッ）。回転音とは独立。
-     読み込み直後のアンロック判定でも参照するので、ここで宣言しておく
-     （実装は下の「ダイヤルの節度感」の項）。 */
-  const DIAL_SOUND = true;
-
   let actx = null;
   let noiseBuf = null;
   let audioBroken = false;
@@ -101,21 +96,11 @@
     if (audioBroken) return null;
     try {
       if (!actx) {
-        // アプリ全体で1つの AudioContext を共有する（index.html の head に
-        // ある共通ヘルパー）。iOS は1ページで作れる数に上限があり、
-        // モジュールごとに作ると上限に届いて「鳴るときと鳴らないときが
-        // ある」という形で音が死ぬため。
-        if (global.__audioCtx) actx = global.__audioCtx();
-        if (!actx) {
-          const C = global.AudioContext || global.webkitAudioContext;
-          if (!C) { audioBroken = true; return null; }
-          actx = new C();
-        }
+        const C = global.AudioContext || global.webkitAudioContext;
+        if (!C) { audioBroken = true; return null; }
+        actx = new C();
       }
-      // iOS には 'interrupted' という状態がある（着信・他アプリの再生・
-      // PWAを閉じて戻る等）。'suspended' だけを見ていると拾えないので、
-      // running 以外ならまとめて起こす。
-      if (actx.state !== 'running') actx.resume();
+      if (actx.state === 'suspended') actx.resume();
       // 鳴り終わったら眠らせる（画面録画時のハム音対策。index.html の
       // head にある共通ヘルパー。無い環境でもそのまま動く）。
       if (global.__audioIdleSuspend) global.__audioIdleSuspend(actx, 1500);
@@ -147,7 +132,7 @@
       s.start(0);
     } catch (err) { /* 続行 */ }
   }
-  if (SOUND_ENABLED || DIAL_SOUND) {
+  if (SOUND_ENABLED) {
     UNLOCK_EVENTS.forEach(function (ev) {
       document.addEventListener(ev, unlockAudio, { capture: true, passive: true });
     });
@@ -155,7 +140,7 @@
   // タブに戻ってきたときに眠ったままだと、最初の1手が無音になる。
   document.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'visible' && unlocked && actx) {
-      try { if (actx.state !== 'running') actx.resume(); } catch (err) { /* 無視 */ }
+      try { if (actx.state === 'suspended') actx.resume(); } catch (err) { /* 無視 */ }
     }
   });
 
@@ -266,152 +251,6 @@
     gsrc.connect(gbp); gbp.connect(gg); gg.connect(out);
     gsrc.start(at, Math.random() * 0.3);
     gsrc.stop(last + 0.02);
-  }
-
-  /* ============================================================
-     ダイヤルの節度感（カチッ）
-
-     1〜5を選んでいるあいだの手応え。回転音とは別扱いで、こちらは
-     鳴らす（SOUND_ENABLED とは独立した DIAL_SOUND で管理）。
-
-     安っぽく聞こえる音は、たいてい「ノイズを鳴らしっぱなしにしている」
-     か「decay が長すぎる」かのどちらか。ここでは 1.2ms だけノイズを
-     叩き込み、あとは Q の高いフィルタの共鳴だけで鳴らして 4ms で
-     消している（打楽器の物理モデルと同じ考え方）。立ち上がりは
-     0.29ms＝波形がほぼ垂直に立つので、硬い部品が噛み合った感じになる。
-
-     3本の共鳴を重ねているのは、単一の高さだと電子的なピーになるため。
-       2350Hz  … 節度の芯
-       4900Hz  … 金属質な縁
-        880Hz  … わずかな重み。これが無いと軽い作り物になる
-     帯域は 1.8〜3.5kHz が6割で、耳に痛い 7kHz 以上はほぼ無い。 */
-
-  /* ごく短い残響のもと（インパルス応答）。
-     ONにしたときだけ、音のうしろに一瞬だけ空間を足すために使う。
-     ノイズを 320ms かけて減衰させたものを1回だけ作って使い回す。
-     最後にエネルギーで正規化しているので、下の wet の値がそのまま
-     「乾いた音に対する残響の量」になり、調整しやすい。 */
-  let irBuf = null;
-  function reverbIR(ctx) {
-    if (irBuf && irBuf.sampleRate === ctx.sampleRate) return irBuf;
-    const n = Math.floor(ctx.sampleRate * 0.32);
-    const buf = ctx.createBuffer(1, n, ctx.sampleRate);
-    const d = buf.getChannelData(0);
-    let lp = 0, sum = 0;
-    for (let i = 0; i < n; i++) {
-      const fade = 1 - i / n;
-      // (1-t)^2.2 の減衰。^3 だと出だしで急に痩せて、耳に届く前に
-      // 消えてしまう。少し粘らせて「ふわっと開いて、すぐ閉じる」形に。
-      const v = (Math.random() * 2 - 1) * fade * fade * Math.sqrt(fade);
-      lp = lp * 0.72 + v * 0.28;                                 // 角を丸める
-      d[i] = lp;
-      sum += lp * lp;
-    }
-    // 頭の3msは立ち上げる（ここが急だと「タンッ」という反射音になる）
-    const ramp = Math.floor(ctx.sampleRate * 0.003);
-    for (let i = 0; i < ramp; i++) d[i] *= i / ramp;
-    const norm = 1 / Math.sqrt(sum || 1);
-    for (let i = 0; i < n; i++) d[i] *= norm;
-    irBuf = buf;
-    return buf;
-  }
-
-  /* 出口（ダイヤル用）。回転音より狭く、低くまとめる。
-     wet に 0 より大きい値を渡すと、そのぶんだけ残響を混ぜる。 */
-  function dialChain(ctx, wet) {
-    const hp = ctx.createBiquadFilter();
-    hp.type = 'highpass';
-    hp.frequency.value = 400;
-    hp.Q.value = 0.7;
-    const lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass';
-    lp.frequency.value = 8000;
-    hp.connect(lp);
-    lp.connect(ctx.destination);
-
-    if (wet > 0 && ctx.createConvolver) {
-      try {
-        const cv = ctx.createConvolver();
-        cv.buffer = reverbIR(ctx);
-        // 12msの間を置いてから響かせる。間を置かずに重ねると、音が
-        // ぼやけて「濡れた」感じになり、部屋の広がりに聞こえない。
-        const pre = ctx.createDelay(0.05);
-        pre.delayTime.value = 0.012;
-        const wg = ctx.createGain();
-        wg.gain.value = wet;
-        lp.connect(pre);
-        pre.connect(cv);
-        cv.connect(wg);
-        wg.connect(ctx.destination);
-      } catch (err) { /* 使えない環境では乾いた音だけ */ }
-    }
-    return hp;
-  }
-
-  /* 一瞬だけ叩いて共鳴させる。exc（叩く長さ）を伸ばすと途端に
-     「シャッ」という擦れ音になるので、ここは短く保つこと。 */
-  function ping(ctx, at, o) {
-    const src = noiseSource(ctx);
-    const bp = ctx.createBiquadFilter();
-    bp.type = 'bandpass';
-    bp.frequency.value = o.freq;
-    bp.Q.value = o.q;
-    const g = ctx.createGain();
-    // 立ち上がりにランプを使わない＝一瞬で最大。ここが硬さの決め手。
-    g.gain.setValueAtTime(o.vol, at);
-    // 減衰は「元の音量の 0.0006 倍まで」と比率で決める。こうしておくと
-    // 音量を変えても減衰の速さ（＝音の長さ）が変わらない。
-    g.gain.exponentialRampToValueAtTime(o.vol * 0.0006, at + o.dur);
-    src.connect(bp); bp.connect(g); g.connect(o.out);
-    src.start(at, Math.random() * 0.3);
-    src.stop(at + 0.0012);
-    // 鳴り終わったら切り離す。連打したときに使い終わった部品が
-    // つながったまま溜まっていくのを防ぐ。
-    src.onended = function () {
-      try { src.disconnect(); bp.disconnect(); g.disconnect(); } catch (err) { /* 済み */ }
-    };
-  }
-
-  let lastTickAt = 0;
-  /* strength: 1 = 目盛りを1つ送った / 0.6〜0.85 = ON・OFF の切り替え
-     wet: 0 で残響なし。ONにしたときだけ少しだけ足す。
-     force: true なら間引きの対象外（ボタンを押した音は必ず鳴らす）。 */
-  function playDialTick(strength, wet, force) {
-    if (!DIAL_SOUND || reduceMotion) return;
-    const ctx = ac();
-    if (!ctx) return;
-
-    /* 予約は必ず「少し先」にする。ここが鳴ったり鳴らなかったりの原因。
-
-       currentTime ちょうどに予約すると、音声スレッドはすでにその時刻を
-       含む区間の計算に入っていることがある。すると先頭の一区切り
-       （128サンプル＝約2.7ms）が丸ごと捨てられる。この節度音は全体で
-       4ms、しかもエネルギーの大半が最初の2msに集まっているので、
-       一区切り落ちるだけで「何も鳴らなかった」ことになる。
-       20ms 先に置けば必ず頭から鳴る。人の耳にはこの遅れはわからない。
-
-       眠っている場合は resume() が実際に効くまで数十ミリ秒かかるので、
-       さらに余裕を持たせる。 */
-    const running = (ctx.state === 'running');
-    const at = ctx.currentTime + (running ? 0.020 : 0.045);
-
-    // 勢いよく回したときに音が団子にならないよう、最短間隔を設ける。
-    // ただし指で押したとき（ON/OFF・数字のタップ）は必ず鳴らす。
-    if (!force && at - lastTickAt < 0.012) return;
-    lastTickAt = at;
-
-    const out = dialChain(ctx, wet || 0);
-    const v = (strength == null ? 1 : strength);
-    // 高級感は「毎回ほぼ同じ音」から出るので、ゆらぎはごく控えめに。
-    // 回転音（±8〜15%）と違い、ここは±3%程度に抑えている。
-    const tune = rnd(0.03);
-    ping(ctx, at, { freq: 2350 * tune, q: 28, dur: 0.014, vol: 5.45 * v * rnd(0.06), out: out });
-    ping(ctx, at + 0.0004, { freq: 4900 * tune, q: 16, dur: 0.007, vol: 2.29 * v * rnd(0.08), out: out });
-    ping(ctx, at + 0.0002, { freq: 880 * tune, q: 9, dur: 0.011, vol: 0.65 * v * rnd(0.06), out: out });
-
-    // 眠らせるまでの猶予。1.5秒だと、少し間を置いて押すたびに
-    // 眠っては起こすの繰り返しになり、上の取りこぼしを踏みやすい。
-    if (global.__audioIdleSuspend) global.__audioIdleSuspend(ctx, 5000);
   }
 
   /* --- 設定値（0 = OFF, 1〜5 = 強さ） ----------------------------------- */
@@ -645,47 +484,47 @@
   const FEEL_I18N = {
     ja: {
       feelMagnetLabel: '磁力の強さ',
-      feelMaglevLabel: 'マグレブの反発力',
+      feelMaglevLabel: 'コアマグの反発力',
       feelDialHint: '中心を押してON／OFF。まわりのダイヤルを回すと1〜5で強さを選べます'
     },
     en: {
       feelMagnetLabel: 'Magnet strength',
-      feelMaglevLabel: 'MagLev bounce',
+      feelMaglevLabel: 'Core magnet bounce',
       feelDialHint: 'Tap the centre for ON/OFF. Spin the dial around it to pick 1-5'
     },
     'zh-CN': {
       feelMagnetLabel: '磁力强度',
-      feelMaglevLabel: '磁悬浮回弹',
+      feelMaglevLabel: '中轴磁铁回弹力',
       feelDialHint: '点中间开关，转动周围的拨盘可在1〜5之间选择强度'
     },
     'zh-TW': {
       feelMagnetLabel: '磁力強度',
-      feelMaglevLabel: '磁浮回彈',
+      feelMaglevLabel: '中軸磁鐵回彈力',
       feelDialHint: '點中間開關，轉動周圍的轉盤可在1〜5之間選擇強度'
     },
     ko: {
       feelMagnetLabel: '자력 세기',
-      feelMaglevLabel: '마그레브 반발력',
+      feelMaglevLabel: '코어 마그넷 반발력',
       feelDialHint: '가운데를 눌러 ON/OFF. 둘레의 다이얼을 돌려 1~5로 세기를 고릅니다'
     },
     es: {
       feelMagnetLabel: 'Fuerza del imán',
-      feelMaglevLabel: 'Rebote MagLev',
+      feelMaglevLabel: 'Rebote del imán central',
       feelDialHint: 'Toca el centro para activar. Gira el dial alrededor para elegir de 1 a 5'
     },
     id: {
       feelMagnetLabel: 'Kekuatan magnet',
-      feelMaglevLabel: 'Pantulan MagLev',
+      feelMaglevLabel: 'Pantulan magnet inti',
       feelDialHint: 'Ketuk bagian tengah untuk ON/OFF. Putar dial di sekelilingnya untuk memilih 1-5'
     },
     ru: {
       feelMagnetLabel: 'Сила магнита',
-      feelMaglevLabel: 'Отдача MagLev',
+      feelMaglevLabel: 'Отдача центрального магнита',
       feelDialHint: 'Нажмите центр для вкл./выкл. Поверните диск вокруг, чтобы выбрать от 1 до 5'
     },
     'pt-BR': {
       feelMagnetLabel: 'Força do ímã',
-      feelMaglevLabel: 'Rebote MagLev',
+      feelMaglevLabel: 'Repique do ímã central',
       feelDialHint: 'Toque no centro para ligar/desligar. Gire o disco ao redor para escolher de 1 a 5'
     }
   };
@@ -746,77 +585,38 @@
     '.feel-dial-btn:active{transform:scale(.94)}',
     '.feel-dial-hint{margin-top:10px}',
 
-    /* --- ON/OFF の演出 ------------------------------------------------
-       ONは中心から外へ波が広がり、その波が下の説明文に届いた瞬間に
-       文字の色が走り抜ける。OFFは波が内側へ吸い込まれ、光が落ちる。
-       動かすのは transform / opacity / background-size だけ。 */
+    /* --- ON/OFF の切り替え演出 ---------------------------------------
+       ONは「磁力が外へ広がる」、OFFは「灯りがゆっくり落ちる」。
+       どちらも transform と opacity しか動かさないので、スマホでも
+       カクつかない。 */
 
-    /* 常時のほのかな光。点くのは速く、消えるのは遅い。
-       この非対称が「灯りが落ちる」感じの正体。 */
+    /* 常時のほのかな光。ONで点き、OFFでは 0.9 秒かけて静かに消える。
+       消えるときだけ時間を長くしているのが、この演出の肝。 */
     '.feel-dial-glow{position:absolute;inset:-3px;border-radius:50%;pointer-events:none;',
     '  box-shadow:0 0 22px 1px var(--tc),inset 0 0 14px -4px var(--tc);',
     '  opacity:0;transition:opacity .9s cubic-bezier(.3,0,.6,1)}',
     '.feel-dial.is-on .feel-dial-glow{opacity:.42;transition:opacity .22s ease-out}',
 
-    /* 広がる波。ダイヤルの外まで抜けるので、はみ出しを止めないよう
-       親には overflow を掛けていない。3枚を少しずつ遅らせて出す。 */
-    '.feel-dial-wave{position:absolute;left:50%;top:50%;width:62px;height:62px;',
+    /* ONの瞬間だけ、中心から外へ抜けていく波紋。2枚を少しずらして
+       出すと、ひと押しで磁場が立ち上がったように見える。 */
+    '.feel-dial-pulse{position:absolute;left:50%;top:50%;width:62px;height:62px;',
     '  margin:-31px 0 0 -31px;border-radius:50%;border:2px solid var(--tc);',
-    '  box-shadow:0 0 18px -2px var(--tc),inset 0 0 12px -4px var(--tc);',
-    '  background:radial-gradient(circle,rgba(var(--tc-rgb),.16),rgba(var(--tc-rgb),0) 68%);',
     '  pointer-events:none;opacity:0;transform:scale(.5);z-index:1}',
-    '.feel-dial-wave.go{animation:feelWaveOut .78s cubic-bezier(.12,.72,.26,1) forwards}',
-    '.feel-dial-wave.w2.go{animation-delay:.10s}',
-    '.feel-dial-wave.w3.go{animation-delay:.20s;opacity:0}',
-    '@keyframes feelWaveOut{',
-    '  0%{opacity:.85;transform:scale(.5);border-width:3px}',
-    '  55%{opacity:.42}',
-    '  100%{opacity:0;transform:scale(4.2);border-width:1px}}',
-    /* OFFのときは逆再生。外から中心へ吸い込まれて消える。 */
-    '.feel-dial-wave.in{animation:feelWaveIn .5s cubic-bezier(.3,.1,.2,1) forwards}',
-    '.feel-dial-wave.w2.in{animation-delay:.07s}',
-    '.feel-dial-wave.w3.in{animation-delay:.14s}',
-    '@keyframes feelWaveIn{',
-    '  0%{opacity:.5;transform:scale(2.6);border-width:1px}',
-    '  100%{opacity:0;transform:scale(.46);border-width:3px}}',
+    '.feel-dial-pulse.go{animation:feelPulse .62s cubic-bezier(.15,.75,.3,1) forwards}',
+    '.feel-dial-pulse.lag.go{animation-delay:.09s;animation-duration:.72s}',
+    '@keyframes feelPulse{',
+    '  0%{opacity:.8;transform:scale(.5)}',
+    '  60%{opacity:.28}',
+    '  100%{opacity:0;transform:scale(2.05)}}',
 
-    /* 波が届いた瞬間の説明文。文字そのものを背景で塗り、その背景を
-       押したダイヤルの真下(--wx)から左右へ広げる。文字の形で切り抜く
-       ので、色が波のように文面を走り抜けていく。 */
-    '@supports ((-webkit-background-clip:text) or (background-clip:text)){',
-    '  .feel-dial-hint.is-wave{-webkit-background-clip:text;background-clip:text;',
-    '    color:transparent;background-color:#aaa;background-repeat:no-repeat;',
-    '    background-position:var(--wx,50%) 50%;',
-    /* 色は「面」ではなく「帯」。内側も外側も元のグレーで、その間に
-       白→テーマ色の帯だけがある。帯が広がって文字を通り過ぎるので、
-       通ったあとは自然に元の色へ戻る＝最後に消えるときの段差が出ない。
-       塗りつぶしにしていたときは、終わった瞬間に全部の色が一斉に
-       消えるため「ピタッと切れた」ように見えていた。 */
-    '    background-image:radial-gradient(circle closest-side,',
-    '      #aaaaaa 0 26%,rgba(255,255,255,.96) 42%,var(--tc) 56%,',
-    '      rgba(170,170,170,.75) 72%,#aaaaaa 88%);',
-    '    animation:feelTextWave 1.15s linear forwards}',
-    '}',
-    /* 広がり方は、途中の刻みで速さを作る。イージング関数まかせにすると
-       出だしで一気に文字を渡りきってしまい、あとは動いていないのに
-       時間だけ過ぎる＝最後だけ唐突に終わる。ここでは
-       前半 1.20 → 中盤 0.96 → 終盤 0.61（文字幅/秒）と落としていき、
-       最後の文字にかかる帯がゆっくり薄れながら抜けるようにしている。 */
-    '@keyframes feelTextWave{',
-    '  0%{background-size:0% 1400%}',
-    '  40%{background-size:260% 1400%}',
-    '  70%{background-size:420% 1400%}',
-    '  100%{background-size:520% 1400%}}',
-
-    /* OFFにした直後だけ、光っていた数字を急に消さず、光といっしょに
-       同じ0.9秒で落とす。一瞬で消すと「ブツッと切れた」感じになる。 */
+    /* OFFにした直後だけ、光っていた数字を急に消さず、同じ0.9秒で
+       いっしょに落とす。ここを一瞬で消すと「ブツッと切れた」感じになる。 */
     '.feel-dial.is-fading .feel-dial-ring{transition:border-color .9s ease,opacity .9s ease}',
     '.feel-dial.is-fading .feel-dial-num{transition:color .9s ease,background .9s ease,',
     '  box-shadow .9s ease}',
 
     '@media (prefers-reduced-motion: reduce){',
-    '  .feel-dial-wave{display:none}',
-    '  .feel-dial-hint.is-wave{animation:none}',
+    '  .feel-dial-pulse{display:none}',
     '  .feel-dial-glow{transition-duration:.15s}',
     '  .feel-dial.is-fading .feel-dial-ring,.feel-dial.is-fading .feel-dial-num{',
     '    transition-duration:.15s}',
@@ -849,10 +649,6 @@
   }
 
   const STEP = 360 / MAX_LEVEL;   // 数字1つぶんの角度（5等分なので72°）
-
-  /* 説明文の要素。波が届いたときに色を走らせる相手なので、
-     ダイヤル側から参照できるようここに置く（buildUI で入る）。 */
-  let hintEl = null;
 
   /* ダイヤル1つ分を組み立てて返す。
        labelKey/labelFallback … 見出しの辞書キーと既定文言
@@ -898,22 +694,13 @@
     glow.setAttribute('aria-hidden', 'true');
     dial.appendChild(glow);
 
-    const waves = [];
-    for (let k = 0; k < 3; k++) {
-      const wv = document.createElement('span');
-      wv.className = 'feel-dial-wave' + (k ? ' w' + (k + 1) : '');
-      wv.setAttribute('aria-hidden', 'true');
-      /* 走り終えたら go / in を必ず外す。付けっぱなしにすると、設定を
-         閉じて開き直すたびに演出が勝手に再生されてしまう。CSSアニメは
-         display:none から表示に戻った瞬間に頭から再生し直される仕様の
-         ため、クラスが残っていると「開くたびに波が出る」ことになる。
-         外しても見た目は変わらない（アニメの終わりと素の状態がどちらも
-         透明なので、消えたところで止まって見える）。 */
-      wv.addEventListener('animationend', function () {
-        wv.classList.remove('go', 'in');
-      });
-      dial.appendChild(wv);
-      waves.push(wv);
+    const pulses = [];
+    for (let k = 0; k < 2; k++) {
+      const pu = document.createElement('span');
+      pu.className = 'feel-dial-pulse' + (k ? ' lag' : '');
+      pu.setAttribute('aria-hidden', 'true');
+      dial.appendChild(pu);
+      pulses.push(pu);
     }
 
     const btn = document.createElement('button');
@@ -935,10 +722,6 @@
     // 数字の色をまだ落とさず、光といっしょにゆっくり暗くする。
     let fading = false;
     let fadeTimer = null;
-    let sweepTimer = null;
-    let sweepEnd = null;
-    let armed = false;              // 組み立て中は鳴らさない
-    let lastShown = levelFromDeg(ringDeg);
 
     function levelFromDeg(deg) {
       const idx = ((Math.round(-deg / STEP) % MAX_LEVEL) + MAX_LEVEL) % MAX_LEVEL;
@@ -948,15 +731,6 @@
       ringDeg = deg;
       ring.style.setProperty('--ring', deg + 'deg');
       const shown = levelFromDeg(deg);
-      /* 目盛りが1つ送られた瞬間に、音と振動を出す。ここ1か所で
-         見ておけば、指で回したとき・数字を直接押したとき・キーボードで
-         動かしたときの全部に効く（どれも最後はここを通るため）。
-         armed は組み立て中の初回描画で鳴らさないための足かせ。 */
-      if (armed && shown !== lastShown && getLevel() > 0) {
-        playDialTick(1);
-        buzz(8);
-      }
-      lastShown = shown;
       const on = getLevel() > 0 || fading;
       for (let i = 0; i < nums.length; i++) {
         nums[i].classList.toggle('is-sel', on && (i + 1) === shown);
@@ -1007,85 +781,39 @@
       paintState();
     }
 
-    /* 波を出す。dir が 'out' ならON（外へ広がる）、'in' ならOFF（吸い込む）。
-       同じ要素を使い回すので、クラスを外してレイアウトを一度読み、
-       再生位置をリセットしてから付け直す。これをやらないと、
-       ブラウザが「変化なし」とみなして2回目以降が再生されない。 */
-    function runWaves(dir) {
+    /* ONの瞬間に、中心から外へ波紋を1度だけ走らせる。
+       同じ要素を使い回すので、アニメを付け直す前にクラスを外して
+       レイアウトを一度読み、再生をリセットしてから付ける。
+       （外して付けるだけだと、ブラウザが「変化なし」とみなして
+         2回目以降が再生されない） */
+    function playOnPulse() {
       if (reduceMotion) return;
-      waves.forEach(function (wv) {
-        wv.classList.remove('go', 'in');
-        void wv.offsetWidth;
-        wv.classList.add(dir === 'in' ? 'in' : 'go');
+      pulses.forEach(function (pu) {
+        pu.classList.remove('go');
+        void pu.offsetWidth;
+        pu.classList.add('go');
       });
-    }
-
-    /* 広がった波が、下の説明文に「届いた瞬間」に色を走らせる。
-       距離は実測する。押したダイヤルの中心から説明文までの実際の
-       ピクセル数を測り、波の速さから逆算して遅延を決めるので、
-       画面の大きさや文字の折り返しが変わっても、届くタイミングが
-       ずれない。色が始まる位置(--wx)も、押したダイヤルの真下になる。 */
-    function sweepHint() {
-      const hint = hintEl;
-      if (!hint || reduceMotion) return;
-      let delay = 260;
-      try {
-        const dr = dial.getBoundingClientRect();
-        const hr = hint.getBoundingClientRect();
-        const cx = dr.left + dr.width / 2;
-        const cy = dr.top + dr.height / 2;
-        // 波の見た目の半径は 0.5倍 → 4.2倍（0.78秒）で広がる
-        const r0 = dr.width * 0.5 * 0.5;
-        const r1 = dr.width * 0.5 * 4.2;
-        const reach = Math.max(0, hr.top + hr.height * 0.5 - cy);
-        delay = Math.max(60, Math.min(700, ((reach - r0) / (r1 - r0)) * 780));
-        // 文字の色が湧き出す位置＝ダイヤルの中心の真下
-        const pct = ((cx - hr.left) / Math.max(1, hr.width)) * 100;
-        hint.style.setProperty('--wx', Math.max(0, Math.min(100, pct)).toFixed(1) + '%');
-      } catch (err) { /* 測れなければ既定の遅延で出す */ }
-
-      clearTimeout(sweepTimer);
-      clearTimeout(sweepEnd);
-      hint.classList.remove('is-wave');
-      sweepTimer = setTimeout(function () {
-        void hint.offsetWidth;
-        hint.classList.add('is-wave');
-        // 走り終えたら元の色に戻す（塗ったままにしない）
-        // 帯が抜けきったあとに外す。抜けきった時点で文字はもう元の
-        // グレーに戻っているので、外した瞬間の見た目の変化はない。
-        sweepEnd = setTimeout(function () {
-          hint.classList.remove('is-wave');
-        }, 1400);
-      }, delay);
     }
 
     // --- 中心ボタン: ON / OFF ---
     btn.addEventListener('click', () => {
       const on = getLevel() > 0;
       buzz(on ? 10 : [8, 30, 8]);
-      // 目盛り送りより少しだけ弱く。切り替えの手応えとして添える程度。
-      /* ONにするときだけ、一瞬だけ空間が開く。乾いた音の2割ほどの
-         残響が200msほどで消える量。外へ広がる波の演出と重なり、
-         消えたあとを文字の色が引き継ぐ（波が説明文に届くのが265ms）。
-         OFFは乾いたまま落とす。 */
-      playDialTick(on ? 0.6 : 0.85, on ? 0 : 0.75, true);
       clearTimeout(fadeTimer);
       if (on) {
-        // OFFへ：波を内側へ吸い込みつつ、光は0.9秒かけて落とす
+        // OFFへ：光が落ちきるまでのあいだ .is-fading を付けておく
         fading = true;
         dial.classList.add('is-fading');
-        runWaves('in');
         fadeTimer = setTimeout(function () {
           fading = false;
           dial.classList.remove('is-fading');
           paintRing(ringDeg);   // ここでようやく数字の選択表示を落とす
         }, 900);
       } else {
-        // ONへ：フェード中なら中断し、外へ波を放って文字まで届かせる
+        // ONへ：フェード中だったら中断して、すぐ光らせる
         fading = false;
         dial.classList.remove('is-fading');
-        runWaves('out');
-        sweepHint();
+        playOnPulse();
       }
       commit(on ? 0 : lastOn, true);
     });
@@ -1118,8 +846,10 @@
       // -180〜180 に畳んでおく（12時をまたいだ瞬間に1回転飛ぶのを防ぐ）
       d = ((d + 180) % 360 + 360) % 360 - 180;
       moved = Math.max(moved, Math.abs(d));
-      // 目盛りが送られたときの音と振動は paintRing の中で出している
+      const before = levelFromDeg(ringDeg);
       paintRing(startDeg + d);
+      // 数字が1つ送られるたびに、黒電話の爪送りのような短い振動を入れる
+      if (levelFromDeg(ringDeg) !== before) buzz(8);
       e.preventDefault();
     });
 
@@ -1129,6 +859,7 @@
       try { ring.releasePointerCapture(e.pointerId); } catch (err) { /* 済み */ }
       // ほとんど動かしていなければ「数字を直接タップした」とみなす
       if (moved < 5 && downTarget) {
+        buzz(10);
         commit(Number(downTarget.dataset.level), true);
         return;
       }
@@ -1152,7 +883,6 @@
     });
 
     paintState();
-    armed = true;   // ここから先の変化はユーザー操作によるもの
     return {
       cell: cell,
       capEl: cap,
@@ -1176,7 +906,7 @@
     const magDial = makeDial('feelMagnetLabel', '磁力の強さ',
       function () { return magnet; },
       function (v) { magnet = v; });
-    const levDial = makeDial('feelMaglevLabel', 'マグレブの反発力',
+    const levDial = makeDial('feelMaglevLabel', 'コアマグの反発力',
       function () { return maglev; },
       function (v) { maglev = v; });
     row.appendChild(magDial.cell);
@@ -1184,7 +914,6 @@
     wrap.appendChild(row);
 
     const hint = document.createElement('p');
-    hintEl = hint;
     hint.className = 'settings-hint feel-dial-hint';
     hint.id = 'feel-dial-hint';
     hint.setAttribute('data-i18n', 'feelDialHint');
