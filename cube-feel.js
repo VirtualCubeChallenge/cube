@@ -632,7 +632,7 @@
     },
     en: {
       feelMagnetLabel: 'Magnet strength',
-      feelMaglevLabel: 'Core magnet bounce',
+      feelMaglevLabel: 'Magnet bounce',
       feelDialHint: 'Tap the centre for ON/OFF. Spin the dial around it to pick 1-5'
     },
     'zh-CN': {
@@ -647,27 +647,27 @@
     },
     ko: {
       feelMagnetLabel: '자력 세기',
-      feelMaglevLabel: '코어 마그넷 반발력',
+      feelMaglevLabel: '마그넷 반발력',
       feelDialHint: '가운데를 눌러 ON/OFF. 둘레의 다이얼을 돌려 1~5로 세기를 고릅니다'
     },
     es: {
       feelMagnetLabel: 'Fuerza del imán',
-      feelMaglevLabel: 'Rebote del imán central',
+      feelMaglevLabel: 'Rebote del imán',
       feelDialHint: 'Toca el centro para activar. Gira el dial alrededor para elegir de 1 a 5'
     },
     id: {
       feelMagnetLabel: 'Kekuatan magnet',
-      feelMaglevLabel: 'Pantulan magnet inti',
+      feelMaglevLabel: 'Pantulan magnet',
       feelDialHint: 'Ketuk bagian tengah untuk ON/OFF. Putar dial di sekelilingnya untuk memilih 1-5'
     },
     ru: {
       feelMagnetLabel: 'Сила магнита',
-      feelMaglevLabel: 'Отдача центрального магнита',
+      feelMaglevLabel: 'Отдача магнита',
       feelDialHint: 'Нажмите на центр, чтобы включить или выключить. Поверните кольцо вокруг него, чтобы выбрать от 1 до 5'
     },
     'pt-BR': {
       feelMagnetLabel: 'Força do ímã',
-      feelMaglevLabel: 'Repique do ímã central',
+      feelMaglevLabel: 'Repique do ímã',
       feelDialHint: 'Toque no centro para ligar/desligar. Gire o disco ao redor para escolher de 1 a 5'
     }
   };
