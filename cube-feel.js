@@ -609,44 +609,6 @@
     '  60%{opacity:.28}',
     '  100%{opacity:0;transform:scale(2.05)}}',
 
-    /* 波紋が通り過ぎるとき、まわりの数字と中心の文字にも光を渡す。
-       輪だけが広がって文字が無反応だと「絵が上を横切っただけ」に見え、
-       磁場が立ち上がった感じが出ない。
-       数字は transform で定位置に置いてあるので、ここでは transform を
-       一切さわらない（さわると座標の式ごと上書きされて飛んでいく）。
-       動かすのは色まわりだけなので、描画の負担も増えない。 */
-    '@keyframes feelNumWake{',
-    '  0%{box-shadow:0 0 0 0 rgba(var(--tc-rgb),0);filter:brightness(1)}',
-    '  30%{box-shadow:0 0 13px 3px rgba(var(--tc-rgb),.55);filter:brightness(1.95)}',
-    '  100%{box-shadow:0 0 0 0 rgba(var(--tc-rgb),0);filter:brightness(1)}}',
-    '.feel-dial-num.wake{animation:feelNumWake .46s ease-out}',
-    '@keyframes feelBtnWake{',
-    '  0%{filter:brightness(1)}',
-    '  28%{filter:brightness(2.1)}',
-    '  100%{filter:brightness(1)}}',
-    '.feel-dial-btn.wake{animation:feelBtnWake .40s ease-out}',
-
-    /* ONにした波が、ダイヤルを抜けて下の説明文まで届く。
-       文字そのものを光が左から右へ流れていく見せ方にしたいので、
-       グラデーションを背景に敷いて background-clip:text で文字型に
-       切り抜き、background-position だけを動かす。文字は動かさず、
-       レイアウトにも一切さわらないので、長い訳文でも折り返しが
-       ずれたりしない。
-       地の色(#aaa)をグラデーションに含めておくのが要点で、これが
-       無いと流れていない部分の文字まで消えてしまう。
-       background-clip:text が効かない環境では、下の .flow が
-       ただの背景として無視されるだけで、文字は通常表示のまま残る。 */
-    '@keyframes feelHintFlow{',
-    '  0%{background-position:120% 0}',
-    '  100%{background-position:-20% 0}}',
-    '.feel-dial-hint.flow{',
-    '  background-image:linear-gradient(100deg,#aaa 0%,#aaa 38%,',
-    '    rgba(var(--tc-rgb),1) 50%,#aaa 62%,#aaa 100%);',
-    '  background-size:240% 100%;background-repeat:no-repeat;',
-    '  -webkit-background-clip:text;background-clip:text;',
-    '  -webkit-text-fill-color:transparent;color:transparent;',
-    '  animation:feelHintFlow .95s cubic-bezier(.3,.7,.4,1)}',
-
     /* OFFにした直後だけ、光っていた数字を急に消さず、同じ0.9秒で
        いっしょに落とす。ここを一瞬で消すと「ブツッと切れた」感じになる。 */
     '.feel-dial.is-fading .feel-dial-ring{transition:border-color .9s ease,opacity .9s ease}',
@@ -655,9 +617,6 @@
 
     '@media (prefers-reduced-motion: reduce){',
     '  .feel-dial-pulse{display:none}',
-    '  .feel-dial-num.wake,.feel-dial-btn.wake{animation:none}',
-    '  .feel-dial-hint.flow{animation:none;background-image:none;',
-    '    -webkit-text-fill-color:currentColor;color:#aaa}',
     '  .feel-dial-glow{transition-duration:.15s}',
     '  .feel-dial.is-fading .feel-dial-ring,.feel-dial.is-fading .feel-dial-num{',
     '    transition-duration:.15s}',
@@ -694,10 +653,6 @@
   /* ダイヤル1つ分を組み立てて返す。
        labelKey/labelFallback … 見出しの辞書キーと既定文言
        getLevel / setLevel    … 磁力かマグレブか、値の出し入れだけ差し替える */
-  // 説明文の「流れ」を消すためのタイマー。説明文は2つのダイヤルで
-  // 共有しているので、ダイヤルごとではなくここに1つだけ持つ。
-  let hintFlowTimer = null;
-
   function makeDial(labelKey, labelFallback, getLevel, setLevel) {
     const cell = document.createElement('div');
     cell.className = 'feel-dial-cell';
@@ -831,15 +786,6 @@
        レイアウトを一度読み、再生をリセットしてから付ける。
        （外して付けるだけだと、ブラウザが「変化なし」とみなして
          2回目以降が再生されない） */
-    /* クラスを外す→レイアウトを一度読む→付け直す、で再生をリセットする。
-       delay を渡せるようにしてあるのは、波が届いた瞬間に光らせるため。 */
-    function wake(el, delayMs) {
-      el.classList.remove('wake');
-      void el.offsetWidth;
-      el.style.animationDelay = delayMs + 'ms';
-      el.classList.add('wake');
-    }
-
     function playOnPulse() {
       if (reduceMotion) return;
       pulses.forEach(function (pu) {
@@ -847,24 +793,6 @@
         void pu.offsetWidth;
         pu.classList.add('go');
       });
-      // 波紋は中心(半径31px)から広がる。数字は半径45pxの位置にあるので、
-      // そこを輪が通過するのがおよそ 0.16 秒後。中心の ON は波の出どころ
-      // なので遅らせず、そこから外の数字へ光が渡っていくように見せる。
-      wake(btn, 0);
-      nums.forEach(function (el) { wake(el, 160); });
-      // 数字まで届いた光を、さらに下の説明文へ渡す。説明文は2つの
-      // ダイヤルで1つを共有しているので、ここで引きに行く。
-      const hint = document.getElementById('feel-dial-hint');
-      if (hint) {
-        hint.classList.remove('flow');
-        void hint.offsetWidth;
-        hint.style.animationDelay = '260ms';
-        hint.classList.add('flow');
-        // 流れ終わったら地の色に戻す。付けっぱなしにすると、
-        // 言語切り替えで書き換えたときに透明のまま残ることがある。
-        clearTimeout(hintFlowTimer);
-        hintFlowTimer = setTimeout(function () { hint.classList.remove('flow'); }, 1400);
-      }
     }
 
     // --- 中心ボタン: ON / OFF ---
