@@ -3353,13 +3353,13 @@
     }
     .demo-key.u { background: #ffffff; color: #141416; }
     .demo-key.r { background: #b71234; color: #ffffff; }
-    .demo-key.press {
-      animation: demoPress 2.6s ease-in-out infinite;
+    .demo-key.slide {
+      animation: demoKeySlide 2.6s ease-in-out infinite;
     }
-    @keyframes demoPress {
-      0%, 30% { transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--tc-rgb), 0); }
-      42% { transform: scale(0.9); box-shadow: 0 0 0 3px rgba(var(--tc-rgb), 0.55); }
-      60%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--tc-rgb), 0); }
+    @keyframes demoKeySlide {
+      0%, 18% { box-shadow: 0 0 0 0 rgba(var(--tc-rgb), 0); filter: brightness(1); }
+      30%, 70% { box-shadow: 0 0 0 3px rgba(var(--tc-rgb), 0.55); filter: brightness(1.12); }
+      85%, 100% { box-shadow: 0 0 0 0 rgba(var(--tc-rgb), 0); filter: brightness(1); }
     }
     /* One finger sprite, positioned per-demo, moving in time with the
        layer/button animation above so the gesture reads as cause + effect. */
@@ -3382,19 +3382,26 @@
       86% { opacity: 0; transform: translateX(0); }
       100% { opacity: 1; transform: translateX(0); }
     }
-    .demo-finger.tap {
-      left: 34px;
-      top: 34px;
-      animation: demoFingerTap 2.6s ease-in-out infinite;
+    /* R キー（下段）の真上に指を置き、そのボタンを左右にスライドして
+       回す動きを、左カードの demoFingerDrag と同じ「なぞって→ふっと
+       消えて→また現れる」タイミングで表現する。垂直バウンス（=タップ）
+       ではなく、水平移動（=スライド）にしてあるのが実際の操作と揃う
+       ポイント。 */
+    .demo-finger.slide {
+      left: 15px;
+      top: 44px;
+      animation: demoFingerSlide 2.6s ease-in-out infinite;
     }
-    @keyframes demoFingerTap {
-      0%, 30% { transform: translateY(3px); }
-      42% { transform: translateY(-1px); }
-      60%, 100% { transform: translateY(3px); }
+    @keyframes demoFingerSlide {
+      0%, 22% { transform: translateX(0); opacity: 1; }
+      48%, 70% { transform: translateX(16px); opacity: 1; }
+      71% { opacity: 0; }
+      86% { opacity: 0; transform: translateX(0); }
+      100% { opacity: 1; transform: translateX(0); }
     }
     @media (prefers-reduced-motion: reduce) {
       .demo-row.swipe,
-      .demo-key.press,
+      .demo-key.slide,
       .demo-finger {
         animation: none;
       }
@@ -3442,7 +3449,7 @@
       .demo-row i { height: 11px; }
       .demo-finger { font-size: 15px; }
       .demo-finger.drag { left: 6px; top: 27px; }
-      .demo-finger.tap { left: 26px; top: 25px; }
+      .demo-finger.slide { left: 6px; top: 38px; }
       .mode-card { padding: 10px 36px 10px 10px; margin-bottom: 8px; }
       .welcome-start { min-height: 46px; padding: 11px 18px; }
     }
