@@ -88,6 +88,11 @@
      最後に調整した「45°から鳴って90°で消える音」がそのまま復活する。 */
   const SOUND_ENABLED = false;
 
+  /* ダイヤルの節度感（1〜5を送るときのカチッ、ON/OFFの手応え）。
+     回転音とは完全に別扱いで、こちらは鳴らす。読み込み直後の
+     アンロック判定でも参照するので、実装より先にここで宣言しておく。 */
+  const DIAL_SOUND = true;
+
   let actx = null;
   let noiseBuf = null;
   let audioBroken = false;
@@ -96,9 +101,17 @@
     if (audioBroken) return null;
     try {
       if (!actx) {
-        const C = global.AudioContext || global.webkitAudioContext;
-        if (!C) { audioBroken = true; return null; }
-        actx = new C();
+        // index.html の head にある共有ヘルパーを優先して使う。
+        // iOS は AudioContext を4つまでしか作れず、モジュールごとに
+        // 新規で作ると上限に当たって音が出なくなることがある。
+        if (global.__audioCtx) {
+          actx = global.__audioCtx();
+        } else {
+          const C = global.AudioContext || global.webkitAudioContext;
+          if (!C) { audioBroken = true; return null; }
+          actx = new C();
+        }
+        if (!actx) { audioBroken = true; return null; }
       }
       if (actx.state === 'suspended') actx.resume();
       // 鳴り終わったら眠らせる（画面録画時のハム音対策。index.html の
@@ -132,7 +145,7 @@
       s.start(0);
     } catch (err) { /* 続行 */ }
   }
-  if (SOUND_ENABLED) {
+  if (SOUND_ENABLED || DIAL_SOUND) {
     UNLOCK_EVENTS.forEach(function (ev) {
       document.addEventListener(ev, unlockAudio, { capture: true, passive: true });
     });
@@ -165,6 +178,136 @@
   }
 
   const rnd = (spread) => 1 + (Math.random() * 2 - 1) * spread;
+
+  /* ============================================================
+     ダイヤルの節度感（カチッ）
+
+     安っぽく聞こえる音は、たいてい「ノイズを鳴らしっぱなし」か
+     「減衰が長すぎる」かのどちらか。ここでは 1.2ms だけノイズを叩き込み、
+     あとは Q の高いフィルタの共鳴だけで鳴らして数msで消している
+     （打楽器の物理モデルと同じ考え方）。立ち上がりにランプを使わない＝
+     波形がほぼ垂直に立つので、硬い部品が噛み合った感じになる。
+
+     3本の共鳴を重ねているのは、単一の高さだと電子的なピーになるため。
+       2350Hz  … 節度の芯
+       4900Hz  … 金属質な縁
+        880Hz  … わずかな重み。これが無いと軽い作り物になる
+     ============================================================ */
+
+  // ONのときだけ足す短い残響。320ms で落ちきる小さな部屋ぶんだけ。
+  let dialIrBuf = null;
+  function dialIR(ctx) {
+    if (dialIrBuf && dialIrBuf.sampleRate === ctx.sampleRate) return dialIrBuf;
+    const len = Math.floor(ctx.sampleRate * 0.32);
+    dialIrBuf = ctx.createBuffer(2, len, ctx.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = dialIrBuf.getChannelData(ch);
+      for (let i = 0; i < len; i++) {
+        const t = i / len;
+        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 3.2);
+      }
+    }
+    return dialIrBuf;
+  }
+
+  /* 出口（ダイヤル用）。回転音より狭く、低くまとめる。
+     wet > 0 なら残響を並列に足す。原音より 12ms だけ遅らせてから
+     残響に送るのが要点で、これが無いと出音が濁って芯が消える。 */
+  function dialChain(ctx, wet) {
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 400;
+    hp.Q.value = 0.7;
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 8000;
+    hp.connect(lp);
+    lp.connect(ctx.destination);
+    if (wet > 0) {
+      try {
+        const pre = ctx.createDelay(0.1);
+        pre.delayTime.value = 0.012;
+        const cv = ctx.createConvolver();
+        cv.buffer = dialIR(ctx);
+        cv.normalize = true;
+        const wg = ctx.createGain();
+        wg.gain.value = wet;
+        lp.connect(pre); pre.connect(cv); cv.connect(wg); wg.connect(ctx.destination);
+      } catch (err) { /* 残響が作れなければ原音だけで鳴らす */ }
+    }
+    return hp;
+  }
+
+  /* 一瞬だけ叩いて共鳴させる。exc（叩く長さ）を伸ばすと途端に
+     「シャッ」という擦れ音になるので、ここは短く保つこと。 */
+  function ping(ctx, at, o) {
+    const src = noiseSource(ctx);
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = o.freq;
+    bp.Q.value = o.q;
+    const g = ctx.createGain();
+    // 立ち上がりにランプを使わない＝一瞬で最大。ここが硬さの決め手。
+    g.gain.setValueAtTime(o.vol, at);
+    // 減衰は「元の音量の 0.0006 倍まで」と比率で決める。こうしておくと
+    // 音量を変えても減衰の速さ（＝音の長さ）が変わらない。
+    g.gain.exponentialRampToValueAtTime(o.vol * 0.0006, at + o.dur);
+    src.connect(bp); bp.connect(g); g.connect(o.out);
+    src.start(at, Math.random() * 0.3);
+    src.stop(at + 0.0012);
+  }
+
+  let lastTickAt = 0;
+
+  /* 実際に音を組み立てて予約する。
+     【必ず少し先の時刻に予約する】
+     ctx.currentTime ちょうどに予約すると、組み立てているあいだに時計が
+     進んでしまい、音量エンベロープの頭を通り越して無音になることがある。
+     8ms だけ先に置けば、人の耳には同時と変わらないまま取りこぼさない。 */
+  const TICK_LEAD = 0.008;
+
+  function fireDialTick(ctx, strength, wet) {
+    const at = ctx.currentTime + TICK_LEAD;
+    // 勢いよく回したときに音が団子にならないよう、最短間隔を設ける
+    if (at - lastTickAt < 0.022) return;
+    lastTickAt = at;
+
+    const out = dialChain(ctx, wet || 0);
+    const v = (strength == null ? 1 : strength);
+    // 高級感は「毎回ほぼ同じ音」から出るので、ゆらぎはごく控えめに。
+    const tune = rnd(0.03);
+    ping(ctx, at,          { freq: 2350 * tune, q: 28, dur: 0.014, vol: 5.45 * v * rnd(0.06), out: out });
+    ping(ctx, at + 0.0004, { freq: 4900 * tune, q: 16, dur: 0.007, vol: 2.29 * v * rnd(0.08), out: out });
+    ping(ctx, at + 0.0002, { freq:  880 * tune, q:  9, dur: 0.011, vol: 0.65 * v * rnd(0.06), out: out });
+
+    if (global.__audioIdleSuspend) global.__audioIdleSuspend(ctx, 1500);
+  }
+
+  /* strength: 1 = 目盛りを1つ送った / 0.75 = ON・OFF の切り替え
+     wet:      0 = 残響なし / 0.75 = ONのときだけ足す小さな余韻
+
+     【眠っているときは起こしてから鳴らす】
+     省電力のため、鳴り終わって1.5秒たつと AudioContext を眠らせている。
+     眠っているあいだは ctx.currentTime が止まっているので、その時刻を
+     基準に予約すると、起きた瞬間には予約時刻がすでに過去になっていて、
+     音量の立ち上がりを飛ばして無音のまま終わる。ON/OFF を押したとき
+     「鳴るときと鳴らないときがある」のはこれが原因。
+     resume() の完了を待ってから組み立てれば、必ず鳴る。 */
+  function playDialTick(strength, wet) {
+    if (!DIAL_SOUND || reduceMotion) return;
+    const ctx = ac();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') {
+      try {
+        const p = ctx.resume();
+        if (p && typeof p.then === 'function') {
+          p.then(function () { fireDialTick(ctx, strength, wet); }, function () { /* 起きなければ諦める */ });
+          return;
+        }
+      } catch (err) { /* 下でそのまま試す */ }
+    }
+    fireDialTick(ctx, strength, wet);
+  }
 
   /* 出口。低い唸りと、耳に刺さる超高域の両方を落として、
      人が「プラスチックが噛み合った」と感じる帯域だけを通す。
@@ -520,7 +663,7 @@
     ru: {
       feelMagnetLabel: 'Сила магнита',
       feelMaglevLabel: 'Отдача центрального магнита',
-      feelDialHint: 'Нажмите центр для вкл./выкл. Поверните диск вокруг, чтобы выбрать от 1 до 5'
+      feelDialHint: 'Нажмите на центр, чтобы включить или выключить. Поверните кольцо вокруг него, чтобы выбрать от 1 до 5'
     },
     'pt-BR': {
       feelMagnetLabel: 'Força do ímã',
@@ -583,7 +726,7 @@
     '.feel-dial.is-on .feel-dial-btn{color:var(--tc);border-color:var(--tc);',
     '  box-shadow:0 0 14px rgba(0,0,0,.45)}',
     '.feel-dial-btn:active{transform:scale(.94)}',
-    '.feel-dial-hint{margin-top:10px}',
+    '.feel-dial-hint{margin-top:10px;position:relative}',
 
     /* --- ON/OFF の切り替え演出 ---------------------------------------
        ONは「磁力が外へ広がる」、OFFは「灯りがゆっくり落ちる」。
@@ -597,17 +740,51 @@
     '  opacity:0;transition:opacity .9s cubic-bezier(.3,0,.6,1)}',
     '.feel-dial.is-on .feel-dial-glow{opacity:.42;transition:opacity .22s ease-out}',
 
-    /* ONの瞬間だけ、中心から外へ抜けていく波紋。2枚を少しずらして
-       出すと、ひと押しで磁場が立ち上がったように見える。 */
-    '.feel-dial-pulse{position:absolute;left:50%;top:50%;width:62px;height:62px;',
+    /* ONの瞬間だけ、中心から外へ抜けていく波。3枚を0.1秒ずつずらして
+       出し、ダイヤルの4.2倍まで膨らませる。円の内側で消えると
+       ただの点滅に見えるので、はっきり円の外へ抜けさせるのが要点。
+       輪郭線だけでなく内側にもテーマ色の薄い塗りを入れてあるので、
+       水面の波紋ではなく「磁場が押し出された」感じになる。 */
+    '.feel-dial-wave{position:absolute;left:50%;top:50%;width:62px;height:62px;',
     '  margin:-31px 0 0 -31px;border-radius:50%;border:2px solid var(--tc);',
-    '  pointer-events:none;opacity:0;transform:scale(.5);z-index:1}',
-    '.feel-dial-pulse.go{animation:feelPulse .62s cubic-bezier(.15,.75,.3,1) forwards}',
-    '.feel-dial-pulse.lag.go{animation-delay:.09s;animation-duration:.72s}',
-    '@keyframes feelPulse{',
-    '  0%{opacity:.8;transform:scale(.5)}',
-    '  60%{opacity:.28}',
-    '  100%{opacity:0;transform:scale(2.05)}}',
+    '  background:radial-gradient(circle,rgba(var(--tc-rgb),.20) 0%,',
+    '    rgba(var(--tc-rgb),.07) 52%,rgba(var(--tc-rgb),0) 72%);',
+    '  pointer-events:none;opacity:0;transform:scale(.42);z-index:1;',
+    '  will-change:transform,opacity}',
+    '.feel-dial-wave.go{animation:feelWave .86s cubic-bezier(.16,.72,.28,1) forwards}',
+    '.feel-dial-wave.w2.go{animation-delay:.1s}',
+    '.feel-dial-wave.w3.go{animation-delay:.2s}',
+    '@keyframes feelWave{',
+    '  0%{opacity:.9;transform:scale(.42)}',
+    '  55%{opacity:.34}',
+    '  100%{opacity:0;transform:scale(4.2)}}',
+
+    /* 波が下の説明文まで届くと、そこで色が走る。
+       押したダイヤルの真下から湧き出させたいので、色の中心は
+       --wx（説明文の左端から見た割合）で受け取る。
+
+       【元の文字には一切さわらない】
+       前は説明文そのものを文字型に切り抜いていたが、切り抜き中と
+       通常描画とでは字の縁の出方が変わるため、終わった瞬間に
+       「ぷちっ」と白く戻って見えていた。
+       そこで、同じ文章の写しを1枚だけ上に重ね、そちらにだけ色の輪を
+       通す方式にした。下の白い文字は最初から最後まで描画が変わらない
+       ので、戻るときの段差が原理的に起きない。写しは輪が通り過ぎた
+       あと透明になって消えるだけ。 */
+    '.feel-hint-wave{position:absolute;left:0;top:0;width:100%;',
+    '  pointer-events:none;',
+    '  background-image:radial-gradient(circle,',
+    '    rgba(var(--tc-rgb),0) 26%,rgba(var(--tc-rgb),1) 40%,',
+    '    rgba(var(--tc-rgb),1) 52%,rgba(var(--tc-rgb),0) 66%);',
+    '  background-repeat:no-repeat;background-position:var(--wx,50%) 50%;',
+    '  background-size:0 0;',
+    '  -webkit-background-clip:text;background-clip:text;',
+    '  -webkit-text-fill-color:transparent;color:transparent;',
+    '  animation:feelHintWave 1.15s cubic-bezier(.22,.7,.35,1) both}',
+    '@keyframes feelHintWave{',
+    '  0%{background-size:0 0;opacity:1}',
+    '  78%{opacity:1}',
+    '  100%{background-size:1200px 1200px;opacity:0}}',
 
     /* OFFにした直後だけ、光っていた数字を急に消さず、同じ0.9秒で
        いっしょに落とす。ここを一瞬で消すと「ブツッと切れた」感じになる。 */
@@ -616,7 +793,8 @@
     '  box-shadow .9s ease}',
 
     '@media (prefers-reduced-motion: reduce){',
-    '  .feel-dial-pulse{display:none}',
+    '  .feel-dial-wave{display:none}',
+    '  .feel-hint-wave{display:none}',
     '  .feel-dial-glow{transition-duration:.15s}',
     '  .feel-dial.is-fading .feel-dial-ring,.feel-dial.is-fading .feel-dial-num{',
     '    transition-duration:.15s}',
@@ -653,6 +831,50 @@
   /* ダイヤル1つ分を組み立てて返す。
        labelKey/labelFallback … 見出しの辞書キーと既定文言
        getLevel / setLevel    … 磁力かマグレブか、値の出し入れだけ差し替える */
+  /* 波が説明文に届いたことにして、色を走らせる。
+     説明文は2つのダイヤルで1枚を共有しているので、この関数と後始末の
+     タイマーはダイヤルの外に1つだけ置く。
+     色が湧き出す横位置は、押されたダイヤルの中心を説明文の幅に対する
+     割合へ直して --wx で渡す。左の「磁力」なら左寄り、右の「コアマグ」
+     なら右寄りから広がるので、どちらを押したのかが目で分かる。 */
+  let hintWaveTimer = null;
+
+  // 重ねてある写しを取り除く。文面を読むときも書き換えるときも、
+  // まずこれを通して素の1行に戻してから触る。
+  function clearHintWave(hint) {
+    const old = hint.querySelector('.feel-hint-wave');
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+  }
+
+  function sendWaveToHint(dial) {
+    const hint = document.getElementById('feel-dial-hint');
+    if (!hint) return;
+    clearTimeout(hintWaveTimer);
+    clearHintWave(hint);
+
+    const fx = document.createElement('span');
+    fx.className = 'feel-hint-wave';
+    fx.setAttribute('aria-hidden', 'true');
+    fx.textContent = hint.textContent;   // 写す前に外してあるので素の1行
+
+    try {
+      const d = dial.getBoundingClientRect();
+      const h = hint.getBoundingClientRect();
+      if (h.width) {
+        const pct = ((d.left + d.width / 2) - h.left) / h.width * 100;
+        fx.style.setProperty('--wx', Math.max(0, Math.min(100, pct)) + '%');
+      }
+    } catch (err) { /* 位置が測れなければ真ん中から */ }
+
+    // ダイヤルから説明文まで波が下りてくるぶんだけ待たせる。
+    fx.style.animationDelay = '270ms';
+    hint.appendChild(fx);
+
+    const kill = function () { clearHintWave(hint); };
+    fx.addEventListener('animationend', kill);
+    hintWaveTimer = setTimeout(kill, 1800);   // 取りこぼしたときの保険
+  }
+
   function makeDial(labelKey, labelFallback, getLevel, setLevel) {
     const cell = document.createElement('div');
     cell.className = 'feel-dial-cell';
@@ -687,20 +909,24 @@
     }
     dial.appendChild(ring);
 
-    // ほのかな光と、ONの瞬間に広がる波紋2枚。どちらも触れない飾りなので
+    // ほのかな光と、ONの瞬間に広がる波3枚。どちらも触れない飾りなので
     // ring の外（回転しない側）に置き、読み上げからも隠す。
     const glow = document.createElement('span');
     glow.className = 'feel-dial-glow';
     glow.setAttribute('aria-hidden', 'true');
     dial.appendChild(glow);
 
-    const pulses = [];
-    for (let k = 0; k < 2; k++) {
-      const pu = document.createElement('span');
-      pu.className = 'feel-dial-pulse' + (k ? ' lag' : '');
-      pu.setAttribute('aria-hidden', 'true');
-      dial.appendChild(pu);
-      pulses.push(pu);
+    let waveResetTimer = null;
+    // 直前に選ばれていた数字。null のあいだは音を鳴らさない。
+    let lastShown = null;
+
+    const waves = [];
+    for (let k = 0; k < 3; k++) {
+      const wv = document.createElement('span');
+      wv.className = 'feel-dial-wave' + (k ? ' w' + (k + 1) : '');
+      wv.setAttribute('aria-hidden', 'true');
+      dial.appendChild(wv);
+      waves.push(wv);
     }
 
     const btn = document.createElement('button');
@@ -735,6 +961,15 @@
       for (let i = 0; i < nums.length; i++) {
         nums[i].classList.toggle('is-sel', on && (i + 1) === shown);
       }
+      /* 数字が1つ送られた瞬間にカチッと鳴らす。ここ1か所に置けば、
+         指でつまんで回す／数字を直接タップ／キーボード／自動で回る
+         アニメーションの全部を、同じ判定でまかなえる。
+         lastShown が null のあいだ（画面を組み立てている最中）と
+         OFF のあいだは鳴らさない。 */
+      if (lastShown !== null && shown !== lastShown && getLevel() > 0) {
+        playDialTick(1, 0);
+      }
+      lastShown = shown;
     }
     function paintState() {
       const lv = getLevel();
@@ -781,24 +1016,38 @@
       paintState();
     }
 
-    /* ONの瞬間に、中心から外へ波紋を1度だけ走らせる。
+    /* ONの瞬間に、中心から外へ波を1度だけ走らせる。
        同じ要素を使い回すので、アニメを付け直す前にクラスを外して
        レイアウトを一度読み、再生をリセットしてから付ける。
        （外して付けるだけだと、ブラウザが「変化なし」とみなして
          2回目以降が再生されない） */
     function playOnPulse() {
       if (reduceMotion) return;
-      pulses.forEach(function (pu) {
-        pu.classList.remove('go');
-        void pu.offsetWidth;
-        pu.classList.add('go');
+      waves.forEach(function (wv) {
+        wv.classList.remove('go');
+        void wv.offsetWidth;
+        wv.classList.add('go');
+        // 【走り終えたら go を必ず外す】
+        // 付けっぱなしにすると、設定画面を閉じる＝display:none で
+        // アニメーションが巻き戻り、次に開いた瞬間にもう一度再生される。
+        // 「設定を開くたびに光る」のはこれが原因。
+        wv.addEventListener('animationend', function () {
+          wv.classList.remove('go');
+        }, { once: true });
       });
+      clearTimeout(waveResetTimer);   // 取りこぼしたときの保険
+      waveResetTimer = setTimeout(function () {
+        waves.forEach(function (wv) { wv.classList.remove('go'); });
+      }, 1300);
+      sendWaveToHint(dial);
     }
 
     // --- 中心ボタン: ON / OFF ---
     btn.addEventListener('click', () => {
       const on = getLevel() > 0;
       buzz(on ? 10 : [8, 30, 8]);
+      // ONにするときだけ、短い余韻を足して「立ち上がった」感じを出す。
+      playDialTick(0.75, on ? 0 : 0.75);
       clearTimeout(fadeTimer);
       if (on) {
         // OFFへ：光が落ちきるまでのあいだ .is-fading を付けておく
@@ -930,6 +1179,7 @@
           d.capEl.textContent = s;
           d.ringEl.setAttribute('aria-label', s);
         });
+        clearHintWave(hint);
         hint.textContent = tr('feelDialHint', hint.textContent);
       });
     }
