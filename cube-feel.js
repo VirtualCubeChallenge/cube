@@ -583,7 +583,7 @@
     '.feel-dial.is-on .feel-dial-btn{color:var(--tc);border-color:var(--tc);',
     '  box-shadow:0 0 14px rgba(0,0,0,.45)}',
     '.feel-dial-btn:active{transform:scale(.94)}',
-    '.feel-dial-hint{margin-top:10px}',
+    '.feel-dial-hint{margin-top:10px;position:relative}',
 
     /* --- ON/OFF の切り替え演出 ---------------------------------------
        ONは「磁力が外へ広がる」、OFFは「灯りがゆっくり落ちる」。
@@ -619,22 +619,29 @@
     /* 波が下の説明文まで届くと、そこで色が走る。
        押したダイヤルの真下から湧き出させたいので、色の中心は
        --wx（説明文の左端から見た割合）で受け取る。
-       仕掛けは「文字の形に切り抜いた背景」。地色 #aaa を background-color
-       に敷き、その上でテーマ色の輪を background-size で広げる。輪が
-       通り過ぎたあとは地色に戻るので、後始末のコードが要らない。
-       background-clip:text が効かない環境では、この指定ごと無視されて
-       文字は白いまま残るだけで、読めなくなることはない。 */
-    '.feel-dial-hint.wave-hit{--wx:50%;background-color:#aaa;',
+
+       【元の文字には一切さわらない】
+       前は説明文そのものを文字型に切り抜いていたが、切り抜き中と
+       通常描画とでは字の縁の出方が変わるため、終わった瞬間に
+       「ぷちっ」と白く戻って見えていた。
+       そこで、同じ文章の写しを1枚だけ上に重ね、そちらにだけ色の輪を
+       通す方式にした。下の白い文字は最初から最後まで描画が変わらない
+       ので、戻るときの段差が原理的に起きない。写しは輪が通り過ぎた
+       あと透明になって消えるだけ。 */
+    '.feel-hint-wave{position:absolute;left:0;top:0;width:100%;',
+    '  pointer-events:none;',
     '  background-image:radial-gradient(circle,',
-    '    rgba(var(--tc-rgb),0) 30%,rgba(var(--tc-rgb),1) 43%,',
-    '    rgba(var(--tc-rgb),1) 55%,rgba(var(--tc-rgb),0) 68%);',
-    '  background-repeat:no-repeat;background-position:var(--wx) 50%;',
+    '    rgba(var(--tc-rgb),0) 26%,rgba(var(--tc-rgb),1) 40%,',
+    '    rgba(var(--tc-rgb),1) 52%,rgba(var(--tc-rgb),0) 66%);',
+    '  background-repeat:no-repeat;background-position:var(--wx,50%) 50%;',
+    '  background-size:0 0;',
     '  -webkit-background-clip:text;background-clip:text;',
     '  -webkit-text-fill-color:transparent;color:transparent;',
-    '  animation:feelHintWave 1.1s cubic-bezier(.22,.7,.35,1) both}',
+    '  animation:feelHintWave 1.15s cubic-bezier(.22,.7,.35,1) both}',
     '@keyframes feelHintWave{',
-    '  from{background-size:0 0}',
-    '  to{background-size:1100px 1100px}}',
+    '  0%{background-size:0 0;opacity:1}',
+    '  78%{opacity:1}',
+    '  100%{background-size:1200px 1200px;opacity:0}}',
 
     /* OFFにした直後だけ、光っていた数字を急に消さず、同じ0.9秒で
        いっしょに落とす。ここを一瞬で消すと「ブツッと切れた」感じになる。 */
@@ -644,8 +651,7 @@
 
     '@media (prefers-reduced-motion: reduce){',
     '  .feel-dial-wave{display:none}',
-    '  .feel-dial-hint.wave-hit{animation:none;background-image:none;',
-    '    -webkit-text-fill-color:currentColor;color:#aaa}',
+    '  .feel-hint-wave{display:none}',
     '  .feel-dial-glow{transition-duration:.15s}',
     '  .feel-dial.is-fading .feel-dial-ring,.feel-dial.is-fading .feel-dial-num{',
     '    transition-duration:.15s}',
@@ -690,28 +696,40 @@
      なら右寄りから広がるので、どちらを押したのかが目で分かる。 */
   let hintWaveTimer = null;
 
+  // 重ねてある写しを取り除く。文面を読むときも書き換えるときも、
+  // まずこれを通して素の1行に戻してから触る。
+  function clearHintWave(hint) {
+    const old = hint.querySelector('.feel-hint-wave');
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+  }
+
   function sendWaveToHint(dial) {
     const hint = document.getElementById('feel-dial-hint');
     if (!hint) return;
+    clearTimeout(hintWaveTimer);
+    clearHintWave(hint);
+
+    const fx = document.createElement('span');
+    fx.className = 'feel-hint-wave';
+    fx.setAttribute('aria-hidden', 'true');
+    fx.textContent = hint.textContent;   // 写す前に外してあるので素の1行
+
     try {
       const d = dial.getBoundingClientRect();
       const h = hint.getBoundingClientRect();
       if (h.width) {
         const pct = ((d.left + d.width / 2) - h.left) / h.width * 100;
-        hint.style.setProperty('--wx', Math.max(0, Math.min(100, pct)) + '%');
+        fx.style.setProperty('--wx', Math.max(0, Math.min(100, pct)) + '%');
       }
     } catch (err) { /* 位置が測れなければ真ん中から */ }
-    hint.classList.remove('wave-hit');
-    void hint.offsetWidth;
-    // ダイヤルから説明文まで波が下りてくるぶんだけ待つ。
-    hint.style.animationDelay = '270ms';
-    hint.classList.add('wave-hit');
-    // 走り終えたらクラスを外す。付けっぱなしにすると、言語切り替えで
-    // 文面を書き換えたときに色が抜けたまま残ることがある。
-    clearTimeout(hintWaveTimer);
-    hintWaveTimer = setTimeout(function () {
-      hint.classList.remove('wave-hit');
-    }, 1500);
+
+    // ダイヤルから説明文まで波が下りてくるぶんだけ待たせる。
+    fx.style.animationDelay = '270ms';
+    hint.appendChild(fx);
+
+    const kill = function () { clearHintWave(hint); };
+    fx.addEventListener('animationend', kill);
+    hintWaveTimer = setTimeout(kill, 1800);   // 取りこぼしたときの保険
   }
 
   function makeDial(labelKey, labelFallback, getLevel, setLevel) {
@@ -992,6 +1010,7 @@
           d.capEl.textContent = s;
           d.ringEl.setAttribute('aria-label', s);
         });
+        clearHintWave(hint);
         hint.textContent = tr('feelDialHint', hint.textContent);
       });
     }
