@@ -597,17 +597,44 @@
     '  opacity:0;transition:opacity .9s cubic-bezier(.3,0,.6,1)}',
     '.feel-dial.is-on .feel-dial-glow{opacity:.42;transition:opacity .22s ease-out}',
 
-    /* ONの瞬間だけ、中心から外へ抜けていく波紋。2枚を少しずらして
-       出すと、ひと押しで磁場が立ち上がったように見える。 */
-    '.feel-dial-pulse{position:absolute;left:50%;top:50%;width:62px;height:62px;',
+    /* ONの瞬間だけ、中心から外へ抜けていく波。3枚を0.1秒ずつずらして
+       出し、ダイヤルの4.2倍まで膨らませる。円の内側で消えると
+       ただの点滅に見えるので、はっきり円の外へ抜けさせるのが要点。
+       輪郭線だけでなく内側にもテーマ色の薄い塗りを入れてあるので、
+       水面の波紋ではなく「磁場が押し出された」感じになる。 */
+    '.feel-dial-wave{position:absolute;left:50%;top:50%;width:62px;height:62px;',
     '  margin:-31px 0 0 -31px;border-radius:50%;border:2px solid var(--tc);',
-    '  pointer-events:none;opacity:0;transform:scale(.5);z-index:1}',
-    '.feel-dial-pulse.go{animation:feelPulse .62s cubic-bezier(.15,.75,.3,1) forwards}',
-    '.feel-dial-pulse.lag.go{animation-delay:.09s;animation-duration:.72s}',
-    '@keyframes feelPulse{',
-    '  0%{opacity:.8;transform:scale(.5)}',
-    '  60%{opacity:.28}',
-    '  100%{opacity:0;transform:scale(2.05)}}',
+    '  background:radial-gradient(circle,rgba(var(--tc-rgb),.20) 0%,',
+    '    rgba(var(--tc-rgb),.07) 52%,rgba(var(--tc-rgb),0) 72%);',
+    '  pointer-events:none;opacity:0;transform:scale(.42);z-index:1;',
+    '  will-change:transform,opacity}',
+    '.feel-dial-wave.go{animation:feelWave .86s cubic-bezier(.16,.72,.28,1) forwards}',
+    '.feel-dial-wave.w2.go{animation-delay:.1s}',
+    '.feel-dial-wave.w3.go{animation-delay:.2s}',
+    '@keyframes feelWave{',
+    '  0%{opacity:.9;transform:scale(.42)}',
+    '  55%{opacity:.34}',
+    '  100%{opacity:0;transform:scale(4.2)}}',
+
+    /* 波が下の説明文まで届くと、そこで色が走る。
+       押したダイヤルの真下から湧き出させたいので、色の中心は
+       --wx（説明文の左端から見た割合）で受け取る。
+       仕掛けは「文字の形に切り抜いた背景」。地色 #aaa を background-color
+       に敷き、その上でテーマ色の輪を background-size で広げる。輪が
+       通り過ぎたあとは地色に戻るので、後始末のコードが要らない。
+       background-clip:text が効かない環境では、この指定ごと無視されて
+       文字は白いまま残るだけで、読めなくなることはない。 */
+    '.feel-dial-hint.wave-hit{--wx:50%;background-color:#aaa;',
+    '  background-image:radial-gradient(circle,',
+    '    rgba(var(--tc-rgb),0) 30%,rgba(var(--tc-rgb),1) 43%,',
+    '    rgba(var(--tc-rgb),1) 55%,rgba(var(--tc-rgb),0) 68%);',
+    '  background-repeat:no-repeat;background-position:var(--wx) 50%;',
+    '  -webkit-background-clip:text;background-clip:text;',
+    '  -webkit-text-fill-color:transparent;color:transparent;',
+    '  animation:feelHintWave 1.1s cubic-bezier(.22,.7,.35,1) both}',
+    '@keyframes feelHintWave{',
+    '  from{background-size:0 0}',
+    '  to{background-size:1100px 1100px}}',
 
     /* OFFにした直後だけ、光っていた数字を急に消さず、同じ0.9秒で
        いっしょに落とす。ここを一瞬で消すと「ブツッと切れた」感じになる。 */
@@ -616,7 +643,9 @@
     '  box-shadow .9s ease}',
 
     '@media (prefers-reduced-motion: reduce){',
-    '  .feel-dial-pulse{display:none}',
+    '  .feel-dial-wave{display:none}',
+    '  .feel-dial-hint.wave-hit{animation:none;background-image:none;',
+    '    -webkit-text-fill-color:currentColor;color:#aaa}',
     '  .feel-dial-glow{transition-duration:.15s}',
     '  .feel-dial.is-fading .feel-dial-ring,.feel-dial.is-fading .feel-dial-num{',
     '    transition-duration:.15s}',
@@ -653,6 +682,38 @@
   /* ダイヤル1つ分を組み立てて返す。
        labelKey/labelFallback … 見出しの辞書キーと既定文言
        getLevel / setLevel    … 磁力かマグレブか、値の出し入れだけ差し替える */
+  /* 波が説明文に届いたことにして、色を走らせる。
+     説明文は2つのダイヤルで1枚を共有しているので、この関数と後始末の
+     タイマーはダイヤルの外に1つだけ置く。
+     色が湧き出す横位置は、押されたダイヤルの中心を説明文の幅に対する
+     割合へ直して --wx で渡す。左の「磁力」なら左寄り、右の「コアマグ」
+     なら右寄りから広がるので、どちらを押したのかが目で分かる。 */
+  let hintWaveTimer = null;
+
+  function sendWaveToHint(dial) {
+    const hint = document.getElementById('feel-dial-hint');
+    if (!hint) return;
+    try {
+      const d = dial.getBoundingClientRect();
+      const h = hint.getBoundingClientRect();
+      if (h.width) {
+        const pct = ((d.left + d.width / 2) - h.left) / h.width * 100;
+        hint.style.setProperty('--wx', Math.max(0, Math.min(100, pct)) + '%');
+      }
+    } catch (err) { /* 位置が測れなければ真ん中から */ }
+    hint.classList.remove('wave-hit');
+    void hint.offsetWidth;
+    // ダイヤルから説明文まで波が下りてくるぶんだけ待つ。
+    hint.style.animationDelay = '270ms';
+    hint.classList.add('wave-hit');
+    // 走り終えたらクラスを外す。付けっぱなしにすると、言語切り替えで
+    // 文面を書き換えたときに色が抜けたまま残ることがある。
+    clearTimeout(hintWaveTimer);
+    hintWaveTimer = setTimeout(function () {
+      hint.classList.remove('wave-hit');
+    }, 1500);
+  }
+
   function makeDial(labelKey, labelFallback, getLevel, setLevel) {
     const cell = document.createElement('div');
     cell.className = 'feel-dial-cell';
@@ -687,20 +748,20 @@
     }
     dial.appendChild(ring);
 
-    // ほのかな光と、ONの瞬間に広がる波紋2枚。どちらも触れない飾りなので
+    // ほのかな光と、ONの瞬間に広がる波3枚。どちらも触れない飾りなので
     // ring の外（回転しない側）に置き、読み上げからも隠す。
     const glow = document.createElement('span');
     glow.className = 'feel-dial-glow';
     glow.setAttribute('aria-hidden', 'true');
     dial.appendChild(glow);
 
-    const pulses = [];
-    for (let k = 0; k < 2; k++) {
-      const pu = document.createElement('span');
-      pu.className = 'feel-dial-pulse' + (k ? ' lag' : '');
-      pu.setAttribute('aria-hidden', 'true');
-      dial.appendChild(pu);
-      pulses.push(pu);
+    const waves = [];
+    for (let k = 0; k < 3; k++) {
+      const wv = document.createElement('span');
+      wv.className = 'feel-dial-wave' + (k ? ' w' + (k + 1) : '');
+      wv.setAttribute('aria-hidden', 'true');
+      dial.appendChild(wv);
+      waves.push(wv);
     }
 
     const btn = document.createElement('button');
@@ -781,18 +842,19 @@
       paintState();
     }
 
-    /* ONの瞬間に、中心から外へ波紋を1度だけ走らせる。
+    /* ONの瞬間に、中心から外へ波を1度だけ走らせる。
        同じ要素を使い回すので、アニメを付け直す前にクラスを外して
        レイアウトを一度読み、再生をリセットしてから付ける。
        （外して付けるだけだと、ブラウザが「変化なし」とみなして
          2回目以降が再生されない） */
     function playOnPulse() {
       if (reduceMotion) return;
-      pulses.forEach(function (pu) {
-        pu.classList.remove('go');
-        void pu.offsetWidth;
-        pu.classList.add('go');
+      waves.forEach(function (wv) {
+        wv.classList.remove('go');
+        void wv.offsetWidth;
+        wv.classList.add('go');
       });
+      sendWaveToHint(dial);
     }
 
     // --- 中心ボタン: ON / OFF ---

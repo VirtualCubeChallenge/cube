@@ -1296,7 +1296,7 @@
        I18N への追記と設定スライダーの差し込みを兼ねるので、i18n.js より
        あと・本体スクリプトより先に読み込む。読み込んだだけでは何も起きず、
        本体の回転処理が CubeFeel.play() を呼んだときだけ効く。 -->
-  <script src="cube-feel.js?v=20260819e"></script>
+  <script src="cube-feel.js?v=20260819f"></script>
   <!-- 触り心地のマイクロインタラクション（押下感・波紋・画面遷移）。
        CSS の注入まで自分で行うので、style.css には手を入れていない。
        この1行を外せば、見た目も挙動もそっくり元に戻る。 -->
@@ -4588,8 +4588,6 @@
       // 横長の画面では「幅の一定割合」がそのまま縦をはみ出す大きさになり、
       // キューブが画面に収まらなくなる。基準より横長になったぶんは
       // アスペクトを頭打ちにして、縦の画角(BASE_VFOV_DEG)を保つ。
-      // こうすると横長画面では左右に余白ができるだけで、キューブは必ず
-      // 縦に収まる。REFERENCE_ASPECT より縦長(スマホ)の挙動は今までどおり。
       const a = Math.min(aspect, REFERENCE_ASPECT);
       const halfV = Math.atan(Math.tan(BASE_HALF_HFOV_RAD) / a);
       const deg = halfV * 2 * 180 / Math.PI;

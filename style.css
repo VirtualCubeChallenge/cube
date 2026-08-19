@@ -6249,11 +6249,8 @@
    出てしまうため。 */
 /* 【重要】ここのセレクタは必ず #pllt-overlay[data-view="drill"] で始める。
    .pllt-drill だけに display を書くと、上の .pllt-view{display:none} と
-   同じ詳細度でこちらが後勝ちしてしまい、設定・リザルト・通算成績の
-   どの画面を開いていても実技画面が最前面に居座る。実技画面は
-   position:absolute; inset:0 で設定画面の後ろに書かれているため、
-   スタートや回答のタップが全部そこで吸われて「押しても何も起きない」
-   状態になる（PCの横長画面でだけ再現した不具合）。 */
+   同じ詳細度でこちらが後勝ちしてしまい、どの画面を開いていても実技画面が
+   最前面に居座り、スタートも回答も押せなくなる（PCの横長画面だけで再現）。 */
 @media (min-width: 900px) and (min-aspect-ratio: 1/1) {
   #pllt-overlay[data-view="drill"] .pllt-drill {
     display: grid;
