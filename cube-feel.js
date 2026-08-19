@@ -632,7 +632,7 @@
     },
     en: {
       feelMagnetLabel: 'Magnet strength',
-      feelMaglevLabel: 'Core magnet bounce',
+      feelMaglevLabel: 'Magnet bounce',
       feelDialHint: 'Tap the centre for ON/OFF. Spin the dial around it to pick 1-5'
     },
     'zh-CN': {
@@ -647,27 +647,27 @@
     },
     ko: {
       feelMagnetLabel: '자력 세기',
-      feelMaglevLabel: '코어 마그넷 반발력',
+      feelMaglevLabel: '마그넷 반발력',
       feelDialHint: '가운데를 눌러 ON/OFF. 둘레의 다이얼을 돌려 1~5로 세기를 고릅니다'
     },
     es: {
       feelMagnetLabel: 'Fuerza del imán',
-      feelMaglevLabel: 'Rebote del imán central',
+      feelMaglevLabel: 'Rebote del imán',
       feelDialHint: 'Toca el centro para activar. Gira el dial alrededor para elegir de 1 a 5'
     },
     id: {
       feelMagnetLabel: 'Kekuatan magnet',
-      feelMaglevLabel: 'Pantulan magnet inti',
+      feelMaglevLabel: 'Pantulan magnet',
       feelDialHint: 'Ketuk bagian tengah untuk ON/OFF. Putar dial di sekelilingnya untuk memilih 1-5'
     },
     ru: {
       feelMagnetLabel: 'Сила магнита',
-      feelMaglevLabel: 'Отдача центрального магнита',
+      feelMaglevLabel: 'Отдача магнита',
       feelDialHint: 'Нажмите на центр, чтобы включить или выключить. Поверните кольцо вокруг него, чтобы выбрать от 1 до 5'
     },
     'pt-BR': {
       feelMagnetLabel: 'Força do ímã',
-      feelMaglevLabel: 'Repique do ímã central',
+      feelMaglevLabel: 'Repique do ímã',
       feelDialHint: 'Toque no centro para ligar/desligar. Gire o disco ao redor para escolher de 1 a 5'
     }
   };
@@ -774,17 +774,25 @@
     '.feel-hint-wave{position:absolute;left:0;top:0;width:100%;',
     '  pointer-events:none;',
     '  background-image:radial-gradient(circle,',
-    '    rgba(var(--tc-rgb),0) 26%,rgba(var(--tc-rgb),1) 40%,',
-    '    rgba(var(--tc-rgb),1) 52%,rgba(var(--tc-rgb),0) 66%);',
+    '    rgba(var(--tc-rgb),0) 20%,rgba(var(--tc-rgb),.85) 32%,',
+    '    rgba(255,255,255,.95) 43%,rgba(var(--tc-rgb),.95) 53%,',
+    '    rgba(var(--tc-rgb),.4) 64%,rgba(var(--tc-rgb),0) 80%);',
     '  background-repeat:no-repeat;background-position:var(--wx,50%) 50%;',
     '  background-size:0 0;',
     '  -webkit-background-clip:text;background-clip:text;',
     '  -webkit-text-fill-color:transparent;color:transparent;',
-    '  animation:feelHintWave 1.15s cubic-bezier(.22,.7,.35,1) both}',
+    '  animation:feelHintWave 1.4s cubic-bezier(.22,.7,.35,1) both}',
+    /* 前は「ずっと満開→終盤だけ急に0」で、パチッと消えて見えていた。
+       ここでは膨らみきる手前からゆっくり薄れ始め、輪が広がりきる
+       頃にちょうど透明になるよう、複数の中間点で少しずつ弱める。
+       立ち上がりだけは早め（12%で満開）にして、消えは長く伸ばす
+       ことで「サッと出て、すーっと引いていく」流れにしている。 */
     '@keyframes feelHintWave{',
-    '  0%{background-size:0 0;opacity:1}',
-    '  78%{opacity:1}',
-    '  100%{background-size:1200px 1200px;opacity:0}}',
+    '  0%{background-size:0 0;opacity:0}',
+    '  12%{background-size:220px 220px;opacity:1}',
+    '  42%{background-size:760px 760px;opacity:.92}',
+    '  70%{background-size:1160px 1160px;opacity:.5}',
+    '  100%{background-size:1500px 1500px;opacity:0}}',
 
     /* OFFにした直後だけ、光っていた数字を急に消さず、同じ0.9秒で
        いっしょに落とす。ここを一瞬で消すと「ブツッと切れた」感じになる。 */
@@ -872,7 +880,7 @@
 
     const kill = function () { clearHintWave(hint); };
     fx.addEventListener('animationend', kill);
-    hintWaveTimer = setTimeout(kill, 1800);   // 取りこぼしたときの保険
+    hintWaveTimer = setTimeout(kill, 2000);   // 取りこぼしたときの保険
   }
 
   function makeDial(labelKey, labelFallback, getLevel, setLevel) {
