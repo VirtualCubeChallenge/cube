@@ -88,6 +88,11 @@
      最後に調整した「45°から鳴って90°で消える音」がそのまま復活する。 */
   const SOUND_ENABLED = false;
 
+  /* ダイヤルの節度感（1〜5を送るときのカチッ、ON/OFFの手応え）。
+     回転音とは完全に別扱いで、こちらは鳴らす。読み込み直後の
+     アンロック判定でも参照するので、実装より先にここで宣言しておく。 */
+  const DIAL_SOUND = true;
+
   let actx = null;
   let noiseBuf = null;
   let audioBroken = false;
@@ -96,9 +101,17 @@
     if (audioBroken) return null;
     try {
       if (!actx) {
-        const C = global.AudioContext || global.webkitAudioContext;
-        if (!C) { audioBroken = true; return null; }
-        actx = new C();
+        // index.html の head にある共有ヘルパーを優先して使う。
+        // iOS は AudioContext を4つまでしか作れず、モジュールごとに
+        // 新規で作ると上限に当たって音が出なくなることがある。
+        if (global.__audioCtx) {
+          actx = global.__audioCtx();
+        } else {
+          const C = global.AudioContext || global.webkitAudioContext;
+          if (!C) { audioBroken = true; return null; }
+          actx = new C();
+        }
+        if (!actx) { audioBroken = true; return null; }
       }
       if (actx.state === 'suspended') actx.resume();
       // 鳴り終わったら眠らせる（画面録画時のハム音対策。index.html の
@@ -132,7 +145,7 @@
       s.start(0);
     } catch (err) { /* 続行 */ }
   }
-  if (SOUND_ENABLED) {
+  if (SOUND_ENABLED || DIAL_SOUND) {
     UNLOCK_EVENTS.forEach(function (ev) {
       document.addEventListener(ev, unlockAudio, { capture: true, passive: true });
     });
@@ -165,6 +178,107 @@
   }
 
   const rnd = (spread) => 1 + (Math.random() * 2 - 1) * spread;
+
+  /* ============================================================
+     ダイヤルの節度感（カチッ）
+
+     安っぽく聞こえる音は、たいてい「ノイズを鳴らしっぱなし」か
+     「減衰が長すぎる」かのどちらか。ここでは 1.2ms だけノイズを叩き込み、
+     あとは Q の高いフィルタの共鳴だけで鳴らして数msで消している
+     （打楽器の物理モデルと同じ考え方）。立ち上がりにランプを使わない＝
+     波形がほぼ垂直に立つので、硬い部品が噛み合った感じになる。
+
+     3本の共鳴を重ねているのは、単一の高さだと電子的なピーになるため。
+       2350Hz  … 節度の芯
+       4900Hz  … 金属質な縁
+        880Hz  … わずかな重み。これが無いと軽い作り物になる
+     ============================================================ */
+
+  // ONのときだけ足す短い残響。320ms で落ちきる小さな部屋ぶんだけ。
+  let dialIrBuf = null;
+  function dialIR(ctx) {
+    if (dialIrBuf && dialIrBuf.sampleRate === ctx.sampleRate) return dialIrBuf;
+    const len = Math.floor(ctx.sampleRate * 0.32);
+    dialIrBuf = ctx.createBuffer(2, len, ctx.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = dialIrBuf.getChannelData(ch);
+      for (let i = 0; i < len; i++) {
+        const t = i / len;
+        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 3.2);
+      }
+    }
+    return dialIrBuf;
+  }
+
+  /* 出口（ダイヤル用）。回転音より狭く、低くまとめる。
+     wet > 0 なら残響を並列に足す。原音より 12ms だけ遅らせてから
+     残響に送るのが要点で、これが無いと出音が濁って芯が消える。 */
+  function dialChain(ctx, wet) {
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 400;
+    hp.Q.value = 0.7;
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 8000;
+    hp.connect(lp);
+    lp.connect(ctx.destination);
+    if (wet > 0) {
+      try {
+        const pre = ctx.createDelay(0.1);
+        pre.delayTime.value = 0.012;
+        const cv = ctx.createConvolver();
+        cv.buffer = dialIR(ctx);
+        cv.normalize = true;
+        const wg = ctx.createGain();
+        wg.gain.value = wet;
+        lp.connect(pre); pre.connect(cv); cv.connect(wg); wg.connect(ctx.destination);
+      } catch (err) { /* 残響が作れなければ原音だけで鳴らす */ }
+    }
+    return hp;
+  }
+
+  /* 一瞬だけ叩いて共鳴させる。exc（叩く長さ）を伸ばすと途端に
+     「シャッ」という擦れ音になるので、ここは短く保つこと。 */
+  function ping(ctx, at, o) {
+    const src = noiseSource(ctx);
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = o.freq;
+    bp.Q.value = o.q;
+    const g = ctx.createGain();
+    // 立ち上がりにランプを使わない＝一瞬で最大。ここが硬さの決め手。
+    g.gain.setValueAtTime(o.vol, at);
+    // 減衰は「元の音量の 0.0006 倍まで」と比率で決める。こうしておくと
+    // 音量を変えても減衰の速さ（＝音の長さ）が変わらない。
+    g.gain.exponentialRampToValueAtTime(o.vol * 0.0006, at + o.dur);
+    src.connect(bp); bp.connect(g); g.connect(o.out);
+    src.start(at, Math.random() * 0.3);
+    src.stop(at + 0.0012);
+  }
+
+  let lastTickAt = 0;
+  /* strength: 1 = 目盛りを1つ送った / 0.75 = ON・OFF の切り替え
+     wet:      0 = 残響なし / 0.75 = ONのときだけ足す小さな余韻 */
+  function playDialTick(strength, wet) {
+    if (!DIAL_SOUND || reduceMotion) return;
+    const ctx = ac();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    // 勢いよく回したときに音が団子にならないよう、最短間隔を設ける
+    if (now - lastTickAt < 0.022) return;
+    lastTickAt = now;
+
+    const out = dialChain(ctx, wet || 0);
+    const v = (strength == null ? 1 : strength);
+    // 高級感は「毎回ほぼ同じ音」から出るので、ゆらぎはごく控えめに。
+    const tune = rnd(0.03);
+    ping(ctx, now,          { freq: 2350 * tune, q: 28, dur: 0.014, vol: 5.45 * v * rnd(0.06), out: out });
+    ping(ctx, now + 0.0004, { freq: 4900 * tune, q: 16, dur: 0.007, vol: 2.29 * v * rnd(0.08), out: out });
+    ping(ctx, now + 0.0002, { freq:  880 * tune, q:  9, dur: 0.011, vol: 0.65 * v * rnd(0.06), out: out });
+
+    if (global.__audioIdleSuspend) global.__audioIdleSuspend(ctx, 1500);
+  }
 
   /* 出口。低い唸りと、耳に刺さる超高域の両方を落として、
      人が「プラスチックが噛み合った」と感じる帯域だけを通す。
@@ -773,6 +887,10 @@
     glow.setAttribute('aria-hidden', 'true');
     dial.appendChild(glow);
 
+    let waveResetTimer = null;
+    // 直前に選ばれていた数字。null のあいだは音を鳴らさない。
+    let lastShown = null;
+
     const waves = [];
     for (let k = 0; k < 3; k++) {
       const wv = document.createElement('span');
@@ -814,6 +932,15 @@
       for (let i = 0; i < nums.length; i++) {
         nums[i].classList.toggle('is-sel', on && (i + 1) === shown);
       }
+      /* 数字が1つ送られた瞬間にカチッと鳴らす。ここ1か所に置けば、
+         指でつまんで回す／数字を直接タップ／キーボード／自動で回る
+         アニメーションの全部を、同じ判定でまかなえる。
+         lastShown が null のあいだ（画面を組み立てている最中）と
+         OFF のあいだは鳴らさない。 */
+      if (lastShown !== null && shown !== lastShown && getLevel() > 0) {
+        playDialTick(1, 0);
+      }
+      lastShown = shown;
     }
     function paintState() {
       const lv = getLevel();
@@ -871,7 +998,18 @@
         wv.classList.remove('go');
         void wv.offsetWidth;
         wv.classList.add('go');
+        // 【走り終えたら go を必ず外す】
+        // 付けっぱなしにすると、設定画面を閉じる＝display:none で
+        // アニメーションが巻き戻り、次に開いた瞬間にもう一度再生される。
+        // 「設定を開くたびに光る」のはこれが原因。
+        wv.addEventListener('animationend', function () {
+          wv.classList.remove('go');
+        }, { once: true });
       });
+      clearTimeout(waveResetTimer);   // 取りこぼしたときの保険
+      waveResetTimer = setTimeout(function () {
+        waves.forEach(function (wv) { wv.classList.remove('go'); });
+      }, 1300);
       sendWaveToHint(dial);
     }
 
@@ -879,6 +1017,8 @@
     btn.addEventListener('click', () => {
       const on = getLevel() > 0;
       buzz(on ? 10 : [8, 30, 8]);
+      // ONにするときだけ、短い余韻を足して「立ち上がった」感じを出す。
+      playDialTick(0.75, on ? 0 : 0.75);
       clearTimeout(fadeTimer);
       if (on) {
         // OFFへ：光が落ちきるまでのあいだ .is-fading を付けておく
