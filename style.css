@@ -5762,10 +5762,12 @@
   transform-style: preserve-3d;
   /* 姿勢の式はここ1か所だけ。アングルの切り替えは --pllt-spin を
      差し替えるだけで済み、JS側は角度の計算を持たない。
-     FR:-38 / FL:38 / BR:-142 / BL:142 と対称に取ってあるので、
-     どのアングルでも2面の見え方の比率が同じになる。 */
-  --pllt-spin: -38deg;
-  transform: translateY(calc(var(--pllt-s) * 0.10)) rotateX(-26deg) rotateY(var(--pllt-spin));
+     FR:-19 / FL:19 / BR:-161 / BL:161 と対称に取ってあるので、
+     どのアングルでも2面の見え方の比率が同じになる。
+     角度は本編の3Dキューブ(方位約19°/仰角約30°)に合わせてある。実際に
+     手に持って見ているのと同じ見え方＝F面が主役、R面は細い帯。 */
+  --pllt-spin: -19deg;
+  transform: translateY(calc(var(--pllt-s) * 0.10)) rotateX(-30deg) rotateY(var(--pllt-spin));
 }
 /* 黒いフチ(枠と目地)はやめた。小さく描くと黒がステッカーを痩せさせて
    色が読みにくくなるため、マスどうしは隙間なく敷きつめ、白い細線だけで
