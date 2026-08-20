@@ -1,0 +1,129 @@
+/* ============================================================
+   theme-natural.css — サイバー/ネオン系 → ナチュラル&クリーン化
+   ------------------------------------------------------------
+   cube-feel.js / ui-polish.js と同じ方針: 既存の style.css / index.html
+   には手を入れず、これを "後から読み込む1枚" だけで見た目を変える。
+   読み込みをやめれば、いつでも元のデザインに戻る。
+
+   導入方法: index.html の <link rel="stylesheet" href="style.css">
+   の直後に、もう1行だけ追加する。
+     <link rel="stylesheet" href="theme-natural.css?v=1">
+
+   ------------------------------------------------------------
+   前提として確認したこと(良かった点):
+   - body の背景は既に #121214 (深みのあるダークグレー)。
+     ピュアブラック(#000000)は使われていない → 背景色は変更不要。
+   - パネル背景も #1c1c22、角丸14pxなど既にわりと落ち着いた値。
+   - ボタン押下時の縮小(scale)や波紋は ui-polish.js が既に担当済み。
+     → ここで重複した press アニメーションは追加しない。
+
+   このファイルが直すのはピンポイントで3つだけ:
+   ① 選択状態のネオン枠+発光 → 背景を一段明るくする表現に置き換え
+   ② 8px の角丸だったボタン/カード類を 12〜16px に統一
+   ③ ラテン文字だけ Outfit フォントに(日本語/中国語/韓国語は
+     既存の専用フォントのままなので壊れない)
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   ① フォント: Outfit をラテン文字スタックの先頭に追加
+   [lang="ja"] [lang="zh-CN"] [lang="zh-TW"] [lang="ko"] は
+   style.css 側で --ui-font を独自に上書きしているため、
+   ここでの変更の影響を受けない(=文字化け・字形崩れの心配なし)。
+   ------------------------------------------------------------ */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --font-latin: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI",
+                Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ------------------------------------------------------------
+   ② 角丸: 8px だった小型ボタン/カードを 12〜16px に
+   (元の値は style.css 側にも残っているが、後読みなので上書きされる)
+   ------------------------------------------------------------ */
+.action-btn,
+.oll-case,
+.slot-btn,
+.lang-cell {
+  border-radius: 14px;
+}
+
+/* ------------------------------------------------------------
+   ③ 選択状態: 原色枠+発光(box-shadow glow) → 背景を明るくする表現へ
+   ------------------------------------------------------------ */
+
+/* 前回の版は固定のスレートグレー(#334155)にしていたため、アプリの
+   アクセントカラー(--tc)と無関係な色になり「選ばれている」というより
+   「灰色になって無効化された」ように見えてしまっていた。
+   ネオン発光はやめつつ、色そのものはアクセントカラーの薄い塗りに
+   戻すことで、他の水色/虹カラーに切り替えても選択色が追従する。 */
+
+/* スロット(記号割り当て)の選択中: ネオンの二重リング発光をやめ、
+   アクセントカラーの淡い塗り+枠線で「選ばれている」ことを伝える */
+.slot-btn.selected {
+  box-shadow: none;
+  border-color: var(--tc);
+  background: rgba(var(--tc-rgb), 0.16);
+}
+
+/* 言語選択マスの選択中: 発光枠 → アクセントカラーの淡い塗りで表現 */
+.lang-cell.selected {
+  border-color: var(--tc);
+  background: rgba(var(--tc-rgb), 0.16);
+}
+
+/* モード選択カードの選択中: 同上。チェックマークの丸は
+   アクセントカラーで塗りつぶし、発光だけ付けない */
+.mode-card.selected {
+  border-color: var(--tc);
+  background: rgba(var(--tc-rgb), 0.16);
+}
+.mode-card.selected .mode-check {
+  box-shadow: none;
+}
+
+/* シャッフルスライダー: 「あと一手」を示す発光を控えめに
+   (完全に消すと合図が伝わらなくなるため、ぼかし・強さだけ弱める) */
+.shuffle-slider.armed {
+  box-shadow: 0 0 6px rgba(var(--tc-rgb), 0.28);
+}
+.shuffle-slider.celebrate {
+  box-shadow: 0 0 6px rgba(var(--tc-rgb), 0.32),
+              inset 0 0 6px rgba(var(--tc-rgb), 0.08);
+}
+@keyframes shuffleSliderCelebrate {
+  0%, 100% { box-shadow: 0 0 6px rgba(var(--tc-rgb), 0.32), inset 0 0 6px rgba(var(--tc-rgb), 0.08); }
+  50%      { box-shadow: 0 0 12px rgba(var(--tc-rgb), 0.55), inset 0 0 9px rgba(var(--tc-rgb), 0.16); }
+}
+
+/* 記録更新デモの黄色い点滅枠: 原色感を弱め、太さも少し細く */
+@keyframes demo-neon-record {
+  0%, 100% { box-shadow: 0 0 6px rgba(255, 213, 74, 0.4); }
+  50%      { box-shadow: 0 0 14px rgba(255, 213, 74, 0.7); }
+}
+
+/* ------------------------------------------------------------
+   固定色モードの案内(mode-indicator): 常時表示ではなく、
+   切り替えた瞬間だけフェードイン→少し待ってフェードアウトする
+   トースト表示にする(対応するJS側の変更はindex.htmlに実施済み)。
+   ------------------------------------------------------------ */
+.mode-indicator.show {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.mode-indicator.show.show-visible {
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------
+   ボタン/カードの押下トランジションを少しだけ滑らかに統一
+   (scale自体は ui-polish.js が担当。ここでは色/枠の変化速度だけ揃える)
+   ------------------------------------------------------------ */
+.action-btn,
+.slot-btn,
+.oll-case,
+.lang-cell,
+.mode-card {
+  transition: transform 0.2s ease, background 0.2s ease,
+              border-color 0.2s ease, box-shadow 0.2s ease;
+}
