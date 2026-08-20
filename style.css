@@ -1407,7 +1407,59 @@
       font-size: 16px;
       margin-bottom: 14px;
     }
-    #stats-list {
+    /* --- ランキングの2ページ構成（キューブサイズ ⇄ 最小手数） ---
+       .stats-pager が窓、.stats-track がその中を横に滑る帯。
+       ページを増やすときは track の width と page の flex-basis を
+       ページ数に合わせて変える（JS 側の PAGES も同じ数にする）。 */
+    .stats-pager {
+      overflow: hidden;
+      /* スワイプ中に端末の「戻る」ジェスチャや横スクロールへ流れないように */
+      touch-action: pan-y;
+    }
+    .stats-track {
+      display: flex;
+      width: 200%;
+      transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+    .stats-track.no-anim {
+      transition: none;
+    }
+    .stats-page {
+      flex: 0 0 50%;
+      width: 50%;
+      /* 隣のページの影が窓からはみ出して見えないよう、内側に少し余白 */
+      padding: 0 2px;
+      box-sizing: border-box;
+    }
+    .stats-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: 2px 0 6px;
+    }
+    .stats-dot {
+      width: 8px;
+      height: 8px;
+      padding: 0;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.22);
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .stats-dot.on {
+      background: var(--tc, #3ff0c4);
+      transform: scale(1.3);
+    }
+    .stats-swipe-hint {
+      font-size: 11px;
+      opacity: 0.5;
+      margin-bottom: 8px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .stats-track { transition: none; }
+    }
+    #stats-list, #stats-move-list {
       overflow-y: auto;
       max-height: 50vh;
       margin-bottom: 10px;
@@ -1440,6 +1492,15 @@
       font-size: 19px;
       line-height: 1;
       color: #666;
+    }
+    /* 手数の後ろに付く単位（「手」/ moves / 步 …）。数字より一段小さく、
+       色は数字と同じものを継ぐので、虹色や金色の演出にもそのまま乗る。 */
+    .stats-size-num i {
+      font-style: normal;
+      font-size: 11px;
+      font-weight: 700;
+      margin-left: 2px;
+      opacity: 0.8;
     }
     .stats-size-num.size-rainbow {
       font-size: 19px;

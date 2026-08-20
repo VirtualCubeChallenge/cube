@@ -3622,3 +3622,63 @@
     });
   });
 })();
+
+/* ============================================================
+   最小手数ランキング（ランキング画面の2ページ目）の文言
+   既存の辞書には手を入れず、まだ無いキーだけを足すマージ方式。
+   ============================================================ */
+(function () {
+  const MOVE_RANK_I18N = {
+    ja: {
+      statsMoveTitle: '最小手数ランキング',
+      statsMovesUnit: '手',
+      statsSwipeHint: '← スワイプで切り替え →'
+    },
+    en: {
+      statsMoveTitle: 'Fewest moves ranking',
+      statsMovesUnit: 'moves',
+      statsSwipeHint: '← Swipe to switch →'
+    },
+    'zh-CN': {
+      statsMoveTitle: '最少步数排行榜',
+      statsMovesUnit: '步',
+      statsSwipeHint: '← 滑动切换 →'
+    },
+    'zh-TW': {
+      statsMoveTitle: '最少步數排行榜',
+      statsMovesUnit: '步',
+      statsSwipeHint: '← 滑動切換 →'
+    },
+    ko: {
+      statsMoveTitle: '최소 회전 수 랭킹',
+      statsMovesUnit: '회',
+      statsSwipeHint: '← 밀어서 전환 →'
+    },
+    es: {
+      statsMoveTitle: 'Ranking de menos movimientos',
+      statsMovesUnit: 'mov.',
+      statsSwipeHint: '← Desliza para cambiar →'
+    },
+    id: {
+      statsMoveTitle: 'Peringkat gerakan tersedikit',
+      statsMovesUnit: 'gerakan',
+      statsSwipeHint: '← Geser untuk berganti →'
+    },
+    ru: {
+      statsMoveTitle: 'Рейтинг по числу ходов',
+      statsMovesUnit: 'ход.',
+      statsSwipeHint: '← Смахните для переключения →'
+    },
+    'pt-BR': {
+      statsMoveTitle: 'Ranking de menos movimentos',
+      statsMovesUnit: 'mov.',
+      statsSwipeHint: '← Deslize para alternar →'
+    }
+  };
+  Object.keys(MOVE_RANK_I18N).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(MOVE_RANK_I18N[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = MOVE_RANK_I18N[lang][k];
+    });
+  });
+})();
