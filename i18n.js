@@ -3637,7 +3637,7 @@
       introSub: '通勤中や待ち時間など、本物のキューブが手元にないときのための3D練習アプリです。',
       introNoAds: '広告は一切表示しません',
       introNoIAP: 'アプリ内課金も一切ありません',
-      introCubeTip: '手元に本物のキューブがある場合は、そちらでの練習をおすすめします。',
+      introCubeTip: '実物があるなら、まずはそっちで触ってみてください。',
       introStart: 'はじめる'
     },
     en: {
@@ -3648,7 +3648,7 @@
       introSub: 'A 3D practice app for your commute, a waiting room, or anywhere your real cube isn\u2019t.',
       introNoAds: 'No ads, ever',
       introNoIAP: 'No in-app purchases, ever',
-      introCubeTip: 'If you have a real cube nearby, we recommend practicing with that instead.',
+      introCubeTip: 'Got a real cube nearby? Give that a spin first.',
       introStart: 'Get started'
     },
     'zh-CN': {
@@ -3659,7 +3659,7 @@
       introSub: '这是一款3D练习应用，专为通勤、等待等身边没有实体魔方的场景而设计。',
       introNoAds: '完全没有广告',
       introNoIAP: '完全没有内购',
-      introCubeTip: '如果手边有实体魔方，建议优先用它来练习。',
+      introCubeTip: '手边有实体魔方的话，先玩玩那个吧。',
       introStart: '开始使用'
     },
     'zh-TW': {
@@ -3670,7 +3670,7 @@
       introSub: '這是一款3D練習應用程式，專為通勤、等待等身邊沒有實體方塊的場景而設計。',
       introNoAds: '完全沒有廣告',
       introNoIAP: '完全沒有內購',
-      introCubeTip: '如果手邊有實體方塊，建議優先用它來練習。',
+      introCubeTip: '手邊有實體方塊的話，先玩玩那個吧。',
       introStart: '開始使用'
     },
     ko: {
@@ -3681,7 +3681,7 @@
       introSub: '출퇴근길이나 대기 시간처럼 실물 큐브가 곁에 없을 때를 위한 3D 연습 앱입니다.',
       introNoAds: '광고가 전혀 없습니다',
       introNoIAP: '인앱 결제도 전혀 없습니다',
-      introCubeTip: '실물 큐브가 있다면 그쪽으로 연습하시는 것을 추천합니다.',
+      introCubeTip: '실물 큐브가 있다면, 먼저 그걸로 돌려보세요.',
       introStart: '시작하기'
     },
     es: {
@@ -3692,7 +3692,7 @@
       introSub: 'Una app de práctica en 3D para el transporte, una sala de espera o cualquier lugar sin tu cubo real.',
       introNoAds: 'Sin anuncios, nunca',
       introNoIAP: 'Sin compras dentro de la app, nunca',
-      introCubeTip: 'Si tienes un cubo real cerca, te recomendamos practicar con él en su lugar.',
+      introCubeTip: '¿Tienes un cubo real cerca? Prueba primero con ese.',
       introStart: 'Empezar'
     },
     id: {
@@ -3703,7 +3703,7 @@
       introSub: 'Aplikasi latihan 3D untuk perjalanan, ruang tunggu, atau di mana pun kubus aslimu tak ada.',
       introNoAds: 'Tanpa iklan, selamanya',
       introNoIAP: 'Tanpa pembelian dalam aplikasi, selamanya',
-      introCubeTip: 'Jika kamu punya kubus asli di dekatmu, sebaiknya berlatih dengan itu saja.',
+      introCubeTip: 'Punya kubus asli di dekatmu? Coba pakai itu dulu.',
       introStart: 'Mulai'
     },
     ru: {
@@ -3714,7 +3714,7 @@
       introSub: 'Приложение для 3D-тренировки в дороге, в очереди — везде, где нет настоящего кубика.',
       introNoAds: 'Никакой рекламы',
       introNoIAP: 'Никаких покупок в приложении',
-      introCubeTip: 'Если у вас есть настоящий кубик, рекомендуем тренироваться на нём.',
+      introCubeTip: 'Есть настоящий кубик под рукой? Сначала покрутите его.',
       introStart: 'Начать'
     },
     'pt-BR': {
@@ -3725,7 +3725,7 @@
       introSub: 'Um app de prática em 3D para o trajeto, a sala de espera, ou onde quer que seu cubo real não esteja.',
       introNoAds: 'Sem anúncios, nunca',
       introNoIAP: 'Sem compras no app, nunca',
-      introCubeTip: 'Se você tiver um cubo real por perto, recomendamos praticar com ele.',
+      introCubeTip: 'Tem um cubo de verdade por perto? Comece com ele.',
       introStart: 'Começar'
     }
   };
