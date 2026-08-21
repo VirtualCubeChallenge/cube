@@ -3126,6 +3126,90 @@
       border-color: #00d9ad;
     }
 
+    #intro-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #121214;
+      z-index: 51; /* welcome-overlay(50) の一瞬あとに来る画面なので、念のため一段上 */
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: calc(18px + env(safe-area-inset-top)) 14px calc(18px + env(safe-area-inset-bottom));
+    }
+    #intro-overlay.show {
+      display: flex;
+    }
+    #intro-panel {
+      width: min(94vw, 400px);
+      margin: auto;
+      text-align: center;
+    }
+    .intro-headline {
+      font-size: 21px;
+      font-weight: 800;
+      line-height: 1.5;
+      margin-top: 4px;
+    }
+    .intro-sub {
+      margin: 10px 0 20px;
+    }
+    /* 「広告なし」「課金なし」の2行。事実の告知として静かに置く。
+       チェックのグラフィックにしなかったのは、押せそうな見た目に
+       なってしまうため -- ここはボタンではなく、ただの告知。 */
+    .intro-facts {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 0 0 18px;
+    }
+    .intro-fact {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: #1c1c22;
+      border: 1px solid #2c2c36;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #e4e4ec;
+      text-align: left;
+    }
+    .intro-fact-icon {
+      flex: 0 0 auto;
+      display: flex;
+      color: var(--tc);
+    }
+    /* 「本物があるならそっち推奨」の一文。事実の告知(intro-fact)より
+       トーンを一段落として、押し付けではなく注記として読めるように。 */
+    .intro-tip {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #9d9dae;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin: 0 0 18px;
+      text-align: left;
+    }
+    .intro-tip-icon {
+      flex: 0 0 auto;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    @media (orientation: landscape) and (max-height: 500px) {
+      #intro-panel { width: min(94vw, 560px); }
+      .intro-headline { font-size: 17px; }
+      .intro-sub { margin: 6px 0 12px; }
+      .intro-fact { padding: 9px 12px; font-size: 12.5px; }
+      .intro-tip { padding: 8px 10px; }
+    }
+
     #welcome-overlay {
       display: none;
       position: fixed;
