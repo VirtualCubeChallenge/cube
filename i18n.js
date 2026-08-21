@@ -3634,10 +3634,10 @@
       statsMovesUnit: '手',
       statsSwipeHint: '← スワイプで切り替え →',
       introHeadline: 'キューブが回せない環境で、<br>最高の体験を。',
-      introSub: '通勤中や待ち時間など、本物のキューブが手元にないときのための3D練習アプリです。',
+      introSub: '通勤中や待ち時間など、ルービックキューブが手元にないときのための3D練習アプリです。',
       introNoAds: '広告は一切表示しません',
       introNoIAP: 'アプリ内課金も一切ありません',
-      introCubeTip: '実物があるなら、まずはそっちで触ってみてください。',
+      introCubeTip: '手元に本物のキューブがある場合は、そちらでの練習をおすすめします。',
       introStart: 'はじめる'
     },
     en: {
@@ -3645,10 +3645,10 @@
       statsMovesUnit: 'moves',
       statsSwipeHint: '← Swipe to switch →',
       introHeadline: 'The best experience for<br>when you can\u2019t hold a cube.',
-      introSub: 'A 3D practice app for your commute, a waiting room, or anywhere your real cube isn\u2019t.',
+      introSub: 'A 3D practice app for your commute, a waiting room, or anywhere your Rubik\u2019s Cube isn\u2019t.',
       introNoAds: 'No ads, ever',
       introNoIAP: 'No in-app purchases, ever',
-      introCubeTip: 'Got a real cube nearby? Give that a spin first.',
+      introCubeTip: 'If you have a real cube nearby, we recommend practicing with that instead.',
       introStart: 'Get started'
     },
     'zh-CN': {
@@ -3656,10 +3656,10 @@
       statsMovesUnit: '步',
       statsSwipeHint: '← 滑动切换 →',
       introHeadline: '在无法转动魔方的时候，<br>带来最好的体验。',
-      introSub: '这是一款3D练习应用，专为通勤、等待等身边没有实体魔方的场景而设计。',
+      introSub: '这是一款3D练习应用，专为通勤、等待等身边没有魔方的场景而设计。',
       introNoAds: '完全没有广告',
       introNoIAP: '完全没有内购',
-      introCubeTip: '手边有实体魔方的话，先玩玩那个吧。',
+      introCubeTip: '如果手边有实体魔方，建议优先用它来练习。',
       introStart: '开始使用'
     },
     'zh-TW': {
@@ -3667,10 +3667,10 @@
       statsMovesUnit: '步',
       statsSwipeHint: '← 滑動切換 →',
       introHeadline: '在無法轉動魔術方塊時，<br>帶來最好的體驗。',
-      introSub: '這是一款3D練習應用程式，專為通勤、等待等身邊沒有實體方塊的場景而設計。',
+      introSub: '這是一款3D練習應用程式，專為通勤、等待等身邊沒有魔術方塊的場景而設計。',
       introNoAds: '完全沒有廣告',
       introNoIAP: '完全沒有內購',
-      introCubeTip: '手邊有實體方塊的話，先玩玩那個吧。',
+      introCubeTip: '如果手邊有實體方塊，建議優先用它來練習。',
       introStart: '開始使用'
     },
     ko: {
@@ -3678,10 +3678,10 @@
       statsMovesUnit: '회',
       statsSwipeHint: '← 밀어서 전환 →',
       introHeadline: '큐브를 돌릴 수 없는 순간에도,<br>최고의 경험을.',
-      introSub: '출퇴근길이나 대기 시간처럼 실물 큐브가 곁에 없을 때를 위한 3D 연습 앱입니다.',
+      introSub: '출퇴근길이나 대기 시간처럼 루빅스 큐브가 곁에 없을 때를 위한 3D 연습 앱입니다.',
       introNoAds: '광고가 전혀 없습니다',
       introNoIAP: '인앱 결제도 전혀 없습니다',
-      introCubeTip: '실물 큐브가 있다면, 먼저 그걸로 돌려보세요.',
+      introCubeTip: '실물 큐브가 있다면 그쪽으로 연습하시는 것을 추천합니다.',
       introStart: '시작하기'
     },
     es: {
@@ -3689,10 +3689,10 @@
       statsMovesUnit: 'mov.',
       statsSwipeHint: '← Desliza para cambiar →',
       introHeadline: 'La mejor experiencia para<br>cuando no tienes un cubo a mano.',
-      introSub: 'Una app de práctica en 3D para el transporte, una sala de espera o cualquier lugar sin tu cubo real.',
+      introSub: 'Una app de práctica en 3D para el transporte, una sala de espera o cualquier lugar sin tu Cubo de Rubik.',
       introNoAds: 'Sin anuncios, nunca',
       introNoIAP: 'Sin compras dentro de la app, nunca',
-      introCubeTip: '¿Tienes un cubo real cerca? Prueba primero con ese.',
+      introCubeTip: 'Si tienes un cubo real cerca, te recomendamos practicar con él en su lugar.',
       introStart: 'Empezar'
     },
     id: {
@@ -3700,10 +3700,10 @@
       statsMovesUnit: 'gerakan',
       statsSwipeHint: '← Geser untuk berganti →',
       introHeadline: 'Pengalaman terbaik untuk saat<br>kamu tak bisa memegang kubus.',
-      introSub: 'Aplikasi latihan 3D untuk perjalanan, ruang tunggu, atau di mana pun kubus aslimu tak ada.',
+      introSub: 'Aplikasi latihan 3D untuk perjalanan, ruang tunggu, atau di mana pun Kubus Rubik-mu tak ada.',
       introNoAds: 'Tanpa iklan, selamanya',
       introNoIAP: 'Tanpa pembelian dalam aplikasi, selamanya',
-      introCubeTip: 'Punya kubus asli di dekatmu? Coba pakai itu dulu.',
+      introCubeTip: 'Jika kamu punya kubus asli di dekatmu, sebaiknya berlatih dengan itu saja.',
       introStart: 'Mulai'
     },
     ru: {
@@ -3711,10 +3711,10 @@
       statsMovesUnit: 'ход.',
       statsSwipeHint: '← Смахните для переключения →',
       introHeadline: 'Лучший опыт для моментов,<br>когда кубика нет под рукой.',
-      introSub: 'Приложение для 3D-тренировки в дороге, в очереди — везде, где нет настоящего кубика.',
+      introSub: 'Приложение для 3D-тренировки в дороге, в очереди — везде, где нет Кубика Рубика.',
       introNoAds: 'Никакой рекламы',
       introNoIAP: 'Никаких покупок в приложении',
-      introCubeTip: 'Есть настоящий кубик под рукой? Сначала покрутите его.',
+      introCubeTip: 'Если у вас есть настоящий кубик, рекомендуем тренироваться на нём.',
       introStart: 'Начать'
     },
     'pt-BR': {
@@ -3722,10 +3722,10 @@
       statsMovesUnit: 'mov.',
       statsSwipeHint: '← Deslize para alternar →',
       introHeadline: 'A melhor experiência para quando<br>você não tem um cubo em mãos.',
-      introSub: 'Um app de prática em 3D para o trajeto, a sala de espera, ou onde quer que seu cubo real não esteja.',
+      introSub: 'Um app de prática em 3D para o trajeto, a sala de espera, ou onde quer que seu Cubo Mágico não esteja.',
       introNoAds: 'Sem anúncios, nunca',
       introNoIAP: 'Sem compras no app, nunca',
-      introCubeTip: 'Tem um cubo de verdade por perto? Comece com ele.',
+      introCubeTip: 'Se você tiver um cubo real por perto, recomendamos praticar com ele.',
       introStart: 'Começar'
     }
   };
