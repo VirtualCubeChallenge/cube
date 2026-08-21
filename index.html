@@ -4443,13 +4443,6 @@
       const helpBtnEl = document.getElementById('help-btn');
       if (helpBtnEl) helpBtnEl.classList.toggle('tut-locked', st.id === 'help');
 
-      // OLL/PLL/ZBLLの説明中も同じ理由でボタン自体を押せなくする。
-      // 押せてしまうと本物の一覧オーバーレイが開いてしまい、その裏で
-      // タイマーが動き出す(まだシャッフルもしていないのに計測扱いに
-      // なる)などチュートリアルの前提と噛み合わなくなるため。
-      const algRowEl = document.querySelector('.alg-row');
-      if (algRowEl) algRowEl.classList.toggle('tut-locked', st.id === 'alg');
-
       // レイヤーの出し分け。キューブを触らせるステップでは幕を張らない
       // （暗くすると、いま何がどう回ったのかが見えなくなる）。
       const spotlight = !!st.target;
@@ -4650,8 +4643,6 @@
       menuActions.classList.remove('tut-explain-lock');
       const helpBtnElDone = document.getElementById('help-btn');
       if (helpBtnElDone) helpBtnElDone.classList.remove('tut-locked');
-      const algRowElDone = document.querySelector('.alg-row');
-      if (algRowElDone) algRowElDone.classList.remove('tut-locked');
       if (typeof setMenuOpen === 'function') setMenuOpen(false);
       tutSaveProgress(true);
       // シャッフルまで到達せずに抜けた場合は、ここで混ぜて通常の

@@ -1930,14 +1930,6 @@
       opacity: 0.5;
       cursor: not-allowed;
     }
-    /* OLL/PLL/ZBLLを説明している間も同様に、行ごと押せなくする。
-       本物の一覧オーバーレイを開かせてしまうと、まだシャッフルして
-       いないのにタイマーが動き出すなど、説明の前提と噛み合わなくなる。 */
-    .alg-row.tut-locked .alg-btn {
-      pointer-events: none;
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
     body.tap-mode .alg-btn:not(#help-btn) { display: none; }
     body.tap-mode #help-btn { display: flex; }
     body.tap-mode .alg-row { grid-template-columns: 1fr; }
