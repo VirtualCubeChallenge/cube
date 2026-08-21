@@ -23,7 +23,7 @@
                 "selectLanguage": "言語を選ぶ",
                 "langSub": "1面から選んでください",
                 "langFoot": "☰ →「⚙️ 設定」からいつでも変えられます",
-                "selectMode": "キューブの回し方を選んでください",
+                "selectMode": "キューブの回し方を選んでね！",
                 "pickEither": "好きな方をタップ",
                 "tapCube": "キューブを指でなぞる",
                 "tapCubeDesc": "回したい面を直接なぞるだけ。回転記号を知らなくても遊べて、画面も広く使えます。",
@@ -268,7 +268,7 @@
                 "selectLanguage": "Select language",
                 "langSub": "Pick one from the face",
                 "langFoot": "Change it anytime in ☰ → Settings",
-                "selectMode": "Choose how to turn the cube",
+                "selectMode": "Choose how to turn the cube!",
                 "pickEither": "Tap either one",
                 "tapCube": "Swipe the cube",
                 "tapCubeDesc": "Just swipe the layer you want to turn. No notation needed, and the cube gets more screen.",
@@ -513,7 +513,7 @@
                 "selectLanguage": "选择语言",
                 "langSub": "请从这一面中选择",
                 "langFoot": "可随时在 ☰ →「设置」中更改",
-                "selectMode": "请选择转动魔方的方式",
+                "selectMode": "选择转动魔方的方式吧！",
                 "pickEither": "点击任意一个",
                 "tapCube": "用手指滑动魔方",
                 "tapCubeDesc": "直接滑动想转的一层。不用记转动记号，画面也更大。",
@@ -751,7 +751,7 @@
     "selectLanguage": "選擇語言",
     "langSub": "請從這一面中選擇",
     "langFoot": "可隨時在 ☰ →「設定」中更改",
-    "selectMode": "請選擇轉動方塊的方式",
+    "selectMode": "選擇轉動方塊的方式吧！",
     "pickEither": "點擊任一個",
     "tapCube": "用手指滑動方塊",
     "tapCubeDesc": "直接滑動想轉的一層。不用記轉動記號，畫面也更大。",
@@ -989,7 +989,7 @@
                 "selectLanguage": "언어 선택",
                 "langSub": "한 칸을 선택하세요",
                 "langFoot": "☰ → 설정에서 언제든 변경할 수 있어요",
-                "selectMode": "큐브를 돌리는 방법을 선택하세요",
+                "selectMode": "큐브를 돌리는 방법을 골라줘!",
                 "pickEither": "원하는 쪽을 터치",
                 "tapCube": "손가락으로 큐브 밀기",
                 "tapCubeDesc": "돌리고 싶은 층을 그대로 밀기만 하면 됩니다. 회전 기호를 몰라도 되고 화면도 넓게 씁니다.",
@@ -1227,7 +1227,7 @@
             "selectLanguage": "Elige idioma",
             "langSub": "Elige una casilla de la cara",
             "langFoot": "Puedes cambiarlo en ☰ → Ajustes",
-            "selectMode": "Elige cómo girar el cubo",
+            "selectMode": "¡Elige cómo girar el cubo!",
             "pickEither": "Toca la que prefieras",
             "tapCube": "Deslizar el cubo",
             "tapCubeDesc": "Desliza la capa que quieras girar. No hace falta saber notación y el cubo se ve más grande.",
@@ -1465,7 +1465,7 @@
             "selectLanguage": "Pilih bahasa",
             "langSub": "Pilih satu kotak",
             "langFoot": "Bisa diubah kapan saja di ☰ → Pengaturan",
-            "selectMode": "Pilih cara memutar kubus",
+            "selectMode": "Pilih cara memutar kubus!",
             "pickEither": "Ketuk salah satu",
             "tapCube": "Geser kubus dengan jari",
             "tapCubeDesc": "Cukup geser lapisan yang ingin diputar. Tanpa notasi, dan kubus tampil lebih besar.",
@@ -1703,7 +1703,7 @@
             "selectLanguage": "Выбор языка",
             "langSub": "Нажмите на любую наклейку",
             "langFoot": "Изменить можно в ☰ → Настройки",
-            "selectMode": "Выберите способ поворота",
+            "selectMode": "Выберите способ поворота!",
             "pickEither": "Выберите любой вариант",
             "tapCube": "Повороты пальцем",
             "tapCubeDesc": "Просто проведите по слою, который хотите повернуть. Формулы знать не нужно, а кубик виден крупнее.",
@@ -1941,7 +1941,7 @@
             "selectLanguage": "Escolha o idioma",
             "langSub": "Escolha uma casa da face",
             "langFoot": "Mude quando quiser em ☰ → Ajustes",
-            "selectMode": "Escolha como girar o cubo",
+            "selectMode": "Escolha como girar o cubo!",
             "pickEither": "Toque em uma delas",
             "tapCube": "Deslizar o dedo no cubo",
             "tapCubeDesc": "Basta deslizar a camada que quer girar. Sem notação, e o cubo fica maior na tela.",
@@ -3619,6 +3619,198 @@
     if (!I18N[lang]) I18N[lang] = {};
     Object.keys(TRANSFER_I18N[lang]).forEach(function (k) {
       if (I18N[lang][k] === undefined) I18N[lang][k] = TRANSFER_I18N[lang][k];
+    });
+  });
+})();
+
+/* ============================================================
+   最小手数ランキング（ランキング画面の2ページ目）の文言
+   既存の辞書には手を入れず、まだ無いキーだけを足すマージ方式。
+   ============================================================ */
+(function () {
+  const MOVE_RANK_I18N = {
+    ja: {
+      statsMoveTitle: '最小手数ランキング',
+      statsMovesUnit: '手',
+      statsSwipeHint: '← スワイプで切り替え →',
+      introHeadline: 'キューブが回せない環境で、<br>最高の体験を。',
+      introSub: '通勤中や待ち時間など、ルービックキューブが手元にないときのための3D練習アプリです。',
+      introNoAds: '広告は一切表示しません',
+      introNoIAP: 'アプリ内課金も一切ありません',
+      introCubeTip: '手元に本物のキューブがある場合は、そちらでの練習をおすすめします。',
+      introStart: 'はじめる'
+    },
+    en: {
+      statsMoveTitle: 'Fewest moves ranking',
+      statsMovesUnit: 'moves',
+      statsSwipeHint: '← Swipe to switch →',
+      introHeadline: 'The best experience for<br>when you can\u2019t hold a cube.',
+      introSub: 'A 3D practice app for your commute, a waiting room, or anywhere your Rubik\u2019s Cube isn\u2019t.',
+      introNoAds: 'No ads, ever',
+      introNoIAP: 'No in-app purchases, ever',
+      introCubeTip: 'If you have a real cube nearby, we recommend practicing with that instead.',
+      introStart: 'Get started'
+    },
+    'zh-CN': {
+      statsMoveTitle: '最少步数排行榜',
+      statsMovesUnit: '步',
+      statsSwipeHint: '← 滑动切换 →',
+      introHeadline: '在无法转动魔方的时候，<br>带来最好的体验。',
+      introSub: '这是一款3D练习应用，专为通勤、等待等身边没有魔方的场景而设计。',
+      introNoAds: '完全没有广告',
+      introNoIAP: '完全没有内购',
+      introCubeTip: '如果手边有实体魔方，建议优先用它来练习。',
+      introStart: '开始使用'
+    },
+    'zh-TW': {
+      statsMoveTitle: '最少步數排行榜',
+      statsMovesUnit: '步',
+      statsSwipeHint: '← 滑動切換 →',
+      introHeadline: '在無法轉動魔術方塊時，<br>帶來最好的體驗。',
+      introSub: '這是一款3D練習應用程式，專為通勤、等待等身邊沒有魔術方塊的場景而設計。',
+      introNoAds: '完全沒有廣告',
+      introNoIAP: '完全沒有內購',
+      introCubeTip: '如果手邊有實體方塊，建議優先用它來練習。',
+      introStart: '開始使用'
+    },
+    ko: {
+      statsMoveTitle: '최소 회전 수 랭킹',
+      statsMovesUnit: '회',
+      statsSwipeHint: '← 밀어서 전환 →',
+      introHeadline: '큐브를 돌릴 수 없는 순간에도,<br>최고의 경험을.',
+      introSub: '출퇴근길이나 대기 시간처럼 루빅스 큐브가 곁에 없을 때를 위한 3D 연습 앱입니다.',
+      introNoAds: '광고가 전혀 없습니다',
+      introNoIAP: '인앱 결제도 전혀 없습니다',
+      introCubeTip: '실물 큐브가 있다면 그쪽으로 연습하시는 것을 추천합니다.',
+      introStart: '시작하기'
+    },
+    es: {
+      statsMoveTitle: 'Ranking de menos movimientos',
+      statsMovesUnit: 'mov.',
+      statsSwipeHint: '← Desliza para cambiar →',
+      introHeadline: 'La mejor experiencia para<br>cuando no tienes un cubo a mano.',
+      introSub: 'Una app de práctica en 3D para el transporte, una sala de espera o cualquier lugar sin tu Cubo de Rubik.',
+      introNoAds: 'Sin anuncios, nunca',
+      introNoIAP: 'Sin compras dentro de la app, nunca',
+      introCubeTip: 'Si tienes un cubo real cerca, te recomendamos practicar con él en su lugar.',
+      introStart: 'Empezar'
+    },
+    id: {
+      statsMoveTitle: 'Peringkat gerakan tersedikit',
+      statsMovesUnit: 'gerakan',
+      statsSwipeHint: '← Geser untuk berganti →',
+      introHeadline: 'Pengalaman terbaik untuk saat<br>kamu tak bisa memegang kubus.',
+      introSub: 'Aplikasi latihan 3D untuk perjalanan, ruang tunggu, atau di mana pun Kubus Rubik-mu tak ada.',
+      introNoAds: 'Tanpa iklan, selamanya',
+      introNoIAP: 'Tanpa pembelian dalam aplikasi, selamanya',
+      introCubeTip: 'Jika kamu punya kubus asli di dekatmu, sebaiknya berlatih dengan itu saja.',
+      introStart: 'Mulai'
+    },
+    ru: {
+      statsMoveTitle: 'Рейтинг по числу ходов',
+      statsMovesUnit: 'ход.',
+      statsSwipeHint: '← Смахните для переключения →',
+      introHeadline: 'Лучший опыт для моментов,<br>когда кубика нет под рукой.',
+      introSub: 'Приложение для 3D-тренировки в дороге, в очереди — везде, где нет Кубика Рубика.',
+      introNoAds: 'Никакой рекламы',
+      introNoIAP: 'Никаких покупок в приложении',
+      introCubeTip: 'Если у вас есть настоящий кубик, рекомендуем тренироваться на нём.',
+      introStart: 'Начать'
+    },
+    'pt-BR': {
+      statsMoveTitle: 'Ranking de menos movimentos',
+      statsMovesUnit: 'mov.',
+      statsSwipeHint: '← Deslize para alternar →',
+      introHeadline: 'A melhor experiência para quando<br>você não tem um cubo em mãos.',
+      introSub: 'Um app de prática em 3D para o trajeto, a sala de espera, ou onde quer que seu Cubo Mágico não esteja.',
+      introNoAds: 'Sem anúncios, nunca',
+      introNoIAP: 'Sem compras no app, nunca',
+      introCubeTip: 'Se você tiver um cubo real por perto, recomendamos praticar com ele.',
+      introStart: 'Começar'
+    }
+  };
+  Object.keys(MOVE_RANK_I18N).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(MOVE_RANK_I18N[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = MOVE_RANK_I18N[lang][k];
+    });
+  });
+})();
+
+/* ============================================================
+   回転記号モード向けチュートリアル（OLL/PLL/ZBLLの案内・仕上げの一言）
+   の文言。既存の辞書には手を入れず、まだ無いキーだけを足すマージ方式。
+   ============================================================ */
+(function () {
+  const NOTATION_TUT_I18N = {
+    ja: {
+      tutAlgTitle: 'OLL・PLL・ZBLLもすぐそこに',
+      tutAlgBody: '画面下の<span class="tut-em">OLL・PLL・ZBLL</span>ボタンから、そろえるための手順（アルゴリズム）をいつでも見返せます。<br><br>覚えたてで不安なときの、心強い味方です！',
+      tutAlgBodyOff: 'いまは OLL・PLL・ZBLL を非表示にしています。<br>⚙️設定からいつでも表示に戻せます。',
+      tutNotationFinishBody: 'あとは自由に回してみよう。<br>迷ったら<span class="tut-em">OLL・PLL・ZBLL</span>をのぞいてね！',
+      tutNotationIntroBody: 'まずは基本の操作をいっしょに確認しましょう。<br>途中でやめても「⚙️設定」からやり直せます。'
+    },
+    en: {
+      tutAlgTitle: 'OLL, PLL & ZBLL are right here',
+      tutAlgBody: 'The <span class="tut-em">OLL, PLL, and ZBLL</span> buttons below let you look up the algorithm you need, anytime.<br><br>A safety net for when you\u2019re still learning!',
+      tutAlgBodyOff: 'OLL, PLL, and ZBLL are currently hidden.<br>You can bring them back anytime from \u2699\uFE0F Settings.',
+      tutNotationFinishBody: 'Now go ahead and turn it your way.<br>Stuck? Check <span class="tut-em">OLL, PLL, or ZBLL</span> anytime!',
+      tutNotationIntroBody: 'Let\u2019s take a quick look at the basics together.<br>You can stop anytime and restart from \u2699\uFE0F Settings.'
+    },
+    'zh-CN': {
+      tutAlgTitle: 'OLL、PLL、ZBLL 就在这里',
+      tutAlgBody: '屏幕下方的 <span class="tut-em">OLL・PLL・ZBLL</span> 按钮，可以随时查看还原用的公式。<br><br>刚开始记不熟时，这就是你的靠山！',
+      tutAlgBodyOff: '现在 OLL・PLL・ZBLL 处于隐藏状态。<br>可以随时在 ⚙️设置 中重新显示。',
+      tutNotationFinishBody: '接下来就自由地转起来吧。<br>卡住了就看看 <span class="tut-em">OLL・PLL・ZBLL</span>！',
+      tutNotationIntroBody: '我们先一起简单确认一下基本操作吧。<br>中途退出也没关系，可以随时在「⚙️设置」中重新开始。'
+    },
+    'zh-TW': {
+      tutAlgTitle: 'OLL、PLL、ZBLL 就在這裡',
+      tutAlgBody: '畫面下方的 <span class="tut-em">OLL・PLL・ZBLL</span> 按鈕，可以隨時查看還原用的公式。<br><br>剛開始記不熟時，這就是你的靠山！',
+      tutAlgBodyOff: '現在 OLL・PLL・ZBLL 處於隱藏狀態。<br>可以隨時在 ⚙️設定 中重新顯示。',
+      tutNotationFinishBody: '接下來就自由地轉轉看吧。<br>卡住了就看看 <span class="tut-em">OLL・PLL・ZBLL</span>！',
+      tutNotationIntroBody: '我們先一起簡單確認一下基本操作吧。<br>中途離開也沒關係，可以隨時在「⚙️設定」中重新開始。'
+    },
+    ko: {
+      tutAlgTitle: 'OLL・PLL・ZBLL도 바로 여기',
+      tutAlgBody: '화면 아래 <span class="tut-em">OLL・PLL・ZBLL</span> 버튼에서 맞추는 순서(알고리즘)를 언제든 확인할 수 있어요.<br><br>아직 외우는 중이라 불안할 때, 든든한 아군이에요!',
+      tutAlgBodyOff: '지금은 OLL・PLL・ZBLL이 숨겨져 있어요.<br>⚙️설정에서 언제든 다시 표시할 수 있어요.',
+      tutNotationFinishBody: '이제 자유롭게 돌려보세요.<br>막히면 <span class="tut-em">OLL・PLL・ZBLL</span>을 살펴보세요!',
+      tutNotationIntroBody: '먼저 기본 조작을 함께 간단히 확인해볼까요.<br>중간에 그만둬도 「⚙️설정」에서 언제든 다시 시작할 수 있어요.'
+    },
+    es: {
+      tutAlgTitle: 'OLL, PLL y ZBLL están aquí mismo',
+      tutAlgBody: 'Los botones <span class="tut-em">OLL, PLL y ZBLL</span> de abajo te dejan consultar el algoritmo que necesites, cuando quieras.<br><br>¡Un salvavidas mientras aún los memorizas!',
+      tutAlgBodyOff: 'Ahora mismo OLL, PLL y ZBLL están ocultos.<br>Puedes volver a mostrarlos cuando quieras desde \u2699\uFE0F Ajustes.',
+      tutNotationFinishBody: 'Ahora gira el cubo a tu manera.<br>\u00BFTe atascas? \u00A1Consulta <span class="tut-em">OLL, PLL o ZBLL</span> cuando quieras!',
+      tutNotationIntroBody: 'Vamos a repasar juntos lo básico.<br>Puedes parar cuando quieras y volver a empezar desde \u2699\uFE0F Ajustes.'
+    },
+    id: {
+      tutAlgTitle: 'OLL, PLL, dan ZBLL ada di sini',
+      tutAlgBody: 'Tombol <span class="tut-em">OLL, PLL, dan ZBLL</span> di bawah bisa kamu buka kapan saja untuk melihat algoritmanya.<br><br>Penyelamat saat kamu masih menghafal!',
+      tutAlgBodyOff: 'OLL, PLL, dan ZBLL sedang disembunyikan.<br>Kamu bisa memunculkannya lagi kapan saja lewat \u2699\uFE0F Pengaturan.',
+      tutNotationFinishBody: 'Sekarang putar sesukamu.<br>Kalau bingung, cek <span class="tut-em">OLL, PLL, atau ZBLL</span> kapan saja!',
+      tutNotationIntroBody: 'Yuk, kenalan dulu dengan dasar-dasarnya.<br>Berhenti di tengah jalan juga tidak apa-apa, bisa diulang kapan saja lewat \u2699\uFE0F Pengaturan.'
+    },
+    ru: {
+      tutAlgTitle: 'OLL, PLL и ZBLL уже под рукой',
+      tutAlgBody: 'Кнопки <span class="tut-em">OLL, PLL и ZBLL</span> внизу экрана — здесь всегда можно посмотреть нужный алгоритм.<br><br>Подстраховка, пока вы их ещё не выучили!',
+      tutAlgBodyOff: 'Сейчас OLL, PLL и ZBLL скрыты.<br>Вернуть их можно в любой момент в \u2699\uFE0F Настройках.',
+      tutNotationFinishBody: 'Теперь крутите как вам удобно.<br>Застряли? Загляните в <span class="tut-em">OLL, PLL или ZBLL</span>!',
+      tutNotationIntroBody: 'Давайте вместе быстро разберём основы.<br>Можно остановиться в любой момент и начать заново в \u2699\uFE0F Настройках.'
+    },
+    'pt-BR': {
+      tutAlgTitle: 'OLL, PLL e ZBLL estão bem aqui',
+      tutAlgBody: 'Os botões <span class="tut-em">OLL, PLL e ZBLL</span> logo abaixo deixam você consultar o algoritmo que precisar, a qualquer momento.<br><br>Uma rede de segurança enquanto você ainda está decorando!',
+      tutAlgBodyOff: 'No momento, OLL, PLL e ZBLL estão ocultos.<br>Você pode mostrá-los de novo quando quiser pelos \u2699\uFE0F Ajustes.',
+      tutNotationFinishBody: 'Agora é só girar do seu jeito.<br>Travou? Dá uma olhada em <span class="tut-em">OLL, PLL ou ZBLL</span>!',
+      tutNotationIntroBody: 'Vamos revisar juntos o básico.<br>Você pode parar quando quiser e recomeçar pelos \u2699\uFE0F Ajustes.'
+    }
+  };
+  Object.keys(NOTATION_TUT_I18N).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(NOTATION_TUT_I18N[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = NOTATION_TUT_I18N[lang][k];
     });
   });
 })();

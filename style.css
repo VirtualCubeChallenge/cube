@@ -1407,7 +1407,59 @@
       font-size: 16px;
       margin-bottom: 14px;
     }
-    #stats-list {
+    /* --- ランキングの2ページ構成（キューブサイズ ⇄ 最小手数） ---
+       .stats-pager が窓、.stats-track がその中を横に滑る帯。
+       ページを増やすときは track の width と page の flex-basis を
+       ページ数に合わせて変える（JS 側の PAGES も同じ数にする）。 */
+    .stats-pager {
+      overflow: hidden;
+      /* スワイプ中に端末の「戻る」ジェスチャや横スクロールへ流れないように */
+      touch-action: pan-y;
+    }
+    .stats-track {
+      display: flex;
+      width: 200%;
+      transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+    .stats-track.no-anim {
+      transition: none;
+    }
+    .stats-page {
+      flex: 0 0 50%;
+      width: 50%;
+      /* 隣のページの影が窓からはみ出して見えないよう、内側に少し余白 */
+      padding: 0 2px;
+      box-sizing: border-box;
+    }
+    .stats-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: 2px 0 6px;
+    }
+    .stats-dot {
+      width: 8px;
+      height: 8px;
+      padding: 0;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.22);
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .stats-dot.on {
+      background: var(--tc, #3ff0c4);
+      transform: scale(1.3);
+    }
+    .stats-swipe-hint {
+      font-size: 11px;
+      opacity: 0.5;
+      margin-bottom: 8px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .stats-track { transition: none; }
+    }
+    #stats-list, #stats-move-list {
       overflow-y: auto;
       max-height: 50vh;
       margin-bottom: 10px;
@@ -1440,6 +1492,15 @@
       font-size: 19px;
       line-height: 1;
       color: #666;
+    }
+    /* 手数の後ろに付く単位（「手」/ moves / 步 …）。数字より一段小さく、
+       色は数字と同じものを継ぐので、虹色や金色の演出にもそのまま乗る。 */
+    .stats-size-num i {
+      font-style: normal;
+      font-size: 11px;
+      font-weight: 700;
+      margin-left: 2px;
+      opacity: 0.8;
     }
     .stats-size-num.size-rainbow {
       font-size: 19px;
@@ -3063,6 +3124,90 @@
     .confirm-btn.primary:active {
       background: #00d9ad;
       border-color: #00d9ad;
+    }
+
+    #intro-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #121214;
+      z-index: 51; /* welcome-overlay(50) の一瞬あとに来る画面なので、念のため一段上 */
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: calc(18px + env(safe-area-inset-top)) 14px calc(18px + env(safe-area-inset-bottom));
+    }
+    #intro-overlay.show {
+      display: flex;
+    }
+    #intro-panel {
+      width: min(94vw, 400px);
+      margin: auto;
+      text-align: center;
+    }
+    .intro-headline {
+      font-size: 21px;
+      font-weight: 800;
+      line-height: 1.5;
+      margin-top: 4px;
+    }
+    .intro-sub {
+      margin: 10px 0 20px;
+    }
+    /* 「広告なし」「課金なし」の2行。事実の告知として静かに置く。
+       チェックのグラフィックにしなかったのは、押せそうな見た目に
+       なってしまうため -- ここはボタンではなく、ただの告知。 */
+    .intro-facts {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 0 0 18px;
+    }
+    .intro-fact {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: #1c1c22;
+      border: 1px solid #2c2c36;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #e4e4ec;
+      text-align: left;
+    }
+    .intro-fact-icon {
+      flex: 0 0 auto;
+      display: flex;
+      color: var(--tc);
+    }
+    /* 「本物があるならそっち推奨」の一文。事実の告知(intro-fact)より
+       トーンを一段落として、押し付けではなく注記として読めるように。 */
+    .intro-tip {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #9d9dae;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin: 0 0 18px;
+      text-align: left;
+    }
+    .intro-tip-icon {
+      flex: 0 0 auto;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    @media (orientation: landscape) and (max-height: 500px) {
+      #intro-panel { width: min(94vw, 560px); }
+      .intro-headline { font-size: 17px; }
+      .intro-sub { margin: 6px 0 12px; }
+      .intro-fact { padding: 9px 12px; font-size: 12.5px; }
+      .intro-tip { padding: 8px 10px; }
     }
 
     #welcome-overlay {
