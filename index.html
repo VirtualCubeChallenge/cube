@@ -4065,7 +4065,7 @@
     // 'menu'/'shuffle' という id もそのまま使うことで、tutGoTo() 内の
     // id 別の特別扱い(ドロワーを開いておく等)もそのまま効く。
     const NOTATION_TUT_STEPS = [
-      { id: 'intro', phase: 0, mode: 'card',
+      { id: 'intro', phase: 0, mode: 'card', fillTarget: '#face-grid',
         titleKey: 'tutIntroTitle', bodyKey: 'tutNotationIntroBody', nextKey: 'tutStart' },
 
       { id: 'shuffle', phase: 1, mode: 'shuffle', target: '#shuffle-slider',
@@ -4270,6 +4270,23 @@
         } else {
           tutRoot.classList.remove('has-hole');
         }
+      }
+
+      // カードの横幅を、指定した要素の実寸に合わせて広げる。
+      // 素のカードは最大440pxで、iPadのような広い画面では回転記号
+      // ボタン(#face-grid)に対して小さく浮いて見づらい。最初の
+      // 「ようこそ」カードだけは、ボタンの並びをちょうど覆うくらいの
+      // 横幅に広げて見やすくする(スポットライトの穴とは別物で、
+      // ここは覆い隠す側)。
+      if (st.fillTarget) {
+        const fel = document.querySelector(st.fillTarget);
+        if (fel && fel.getClientRects().length) {
+          tutCard.style.width = fel.getBoundingClientRect().width + 'px';
+        } else {
+          tutCard.style.width = '';
+        }
+      } else {
+        tutCard.style.width = '';
       }
 
       if (st.mode === 'turn' && window.tutCubeBridge) {
