@@ -4065,6 +4065,9 @@
     // 'menu'/'shuffle' という id もそのまま使うことで、tutGoTo() 内の
     // id 別の特別扱い(ドロワーを開いておく等)もそのまま効く。
     const NOTATION_TUT_STEPS = [
+      { id: 'intro', phase: 0, mode: 'card',
+        titleKey: 'tutIntroTitle', bodyKey: 'tutNotationIntroBody', nextKey: 'tutStart' },
+
       { id: 'shuffle', phase: 1, mode: 'shuffle', target: '#shuffle-slider',
         titleKey: 'tutShuffleTitle', bodyKey: 'tutShuffleBody' },
 
