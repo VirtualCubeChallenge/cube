@@ -3640,7 +3640,20 @@
         if (typeof requestScramble === 'function') requestScramble();
         else scrambleWhenReady = true;   // 3D の準備がまだなら、できた時点で
       }
-      if (willRunTutorial) startTutorialWhenReady();
+      if (willRunTutorial) {
+        selectTutorial(TUT_STEPS, TUTORIAL_KEY, TUTORIAL_STEP_KEY);
+        startTutorialWhenReady();
+      }
+      // 回転記号モードを初めて選んだ人には、こちら専用の別ルートの
+      // チュートリアルを出す(シャッフル→ドロワー→OLL/PLL/ZBLLの案内)。
+      // タップ側と違い自動シャッフルはしない --- ステップ1の「シャッフル
+      // してみよう」自体が、本人の手で実際に混ぜてもらう最初の一歩のため。
+      const willRunNotationTutorial = !tapCubeEnabled &&
+        typeof shouldRunNotationTutorial === 'function' && shouldRunNotationTutorial();
+      if (willRunNotationTutorial) {
+        selectTutorial(NOTATION_TUT_STEPS, NOTATION_TUTORIAL_KEY, NOTATION_TUTORIAL_STEP_KEY);
+        startTutorialWhenReady();
+      }
       try {
         localStorage.setItem(ONBOARD_KEY, '1');
       } catch (err) { /* unavailable */ }
@@ -3961,6 +3974,11 @@
        ============================================================ */
     const TUTORIAL_KEY = 'rubiks-cube-tutorial';
     const TUTORIAL_STEP_KEY = 'rubiks-cube-tutorial-step';
+    // 回転記号モード向けチュートリアルの進捗は、上の「指でなぞる」用とは
+    // 別のキーに保存する。どちらか片方を最後まで見ても、もう片方の
+    // 「初回かどうか」判定には影響しない(操作方法ごとに別物として扱う)。
+    const NOTATION_TUTORIAL_KEY = 'rubiks-cube-notation-tutorial';
+    const NOTATION_TUTORIAL_STEP_KEY = 'rubiks-cube-notation-tutorial-step';
 
     const tutRoot   = document.getElementById('tut-root');
     const tutHole   = document.getElementById('tut-hole');
@@ -4034,13 +4052,61 @@
         titleKey: 'tutFinishTitle', bodyKey: 'tutFinishBody', nextKey: 'tutDone' }
     ];
 
+    // ------------------------------------------------------------
+    // 回転記号モード（ボタンで回す）向けの、別ルートのチュートリアル。
+    // 「指でなぞる」前提の TUT_STEPS とは中身が違う（U/R/F/L/D の指の
+    // 練習や視点回転は無い代わりに、OLL/PLL/ZBLL の場所を教える）。
+    //
+    // ただし仕組みは TUT_STEPS と共通のエンジンをそのまま使い回す。
+    // 'shuffle' と 'menu'/'card' の3つの step-mode は、そもそも
+    // 「指でなぞる」かどうかに依存しない作りになっている
+    // (シャッフルは cube-scrambled イベント、メニューは実際に開いたかどうかの
+    // MutationObserver で判定していて、どちらもタップ操作を前提にしていない)。
+    // 'menu'/'shuffle' という id もそのまま使うことで、tutGoTo() 内の
+    // id 別の特別扱い(ドロワーを開いておく等)もそのまま効く。
+    const NOTATION_TUT_STEPS = [
+      { id: 'shuffle', phase: 1, mode: 'shuffle', target: '#shuffle-slider',
+        titleKey: 'tutShuffleTitle', bodyKey: 'tutShuffleBody' },
+
+      { id: 'menu', phase: 2, mode: 'menu', target: '#menu-toggle',
+        titleKey: 'tutMenuTitle', bodyKey: 'tutMenuBody' },
+      { id: 'menuOpen', phase: 2, mode: 'card', target: '#menu-actions', holdMenu: true,
+        titleKey: 'tutMenuOpenTitle', bodyKey: 'tutMenuOpenBody' },
+
+      { id: 'alg', phase: 3, mode: 'card', target: '.alg-row',
+        titleKey: 'tutAlgTitle', bodyKey: 'tutAlgBody' },
+
+      { id: 'finish', phase: 4, mode: 'card',
+        titleKey: 'tutFinishTitle', bodyKey: 'tutNotationFinishBody', nextKey: 'tutDone' }
+    ];
+
     // シャッフルは「キューブをまぜてみよう」のステップに来るまで操作不可。
     // それより前で本人の手で混ぜられてしまうと、直前の「そろった面で
     // 4回まわすと戻る」等の説明と噛み合わなくなるため。
     const TUT_SHUFFLE_INDEX = TUT_STEPS.findIndex(s => s.id === 'shuffle');
+
+    // ------------------------------------------------------------
+    // どちらのチュートリアル(TUT_STEPS / NOTATION_TUT_STEPS)が「いま
+    // 走っているほう」かを指す、切り替え可能な参照。エンジン本体
+    // (tutStepDef 以下)はこれらだけを見て動くので、tutGoTo などの
+    // 中身を2つぶん複製せずに両方のチュートリアルをまかなえる。
+    // 進捗の保存キーも別々にしてあるので、片方を最後まで見たかどうかが
+    // もう片方の判定に影響することはない。
+    let activeTutSteps = TUT_STEPS;
+    let activeShuffleIndex = TUT_SHUFFLE_INDEX;
+    let activeViewIndex = TUT_STEPS.findIndex(s => s.id === 'view');
+    let activeDoneKey = TUTORIAL_KEY;
+    let activeStepKey = TUTORIAL_STEP_KEY;
+    function selectTutorial(steps, doneKey, stepKey) {
+      activeTutSteps = steps;
+      activeShuffleIndex = steps.findIndex(s => s.id === 'shuffle');
+      activeViewIndex = steps.findIndex(s => s.id === 'view');
+      activeDoneKey = doneKey;
+      activeStepKey = stepKey;
+    }
     function tutSyncShuffleLock() {
       if (typeof window.__setShuffleLocked !== 'function') return;
-      const locked = window.__tut.active && tutIndex < TUT_SHUFFLE_INDEX;
+      const locked = window.__tut.active && tutIndex < activeShuffleIndex;
       window.__setShuffleLocked(locked);
     }
 
@@ -4054,7 +4120,7 @@
     let tutFace = null;        // いま案内に使っている面のローカル法線
     let tutGuideKey = null;    // 直前に描いたガイド文（同じなら描き替えない）
 
-    function tutStepDef() { return TUT_STEPS[tutIndex] || null; }
+    function tutStepDef() { return activeTutSteps[tutIndex] || null; }
 
     /* チュートリアルをひっこめるべき画面たち。
        #tut-root は z-index:4000 で、設定(30)や記録(30)、言語(60)といった
@@ -4132,22 +4198,33 @@
       }
     }
 
+    // 回転記号モード側のチュートリアル。上とは対になる条件で、
+    // 「指でなぞる」を選んだ人には出さない。
+    function shouldRunNotationTutorial() {
+      if (typeof tapCubeEnabled !== 'undefined' && tapCubeEnabled) return false;
+      try {
+        return localStorage.getItem(NOTATION_TUTORIAL_KEY) !== '1';
+      } catch (err) {
+        return true;
+      }
+    }
+
     function tutSaveProgress(done) {
       try {
         if (done) {
-          localStorage.setItem(TUTORIAL_KEY, '1');
-          localStorage.removeItem(TUTORIAL_STEP_KEY);
+          localStorage.setItem(activeDoneKey, '1');
+          localStorage.removeItem(activeStepKey);
         } else {
-          localStorage.setItem(TUTORIAL_STEP_KEY, String(Math.max(0, tutIndex)));
+          localStorage.setItem(activeStepKey, String(Math.max(0, tutIndex)));
         }
       } catch (err) { /* storage unavailable -- 進行そのものには影響しない */ }
     }
 
     function tutRestoreStep() {
       try {
-        const raw = localStorage.getItem(TUTORIAL_STEP_KEY);
+        const raw = localStorage.getItem(activeStepKey);
         const n = raw === null ? 0 : parseInt(raw, 10);
-        if (!Number.isFinite(n) || n < 0 || n >= TUT_STEPS.length) return 0;
+        if (!Number.isFinite(n) || n < 0 || n >= activeTutSteps.length) return 0;
         return n;
       } catch (err) { return 0; }
     }
@@ -4329,7 +4406,7 @@
       tutTeardownWatchers();
       tutIndex = i;
       tutSyncShuffleLock();
-      if (tutIndex >= TUT_STEPS.length) { finishTutorial(true); return; }
+      if (tutIndex >= activeTutSteps.length) { finishTutorial(true); return; }
 
       const st = tutStepDef();
       tutTurnCount = 0;
@@ -4347,7 +4424,7 @@
       // 「裏側をのぞく」(view) ステップに到達して以降は持ち替えを許可。
       // それより前の U/R/F/L/D などのステップでは、持ち替えても
       // cube-view-rotated を発火させず自動で向きを戻す。
-      window.__tut.viewAllowed = tutIndex >= TUT_STEPS.findIndex(s => s.id === 'view');
+      window.__tut.viewAllowed = tutIndex >= activeViewIndex;
 
       // 「記録/設定」の説明中(menuOpen)は、キューブにもドロワー内の
       // ボタンにも触れさせない。ここで触れて局面やオーバーレイの状態が
@@ -4385,6 +4462,14 @@
           tutSetCard('tutHelpTitle', 'tutHelpBodyOff', { nextKey: 'tutNext' });
           return;
         }
+      }
+      // OLL/ZBLL/PLL も設定でまとめて非表示にできる(all-alg-hidden)。
+      // その場合は .alg-row 自体が畳まれて存在しなくなるので、同じ理由で
+      // リングを出さず文面だけ差し替える。
+      if (st.id === 'alg' && document.body.classList.contains('all-alg-hidden')) {
+        tutRoot.classList.remove('spotlight', 'has-hole');
+        tutSetCard('tutAlgTitle', 'tutAlgBodyOff', { nextKey: 'tutNext' });
+        return;
       }
 
       tutSetCard(st.titleKey, st.bodyKey, {
@@ -4559,8 +4644,10 @@
       tutSaveProgress(true);
       // シャッフルまで到達せずに抜けた場合は、ここで混ぜて通常の
       // スタート地点に合わせる（そろったキューブを渡されても、
-      // 何をすればいいのか分からないため）。
-      if (!window.__tut.scrambled && typeof tapCubeEnabled !== 'undefined' && tapCubeEnabled) {
+      // 何をすればいいのか分からないため）。finishTutorial() は
+      // どちらのチュートリアル進行中にしか呼ばれないので、ここは
+      // タップ／回転記号どちらのモードでも同じ扱いにしてよい。
+      if (!window.__tut.scrambled) {
         if (typeof requestScramble === 'function') requestScramble();
         else scrambleWhenReady = true;
       }
@@ -4599,6 +4686,7 @@
         }
         // 見直しは最初から。途中再開は「離脱してすぐ戻ってきた」場合の
         // 救済であって、自分から見に来た人が求めているものではない。
+        selectTutorial(TUT_STEPS, TUTORIAL_KEY, TUTORIAL_STEP_KEY);
         startTutorialWhenReady(0);
       }
       openTutorialBtn.addEventListener('click', () => {
@@ -4614,13 +4702,26 @@
     // 中断して離脱していた場合は、次の起動でその続きから出す。
     // 言語だけ選んで落ちた場合などは welcome 側の導線が先に走る。
     (function resumeTutorialIfNeeded() {
+      if (typeof tapCubeEnabled !== 'undefined' && !tapCubeEnabled) return;
+      selectTutorial(TUT_STEPS, TUTORIAL_KEY, TUTORIAL_STEP_KEY);
       if (!shouldRunTutorial()) return;
       if (typeof hasOnboarded === 'undefined' || !hasOnboarded) return; // 初回は welcome 経由
-      if (typeof tapCubeEnabled !== 'undefined' && !tapCubeEnabled) return;
       const step = tutRestoreStep();
       // このIIFEはスクリプトの読み込み中に同期で走るため、init3D()
       // (わざと数十ms遅らせて起動する)より確実に先に来る。ここは常に
       // startTutorialWhenReady() 側で待たせる。
+      if (step > 0) startTutorialWhenReady(step);
+    })();
+
+    // 回転記号モード側も同様に、中断していたら続きから再開する。
+    // tapCubeEnabled の真偽で両者は排他になるので、片方が
+    // selectTutorial() を呼んだあとにもう片方が上書きしてしまう心配はない。
+    (function resumeNotationTutorialIfNeeded() {
+      if (typeof tapCubeEnabled !== 'undefined' && tapCubeEnabled) return;
+      selectTutorial(NOTATION_TUT_STEPS, NOTATION_TUTORIAL_KEY, NOTATION_TUTORIAL_STEP_KEY);
+      if (!shouldRunNotationTutorial()) return;
+      if (typeof hasOnboarded === 'undefined' || !hasOnboarded) return;
+      const step = tutRestoreStep();
       if (step > 0) startTutorialWhenReady(step);
     })();
 
@@ -12497,7 +12598,10 @@ const BackupTransfer = (function () {
     // 2026-08-18 追加。並びは末尾に足すだけ（途中への挿入は禁止）。
     'rubiks-cube-feel-magnet', 'rubiks-cube-feel-maglev',
     // 2026-08-21 追加（最小手数ランキング）。並びは末尾に足すだけ。
-    'rubiks-cube-move-records'
+    'rubiks-cube-move-records',
+    // 2026-08-21 追加（ブランド紹介・回転記号モード向けチュートリアル）。
+    'rubiks-cube-intro-seen',
+    'rubiks-cube-notation-tutorial', 'rubiks-cube-notation-tutorial-step'
   ];
 
   function supported() {

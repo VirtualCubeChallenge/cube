@@ -3736,3 +3736,72 @@
     });
   });
 })();
+
+/* ============================================================
+   回転記号モード向けチュートリアル（OLL/PLL/ZBLLの案内・仕上げの一言）
+   の文言。既存の辞書には手を入れず、まだ無いキーだけを足すマージ方式。
+   ============================================================ */
+(function () {
+  const NOTATION_TUT_I18N = {
+    ja: {
+      tutAlgTitle: 'OLL・PLL・ZBLLもすぐそこに',
+      tutAlgBody: '画面下の<span class="tut-em">OLL・PLL・ZBLL</span>ボタンから、そろえるための手順（アルゴリズム）をいつでも見返せます。<br><br>覚えたてで不安なときの、心強い味方です！',
+      tutAlgBodyOff: 'いまは OLL・PLL・ZBLL を非表示にしています。<br>⚙️設定からいつでも表示に戻せます。',
+      tutNotationFinishBody: 'あとは自由に回してみよう。<br>迷ったら<span class="tut-em">OLL・PLL・ZBLL</span>をのぞいてね！'
+    },
+    en: {
+      tutAlgTitle: 'OLL, PLL & ZBLL are right here',
+      tutAlgBody: 'The <span class="tut-em">OLL, PLL, and ZBLL</span> buttons below let you look up the algorithm you need, anytime.<br><br>A safety net for when you\u2019re still learning!',
+      tutAlgBodyOff: 'OLL, PLL, and ZBLL are currently hidden.<br>You can bring them back anytime from \u2699\uFE0F Settings.',
+      tutNotationFinishBody: 'Now go ahead and turn it your way.<br>Stuck? Check <span class="tut-em">OLL, PLL, or ZBLL</span> anytime!'
+    },
+    'zh-CN': {
+      tutAlgTitle: 'OLL、PLL、ZBLL 就在这里',
+      tutAlgBody: '屏幕下方的 <span class="tut-em">OLL・PLL・ZBLL</span> 按钮，可以随时查看还原用的公式。<br><br>刚开始记不熟时，这就是你的靠山！',
+      tutAlgBodyOff: '现在 OLL・PLL・ZBLL 处于隐藏状态。<br>可以随时在 ⚙️设置 中重新显示。',
+      tutNotationFinishBody: '接下来就自由地转起来吧。<br>卡住了就看看 <span class="tut-em">OLL・PLL・ZBLL</span>！'
+    },
+    'zh-TW': {
+      tutAlgTitle: 'OLL、PLL、ZBLL 就在這裡',
+      tutAlgBody: '畫面下方的 <span class="tut-em">OLL・PLL・ZBLL</span> 按鈕，可以隨時查看還原用的公式。<br><br>剛開始記不熟時，這就是你的靠山！',
+      tutAlgBodyOff: '現在 OLL・PLL・ZBLL 處於隱藏狀態。<br>可以隨時在 ⚙️設定 中重新顯示。',
+      tutNotationFinishBody: '接下來就自由地轉轉看吧。<br>卡住了就看看 <span class="tut-em">OLL・PLL・ZBLL</span>！'
+    },
+    ko: {
+      tutAlgTitle: 'OLL・PLL・ZBLL도 바로 여기',
+      tutAlgBody: '화면 아래 <span class="tut-em">OLL・PLL・ZBLL</span> 버튼에서 맞추는 순서(알고리즘)를 언제든 확인할 수 있어요.<br><br>아직 외우는 중이라 불안할 때, 든든한 아군이에요!',
+      tutAlgBodyOff: '지금은 OLL・PLL・ZBLL이 숨겨져 있어요.<br>⚙️설정에서 언제든 다시 표시할 수 있어요.',
+      tutNotationFinishBody: '이제 자유롭게 돌려보세요.<br>막히면 <span class="tut-em">OLL・PLL・ZBLL</span>을 살펴보세요!'
+    },
+    es: {
+      tutAlgTitle: 'OLL, PLL y ZBLL están aquí mismo',
+      tutAlgBody: 'Los botones <span class="tut-em">OLL, PLL y ZBLL</span> de abajo te dejan consultar el algoritmo que necesites, cuando quieras.<br><br>¡Un salvavidas mientras aún los memorizas!',
+      tutAlgBodyOff: 'Ahora mismo OLL, PLL y ZBLL están ocultos.<br>Puedes volver a mostrarlos cuando quieras desde \u2699\uFE0F Ajustes.',
+      tutNotationFinishBody: 'Ahora gira el cubo a tu manera.<br>\u00BFTe atascas? \u00A1Consulta <span class="tut-em">OLL, PLL o ZBLL</span> cuando quieras!'
+    },
+    id: {
+      tutAlgTitle: 'OLL, PLL, dan ZBLL ada di sini',
+      tutAlgBody: 'Tombol <span class="tut-em">OLL, PLL, dan ZBLL</span> di bawah bisa kamu buka kapan saja untuk melihat algoritmanya.<br><br>Penyelamat saat kamu masih menghafal!',
+      tutAlgBodyOff: 'OLL, PLL, dan ZBLL sedang disembunyikan.<br>Kamu bisa memunculkannya lagi kapan saja lewat \u2699\uFE0F Pengaturan.',
+      tutNotationFinishBody: 'Sekarang putar sesukamu.<br>Kalau bingung, cek <span class="tut-em">OLL, PLL, atau ZBLL</span> kapan saja!'
+    },
+    ru: {
+      tutAlgTitle: 'OLL, PLL и ZBLL уже под рукой',
+      tutAlgBody: 'Кнопки <span class="tut-em">OLL, PLL и ZBLL</span> внизу экрана — здесь всегда можно посмотреть нужный алгоритм.<br><br>Подстраховка, пока вы их ещё не выучили!',
+      tutAlgBodyOff: 'Сейчас OLL, PLL и ZBLL скрыты.<br>Вернуть их можно в любой момент в \u2699\uFE0F Настройках.',
+      tutNotationFinishBody: 'Теперь крутите как вам удобно.<br>Застряли? Загляните в <span class="tut-em">OLL, PLL или ZBLL</span>!'
+    },
+    'pt-BR': {
+      tutAlgTitle: 'OLL, PLL e ZBLL estão bem aqui',
+      tutAlgBody: 'Os botões <span class="tut-em">OLL, PLL e ZBLL</span> logo abaixo deixam você consultar o algoritmo que precisar, a qualquer momento.<br><br>Uma rede de segurança enquanto você ainda está decorando!',
+      tutAlgBodyOff: 'No momento, OLL, PLL e ZBLL estão ocultos.<br>Você pode mostrá-los de novo quando quiser pelos \u2699\uFE0F Ajustes.',
+      tutNotationFinishBody: 'Agora é só girar do seu jeito.<br>Travou? Dá uma olhada em <span class="tut-em">OLL, PLL ou ZBLL</span>!'
+    }
+  };
+  Object.keys(NOTATION_TUT_I18N).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(NOTATION_TUT_I18N[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = NOTATION_TUT_I18N[lang][k];
+    });
+  });
+})();
