@@ -5629,7 +5629,14 @@
       // muted 化まで芋づるで起きて、チュートリアルの誘導と真っ向からぶつかる。
       // 通常は「そろった状態(idle)」で始めるのでここは通らないが、設定から
       // 見直したときはキューブがバラバラ(scrambled)のこともあるため保険。
-      if (gameState === 'scrambled' && !(window.__tut && window.__tut.active && !window.__tut.scrambled)) {
+      //
+      // 同じ理由で、OLL/PLL/ZBLLの「実行」プレビュー中(algRunInProgress)も
+      // 除外する。シャッフル直後にアルゴリズムを流し込んで見ただけなのに、
+      // その最初の1手でタイマーが起動してしまうのを防ぐため。計測の開始は
+      // あくまで本人が回転記号ボタンで本当に1手回した瞬間に限定する。
+      if (gameState === 'scrambled' &&
+          !(window.__tut && window.__tut.active && !window.__tut.scrambled) &&
+          !algRunInProgress) {
         startTimer();
       }
       if (isAnimating && !instant) {
@@ -6459,34 +6466,55 @@
     //   run mode  -> execute the algorithm on the cube as it stands.
     //   set mode  -> reset, then run the algorithm backwards to build the
     //                case, and hand the cube over as if freshly scrambled.
+    // シャッフル直後（gameState==='scrambled'、まだ計測は始まっていない）に
+    // OLL/PLL/ZBLLの手順を「実行(run)」で見てみただけなのに、その最初の
+    // 1手が makeTurn() 経由でタイマーを起動してしまう問題への対策。
+    // このフラグが立っている間、makeTurn() はタイマーを起動しない。
+    // 本人が回転記号ボタンで本当に1手回した瞬間だけ起動させたいので、
+    // アルゴリズムを流し込んでいる間はこれで無効化しておく。
+    //   ・すでに計測中(gameState==='solving')の最中に実行した場合は、
+    //     このフラグの有無に関係なくタイマーはもとから起動しない
+    //     (gameState !== 'scrambled' のため)。つまりソルブ中の
+    //     アシスト利用はこれまでどおり素通りする。
+    //   ・usedOllThisSolve 等の「アシストを使った」印は、このフラグとは
+    //     無関係にそのまま付く。あとで本人が回転記号を本当に動かして
+    //     計測が始まったとき、その回はちゃんとアシスト有りとして記録
+    //     される。
+    let algRunInProgress = false;
+
     function runAlgCase(algText, opts) {
       if (typeof makeTurn !== 'function') return;
       const moves = parseAlgorithm(algText);
       if (!moves.length) return; // parseAlgorithm already logged the reason
 
-      if (opts.run) {
-        // Label the finished time honestly with whichever trainer helped.
-        if (opts.mark === 'oll') usedOllThisSolve = true;
-        if (opts.mark === 'pll') usedPllThisSolve = true;
-        if (opts.mark === 'zbll') usedZbllThisSolve = true;
-        moves.forEach((mv) => makeTurn(mv));
-      } else {
-        resetCube();
-        for (let i = moves.length - 1; i >= 0; i--) makeTurn(invertMove(moves[i]), true);
-        // 「形にセット」は手順の練習(ドリル)なので、タイマーは動かさない。
-        // ここを 'scrambled' にすると makeTurn() が最初の1手で startTimer()
-        // を呼んでしまうため、専用の 'drill' 状態に置く。
-        //   ・makeTurn() はタイマーを起動しない(表示は 00:00.00 のまま)
-        //   ・そろったかどうかの判定と完成演出は通常どおり出る(checkSolved)
-        //   ・記録対象外(recordEligible=false)なので自己ベストにもならない
-        //   ・計測中ではないのでサイズ変更や実行/セットの切り替えも自由
-        gameState = 'drill';
-        recordEligible = false;
-        usedOllThisSolve = false;
-        usedPllThisSolve = false;
-        usedZbllThisSolve = false;
-        resetTimer();
-        updateSizeLock();
+      algRunInProgress = true;
+      try {
+        if (opts.run) {
+          // Label the finished time honestly with whichever trainer helped.
+          if (opts.mark === 'oll') usedOllThisSolve = true;
+          if (opts.mark === 'pll') usedPllThisSolve = true;
+          if (opts.mark === 'zbll') usedZbllThisSolve = true;
+          moves.forEach((mv) => makeTurn(mv));
+        } else {
+          resetCube();
+          for (let i = moves.length - 1; i >= 0; i--) makeTurn(invertMove(moves[i]), true);
+          // 「形にセット」は手順の練習(ドリル)なので、タイマーは動かさない。
+          // ここを 'scrambled' にすると makeTurn() が最初の1手で startTimer()
+          // を呼んでしまうため、専用の 'drill' 状態に置く。
+          //   ・makeTurn() はタイマーを起動しない(表示は 00:00.00 のまま)
+          //   ・そろったかどうかの判定と完成演出は通常どおり出る(checkSolved)
+          //   ・記録対象外(recordEligible=false)なので自己ベストにもならない
+          //   ・計測中ではないのでサイズ変更や実行/セットの切り替えも自由
+          gameState = 'drill';
+          recordEligible = false;
+          usedOllThisSolve = false;
+          usedPllThisSolve = false;
+          usedZbllThisSolve = false;
+          resetTimer();
+          updateSizeLock();
+        }
+      } finally {
+        algRunInProgress = false;
       }
       if (opts.overlay) opts.overlay.classList.remove('show');
     }
