@@ -19,6 +19,14 @@
 
 const CACHE_NAME = 'vcc-cube-runtime-v1';
 
+/* 機能を追加してファイルを差し替えるたびに、この値を書き換える。
+   ブラウザは sw.js の中身がバイト単位で変わったときだけ「新しい版が
+   ある」と判断する仕組みなので、ここを変えない限り index.html 側の
+   更新通知バナーは一切出ない（index.html や style.css の ?v= を
+   上げるのと同じ感覚で、これも毎回上げること）。
+   このコード自体は何もしない、ただの目印。 */
+const SW_BUILD_MARKER = '2026-08-22a';
+
 self.addEventListener('install', () => {
   // ここでは何もしない。skipWaiting() は呼ばない —
   // index.html からの SKIP_WAITING メッセージ（更新ボタンのタップ）を
