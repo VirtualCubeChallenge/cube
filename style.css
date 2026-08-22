@@ -8047,10 +8047,18 @@
 .menu-row-split .action-btn {
   flex: 1 1 0;
   min-width: 0;
-  gap: 8px;
-  padding: 16px 12px;
-  font-size: 15px;
-  justify-content: center;
+  gap: 10px;
+  /* 左の余白(14px)は上の行(.menu-actions .action-btn の 16px)に極力
+     近づけて、アイコンの開始位置が上下で揃って見えるようにしてある。
+     右側は詰めても隣に何も接しないので気にしなくていい。 */
+  padding: 16px 10px 16px 14px;
+  /* 文字数の伸びた「お知らせ」でも、狭い端末で折り返さないよう幅に
+     追従させる(.hg-tab / .shop-tab と同じ考え方)。 */
+  font-size: clamp(13px, 3.8vw, 16px);
+  white-space: nowrap;
+  /* ← ここが直した本体。center だと上の行(左詰め)とアイコンの開始
+     位置がズレて見えていた。 */
+  justify-content: flex-start;
 }
 .menu-notice-icon {
   position: relative;
