@@ -1930,9 +1930,47 @@
       opacity: 0.5;
       cursor: not-allowed;
     }
-    body.tap-mode .alg-btn:not(#help-btn) { display: none; }
+    body.tap-mode .alg-btn:not(#help-btn):not(#undo-btn) { display: none; }
     body.tap-mode #help-btn { display: flex; }
-    body.tap-mode .alg-row { grid-template-columns: 1fr; }
+    /* この行の並べ方は、下の #undo-btn の項で grid → flex に差し替えている
+       （以前ここにあった grid-template-columns: 1fr はその中へ移した）。 */
+
+    /* --- 一手戻る (#undo-btn) -----------------------------------------
+       タップキューブのときだけ、ヘルプの右隣に並べる。回転記号ボタンで
+       遊ぶときは押し間違えても逆の記号を押せば済むので出さない。
+
+       ヘルプは横長の pill、こちらは丸ボタンと幅が違うので、この行だけ
+       grid をやめて flex にしてある。grid の 1fr 2列だと、片方を隠した
+       とき(設定でヘルプを非表示にしたとき)に残った1つが中央からずれる。
+       flex なら「並んだぶんだけを中央に」置けるので、どちらの状態でも
+       収まりが変わらない。 */
+    #undo-btn { display: none; }
+    body.tap-mode #undo-btn { display: flex; }
+    body.tap-mode .alg-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #undo-btn .undo-icon {
+      display: flex;
+      line-height: 1;
+      color: var(--tc);
+    }
+    #undo-btn .undo-icon svg { display: block; }
+    /* ラベルは .alg-sub の大きさ(横画面での縮みも含む)をそのまま借りつつ、
+       色だけはボタン本体に合わせる。アクセント色をアイコンと文字の両方に
+       乗せると、隣のヘルプより主張が強くなってしまうため。 */
+    #undo-btn .alg-sub {
+      color: inherit;
+      opacity: 0.75;
+    }
+    /* 戻せる手が無いあいだ。押しても何も起きないボタンに見えないよう、
+       沈む演出も光る枠も出さずに、まるごと沈黙させる。 */
+    #undo-btn:disabled {
+      opacity: 0.32;
+      cursor: default;
+      pointer-events: none;
+    }
 
     /* --- お手本キューブのパネル ---
        メインキューブのすぐ上に重ねて置く。パネルが出ている間はカメラ側
