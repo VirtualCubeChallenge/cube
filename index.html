@@ -1375,7 +1375,7 @@
 
   <!-- 多言語辞書(9ヶ国語)。下の本体スクリプトが起動直後から I18N を
        参照するため、必ずこれより先に読み込む。 -->
-  <script src="i18n.js?v=20260822b"></script>
+  <script src="i18n.js?v=20260822c"></script>
   <!-- 回し心地（磁力アシスト＋マグレブ微振動）のアニメーション・ドライバ。
        I18N への追記と設定スライダーの差し込みを兼ねるので、i18n.js より
        あと・本体スクリプトより先に読み込む。読み込んだだけでは何も起きず、
@@ -5692,7 +5692,10 @@
       // 戻す手の目印(__undo)は cfg そのものに付けてある。フラグ変数だと、
       // 待ち行列を経由して後から実行されたときに目印が消えてしまい、
       // 「戻した手」がまた履歴に積まれて堂々めぐりになる。
-      if (!scrambleActive && !algRunInProgress && !cfg.__undo) {
+      // そろったあと(gameState === 'solved')に回した手も積まない。完成の
+      // 表示が出たままそこへ戻れてしまうと、演出と盤面が食い違うため。
+      if (!scrambleActive && !algRunInProgress && !cfg.__undo &&
+          gameState !== 'solved') {
         pushUndoStep(cfg);
       }
 
@@ -5841,16 +5844,18 @@
       makeTurn({ axis: last.axis, layers: last.layers.slice(), dir: -last.dir, __undo: true });
     }
 
+    function clearUndoHistory() {
+      undoStack.length = 0;
+      updateUndoBtn();
+    }
+
     if (undoBtn) undoBtn.addEventListener('click', doUndo);
 
     // シャッフルもリセットも、盤面を作り直したあとに cube-reset を投げる。
     // 作り直した先に戻る場所は無いので、ここで履歴ごと捨てる。
     // （OLL/PLL/ZBLL の「形にセット」も内部で resetCube() を通るため、
     //   ドリルの形づくりで履歴が残ることもない）
-    window.addEventListener('cube-reset', function () {
-      undoStack.length = 0;
-      updateUndoBtn();
-    });
+    window.addEventListener('cube-reset', clearUndoHistory);
     updateUndoBtn();
 
     function snapCubie(c) {
@@ -7547,6 +7552,10 @@ const PLL_DATA = {
       // ので、ドリルのときは計測まわりを素通りさせる。
       const wasDrill = (gameState === 'drill');
       gameState = 'solved';
+      // そろった瞬間に「一手戻る」は役目を終える。ここから崩せてしまうと
+      // 完成の表示が出たまま盤面だけ違う、という食い違いを作れてしまう。
+      // 次のシャッフル / リセットでまた積み直される。
+      clearUndoHistory();
       updateSizeLock();
       setShuffleSliderMode('solved');
       let isNewBest = false;
@@ -8224,8 +8233,8 @@ const PLL_DATA = {
       // お手本と違う手が何手続くまで「1手ずつ逆にもどそう」の案内を出し
       // 続けるか。ここを超えたら追いかけるのはやめて、いまの形から解き
       // 直す。数字を変えるときは i18n の wrongCount / undoWrong /
-      // tooManyWrong の文面（各言語の「/ 5」「5手以上」）もそろえること。
-      const WRONG_LIMIT = 5;
+      // tooManyWrong の文面（各言語の「/ 3」「3手以上」）もそろえること。
+      const WRONG_LIMIT = 3;
 
       let demo = null;
       let ready = false;
