@@ -3878,46 +3878,204 @@
   if (typeof I18N === 'undefined') return;
   var SW_I18N = {
     ja: {
-      swUpdateMsg: '新しいバージョンがあります',
-      swUpdateBtn: '更新する'
+      swUpdateMsg: 'アップデートが届いたよ！',
+      swUpdateBtn: '今すぐ試す'
     },
     en: {
-      swUpdateMsg: 'A new version is available',
-      swUpdateBtn: 'Update'
+      swUpdateMsg: 'A new update has arrived!',
+      swUpdateBtn: 'Try it now'
     },
     'zh-CN': {
-      swUpdateMsg: '有新版本可用',
-      swUpdateBtn: '更新'
+      swUpdateMsg: '更新已送达！',
+      swUpdateBtn: '立即体验'
     },
     'zh-TW': {
-      swUpdateMsg: '有新版本可用',
-      swUpdateBtn: '更新'
+      swUpdateMsg: '更新已送達！',
+      swUpdateBtn: '立即體驗'
     },
     ko: {
-      swUpdateMsg: '새 버전이 있습니다',
-      swUpdateBtn: '업데이트'
+      swUpdateMsg: '업데이트가 도착했어요!',
+      swUpdateBtn: '지금 해보기'
     },
     es: {
-      swUpdateMsg: 'Hay una nueva versión disponible',
-      swUpdateBtn: 'Actualizar'
+      swUpdateMsg: '¡Llegó una actualización!',
+      swUpdateBtn: 'Probar ahora'
     },
     id: {
-      swUpdateMsg: 'Versi baru tersedia',
-      swUpdateBtn: 'Perbarui'
+      swUpdateMsg: 'Pembaruan baru telah tiba!',
+      swUpdateBtn: 'Coba sekarang'
     },
     ru: {
-      swUpdateMsg: 'Доступна новая версия',
-      swUpdateBtn: 'Обновить'
+      swUpdateMsg: 'Пришло обновление!',
+      swUpdateBtn: 'Попробовать'
     },
     'pt-BR': {
-      swUpdateMsg: 'Uma nova versão está disponível',
-      swUpdateBtn: 'Atualizar'
+      swUpdateMsg: 'Uma atualização chegou!',
+      swUpdateBtn: 'Experimentar agora'
     }
   };
   Object.keys(SW_I18N).forEach(function (lang) {
     if (!I18N[lang]) I18N[lang] = {};
     Object.keys(SW_I18N[lang]).forEach(function (k) {
       if (I18N[lang][k] === undefined) I18N[lang][k] = SW_I18N[lang][k];
+    });
+  });
+})();
+
+/* ============================================================
+   お知らせ一覧（ドロワー→#notice-btn で開く画面）の文言。
+   既存の辞書は書き換えず、まだ無いキーだけを足すいつもの方式。
+   ============================================================ */
+(function () {
+  if (typeof I18N === 'undefined') return;
+  var NOTICE_I18N = {
+    ja: { menuNotice: 'お知らせ', noticeTitle: 'お知らせ', noticeEmpty: 'まだお知らせはありません' },
+    en: { menuNotice: 'News', noticeTitle: 'News', noticeEmpty: 'No news yet' },
+    'zh-CN': { menuNotice: '公告', noticeTitle: '公告', noticeEmpty: '暂无公告' },
+    'zh-TW': { menuNotice: '公告', noticeTitle: '公告', noticeEmpty: '尚無公告' },
+    ko: { menuNotice: '소식', noticeTitle: '소식', noticeEmpty: '아직 소식이 없습니다' },
+    es: { menuNotice: 'Novedades', noticeTitle: 'Novedades', noticeEmpty: 'Aún no hay novedades' },
+    id: { menuNotice: 'Info', noticeTitle: 'Info', noticeEmpty: 'Belum ada info' },
+    ru: { menuNotice: 'Новости', noticeTitle: 'Новости', noticeEmpty: 'Пока нет новостей' },
+    'pt-BR': { menuNotice: 'Novidades', noticeTitle: 'Novidades', noticeEmpty: 'Ainda não há novidades' }
+  };
+  Object.keys(NOTICE_I18N).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(NOTICE_I18N[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = NOTICE_I18N[lang][k];
+    });
+  });
+})();
+
+/* ============================================================
+   ホーム画面追加ガイド（お知らせの「詳細→」から開く画面）の文言。
+   既存の辞書は書き換えず、まだ無いキーだけを足すいつもの方式。
+   ============================================================ */
+(function () {
+  if (typeof I18N === 'undefined') return;
+  var HG_I18N = {
+    ja: {
+      noticeDetailBtn: '詳細',
+      hgTitle: 'オフラインで遊ぶ準備',
+      hgFineprint: '※ 通信できる状態で一度開いてから追加してください',
+      hgLead: 'ホーム画面に追加すると、アプリのように機内モードでも開けます',
+      hgTabIOS: '📱 iPhone （Safari）',
+      hgTabAndroid: '🤖 Android （Chrome）',
+      hgIOSStep1: '画面下の<b>共有ボタン</b>（この形）をタップ',
+      hgIOSStep2: '下の方にある「<b>ホーム画面に追加</b>」をタップ',
+      hgAndroidStep1: '右上の「<b>︙</b>」（点3つ）をタップ',
+      hgAndroidStep2: '「<b>ホーム画面に追加</b>」または「<b>アプリをインストール</b>」をタップ',
+      hgDone: '✅ これで完了！次からはアイコンをタップするだけで、機内モードでも開けます'
+    },
+    en: {
+      noticeDetailBtn: 'Details',
+      hgTitle: 'Get ready to play offline',
+      hgFineprint: '* Open the app once while online before adding it',
+      hgLead: 'Add this to your home screen to open it like an app, even in airplane mode',
+      hgTabIOS: '📱 iPhone (Safari)',
+      hgTabAndroid: '🤖 Android (Chrome)',
+      hgIOSStep1: 'Tap the <b>Share button</b> (this shape) at the bottom of the screen',
+      hgIOSStep2: 'Tap <b>Add to Home Screen</b> further down the menu',
+      hgAndroidStep1: 'Tap the <b>⋮</b> menu (three dots) in the top right',
+      hgAndroidStep2: 'Tap <b>Add to Home screen</b> or <b>Install app</b>',
+      hgDone: '✅ All set! From now on, just tap the icon — it works in airplane mode too'
+    },
+    'zh-CN': {
+      noticeDetailBtn: '详情',
+      hgTitle: '离线畅玩准备',
+      hgFineprint: '※ 请先在联网状态下打开一次，再进行添加',
+      hgLead: '添加到主屏幕后，就能像App一样使用，飞行模式下也能打开',
+      hgTabIOS: '📱 iPhone (Safari)',
+      hgTabAndroid: '🤖 Android (Chrome)',
+      hgIOSStep1: '点击屏幕下方的<b>分享按钮</b>（这个图标）',
+      hgIOSStep2: '在菜单靠下的位置点击「<b>添加到主屏幕</b>」',
+      hgAndroidStep1: '点击右上角的「<b>⋮</b>」（三个点）',
+      hgAndroidStep2: '点击「<b>添加到主屏幕</b>」或「<b>安装应用</b>」',
+      hgDone: '✅ 完成！以后点击图标即可打开，飞行模式下也能玩'
+    },
+    'zh-TW': {
+      noticeDetailBtn: '詳情',
+      hgTitle: '離線暢玩準備',
+      hgFineprint: '※ 請先在連網狀態下開啟一次，再進行加入',
+      hgLead: '加入主畫面後，就能像App一樣使用，飛航模式下也能打開',
+      hgTabIOS: '📱 iPhone (Safari)',
+      hgTabAndroid: '🤖 Android (Chrome)',
+      hgIOSStep1: '點擊畫面下方的<b>分享按鈕</b>（這個圖示）',
+      hgIOSStep2: '在選單偏下的位置點擊「<b>加入主畫面</b>」',
+      hgAndroidStep1: '點擊右上角的「<b>⋮</b>」（三個點）',
+      hgAndroidStep2: '點擊「<b>加入主畫面</b>」或「<b>安裝應用程式</b>」',
+      hgDone: '✅ 完成！之後點擊圖示即可打開，飛航模式下也能玩'
+    },
+    ko: {
+      noticeDetailBtn: '자세히',
+      hgTitle: '오프라인 플레이 준비',
+      hgFineprint: '※ 인터넷이 연결된 상태에서 한 번 연 뒤에 추가해 주세요',
+      hgLead: '홈 화면에 추가하면 앱처럼 실행되고, 비행기 모드에서도 열 수 있어요',
+      hgTabIOS: '📱 iPhone (Safari)',
+      hgTabAndroid: '🤖 Android (Chrome)',
+      hgIOSStep1: '화면 아래의 <b>공유 버튼</b>(이 모양)을 탭하세요',
+      hgIOSStep2: '메뉴 아래쪽의 「<b>홈 화면에 추가</b>」를 탭하세요',
+      hgAndroidStep1: '오른쪽 위의 「<b>⋮</b>」(점 3개)을 탭하세요',
+      hgAndroidStep2: '「<b>홈 화면에 추가</b>」 또는 「<b>앱 설치</b>」를 탭하세요',
+      hgDone: '✅ 완료! 이제 아이콘만 탭하면 비행기 모드에서도 열 수 있어요'
+    },
+    es: {
+      noticeDetailBtn: 'Detalles',
+      hgTitle: 'Prepárate para jugar sin conexión',
+      hgFineprint: '※ Ábrela una vez con conexión antes de añadirla',
+      hgLead: 'Añádelo a tu pantalla de inicio para abrirlo como una app, incluso en modo avión',
+      hgTabIOS: '📱 iPhone (Safari)',
+      hgTabAndroid: '🤖 Android (Chrome)',
+      hgIOSStep1: 'Toca el <b>botón compartir</b> (este icono) en la parte inferior',
+      hgIOSStep2: 'Toca <b>Añadir a pantalla de inicio</b> más abajo en el menú',
+      hgAndroidStep1: 'Toca el menú «<b>⋮</b>» (tres puntos) arriba a la derecha',
+      hgAndroidStep2: 'Toca <b>Añadir a pantalla de inicio</b> o <b>Instalar app</b>',
+      hgDone: '✅ ¡Listo! Desde ahora solo toca el icono, funciona incluso en modo avión'
+    },
+    id: {
+      noticeDetailBtn: 'Detail',
+      hgTitle: 'Siap main tanpa internet',
+      hgFineprint: '※ Buka dulu sekali saat online sebelum menambahkannya',
+      hgLead: 'Tambahkan ke layar utama supaya bisa dibuka seperti aplikasi, bahkan saat mode pesawat',
+      hgTabIOS: '📱 iPhone (Safari)',
+      hgTabAndroid: '🤖 Android (Chrome)',
+      hgIOSStep1: 'Ketuk <b>tombol bagikan</b> (bentuk ini) di bagian bawah layar',
+      hgIOSStep2: 'Ketuk <b>Tambah ke Layar Utama</b> di bagian bawah menu',
+      hgAndroidStep1: 'Ketuk menu «<b>⋮</b>» (tiga titik) di kanan atas',
+      hgAndroidStep2: 'Ketuk <b>Tambahkan ke layar Utama</b> atau <b>Instal aplikasi</b>',
+      hgDone: '✅ Selesai! Mulai sekarang cukup ketuk ikonnya, bisa dibuka walau mode pesawat'
+    },
+    ru: {
+      noticeDetailBtn: 'Подробнее',
+      hgTitle: 'Подготовка к игре офлайн',
+      hgFineprint: '※ Сначала откройте приложение онлайн, потом добавляйте',
+      hgLead: 'Добавьте на главный экран, чтобы открывать как приложение — даже в режиме полёта',
+      hgTabIOS: '📱 iPhone (Safari)',
+      hgTabAndroid: '🤖 Android (Chrome)',
+      hgIOSStep1: 'Нажмите <b>кнопку «Поделиться»</b> (вот такую) внизу экрана',
+      hgIOSStep2: 'Нажмите «<b>На экран «Домой»</b>» ниже в меню',
+      hgAndroidStep1: 'Нажмите «<b>⋮</b>» (три точки) в правом верхнем углу',
+      hgAndroidStep2: 'Нажмите «<b>Добавить на главный экран</b>» или «<b>Установить приложение</b>»',
+      hgDone: '✅ Готово! Теперь достаточно нажать на значок — работает даже в режиме полёта'
+    },
+    'pt-BR': {
+      noticeDetailBtn: 'Detalhes',
+      hgTitle: 'Prepare-se para jogar offline',
+      hgFineprint: '※ Abra uma vez online antes de adicionar',
+      hgLead: 'Adicione à tela inicial para abrir como um app, mesmo no modo avião',
+      hgTabIOS: '📱 iPhone (Safari)',
+      hgTabAndroid: '🤖 Android (Chrome)',
+      hgIOSStep1: 'Toque no <b>botão compartilhar</b> (esse ícone) na parte de baixo',
+      hgIOSStep2: 'Toque em <b>Adicionar à Tela de Início</b> mais abaixo no menu',
+      hgAndroidStep1: 'Toque no menu «<b>⋮</b>» (três pontinhos) no canto superior direito',
+      hgAndroidStep2: 'Toque em <b>Adicionar à tela inicial</b> ou <b>Instalar app</b>',
+      hgDone: '✅ Pronto! A partir de agora é só tocar no ícone — funciona até no modo avião'
+    }
+  };
+  Object.keys(HG_I18N).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(HG_I18N[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = HG_I18N[lang][k];
     });
   });
 })();

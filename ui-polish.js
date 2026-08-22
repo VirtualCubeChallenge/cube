@@ -73,7 +73,8 @@
     '#settings-overlay', '#records-overlay', '#stats-overlay',
     '#layout-overlay', '#transfer-overlay', '#oll-overlay',
     '#zbll-overlay', '#pll-overlay', '#lang-overlay',
-    '#welcome-overlay', '#confirm-overlay', '#shop-overlay'
+    '#welcome-overlay', '#confirm-overlay', '#shop-overlay',
+    '#notice-overlay', '#homescreen-guide-overlay'
   ];
   // 中で持ち上がるパネル（オーバーレイ → その中身）
   const PANELS = [
@@ -88,7 +89,9 @@
     '#transfer-overlay.show .alg-panel',
     '#oll-overlay.show .alg-panel',
     '#zbll-overlay.show .alg-panel',
-    '#pll-overlay.show .alg-panel'
+    '#pll-overlay.show .alg-panel',
+    '#notice-overlay.show #notice-panel',
+    '#homescreen-guide-overlay.show #homescreen-guide-panel'
   ].join(',');
 
   const overlaysBase = OVERLAYS.join(',');

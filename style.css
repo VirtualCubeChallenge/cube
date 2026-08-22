@@ -7893,69 +7893,453 @@
 /* ============================================================
    オフライン対応：更新通知バナー (#sw-update-toast)
    Service Worker が新版を検知した時だけ index.html 側が .show を
-   付けて表示する。画面下部・中央寄せの浮き島にしてあるので、
-   ヘッダーや既存のオーバーレイとはかぶらない。
+   付けて表示する。
+
+   見た目は #crystal-popup（クリア時のクリスタル獲得演出）と同じ
+   言葉づかいを借りている ― 弾むような登場、背後の光の輪、グロー。
+   事務連絡の地味な帯ではなく、新機能を試したくなる主役級のカードに
+   したかったので、控えめな配色は使っていない。色は全部 var(--tc) /
+   var(--tc-rgb) 経由なので、プレイヤーがどのスキンカラーを選んでいても
+   その色できらめく。
 
    見出し(#sw-update-toast-head)は固定文言、その下の
    #sw-update-notice は update-notice.json から流し込む告知文。
-   1〜2行の文章が乗る前提でカード型にしてある（前バージョンは
-   丸ボタン1個ぶんの pill 型だったが、告知文を入れる余白が無かった
-   ため、幅のあるカードに変更した）。 */
+   ============================================================ */
 .sw-update-toast {
   position: fixed;
   left: 50%;
-  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-  transform: translateX(-50%) translateY(16px);
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%) translateY(24px) scale(.9);
   z-index: 9999;
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 6px;
-  width: min(320px, calc(100vw - 32px));
-  padding: 14px 16px;
-  background: #1c1c22;
-  border: 1px solid #3a3a48;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .4);
-  color: #dcdce6;
+  align-items: flex-start;
+  gap: 12px;
+  width: min(340px, calc(100vw - 28px));
+  padding: 16px 18px;
+  background: linear-gradient(165deg, #26262f, #1a1a20);
+  border: 1.5px solid var(--tc);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .5), 0 0 0 1px rgba(var(--tc-rgb), .12) inset;
+  color: #f2f2f7;
   opacity: 0;
   pointer-events: none;
-  transition: opacity .25s ease, transform .25s ease;
+  overflow: hidden;
 }
 .sw-update-toast.show {
   opacity: 1;
-  transform: translateX(-50%) translateY(0);
   pointer-events: auto;
+  animation: swToastIn .6s cubic-bezier(.16, 1.3, .3, 1) forwards;
+}
+/* 飛び出し → 行き過ぎ → 弾んで着地。crystal-popup-in と同じ発想。 */
+@keyframes swToastIn {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(40px) scale(.7) rotate(-3deg); }
+  55%  { opacity: 1; transform: translateX(-50%) translateY(-4px) scale(1.04) rotate(1deg); }
+  75%  { transform: translateX(-50%) translateY(2px) scale(.98) rotate(-.5deg); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1) rotate(0deg); }
+}
+
+/* 背後の光の輪。カードの左上あたりから淡く広がっては萎む。 */
+.sw-update-flare {
+  position: absolute;
+  left: -30px;
+  top: -30px;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(var(--tc-rgb), .45), rgba(var(--tc-rgb), 0) 70%);
+  pointer-events: none;
+  animation: swFlarePulse 2.4s ease-in-out infinite;
+}
+@keyframes swFlarePulse {
+  0%, 100% { opacity: .5; transform: scale(1); }
+  50%      { opacity: .9; transform: scale(1.15); }
+}
+
+/* きらめくバッジ（星形アイコン）。左右にゆっくり揺れながら光る。 */
+.sw-update-badge {
+  position: relative;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(var(--tc-rgb), .18);
+  color: var(--tc);
+  filter: drop-shadow(0 0 6px rgba(var(--tc-rgb), .7));
+  animation: swBadgeSpin 3.2s ease-in-out infinite;
+}
+@keyframes swBadgeSpin {
+  0%, 100% { transform: rotate(-6deg) scale(1); }
+  50%      { transform: rotate(6deg) scale(1.08); }
+}
+
+.sw-update-toast-body {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 .sw-update-toast-head {
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--tc);
+  font-family: 'Orbitron', 'Hiragino Kaku Gothic ProN', sans-serif;
+  font-size: 15px;
+  font-weight: 900;
   letter-spacing: .02em;
+  background: linear-gradient(180deg, #ffffff, var(--tc));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 4px;
 }
 .sw-update-toast-notice {
-  font-size: 13px;
-  line-height: 1.5;
-  color: #dcdce6;
-  /* 告知文が無い(update-notice.json が読めなかった/空)ときは、この行
-     ごと畳んで、見出し+ボタンだけの元のシンプルな形に戻る。 */
+  font-size: 14px;
+  line-height: 1.55;
+  color: #e4e4ee;
+  margin-bottom: 10px;
 }
 .sw-update-toast-notice:empty {
   display: none;
 }
+
 .sw-update-toast #sw-update-btn {
-  align-self: flex-end;
-  margin-top: 4px;
-  padding: 7px 16px;
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
   border-radius: 999px;
   border: none;
-  background: var(--tc);
+  background: linear-gradient(100deg, var(--tc) 0%, #fff 50%, var(--tc) 100%);
+  background-size: 220% 100%;
   color: #121214;
+  font-weight: 900;
+  font-size: 14px;
+  cursor: pointer;
+  touch-action: manipulation;
+  animation: swBtnShine 2.6s linear infinite;
+}
+@keyframes swBtnShine {
+  0%   { background-position: 0% 0; }
+  100% { background-position: -220% 0; }
+}
+.sw-update-toast #sw-update-btn:active {
+  transform: scale(.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sw-update-toast.show { animation: swToastInSoft .3s ease-out forwards; }
+  .sw-update-flare, .sw-update-badge, .sw-update-toast #sw-update-btn { animation: none; }
+}
+@keyframes swToastInSoft {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ============================================================
+   ドロワー：設定 / お知らせ の2分割行 (.menu-row-split)
+   他の行(記録・トレーニング・ショップ)は縦積みの全幅ボタンのままで、
+   最後の行だけ2つを横並びにしている。1行に2つ並ぶぶん、元の
+   .menu-actions .action-btn (font-size:19px / padding:20px 16px) では
+   横に収まらないので、この行の中だけ小さくする。
+   ============================================================ */
+.menu-row-split {
+  display: flex;
+  gap: 8px;
+}
+.menu-row-split .action-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  gap: 10px;
+  /* 左の余白(14px)は上の行(.menu-actions .action-btn の 16px)に極力
+     近づけて、アイコンの開始位置が上下で揃って見えるようにしてある。
+     右側は詰めても隣に何も接しないので気にしなくていい。 */
+  padding: 16px 10px 16px 14px;
+  /* 文字数の伸びた「お知らせ」でも、狭い端末で折り返さないよう幅に
+     追従させる(.hg-tab / .shop-tab と同じ考え方)。 */
+  font-size: clamp(13px, 3.8vw, 16px);
+  white-space: nowrap;
+  /* ← ここが直した本体。center だと上の行(左詰め)とアイコンの開始
+     位置がズレて見えていた。 */
+  justify-content: flex-start;
+}
+.menu-notice-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  color: var(--tc);
+  filter: drop-shadow(0 0 4px rgba(var(--tc-rgb), .6));
+}
+/* 未読の新着があるあいだだけ点灯する小さな点。開けば消える。 */
+.menu-notice-dot {
+  position: absolute;
+  top: -3px;
+  right: -5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff5a5a;
+  border: 1.5px solid #1c1c22;
+  display: none;
+}
+.menu-notice-dot.show {
+  display: block;
+}
+
+/* ============================================================
+   お知らせ一覧 (#notice-overlay / #notice-panel)
+   #records-overlay / #records-panel と同じ骨格を流用している。
+   ============================================================ */
+#notice-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #08080b;
+  z-index: 30;
+  align-items: center;
+  justify-content: center;
+}
+#notice-overlay.show {
+  display: flex;
+}
+#notice-panel {
+  background: #1c1c22;
+  border: 1px solid #3a3a48;
+  border-radius: 14px;
+  padding: 20px;
+  width: min(90vw, 360px);
+  max-height: 80vh;
+  max-height: 80dvh;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+#notice-panel h2 {
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+#notice-list {
+  overflow-y: auto;
+  text-align: left;
+  margin-bottom: 12px;
+}
+.notice-item {
+  padding: 12px 2px;
+  border-bottom: 1px solid #2c2c36;
+}
+.notice-item:last-child {
+  border-bottom: none;
+}
+.notice-item-date {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--tc);
+  letter-spacing: .04em;
+  margin-bottom: 4px;
+}
+.notice-item-text {
+  font-size: 14px;
+  line-height: 1.55;
+  color: #e4e4ee;
+}
+
+/* ============================================================
+   ホーム画面追加のやり方 (#homescreen-guide-overlay)
+   #notice-overlay と同じ骨格。タブで iPhone/Android を切り替え、
+   #homescreen-guide-panel の data-platform 属性で表示する手順を
+   出し分ける（CSSの属性セレクタだけで足りるので、JSは値を書き換える
+   だけでいい）。
+   ============================================================ */
+#homescreen-guide-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #08080b;
+  /* #notice-overlay と同じ z-index(30)のままだと、DOM順で後にある
+     notice-overlay の方が上に乗ってしまい、「詳細→」で開いたこの画面が
+     裏に隠れて見えなくなる(お知らせを閉じた瞬間に、隠れていたこちらが
+     表に出てくるという不具合になっていた)。お知らせの上に重ねて出す
+     画面なので、意図的に1段階高くしてある。 */
+  z-index: 31;
+  align-items: center;
+  justify-content: center;
+}
+#homescreen-guide-overlay.show {
+  display: flex;
+}
+#homescreen-guide-panel {
+  background: #1c1c22;
+  border: 1px solid #3a3a48;
+  border-radius: 14px;
+  padding: 20px;
+  width: min(90vw, 360px);
+  max-height: 80vh;
+  max-height: 80dvh;
+  overflow-y: auto;
+  text-align: center;
+}
+#homescreen-guide-panel h2 {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+/* 「初回はオンラインで開いてから」の注記。目立たせすぎず、小さく
+   添えるだけにしてある。 */
+.hg-fineprint {
+  font-size: 11px;
+  color: #8b8b9b;
+  margin-bottom: 10px;
+}
+
+/* iPhone/Android の切り替えタブ。.shop-tab と同じ発想(2枚を横並び)。 */
+.hg-tabs {
+  display: flex;
+  gap: 6px;
+  margin: 14px 0;
+}
+.hg-tab {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 9px 6px;
+  border-radius: 10px;
+  background: #23232c;
+  border: 1.4px solid #3a3a48;
+  color: #b8b8c4;
   font-weight: 800;
-  font-size: 13px;
+  /* ショップタブ(.shop-tab)と同じ理由: 「iPhone （Safari）」のように
+     文言が伸びたぶん、狭い端末では折り返しが起きやすい。文字を幅に
+     追従させ、CJKは語の途中で折らせないようにしておく。 */
+  font-size: clamp(11px, 3.4vw, 13px);
+  line-height: 1.25;
+  word-break: keep-all;
+  overflow-wrap: normal;
   cursor: pointer;
   touch-action: manipulation;
 }
+.hg-tab.on {
+  border-color: var(--tc);
+  background: rgba(var(--tc-rgb), .16);
+  color: #fff;
+}
+
+/* 手順ごとの行。数字バッジ＋アイコン＋文章の3点セットで、実際に画面の
+   どこを見ればいいかが一目で分かるようにしてある。data-platform に
+   一致しない方は display:none で丸ごと隠す。 */
+#homescreen-guide-panel[data-platform="ios"] .hg-steps-android { display: none; }
+#homescreen-guide-panel[data-platform="android"] .hg-steps-ios { display: none; }
+
+.hg-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 4px;
+  border-bottom: 1px solid #2c2c36;
+  text-align: left;
+}
+.hg-step:last-child {
+  border-bottom: none;
+}
+.hg-step-num {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--tc);
+  color: #121214;
+  font-weight: 900;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hg-step-icon {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(var(--tc-rgb), .14);
+  color: var(--tc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hg-step-text {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #f0f0f5;
+}
+.hg-step-text b {
+  color: var(--tc);
+}
+
+.hg-done {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(var(--tc-rgb), .12);
+  border: 1px solid rgba(var(--tc-rgb), .4);
+  font-size: 13px;
+  line-height: 1.5;
+  color: #f0f0f5;
+}
+
+/* お知らせ一覧の中の「詳細→」。控えめな下線無しリンク風。 */
+.notice-detail-btn {
+  display: inline-block;
+  margin-top: 6px;
+  background: none;
+  border: none;
+  padding: 2px 0;
+  color: var(--tc);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* ============================================================
+   光の軌跡ガイド (#detail-beam)
+   お知らせの「詳細→」から説明画面へ移るとき、押したボタンの位置から
+   説明画面内の「次に探すアイコン」まで、細く光る曲線を一瞬で描く。
+   ページ全体を覆う固定SVG1枚だけを使い回し、毎回 d 属性を書き換えて
+   描画する。opacity ではなくレイアウトに影響しない stroke-dashoffset /
+   offset-distance だけを動かしているので、他の演出とぶつからない。
+   ============================================================ */
+#detail-beam {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  pointer-events: none;
+  display: none;
+  overflow: visible;
+}
+#detail-beam.show {
+  display: block;
+}
+#detail-beam-path {
+  fill: none;
+  stroke: var(--tc);
+  stroke-width: 2.5px;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px var(--tc)) drop-shadow(0 0 2px #fff);
+}
+#detail-beam-spark {
+  fill: #fff;
+  filter: drop-shadow(0 0 6px var(--tc));
+}
+
+/* 光の軌跡が到着した先のアイコンが、その場でふわっと光る演出。
+   1回きりのアニメーションなので、終わったらJS側でクラスごと外す。 */
+.hg-step-icon.beam-hit {
+  animation: hgIconBeamHit .7s ease-out;
+}
+@keyframes hgIconBeamHit {
+  0%   { box-shadow: 0 0 0 rgba(var(--tc-rgb), 0); transform: scale(1); }
+  30%  { box-shadow: 0 0 18px 4px rgba(var(--tc-rgb), .9); transform: scale(1.18); }
+  100% { box-shadow: 0 0 0 rgba(var(--tc-rgb), 0); transform: scale(1); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .sw-update-toast { transition: none; }
+  #detail-beam { display: none !important; }
+  .hg-step-icon.beam-hit { animation: none; }
 }
