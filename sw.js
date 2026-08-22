@@ -25,7 +25,7 @@ const CACHE_NAME = 'vcc-cube-runtime-v1';
    更新通知バナーは一切出ない（index.html や style.css の ?v= を
    上げるのと同じ感覚で、これも毎回上げること）。
    このコード自体は何もしない、ただの目印。 */
-const SW_BUILD_MARKER = '2026-08-22b';
+const SW_BUILD_MARKER = '2026-08-22a';
 
 self.addEventListener('install', () => {
   // ここでは何もしない。skipWaiting() は呼ばない —
