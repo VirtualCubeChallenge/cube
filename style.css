@@ -8146,7 +8146,12 @@
   position: fixed;
   inset: 0;
   background: #08080b;
-  z-index: 30;
+  /* #notice-overlay と同じ z-index(30)のままだと、DOM順で後にある
+     notice-overlay の方が上に乗ってしまい、「詳細→」で開いたこの画面が
+     裏に隠れて見えなくなる(お知らせを閉じた瞬間に、隠れていたこちらが
+     表に出てくるという不具合になっていた)。お知らせの上に重ねて出す
+     画面なので、意図的に1段階高くしてある。 */
+  z-index: 31;
   align-items: center;
   justify-content: center;
 }
