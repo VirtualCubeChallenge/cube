@@ -3,6 +3,41 @@
    index.html から分離。<link rel="stylesheet" href="style.css">
    で読み込まれる。
    ============================================================ */
+
+/* ------------------------------------------------------------
+   Orbitron（タイマーの数字などに使う欧文フォント）
+   以前は Google Fonts から読んでいたが、リポジトリ内の fonts/ に
+   置いて自前で配るようにした。よそのサーバーが落ちても表示が崩れず、
+   起動時に外部へ繋ぎに行かないぶん速い。
+
+   font-display: swap は「フォントが届くまでは代替の書体で先に描く」
+   指定。自前配布なら一瞬で届くが、念のため残してある（文字が見えない
+   時間を作らないため）。
+
+   unicode-range を欧文の範囲に絞ってあるので、日本語・中国語・韓国語の
+   文字にはこのフォントが使われない（Orbitron は和文グリフを持たないため、
+   使われると豆腐になる）。
+   ------------------------------------------------------------ */
+@font-face {
+  font-family: 'Orbitron';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('fonts/orbitron-700.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+                 U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122,
+                 U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Orbitron';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('fonts/orbitron-900.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+                 U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122,
+                 U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
     /* ============================================================
        テーマカラー（ショップで引き換えるメインカラー）
        これまで直書きしていた #00ffcc は、すべて var(--tc) と
