@@ -8032,3 +8032,104 @@
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+
+/* ============================================================
+   ドロワー：設定 / お知らせ の2分割行 (.menu-row-split)
+   他の行(記録・トレーニング・ショップ)は縦積みの全幅ボタンのままで、
+   最後の行だけ2つを横並びにしている。1行に2つ並ぶぶん、元の
+   .menu-actions .action-btn (font-size:19px / padding:20px 16px) では
+   横に収まらないので、この行の中だけ小さくする。
+   ============================================================ */
+.menu-row-split {
+  display: flex;
+  gap: 8px;
+}
+.menu-row-split .action-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  gap: 8px;
+  padding: 16px 12px;
+  font-size: 15px;
+  justify-content: center;
+}
+.menu-notice-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  color: var(--tc);
+  filter: drop-shadow(0 0 4px rgba(var(--tc-rgb), .6));
+}
+/* 未読の新着があるあいだだけ点灯する小さな点。開けば消える。 */
+.menu-notice-dot {
+  position: absolute;
+  top: -3px;
+  right: -5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff5a5a;
+  border: 1.5px solid #1c1c22;
+  display: none;
+}
+.menu-notice-dot.show {
+  display: block;
+}
+
+/* ============================================================
+   お知らせ一覧 (#notice-overlay / #notice-panel)
+   #records-overlay / #records-panel と同じ骨格を流用している。
+   ============================================================ */
+#notice-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #08080b;
+  z-index: 30;
+  align-items: center;
+  justify-content: center;
+}
+#notice-overlay.show {
+  display: flex;
+}
+#notice-panel {
+  background: #1c1c22;
+  border: 1px solid #3a3a48;
+  border-radius: 14px;
+  padding: 20px;
+  width: min(90vw, 360px);
+  max-height: 80vh;
+  max-height: 80dvh;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+#notice-panel h2 {
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+#notice-list {
+  overflow-y: auto;
+  text-align: left;
+  margin-bottom: 12px;
+}
+.notice-item {
+  padding: 12px 2px;
+  border-bottom: 1px solid #2c2c36;
+}
+.notice-item:last-child {
+  border-bottom: none;
+}
+.notice-item-date {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--tc);
+  letter-spacing: .04em;
+  margin-bottom: 4px;
+}
+.notice-item-text {
+  font-size: 14px;
+  line-height: 1.55;
+  color: #e4e4ee;
+}

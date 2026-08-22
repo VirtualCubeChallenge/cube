@@ -3921,3 +3921,28 @@
     });
   });
 })();
+
+/* ============================================================
+   お知らせ一覧（ドロワー→#notice-btn で開く画面）の文言。
+   既存の辞書は書き換えず、まだ無いキーだけを足すいつもの方式。
+   ============================================================ */
+(function () {
+  if (typeof I18N === 'undefined') return;
+  var NOTICE_I18N = {
+    ja: { menuNotice: 'お知らせ', noticeTitle: 'お知らせ', noticeEmpty: 'まだお知らせはありません' },
+    en: { menuNotice: 'News', noticeTitle: 'News', noticeEmpty: 'No news yet' },
+    'zh-CN': { menuNotice: '公告', noticeTitle: '公告', noticeEmpty: '暂无公告' },
+    'zh-TW': { menuNotice: '公告', noticeTitle: '公告', noticeEmpty: '尚無公告' },
+    ko: { menuNotice: '소식', noticeTitle: '소식', noticeEmpty: '아직 소식이 없습니다' },
+    es: { menuNotice: 'Novedades', noticeTitle: 'Novedades', noticeEmpty: 'Aún no hay novedades' },
+    id: { menuNotice: 'Info', noticeTitle: 'Info', noticeEmpty: 'Belum ada info' },
+    ru: { menuNotice: 'Новости', noticeTitle: 'Новости', noticeEmpty: 'Пока нет новостей' },
+    'pt-BR': { menuNotice: 'Novidades', noticeTitle: 'Novidades', noticeEmpty: 'Ainda não há novidades' }
+  };
+  Object.keys(NOTICE_I18N).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(NOTICE_I18N[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = NOTICE_I18N[lang][k];
+    });
+  });
+})();
