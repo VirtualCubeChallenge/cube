@@ -3878,40 +3878,40 @@
   if (typeof I18N === 'undefined') return;
   var SW_I18N = {
     ja: {
-      swUpdateMsg: '新しいバージョンがあります',
-      swUpdateBtn: '更新する'
+      swUpdateMsg: 'アップデートが届いたよ！',
+      swUpdateBtn: '今すぐ試す'
     },
     en: {
-      swUpdateMsg: 'A new version is available',
-      swUpdateBtn: 'Update'
+      swUpdateMsg: 'A new update has arrived!',
+      swUpdateBtn: 'Try it now'
     },
     'zh-CN': {
-      swUpdateMsg: '有新版本可用',
-      swUpdateBtn: '更新'
+      swUpdateMsg: '更新已送达！',
+      swUpdateBtn: '立即体验'
     },
     'zh-TW': {
-      swUpdateMsg: '有新版本可用',
-      swUpdateBtn: '更新'
+      swUpdateMsg: '更新已送達！',
+      swUpdateBtn: '立即體驗'
     },
     ko: {
-      swUpdateMsg: '새 버전이 있습니다',
-      swUpdateBtn: '업데이트'
+      swUpdateMsg: '업데이트가 도착했어요!',
+      swUpdateBtn: '지금 해보기'
     },
     es: {
-      swUpdateMsg: 'Hay una nueva versión disponible',
-      swUpdateBtn: 'Actualizar'
+      swUpdateMsg: '¡Llegó una actualización!',
+      swUpdateBtn: 'Probar ahora'
     },
     id: {
-      swUpdateMsg: 'Versi baru tersedia',
-      swUpdateBtn: 'Perbarui'
+      swUpdateMsg: 'Pembaruan baru telah tiba!',
+      swUpdateBtn: 'Coba sekarang'
     },
     ru: {
-      swUpdateMsg: 'Доступна новая версия',
-      swUpdateBtn: 'Обновить'
+      swUpdateMsg: 'Пришло обновление!',
+      swUpdateBtn: 'Попробовать'
     },
     'pt-BR': {
-      swUpdateMsg: 'Uma nova versão está disponível',
-      swUpdateBtn: 'Atualizar'
+      swUpdateMsg: 'Uma atualização chegou!',
+      swUpdateBtn: 'Experimentar agora'
     }
   };
   Object.keys(SW_I18N).forEach(function (lang) {
