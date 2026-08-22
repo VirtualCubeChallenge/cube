@@ -8173,6 +8173,13 @@
   font-size: 16px;
   margin-bottom: 4px;
 }
+/* 「初回はオンラインで開いてから」の注記。目立たせすぎず、小さく
+   添えるだけにしてある。 */
+.hg-fineprint {
+  font-size: 11px;
+  color: #8b8b9b;
+  margin-bottom: 10px;
+}
 
 /* iPhone/Android の切り替えタブ。.shop-tab と同じ発想(2枚を横並び)。 */
 .hg-tabs {
@@ -8182,13 +8189,20 @@
 }
 .hg-tab {
   flex: 1 1 0;
-  padding: 9px 8px;
+  min-width: 0;
+  padding: 9px 6px;
   border-radius: 10px;
   background: #23232c;
   border: 1.4px solid #3a3a48;
   color: #b8b8c4;
   font-weight: 800;
-  font-size: 13px;
+  /* ショップタブ(.shop-tab)と同じ理由: 「iPhone （Safari）」のように
+     文言が伸びたぶん、狭い端末では折り返しが起きやすい。文字を幅に
+     追従させ、CJKは語の途中で折らせないようにしておく。 */
+  font-size: clamp(11px, 3.4vw, 13px);
+  line-height: 1.25;
+  word-break: keep-all;
+  overflow-wrap: normal;
   cursor: pointer;
   touch-action: manipulation;
 }
