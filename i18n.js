@@ -3814,3 +3814,58 @@
     });
   });
 })();
+
+/* ============================================================
+   一手戻る（タップキューブ専用）の文言
+   既存の辞書は書き換えず、まだ無いキーだけを足すいつもの方式。
+   ボタンは丸1つぶんしか幅が無いので、ラベルは各言語とも2〜4文字に
+   収まる言い回しを選んでいる（読み上げ用の undoAria の側で、何が
+   起きるのかを最後まで説明する）。
+   ============================================================ */
+(function () {
+  if (typeof I18N === 'undefined') return;
+  var UNDO_I18N = {
+    ja: {
+      undoLabel: '戻る',
+      undoAria: '一手戻る：直前に回した面を、そのまま逆に回します'
+    },
+    en: {
+      undoLabel: 'Undo',
+      undoAria: 'Undo one move: turns the last layer you moved back the other way'
+    },
+    'zh-CN': {
+      undoLabel: '撤销',
+      undoAria: '撤销一步：把刚才转过的那一层反方向转回去'
+    },
+    'zh-TW': {
+      undoLabel: '復原',
+      undoAria: '復原一步：把剛才轉過的那一層反方向轉回去'
+    },
+    ko: {
+      undoLabel: '되돌리기',
+      undoAria: '한 수 되돌리기: 방금 돌린 층을 반대로 돌립니다'
+    },
+    es: {
+      undoLabel: 'Deshacer',
+      undoAria: 'Deshacer un movimiento: gira la última capa en sentido contrario'
+    },
+    id: {
+      undoLabel: 'Batal',
+      undoAria: 'Batalkan satu gerakan: memutar balik lapisan yang baru saja kamu putar'
+    },
+    ru: {
+      undoLabel: 'Назад',
+      undoAria: 'Отменить ход: повернуть последний слой в обратную сторону'
+    },
+    'pt-BR': {
+      undoLabel: 'Desfazer',
+      undoAria: 'Desfazer um movimento: gira a última camada no sentido contrário'
+    }
+  };
+  Object.keys(UNDO_I18N).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(UNDO_I18N[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = UNDO_I18N[lang][k];
+    });
+  });
+})();

@@ -1930,9 +1930,47 @@
       opacity: 0.5;
       cursor: not-allowed;
     }
-    body.tap-mode .alg-btn:not(#help-btn) { display: none; }
+    body.tap-mode .alg-btn:not(#help-btn):not(#undo-btn) { display: none; }
     body.tap-mode #help-btn { display: flex; }
-    body.tap-mode .alg-row { grid-template-columns: 1fr; }
+    /* この行の並べ方は、下の #undo-btn の項で grid → flex に差し替えている
+       （以前ここにあった grid-template-columns: 1fr はその中へ移した）。 */
+
+    /* --- 一手戻る (#undo-btn) -----------------------------------------
+       タップキューブのときだけ、ヘルプの右隣に並べる。回転記号ボタンで
+       遊ぶときは押し間違えても逆の記号を押せば済むので出さない。
+
+       ヘルプは横長の pill、こちらは丸ボタンと幅が違うので、この行だけ
+       grid をやめて flex にしてある。grid の 1fr 2列だと、片方を隠した
+       とき(設定でヘルプを非表示にしたとき)に残った1つが中央からずれる。
+       flex なら「並んだぶんだけを中央に」置けるので、どちらの状態でも
+       収まりが変わらない。 */
+    #undo-btn { display: none; }
+    body.tap-mode #undo-btn { display: flex; }
+    body.tap-mode .alg-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #undo-btn .undo-icon {
+      display: flex;
+      line-height: 1;
+      color: var(--tc);
+    }
+    #undo-btn .undo-icon svg { display: block; }
+    /* ラベルは .alg-sub の大きさ(横画面での縮みも含む)をそのまま借りつつ、
+       色だけはボタン本体に合わせる。アクセント色をアイコンと文字の両方に
+       乗せると、隣のヘルプより主張が強くなってしまうため。 */
+    #undo-btn .alg-sub {
+      color: inherit;
+      opacity: 0.75;
+    }
+    /* 戻せる手が無いあいだ。押しても何も起きないボタンに見えないよう、
+       沈む演出も光る枠も出さずに、まるごと沈黙させる。 */
+    #undo-btn:disabled {
+      opacity: 0.32;
+      cursor: default;
+      pointer-events: none;
+    }
 
     /* --- お手本キューブのパネル ---
        メインキューブのすぐ上に重ねて置く。パネルが出ている間はカメラ側
@@ -5404,21 +5442,43 @@
    今つけているテーマカラーで光らせる（ショップの中身と地続きに見せる）。 */
 .shop-tabs {
   display: flex;
-  gap: 6px;
+  gap: 5px;
   margin: 10px 0 8px;
 }
+/* タブの文字が2段に割れる問題への対処。
+   パネルの幅は min(90vw, 360px) なので、画面が狭い端末ほど1枚あたりの
+   幅も細くなる。12px 固定のままだと「キューブスキン」(7文字=84px)が
+   入りきらず、日本語・中国語・韓国語は語の途中でも平気で折り返すため
+   「キューブスキ／ン」という割れ方になっていた。
+
+   ・font-size を幅に追従させて、狭い端末では文字を少し小さくする
+     （下限8.5px、上限12px。280px幅の折りたたみ端末でも1行に収まる）
+   ・word-break: keep-all で、CJK を語の途中で折らせない
+   ・左右の padding を 6px → 4px に詰めて、文字に使える幅を広げる
+
+   スペイン語の「Colores del cubo」のように、単語の切れ目で2行になる
+   のは自然な折り返しなので許容する。そのときも3枚の高さがそろうよう、
+   ボタン自体を flex にして上下中央ぞろえにしてある。 */
 .shop-tab {
   flex: 1 1 0;
   min-width: 0;
-  padding: 8px 6px;
+  padding: 8px 4px;
   border-radius: 10px;
   background: #23232c;
   border: 1.4px solid #3a3a48;
   color: #b8b8c4;
   font-family: inherit;
-  font-size: 12px;
+  font-size: clamp(8.5px, 3vw, 12px);
   font-weight: 800;
   line-height: 1.2;
+  word-break: keep-all;
+  overflow-wrap: normal;
+  hyphens: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 36px;
   cursor: pointer;
   touch-action: manipulation;
 }
