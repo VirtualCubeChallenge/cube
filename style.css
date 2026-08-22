@@ -8133,3 +8133,137 @@
   line-height: 1.55;
   color: #e4e4ee;
 }
+
+/* ============================================================
+   ホーム画面追加のやり方 (#homescreen-guide-overlay)
+   #notice-overlay と同じ骨格。タブで iPhone/Android を切り替え、
+   #homescreen-guide-panel の data-platform 属性で表示する手順を
+   出し分ける（CSSの属性セレクタだけで足りるので、JSは値を書き換える
+   だけでいい）。
+   ============================================================ */
+#homescreen-guide-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #08080b;
+  z-index: 30;
+  align-items: center;
+  justify-content: center;
+}
+#homescreen-guide-overlay.show {
+  display: flex;
+}
+#homescreen-guide-panel {
+  background: #1c1c22;
+  border: 1px solid #3a3a48;
+  border-radius: 14px;
+  padding: 20px;
+  width: min(90vw, 360px);
+  max-height: 80vh;
+  max-height: 80dvh;
+  overflow-y: auto;
+  text-align: center;
+}
+#homescreen-guide-panel h2 {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+/* iPhone/Android の切り替えタブ。.shop-tab と同じ発想(2枚を横並び)。 */
+.hg-tabs {
+  display: flex;
+  gap: 6px;
+  margin: 14px 0;
+}
+.hg-tab {
+  flex: 1 1 0;
+  padding: 9px 8px;
+  border-radius: 10px;
+  background: #23232c;
+  border: 1.4px solid #3a3a48;
+  color: #b8b8c4;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.hg-tab.on {
+  border-color: var(--tc);
+  background: rgba(var(--tc-rgb), .16);
+  color: #fff;
+}
+
+/* 手順ごとの行。数字バッジ＋アイコン＋文章の3点セットで、実際に画面の
+   どこを見ればいいかが一目で分かるようにしてある。data-platform に
+   一致しない方は display:none で丸ごと隠す。 */
+#homescreen-guide-panel[data-platform="ios"] .hg-steps-android { display: none; }
+#homescreen-guide-panel[data-platform="android"] .hg-steps-ios { display: none; }
+
+.hg-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 4px;
+  border-bottom: 1px solid #2c2c36;
+  text-align: left;
+}
+.hg-step:last-child {
+  border-bottom: none;
+}
+.hg-step-num {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--tc);
+  color: #121214;
+  font-weight: 900;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hg-step-icon {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(var(--tc-rgb), .14);
+  color: var(--tc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hg-step-text {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #f0f0f5;
+}
+.hg-step-text b {
+  color: var(--tc);
+}
+
+.hg-done {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(var(--tc-rgb), .12);
+  border: 1px solid rgba(var(--tc-rgb), .4);
+  font-size: 13px;
+  line-height: 1.5;
+  color: #f0f0f5;
+}
+
+/* お知らせ一覧の中の「詳細→」。控えめな下線無しリンク風。 */
+.notice-detail-btn {
+  display: inline-block;
+  margin-top: 6px;
+  background: none;
+  border: none;
+  padding: 2px 0;
+  color: var(--tc);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+}
