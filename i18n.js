@@ -3869,3 +3869,55 @@
     });
   });
 })();
+
+/* ============================================================
+   オフライン対応の更新通知バナー用の文言。
+   既存の辞書は書き換えず、まだ無いキーだけを足すいつもの方式。
+   ============================================================ */
+(function () {
+  if (typeof I18N === 'undefined') return;
+  var SW_I18N = {
+    ja: {
+      swUpdateMsg: '新しいバージョンがあります',
+      swUpdateBtn: '更新する'
+    },
+    en: {
+      swUpdateMsg: 'A new version is available',
+      swUpdateBtn: 'Update'
+    },
+    'zh-CN': {
+      swUpdateMsg: '有新版本可用',
+      swUpdateBtn: '更新'
+    },
+    'zh-TW': {
+      swUpdateMsg: '有新版本可用',
+      swUpdateBtn: '更新'
+    },
+    ko: {
+      swUpdateMsg: '새 버전이 있습니다',
+      swUpdateBtn: '업데이트'
+    },
+    es: {
+      swUpdateMsg: 'Hay una nueva versión disponible',
+      swUpdateBtn: 'Actualizar'
+    },
+    id: {
+      swUpdateMsg: 'Versi baru tersedia',
+      swUpdateBtn: 'Perbarui'
+    },
+    ru: {
+      swUpdateMsg: 'Доступна новая версия',
+      swUpdateBtn: 'Обновить'
+    },
+    'pt-BR': {
+      swUpdateMsg: 'Uma nova versão está disponível',
+      swUpdateBtn: 'Atualizar'
+    }
+  };
+  Object.keys(SW_I18N).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(SW_I18N[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = SW_I18N[lang][k];
+    });
+  });
+})();
