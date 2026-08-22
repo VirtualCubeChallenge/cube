@@ -7895,7 +7895,12 @@
    Service Worker が新版を検知した時だけ index.html 側が .show を
    付けて表示する。画面下部・中央寄せの浮き島にしてあるので、
    ヘッダーや既存のオーバーレイとはかぶらない。
-   ============================================================ */
+
+   見出し(#sw-update-toast-head)は固定文言、その下の
+   #sw-update-notice は update-notice.json から流し込む告知文。
+   1〜2行の文章が乗る前提でカード型にしてある（前バージョンは
+   丸ボタン1個ぶんの pill 型だったが、告知文を入れる余白が無かった
+   ため、幅のあるカードに変更した）。 */
 .sw-update-toast {
   position: fixed;
   left: 50%;
@@ -7903,29 +7908,45 @@
   transform: translateX(-50%) translateY(16px);
   z-index: 9999;
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 10px 10px 16px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  width: min(320px, calc(100vw - 32px));
+  padding: 14px 16px;
   background: #1c1c22;
   border: 1px solid #3a3a48;
-  border-radius: 999px;
+  border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, .4);
   color: #dcdce6;
-  font-size: 13px;
-  font-weight: 600;
   opacity: 0;
   pointer-events: none;
   transition: opacity .25s ease, transform .25s ease;
-  max-width: calc(100vw - 32px);
 }
 .sw-update-toast.show {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
   pointer-events: auto;
 }
+.sw-update-toast-head {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--tc);
+  letter-spacing: .02em;
+}
+.sw-update-toast-notice {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #dcdce6;
+  /* 告知文が無い(update-notice.json が読めなかった/空)ときは、この行
+     ごと畳んで、見出し+ボタンだけの元のシンプルな形に戻る。 */
+}
+.sw-update-toast-notice:empty {
+  display: none;
+}
 .sw-update-toast #sw-update-btn {
-  flex: none;
-  padding: 7px 14px;
+  align-self: flex-end;
+  margin-top: 4px;
+  padding: 7px 16px;
   border-radius: 999px;
   border: none;
   background: var(--tc);
