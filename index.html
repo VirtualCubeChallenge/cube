@@ -3620,7 +3620,13 @@
 
     // defaultChoice: true/false で既定のチェックを入れた状態、null で
     // どちらも未選択の状態で開く。
-    function openWelcome(defaultChoice) {
+    // fromSettings: 設定の「回し方をもう一度選ぶ」から開いたときだけ true。
+    // すでに一度アプリを触っている人が操作方法を変えに来ただけなので、
+    // ここからはチュートリアルを流さない（遊び方を見直したいときは、設定の
+    // 「遊び方をもう一度見る」という専用の入口が別にある）。
+    let welcomeFromSettings = false;
+    function openWelcome(defaultChoice, fromSettings) {
+      welcomeFromSettings = !!fromSettings;
       pendingModeChoice = defaultChoice;
       paintModeChoice();
       welcomeOverlay.classList.add('show');
@@ -3651,7 +3657,8 @@
       // ステップ1の「同じところを4回まわすと元に戻る」は、そろった
       // キューブでこそ一目で伝わるため。混ぜるのはステップ3で、本人の手で
       // シャッフルを成功させた瞬間に行う。
-      const willRunTutorial = tapCubeEnabled && typeof shouldRunTutorial === 'function' && shouldRunTutorial();
+      const willRunTutorial = !welcomeFromSettings && tapCubeEnabled &&
+        typeof shouldRunTutorial === 'function' && shouldRunTutorial();
       if (tapCubeEnabled && !willRunTutorial) {
         if (typeof requestScramble === 'function') requestScramble();
         else scrambleWhenReady = true;   // 3D の準備がまだなら、できた時点で
@@ -3664,7 +3671,7 @@
       // チュートリアルを出す(シャッフル→ドロワー→OLL/PLL/ZBLLの案内)。
       // タップ側と違い自動シャッフルはしない --- ステップ1の「シャッフル
       // してみよう」自体が、本人の手で実際に混ぜてもらう最初の一歩のため。
-      const willRunNotationTutorial = !tapCubeEnabled &&
+      const willRunNotationTutorial = !welcomeFromSettings && !tapCubeEnabled &&
         typeof shouldRunNotationTutorial === 'function' && shouldRunNotationTutorial();
       if (willRunNotationTutorial) {
         selectTutorial(NOTATION_TUT_STEPS, NOTATION_TUTORIAL_KEY, NOTATION_TUTORIAL_STEP_KEY);
@@ -3677,7 +3684,9 @@
     openWelcomeBtn.addEventListener('click', () => {
       settingsOverlay.classList.remove('show');
       // Re-opened deliberately: start from whatever is actually in use.
-      openWelcome(tapCubeEnabled);
+      // 第2引数の true が「設定から開いた」の目印。ここからはチュートリアル
+      // を流さない。
+      openWelcome(tapCubeEnabled, true);
     });
 
 
@@ -3848,7 +3857,11 @@
         if (showIntro) {
           openIntro(() => openWelcome(null));
         } else {
-          openWelcome(langGoesToModePicker ? null : tapCubeEnabled);
+          // 設定から言語だけ変えて来たとき(langGoesToModePicker が false)も、
+          // 行き着く先はこの「回し方を選ぶ」画面。すでにアプリを触っている
+          // 人なので、こちらもチュートリアルは流さない。
+          openWelcome(langGoesToModePicker ? null : tapCubeEnabled,
+                      !langGoesToModePicker);
         }
       }, 420);
     }
