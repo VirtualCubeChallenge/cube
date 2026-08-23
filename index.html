@@ -1510,6 +1510,13 @@
        CSS の注入まで自分で行うので、style.css には手を入れていない。
        この1行を外せば、見た目も挙動もそっくり元に戻る。 -->
   <script src="ui-polish.js?v=20260822b"></script>
+  <!-- 💡ヘルプの「見守りディレイ」と「呼吸ハイライト」。
+       次の1手を出してもすぐには光らせず、残り手数に応じた待ち時間
+       （3秒〜10秒、毎回±20%のゆらぎつき）だけ黙って見守る。それでも
+       手が止まっていたら、対象の面を3秒でひと呼吸するリズムでともす。
+       キューブに触れた瞬間に光は引き、待ち時間も測り直す。
+       この1行を外せば、ヘルプは元どおり「お手本パネルだけ」に戻る。 -->
+  <script src="help-glow.js?v=20260823f"></script>
   <!-- 大きな定数テーブルは index.html から切り出してある。どちらもトップレベルで
        const を宣言しているだけなので、このあとのスクリプトから普通に参照できる。 -->
   <script src="solver.js?v=20260818a"></script>
@@ -8562,6 +8569,12 @@ const PLL_DATA = {
       isBusy: function () { return isAnimating || isSnapping; }
     };
 
+    // 💡ヘルプの呼吸ハイライト(help-glow.js)に、キューブの実体を渡す。
+    // cubies は initCube() が中身を入れ替えても配列そのものは同じものを
+    // 使い続けるので、ここで1回渡しておけばシャッフル後もそのまま効く。
+    // help-glow.js を読み込んでいなければ、この行は何もしない。
+    if (window.HelpGlow) window.HelpGlow.attach(cubeHelpBridge);
+
     /* チュートリアルのゴースト指を「実際のステッカーの上」に置くための橋渡し。
        キューブのローカル座標 (x,y,z) を受け取り、いま画面のどこに写って
        いるかを CSS ピクセルで返す。cubeGroup の回転も camera.setViewOffset
@@ -9284,6 +9297,10 @@ const PLL_DATA = {
         clearTimeout(st.timer);
         st.timer = null;
         if (demo) demo.token++;   // 進行中のアニメを打ち切る
+        // 光っている面があれば引く。次の手へ進んだとき・持ち替え案内に
+        // 変わったとき・完成したとき・ヘルプを閉じたときは必ずここを
+        // 通るので、消し忘れの経路がない。
+        if (window.HelpGlow) window.HelpGlow.cancel();
       }
 
       function startLoop() {
@@ -9325,6 +9342,12 @@ const PLL_DATA = {
         paintMove();
         syncDemo();
         measurePanel();
+        // 見守りディレイの開始。ここではまだ光らせない — 残り手数に応じた
+        // 待ち時間(3〜10秒、±20%のゆらぎつき)を過ぎても手が止まっていた
+        // ときだけ、help-glow.js が対象の面を呼吸させ始める。
+        if (window.HelpGlow) {
+          window.HelpGlow.arm(st.wantCfg, st.moves.length - st.i, st.moves.length);
+        }
         st.timer = setTimeout(function play() {
           if (!st.on) return;
           demoTurn(st.wantCfg, SLOW_TURN_MS, function () {
