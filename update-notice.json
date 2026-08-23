@@ -1,15 +1,42 @@
 {
+  "_note": "items は新しい順。新機能を足したら先頭に1件追加する。言語キーは ja/en/zh-CN/zh-TW/ko/es/id/ru/pt-BR の9つで、LANGS の code とそのまま一致する。無い言語は ja に落ちる（= ja だけは必ず書く）。guide は任意で、付けた項目にだけ「詳細→」ボタンが出る。",
   "items": [
+    {
+      "date": "2026-08-23",
+      "ja": "計測を一時停止できるようになりました！左上のタイムをタップ、☰メニューを開く、アプリを閉じる——どれでも自動でストップします。",
+      "en": "You can now pause the timer! Tap the time in the top left, open the ☰ menu, or leave the app — any of these stops the clock.",
+      "zh-CN": "现在可以暂停计时了！点击左上角的时间、打开 ☰ 菜单，或离开应用，都会自动停止计时。",
+      "zh-TW": "現在可以暫停計時了！點擊左上角的時間、開啟 ☰ 選單，或離開應用程式，都會自動停止計時。",
+      "ko": "이제 타이머를 일시정지할 수 있습니다! 왼쪽 위 시간을 탭하거나, ☰ 메뉴를 열거나, 앱을 벗어나면 자동으로 멈춥니다.",
+      "es": "¡Ya puedes pausar el cronómetro! Toca el tiempo de arriba a la izquierda, abre el menú ☰ o sal de la app: en todos los casos se detiene solo.",
+      "id": "Sekarang timer bisa dijeda! Ketuk waktu di kiri atas, buka menu ☰, atau keluar dari aplikasi — semuanya otomatis berhenti.",
+      "ru": "Теперь таймер можно ставить на паузу! Нажмите на время слева вверху, откройте меню ☰ или выйдите из приложения — отсчёт остановится сам.",
+      "pt-BR": "Agora dá para pausar o cronômetro! Toque no tempo no canto superior esquerdo, abra o menu ☰ ou saia do app — em todos os casos ele para sozinho."
+    },
     {
       "date": "2026-08-22",
       "ja": "機内モード・オフラインに対応しました！電波の届かない場所や飛行機の中、地下鉄でもスムーズに遊べるようになりました。",
-      "en": "",
+      "en": "Offline and airplane mode are now supported! Play smoothly with no signal — on a plane, on the subway, anywhere.",
+      "zh-CN": "已支持离线与飞行模式！在没有信号的地方、飞机上或地铁里也能流畅游玩。",
+      "zh-TW": "已支援離線與飛航模式！在沒有訊號的地方、飛機上或捷運裡也能流暢遊玩。",
+      "ko": "오프라인·비행기 모드를 지원합니다! 신호가 없는 곳, 비행기 안, 지하철에서도 매끄럽게 즐길 수 있습니다.",
+      "es": "¡Ya funciona sin conexión y en modo avión! Juega con fluidez aunque no haya señal: en un avión, en el metro, donde sea.",
+      "id": "Kini mendukung mode pesawat dan offline! Tetap lancar dimainkan tanpa sinyal — di pesawat, di kereta bawah tanah, di mana saja.",
+      "ru": "Теперь игра работает офлайн и в режиме полёта! Играйте без сети — в самолёте, в метро, где угодно.",
+      "pt-BR": "Agora funciona offline e no modo avião! Jogue sem sinal — no avião, no metrô, onde for.",
       "guide": "home-screen"
     },
     {
       "date": "2026-08-22",
       "ja": "タップキューブモードに一手戻るボタンが新登場！間違えても指1本で巻き戻せる。",
-      "en": ""
+      "en": "A new undo button in tap-cube mode! One tap takes back your last move.",
+      "zh-CN": "点击方块模式新增「撤销一步」按钮！走错了也能一键回退。",
+      "zh-TW": "點擊方塊模式新增「還原一步」按鈕！走錯了也能一鍵回復。",
+      "ko": "탭 큐브 모드에 한 수 되돌리기 버튼이 새로 생겼습니다! 실수해도 탭 한 번으로 되돌릴 수 있어요.",
+      "es": "¡Nuevo botón de deshacer en el modo de toque! Un toque y recuperas tu último giro.",
+      "id": "Tombol batalkan satu langkah kini hadir di mode ketuk! Salah putar? Cukup satu ketukan untuk kembali.",
+      "ru": "В режиме тапа появилась кнопка отмены хода! Ошиблись — одно нажатие, и ход отменён.",
+      "pt-BR": "Novo botão de desfazer no modo de toque! Um toque e você volta o último giro."
     }
   ]
 }

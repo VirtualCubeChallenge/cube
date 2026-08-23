@@ -8343,3 +8343,82 @@
   #detail-beam { display: none !important; }
   .hg-step-icon.beam-hit { animation: none; }
 }
+
+/* ============================================================
+   タイマー一時停止の幕（#pause-overlay）
+   ------------------------------------------------------------
+   左上のタイムをタップしたとき、および計測中にアプリを離れたときに出る。
+   背景は #confirm-overlay と同じ完全不透明。半透明にしてキューブが
+   透けると「止めているあいだ、じっくり眺めて考える」ことができてしまい、
+   計測の意味が無くなるため、盤面ごと隠している。
+   ============================================================ */
+#timer {
+  cursor: pointer;
+  /* タップしたときに端末標準の灰色い四角が出ないようにする。
+     押した合図は下の :active 側で自前に出す。 */
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#timer:active {
+  opacity: 0.62;
+}
+
+#pause-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  /* 確認ダイアログ（10300）の一段だけ下。止めているあいだに何かを
+     たずねる画面が出たら、そちらが前に来るのが正しい。 */
+  z-index: 10250;
+  background: #08080b;
+  align-items: center;
+  justify-content: center;
+  padding: calc(18px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom));
+}
+#pause-overlay.show {
+  display: flex;
+}
+#pause-panel {
+  width: min(92vw, 340px);
+  background: #1c1c22;
+  border: 2px solid #3a3a48;
+  border-radius: 16px;
+  padding: 22px 16px 18px;
+  text-align: center;
+}
+/* 止まった瞬間のタイムを、ヘッダーと同じ等幅・同じアクセント色で
+   そのまま大きく見せる。「どこで止まっているか」がひと目で分かる。 */
+.pause-time {
+  font-size: 34px;
+  font-weight: 700;
+  font-family: monospace;
+  color: var(--tc);
+  line-height: 1.15;
+}
+.pause-title {
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.4;
+  color: #c8c8d4;
+  margin-top: 10px;
+}
+.pause-btn {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 18px;
+  padding: 12px 10px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  touch-action: manipulation;
+  border: 2px solid var(--tc);
+  background: var(--tc);
+  color: #04120f;
+}
+.pause-btn:active {
+  background: #00d9ad;
+  border-color: #00d9ad;
+}
