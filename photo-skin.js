@@ -1,9 +1,9 @@
 /* ============================================================
-   photo-skin.js — 「マイフォト」キューブスキン
+   photo-skin.js — 「オリジナル」キューブスキン
    ------------------------------------------------------------
    自分の写真を6面に貼れるようにする枠。写真を9分割して面に貼る
    仕組み(showSolvedMark)はすでにあるので、このファイルが受け持つのは
-     ① 写真をしまう場所（localStorage・3枠ぶん）
+     ① 写真をしまう場所（localStorage）
      ② 指で位置と大きさを決める切り抜き画面
    の2つだけ。貼るところは今までどおり index.html 側が読む。
 
@@ -26,8 +26,8 @@
 (function (global) {
   'use strict';
 
-  const KEY_PREFIX = 'rubiks-cube-photo-skin-';   // + 1 / 2 / 3
-  const SLOT_IDS   = ['photo1', 'photo2', 'photo3'];
+  const STORE_KEY  = 'rubiks-cube-photo-skin';
+  const SLOT_IDS   = ['original'];
   const OUT_SIZE   = 512;      // 保存する一辺(px)
   const JPEG_Q     = 0.86;
   const MIN_SCALE  = 1;        // 1 = 枠いっぱい（これ以上は引けない＝余白を作らせない）
@@ -38,7 +38,7 @@
      ============================================================ */
   const PS_I18N = {
     ja: {
-      shopMarkPhoto1: 'マイフォト 1', shopMarkPhoto2: 'マイフォト 2', shopMarkPhoto3: 'マイフォト 3',
+      shopMarkOriginal: 'オリジナル',
       psTitle: '写真を切り抜く',
       psHint: 'ドラッグで位置、2本指でつまむと大きさが変わります',
       psGridNote: '線は、そろえたときにマスで分かれる位置です',
@@ -59,7 +59,7 @@
       psZoom: '大きさ'
     },
     en: {
-      shopMarkPhoto1: 'My Photo 1', shopMarkPhoto2: 'My Photo 2', shopMarkPhoto3: 'My Photo 3',
+      shopMarkOriginal: 'Original',
       psTitle: 'Crop your photo',
       psHint: 'Drag to move, pinch with two fingers to resize',
       psGridNote: 'The lines show where the stickers will split it',
@@ -80,7 +80,7 @@
       psZoom: 'Size'
     },
     'zh-CN': {
-      shopMarkPhoto1: '我的照片 1', shopMarkPhoto2: '我的照片 2', shopMarkPhoto3: '我的照片 3',
+      shopMarkOriginal: '原创',
       psTitle: '裁剪照片',
       psHint: '拖动可移动位置，双指捏合可缩放',
       psGridNote: '这些线是复原后贴纸分隔的位置',
@@ -101,7 +101,7 @@
       psZoom: '大小'
     },
     'zh-TW': {
-      shopMarkPhoto1: '我的照片 1', shopMarkPhoto2: '我的照片 2', shopMarkPhoto3: '我的照片 3',
+      shopMarkOriginal: '原創',
       psTitle: '裁切照片',
       psHint: '拖曳可移動位置，雙指捏合可縮放',
       psGridNote: '這些線是復原後貼紙分隔的位置',
@@ -122,7 +122,7 @@
       psZoom: '大小'
     },
     ko: {
-      shopMarkPhoto1: '내 사진 1', shopMarkPhoto2: '내 사진 2', shopMarkPhoto3: '내 사진 3',
+      shopMarkOriginal: '오리지널',
       psTitle: '사진 자르기',
       psHint: '드래그로 위치를, 두 손가락으로 크기를 조절할 수 있습니다',
       psGridNote: '선은 맞췄을 때 스티커로 나뉘는 위치입니다',
@@ -143,7 +143,7 @@
       psZoom: '크기'
     },
     es: {
-      shopMarkPhoto1: 'Mi foto 1', shopMarkPhoto2: 'Mi foto 2', shopMarkPhoto3: 'Mi foto 3',
+      shopMarkOriginal: 'Original',
       psTitle: 'Recortar la foto',
       psHint: 'Arrastra para mover y pellizca con dos dedos para ampliar',
       psGridNote: 'Las líneas marcan dónde la dividirán las pegatinas',
@@ -164,7 +164,7 @@
       psZoom: 'Tamaño'
     },
     id: {
-      shopMarkPhoto1: 'Foto Saya 1', shopMarkPhoto2: 'Foto Saya 2', shopMarkPhoto3: 'Foto Saya 3',
+      shopMarkOriginal: 'Original',
       psTitle: 'Potong foto',
       psHint: 'Seret untuk menggeser, cubit dengan dua jari untuk memperbesar',
       psGridNote: 'Garisnya menandai tempat stiker akan membaginya',
@@ -185,7 +185,7 @@
       psZoom: 'Ukuran'
     },
     ru: {
-      shopMarkPhoto1: 'Моё фото 1', shopMarkPhoto2: 'Моё фото 2', shopMarkPhoto3: 'Моё фото 3',
+      shopMarkOriginal: 'Своя',
       psTitle: 'Обрезать фото',
       psHint: 'Перетаскивайте, чтобы сдвинуть, сводите двумя пальцами, чтобы изменить размер',
       psGridNote: 'Линии показывают, где фото разделят наклейки',
@@ -206,7 +206,7 @@
       psZoom: 'Размер'
     },
     'pt-BR': {
-      shopMarkPhoto1: 'Minha foto 1', shopMarkPhoto2: 'Minha foto 2', shopMarkPhoto3: 'Minha foto 3',
+      shopMarkOriginal: 'Original',
       psTitle: 'Recortar a foto',
       psHint: 'Arraste para mover e faça pinça com dois dedos para ampliar',
       psGridNote: 'As linhas mostram onde os adesivos vão dividir a foto',
@@ -253,8 +253,7 @@
      しまう / 取り出す
      ============================================================ */
   function keyOf(id) {
-    const i = SLOT_IDS.indexOf(id);
-    return i < 0 ? null : (KEY_PREFIX + (i + 1));
+    return SLOT_IDS.indexOf(id) < 0 ? null : STORE_KEY;
   }
 
   function get(id) {

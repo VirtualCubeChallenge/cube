@@ -1517,7 +1517,7 @@
        キューブに触れた瞬間に光は引き、待ち時間も測り直す。
        この1行を外せば、ヘルプは元どおり「お手本パネルだけ」に戻る。 -->
   <script src="help-glow.js?v=20260823f"></script>
-  <!-- 「マイフォト」キューブスキン。写真をしまう場所（localStorage・3枠）と、
+  <!-- 「オリジナル」キューブスキン。写真をしまう場所（localStorage）と、
        指で位置と大きさを決める切り抜き画面だけを持つ。面に貼るところは
        これまでの showSolvedMark がそのまま担当する。文言(9言語)とCSSも
        自前で持つので、i18n.js と style.css は無改変。
@@ -11993,13 +11993,14 @@ const Shop = (function () {
     { id: 'cat',  cost: 50, cur: 'cyan', img: MARK_IMG_CAT },
     { id: 'bird', cost: 50, cur: 'cyan', img: MARK_IMG_BIRD },
     { id: 'watermelon', cost: 50, cur: 'cyan', img: null, thumb: MARK_IMG_MELON },
-    /* マイフォト。絵は品揃えの表ではなく端末の中(photo-skin.js)にあるので、
-       img は持たず custom:true の印だけを付ける。枠は3つで、それぞれ
-       別の写真をしまえる。一度引き換えた枠は、以後なんど写真を選び直しても
-       ただ（引き換えるのは「枠」であって「写真」ではない）。 */
-    { id: 'photo1', cost: 50, cur: 'cyan', img: null, custom: true },
-    { id: 'photo2', cost: 50, cur: 'cyan', img: null, custom: true },
-    { id: 'photo3', cost: 50, cur: 'cyan', img: null, custom: true }
+    /* オリジナル。絵は品揃えの表ではなく端末の中(photo-skin.js)にあるので、
+       img は持たず custom:true の印だけを付ける。引き換えるのは「枠」で
+       あって「写真」ではないので、一度引き換えたあとは何度でも無料で
+       写真を選び直せる。
+       この custom:true は「いちばん下に並べる」印も兼ねている（render()
+       が custom を後ろへ回すので、新しいスキンをこの下に足しても
+       オリジナルはいつも最後尾のまま）。 */
+    { id: 'original', cost: 50, cur: 'cyan', img: null, custom: true }
   ];
   const MARK_DEFAULT_ID = 'none';
   const MARK_OWNED_KEY  = 'rubiks-cube-shop-marks-owned';
@@ -12128,7 +12129,7 @@ const Shop = (function () {
   function markImage() {
     const m = markById(equippedMark);
     if (!m) return null;
-    // マイフォトの絵は端末の中にある。引き継ぎコードには写真を含めない
+    // オリジナルの絵は端末の中にある。引き継ぎコードには写真を含めない
     // ので、別の端末へ移ったあとは「枠はあるが写真は無い」になりうる。
     // そのときは null を返して、何も貼らないだけにする。
     if (m.custom) return (window.PhotoSkin && PhotoSkin.get(m.id)) || null;
@@ -12374,7 +12375,7 @@ const Shop = (function () {
       (!has && !enough ? ' short' : '');
     card.dataset.id = mark.id;
 
-    // マイフォトの枠は、絵が「品揃え」ではなく端末の中にある。
+    // オリジナルの枠は、絵が「品揃え」ではなく端末の中にある。
     const photo = (mark.custom && window.PhotoSkin) ? PhotoSkin.get(mark.id) : null;
 
     let foot;
@@ -12453,7 +12454,12 @@ const Shop = (function () {
     THEMES.forEach((theme) => gridEl.appendChild(buildCard(theme)));
     if (markGridEl) {
       markGridEl.innerHTML = '';
-      MARKS.forEach((mark) => markGridEl.appendChild(buildMarkCard(mark)));
+      // オリジナル（自分の写真の枠）は、いつでもいちばん下。品揃えを
+      // 増やすときに MARKS のどこへ足しても位置が崩れないよう、
+      // 並べ替えは描くこの場で済ませてしまう。
+      const ordered = MARKS.filter((m) => !m.custom)
+                           .concat(MARKS.filter((m) => m.custom));
+      ordered.forEach((mark) => markGridEl.appendChild(buildMarkCard(mark)));
     }
     if (schemeGridEl) {
       schemeGridEl.innerHTML = '';
@@ -12522,7 +12528,7 @@ const Shop = (function () {
 
   // 色のカードとまったく同じ考え方：持っているなら付け替えるだけ、
   // 足りないなら理由を出すだけ、引き換えるときだけ確認をはさむ。
-  /* ---- マイフォト（自分の写真を貼る枠）--------------------------------
+  /* ---- オリジナル（自分の写真を貼る枠）--------------------------------
      お金のやりとりはここ（Shop）、写真そのものと切り抜き画面は
      photo-skin.js、と受け持ちを分けてある。買う→選ぶ→切り抜く、が
      ひと続きになるよう、引き換えたその足で切り抜き画面へ渡す。 */
