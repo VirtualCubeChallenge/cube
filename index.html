@@ -1517,6 +1517,12 @@
        キューブに触れた瞬間に光は引き、待ち時間も測り直す。
        この1行を外せば、ヘルプは元どおり「お手本パネルだけ」に戻る。 -->
   <script src="help-glow.js?v=20260823f"></script>
+  <!-- 「マイフォト」キューブスキン。写真をしまう場所（localStorage・3枠）と、
+       指で位置と大きさを決める切り抜き画面だけを持つ。面に貼るところは
+       これまでの showSolvedMark がそのまま担当する。文言(9言語)とCSSも
+       自前で持つので、i18n.js と style.css は無改変。
+       写真はこの端末の中だけに保存され、どこへも送らない。 -->
+  <script src="photo-skin.js?v=20260823f"></script>
   <!-- 大きな定数テーブルは index.html から切り出してある。どちらもトップレベルで
        const を宣言しているだけなので、このあとのスクリプトから普通に参照できる。 -->
   <script src="solver.js?v=20260818a"></script>
@@ -8484,7 +8490,8 @@ const PLL_DATA = {
       '#welcome-overlay', '#intro-overlay', '#settings-overlay', '#layout-overlay', '#transfer-overlay', '#records-overlay',
       '#stats-overlay', '#shop-overlay', '#gacha-overlay',
       '#oll-overlay', '#pll-overlay', '#zbll-overlay', '#pllt-overlay',
-      '#confirm-overlay', '#pause-overlay', '#lang-overlay', '#orientation-overlay'
+      '#confirm-overlay', '#pause-overlay', '#lang-overlay', '#orientation-overlay',
+      '#photo-skin-overlay'
     ];
 
     /* 【調べ方】以前はこれを150msごとに調べ直していたが、それが
@@ -11985,7 +11992,14 @@ const Shop = (function () {
     { id: 'none', cost: 0,  cur: 'cyan', img: null },
     { id: 'cat',  cost: 50, cur: 'cyan', img: MARK_IMG_CAT },
     { id: 'bird', cost: 50, cur: 'cyan', img: MARK_IMG_BIRD },
-    { id: 'watermelon', cost: 50, cur: 'cyan', img: null, thumb: MARK_IMG_MELON }
+    { id: 'watermelon', cost: 50, cur: 'cyan', img: null, thumb: MARK_IMG_MELON },
+    /* マイフォト。絵は品揃えの表ではなく端末の中(photo-skin.js)にあるので、
+       img は持たず custom:true の印だけを付ける。枠は3つで、それぞれ
+       別の写真をしまえる。一度引き換えた枠は、以後なんど写真を選び直しても
+       ただ（引き換えるのは「枠」であって「写真」ではない）。 */
+    { id: 'photo1', cost: 50, cur: 'cyan', img: null, custom: true },
+    { id: 'photo2', cost: 50, cur: 'cyan', img: null, custom: true },
+    { id: 'photo3', cost: 50, cur: 'cyan', img: null, custom: true }
   ];
   const MARK_DEFAULT_ID = 'none';
   const MARK_OWNED_KEY  = 'rubiks-cube-shop-marks-owned';
@@ -12113,7 +12127,12 @@ const Shop = (function () {
   // 「なし」のときは null なので、向こうは何も出さない。
   function markImage() {
     const m = markById(equippedMark);
-    return (m && m.img) || null;
+    if (!m) return null;
+    // マイフォトの絵は端末の中にある。引き継ぎコードには写真を含めない
+    // ので、別の端末へ移ったあとは「枠はあるが写真は無い」になりうる。
+    // そのときは null を返して、何も貼らないだけにする。
+    if (m.custom) return (window.PhotoSkin && PhotoSkin.get(m.id)) || null;
+    return m.img || null;
   }
   function applyMark(id) {
     const mark = markById(id) || markById(MARK_DEFAULT_ID);
@@ -12355,20 +12374,33 @@ const Shop = (function () {
       (!has && !enough ? ' short' : '');
     card.dataset.id = mark.id;
 
+    // マイフォトの枠は、絵が「品揃え」ではなく端末の中にある。
+    const photo = (mark.custom && window.PhotoSkin) ? PhotoSkin.get(mark.id) : null;
+
     let foot;
-    if (on)       foot = '<span class="shop-state on">' + t('shopUsing') + '</span>';
+    if (mark.custom && has && !photo) {
+      // 枠は持っているが、まだ写真を選んでいない
+      foot = '<span class="shop-state">' + t('psPick') + '</span>';
+    }
+    else if (on)  foot = '<span class="shop-state on">' + t('shopUsing') + '</span>';
     else if (has) foot = '<span class="shop-state">' + t('shopMarkEquip') + '</span>';
     else          foot = '<span class="shop-price">' + shardHtml(mark.cur) +
                          fmt(mark.cost) + '</span>';
 
-    const art = mark.img || mark.thumb;   // スイカは thumb だけを持つ
+    const art = photo || mark.img || mark.thumb;   // スイカは thumb だけを持つ
     const swatch = art
       ? '<span class="shop-swatch is-mark" style="--sw:#2f2f3a;background-image:url(' + art + ')"></span>'
       : '<span class="shop-swatch is-mark is-off" style="--sw:#2f2f3a"></span>';
 
+    // 写真の入った枠には ✎ を出す。付け替えと入れ替えは別の操作なので、
+    // 「押すと使う」「✎ を押すと写真を変える」で入口を分けておく。
+    const edit = (mark.custom && has && photo)
+      ? '<span class="shop-photo-edit" aria-hidden="true">✎</span>' : '';
+    if (mark.custom) card.classList.add('is-photo');
+
     card.innerHTML = swatch +
       '<span class="shop-name">' + markLabel(mark) + '</span>' +
-      foot;
+      foot + edit;
     return card;
   }
 
@@ -12490,7 +12522,66 @@ const Shop = (function () {
 
   // 色のカードとまったく同じ考え方：持っているなら付け替えるだけ、
   // 足りないなら理由を出すだけ、引き換えるときだけ確認をはさむ。
+  /* ---- マイフォト（自分の写真を貼る枠）--------------------------------
+     お金のやりとりはここ（Shop）、写真そのものと切り抜き画面は
+     photo-skin.js、と受け持ちを分けてある。買う→選ぶ→切り抜く、が
+     ひと続きになるよう、引き換えたその足で切り抜き画面へ渡す。 */
+  function openPhotoEditor(mark, justBought) {
+    if (!window.PhotoSkin) { toast(t('shopShort'), 'warn'); return; }
+    PhotoSkin.open(mark.id, {
+      onSave: function (dataUrl) {
+        applyMark(mark.id);
+        render();
+        // 買ったその場で決まった1枚は、他のスキンと同じ獲得演出で見せる
+        // （自分の写真がキューブになって出てくる）。
+        if (justBought && typeof window.playSkinGetAnimation === 'function') {
+          window.playSkinGetAnimation({ name: markLabel(mark), img: dataUrl });
+        } else {
+          toast(t('psSaved'), 'good');
+        }
+      },
+      onDelete: function () {
+        // 使っていた写真を消したら、貼るものが無くなるので「なし」へ戻す。
+        if (equippedMark === mark.id) applyMark(MARK_DEFAULT_ID);
+        render();
+      }
+    });
+  }
+
+  function onPhotoTap(mark) {
+    const has   = ownedMarks.indexOf(mark.id) !== -1;
+    const photo = window.PhotoSkin ? PhotoSkin.get(mark.id) : null;
+    if (has) {
+      if (!photo) { openPhotoEditor(mark, false); return; }   // 枠だけある
+      if (mark.id !== equippedMark) { applyMark(mark.id); render(); return; }
+      openPhotoEditor(mark, false);   // すでに使っている枠 → 入れ替え
+      return;
+    }
+    if (balance(mark.cur) < mark.cost) { toast(t('shopShort'), 'warn'); return; }
+    const shardName = t(mark.cur === 'rainbow' ? 'shopShardRainbow' : 'shopShardCyan');
+    // 引き換えを決める前に、写真がどこへ行くのかを読めるようにしておく。
+    // ここが「自分の写真を渡すことになるのでは」と身構える最初の場面
+    // なので、値段だけを見せて先へ進ませない。
+    const opts = {
+      title:  t('shopConfirmTitle', { name: markLabel(mark) }),
+      body:   t('shopConfirmBody', { shard: shardName, cost: fmt(mark.cost) }) +
+              ' ' + t('psPrivacyShort'),
+      ok:     t('shopRedeem'),
+      cancel: t('confirmCancel'),
+      onOk:   function () {
+        spend(mark.cur, mark.cost);
+        ownedMarks.push(mark.id);
+        saveState();
+        render();
+        openPhotoEditor(mark, true);
+      }
+    };
+    if (typeof askConfirm === 'function') askConfirm(opts);
+    else opts.onOk();
+  }
+
   function onMarkTap(mark) {
+    if (mark.custom) { onPhotoTap(mark); return; }
     if (ownedMarks.indexOf(mark.id) !== -1) {
       if (mark.id !== equippedMark) applyMark(mark.id);
       render();
@@ -12678,7 +12769,13 @@ const Shop = (function () {
         const card = e.target.closest ? e.target.closest('.shop-card') : null;
         if (!card) return;
         const mark = markById(card.dataset.id);
-        if (mark) onMarkTap(mark);
+        if (!mark) return;
+        // ✎ を押したときだけは「付け替え」ではなく写真の入れ替えへ直行する。
+        if (mark.custom && e.target.closest && e.target.closest('.shop-photo-edit')) {
+          openPhotoEditor(mark, false);
+          return;
+        }
+        onMarkTap(mark);
       });
     }
     if (schemeGridEl) {
