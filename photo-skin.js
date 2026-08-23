@@ -382,32 +382,45 @@
      CSS（style.css には触らず、ここで注入する）
      ============================================================ */
   const CSS = [
-    /* ショップ(30)より前、確認ダイアログ(10300)や獲得演出(10250)より後ろ。
-       消すときの確認は、この画面より前に出てもらわないといけない。 */
-    '#photo-skin-overlay{position:fixed;inset:0;z-index:70;display:none;',
-    '  align-items:center;justify-content:center;padding:16px;',
-    '  background:rgba(8,8,11,.88);opacity:0;transition:opacity .2s ease}',
+    /* 確認ダイアログ(10300)と獲得演出(10250)より後ろ、それ以外の
+       全画面パーツより前。70 だったころ、画面のふちに出る操作ハンドルが
+       パネルの上に重なって見えていた。 */
+    '#photo-skin-overlay{position:fixed;inset:0;z-index:10200;display:none;',
+    '  align-items:center;justify-content:center;padding:12px;',
+    '  background:rgba(8,8,11,.9);opacity:0;transition:opacity .2s ease}',
     '#photo-skin-overlay.show{display:flex}',
     '#photo-skin-overlay.show-visible{opacity:1}',
 
-    '.ps-panel{width:min(420px,100%);max-height:92vh;overflow:auto;',
-    '  background:#1c1c22;border:1px solid rgba(255,255,255,.08);border-radius:16px;',
-    '  padding:18px 16px 16px;position:relative;',
+    '.ps-panel{width:min(400px,100%);max-height:96svh;overflow:auto;',
+    '  background:#1c1c22;border:1px solid rgba(255,255,255,.08);border-radius:18px;',
+    '  padding:14px 14px 16px;position:relative;',
     '  box-shadow:0 18px 48px rgba(0,0,0,.55);',
     '  animation:psRise .26s cubic-bezier(.2,.9,.3,1) both}',
     '@keyframes psRise{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:none}}',
 
-    '.ps-title{margin:0 0 4px;font-size:17px;font-weight:700;color:#f2f2f5;text-align:center}',
-    /* 写真の行き先は、選ぶより前に読める場所に置く。控えめだが埋もれない
-       よう、枠で囲って本文と同じ大きさで出す。 */
-    '.ps-privacy{margin:0 0 12px;padding:9px 11px;border-radius:10px;',
-    '  background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07);',
-    '  font-size:12px;line-height:1.65;color:#c2c2ce}',
-    '.ps-hint{margin:12px 0 0;font-size:12px;line-height:1.5;color:#9a9aa6;text-align:center}',
-    '.ps-note{margin:4px 0 0;font-size:11px;color:#7c7c88;text-align:center}',
+    /* 見出しと ✕ を1行に並べる。✕ が本文に食い込まないよう、
+       見出しは ✕ のぶんだけ内側に寄せてある。 */
+    '.ps-head{display:flex;align-items:center;justify-content:space-between;',
+    '  gap:8px;margin:0 0 10px}',
+    '.ps-title{margin:0;font-size:16px;font-weight:700;color:#f2f2f5;',
+    '  flex:1 1 auto;min-width:0}',
+    '.ps-x{flex:0 0 auto;width:34px;height:34px;border-radius:50%;',
+    '  border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);',
+    '  color:#d8d8e2;font-size:16px;line-height:1;padding:0;',
+    '  display:flex;align-items:center;justify-content:center}',
 
-    /* --- 切り抜きの枠。正方形で、はみ出しは隠す --- */
-    '.ps-stage{position:relative;width:100%;aspect-ratio:1/1;border-radius:12px;',
+    '.ps-privacy{margin:0 0 10px;padding:8px 10px;border-radius:10px;',
+    '  background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07);',
+    '  font-size:11.5px;line-height:1.5;color:#b6b6c4}',
+    '.ps-hint{margin:8px 0 0;font-size:11.5px;line-height:1.5;',
+    '  color:#8e8e9c;text-align:center}',
+
+    /* --- 切り抜きの枠。正方形で、はみ出しは隠す ---
+       画面の高さの半分までに抑える。ここを width:100% のままにすると、
+       縦長の端末では枠だけで画面を使い切ってしまい、下のボタンが
+       画面外へ押し出される（見出しが切れて出るのはこれが原因だった）。 */
+    '.ps-stage{position:relative;width:100%;max-width:min(100%,50svh);',
+    '  margin:0 auto;aspect-ratio:1/1;border-radius:14px;',
     '  overflow:hidden;background:#0e0e11;touch-action:none;cursor:grab;',
     '  border:1px solid rgba(255,255,255,.10)}',
     '.ps-stage:active{cursor:grabbing}',
@@ -421,19 +434,26 @@
     '  background-size:33.333% 33.333%;background-position:0 33.333%,33.333% 0;',
     '  filter:drop-shadow(0 0 1px rgba(0,0,0,.65))}',
     '.ps-stage.is-empty .ps-grid{display:none}',
-    '.ps-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;',
-    '  color:#6d6d79;font-size:13px;text-align:center;padding:24px;pointer-events:none}',
+    /* 写真がまだ無いときは、枠ぜんぶが「写真を選ぶ」ボタンに見えるように */
+    '.ps-empty{position:absolute;inset:0;display:flex;flex-direction:column;',
+    '  align-items:center;justify-content:center;gap:8px;',
+    '  color:#9a9aa8;font-size:14px;font-weight:600;text-align:center;padding:20px;',
+    '  pointer-events:none}',
+    '.ps-empty::before{content:"＋";display:flex;align-items:center;',
+    '  justify-content:center;width:46px;height:46px;border-radius:50%;',
+    '  border:1.5px dashed rgba(255,255,255,.22);font-size:22px;font-weight:400;',
+    '  color:#8a8a98}',
     '.ps-stage:not(.is-empty) .ps-empty{display:none}',
 
     /* --- 6面ぶんの見本帯（オリジナル×6 のときだけ出す） --- */
     '.ps-faces{display:none;gap:6px;margin:0 0 10px}',
     '.ps-panel.is-multi .ps-faces{display:flex}',
-    '.ps-face{flex:1 1 0;min-width:0;aspect-ratio:1/1;border-radius:9px;',
+    '.ps-face{flex:1 1 0;min-width:0;aspect-ratio:1/1;border-radius:10px;',
     '  background:#0e0e11 center/cover no-repeat;border:1px solid rgba(255,255,255,.10);',
     '  padding:0;position:relative;color:#5f5f6b;font-size:11px;',
     '  display:flex;align-items:center;justify-content:center}',
     '.ps-face.is-on{border-color:var(--tc,#7cf0ff);',
-    '  box-shadow:0 0 0 1px var(--tc,#7cf0ff) inset}',
+    '  box-shadow:0 0 0 2px var(--tc,#7cf0ff) inset}',
     '.ps-face.is-set{color:transparent}',
     '.ps-faces-head{display:none;align-items:baseline;justify-content:space-between;',
     '  margin:0 2px 6px}',
@@ -442,20 +462,39 @@
     '.ps-faces-count{font-size:11px;color:#8b8b97;font-variant-numeric:tabular-nums}',
 
     /* --- 大きさのスライダー（つまめない環境のための逃げ道） --- */
-    '.ps-zoom{display:flex;align-items:center;gap:10px;margin:12px 2px 0}',
+    '.ps-zoom{display:flex;align-items:center;gap:10px;margin:10px 2px 0}',
     '.ps-zoom label{font-size:11px;color:#9a9aa6;flex:0 0 auto}',
-    '.ps-zoom input{flex:1 1 auto;accent-color:var(--tc,#7cf0ff);min-width:0}',
+    '.ps-zoom input{flex:1 1 auto;accent-color:var(--tc,#7cf0ff);min-width:0;height:26px}',
 
-    /* --- ボタン --- */
-    '.ps-actions{display:flex;flex-direction:column;gap:8px;margin-top:14px}',
-    '.ps-row{display:flex;gap:8px}',
-    '.ps-row .action-btn{flex:1 1 0;min-width:0}',
-    '.ps-btn-danger{color:#ff9aa5;border-color:rgba(255,120,136,.35)}',
+    /* --- ボタン ---
+       4つとも同じ見た目だと、どれが「決定」かを毎回読んで探すことになる。
+       決定＝塗り、選び直し＝枠線、やめる/消すは文字だけ、と重さを3段に
+       分けて、指で押す所も 52px 確保する。 */
+    '.ps-actions{display:flex;flex-direction:column;gap:9px;margin-top:12px}',
+    '.ps-btn{width:100%;min-height:52px;border-radius:14px;padding:0 14px;',
+    '  font-size:15px;font-weight:700;line-height:1.3;',
+    '  display:flex;align-items:center;justify-content:center;text-align:center;',
+    '  border:1px solid transparent;background:transparent;color:#e8e8ee;',
+    '  transition:background .18s ease,border-color .18s ease,opacity .18s ease}',
+    /* 決定 — アクセント色で塗る。文字は下地に合わせて濃色。 */
+    '.ps-btn-primary{background:var(--tc,#7cf0ff);color:#10131a;',
+    '  box-shadow:0 6px 18px rgba(var(--tc-rgb,124,240,255),.18)}',
+    '.ps-btn-primary[disabled]{opacity:.4;box-shadow:none}',
+    /* 選び直し — 枠線だけ */
+    '.ps-btn-ghost{border-color:rgba(255,255,255,.16);background:rgba(255,255,255,.04)}',
+    /* やめる / 消す — 文字だけ。押し間違えても痛くない大きさに落とす。 */
+    '.ps-mini{display:flex;align-items:center;justify-content:center;gap:16px;',
+    '  margin-top:4px}',
+    '.ps-mini button{min-height:40px;padding:0 10px;background:none;border:0;',
+    '  font-size:13px;font-weight:600;color:#8e8e9c}',
+    '.ps-mini .ps-del{color:#e08792}',
+    '.ps-mini-sep{color:#4a4a56;font-size:12px}',
+
     '.ps-file{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}',
 
     /* --- ショップのカードに付ける ✎ --- */
     '.shop-card.is-photo{position:relative}',
-    '.shop-photo-edit{position:absolute;top:6px;right:6px;width:24px;height:24px;',
+    '.shop-photo-edit{position:absolute;top:6px;right:6px;width:26px;height:26px;',
     '  display:flex;align-items:center;justify-content:center;border-radius:50%;',
     '  background:rgba(0,0,0,.55);color:#e8e8ee;font-size:12px;line-height:1;',
     '  border:1px solid rgba(255,255,255,.16)}',
@@ -489,8 +528,10 @@
     ov.setAttribute('aria-modal', 'true');
     ov.innerHTML =
       '<div class="ps-panel">' +
-        '<button class="alg-panel-close-x" data-ps="close" aria-label="✕">✕</button>' +
-        '<h2 class="ps-title" data-ps="title"></h2>' +
+        '<div class="ps-head">' +
+          '<h2 class="ps-title" data-ps="title"></h2>' +
+          '<button class="ps-x ui-pressable" data-ps="close" aria-label="✕">✕</button>' +
+        '</div>' +
         '<p class="ps-privacy" data-ps="privacy"></p>' +
         '<div class="ps-faces-head">' +
           '<span class="ps-faces-title" data-ps="facesTitle"></span>' +
@@ -503,18 +544,18 @@
           '<div class="ps-empty" data-ps="empty"></div>' +
         '</div>' +
         '<p class="ps-hint" data-ps="hint"></p>' +
-        '<p class="ps-note" data-ps="note"></p>' +
         '<div class="ps-zoom">' +
           '<label data-ps="zoomLabel" for="ps-zoom-input"></label>' +
           '<input id="ps-zoom-input" type="range" min="100" max="400" value="100" data-ps="zoom">' +
         '</div>' +
         '<div class="ps-actions">' +
-          '<button class="action-btn" data-ps="pick"></button>' +
-          '<div class="ps-row">' +
-            '<button class="action-btn" data-ps="cancel"></button>' +
-            '<button class="action-btn" data-ps="apply"></button>' +
+          '<button class="ps-btn ps-btn-ghost ui-pressable" data-ps="pick"></button>' +
+          '<button class="ps-btn ps-btn-primary ui-pressable" data-ps="apply"></button>' +
+          '<div class="ps-mini">' +
+            '<button class="ui-pressable" data-ps="cancel"></button>' +
+            '<span class="ps-mini-sep" data-ps="sep">・</span>' +
+            '<button class="ps-del ui-pressable" data-ps="delete"></button>' +
           '</div>' +
-          '<button class="action-btn ps-btn-danger" data-ps="delete"></button>' +
         '</div>' +
         '<input type="file" accept="image/*" class="ps-file" data-ps="file">' +
       '</div>';
@@ -523,7 +564,7 @@
     const q = (n) => ov.querySelector('[data-ps="' + n + '"]');
     el = {
       overlay: ov, panel: ov.querySelector('.ps-panel'),
-      title: q('title'), hint: q('hint'), note: q('note'), empty: q('empty'),
+      title: q('title'), hint: q('hint'), empty: q('empty'), sep: q('sep'),
       privacy: q('privacy'),
       faces: q('faces'), facesTitle: q('facesTitle'), facesCount: q('facesCount'),
       stage: q('stage'), img: q('img'), zoom: q('zoom'), zoomLabel: q('zoomLabel'),
@@ -870,20 +911,18 @@
     const multi = facesOf(slot) > 1;
     el.apply.disabled = !ready;
     el.apply.setAttribute('aria-disabled', ready ? 'false' : 'true');
-    el.apply.style.opacity = ready ? '' : '.45';
     el.pick.textContent = multi ? T('psPickMany') : (ready ? T('psChange') : T('psPick'));
     el.apply.textContent = T(multi ? 'psApplyFace' : 'psApply');
     el.del.textContent  = T(multi ? 'psDeleteFace' : 'psDelete');
     el.cancel.textContent = T(multi ? 'psDone' : 'psCancel');
     const saved = multi ? !!getAll(slot)[face] : !!get(slot);
     el.del.hidden = !saved;
+    el.sep.hidden = !saved;
   }
 
   function paintText() {
     el.title.textContent = T('psTitle');
-    el.hint.textContent = T('psHint');
     el.privacy.textContent = T('psPrivacy');
-    el.note.textContent = T('psGridNote');
     el.empty.textContent = T('psPick');
     el.facesTitle.textContent = T('psFacesTitle');
     el.hint.textContent = facesOf(slot) > 1 ? T('psFacesHint') : T('psHint');
