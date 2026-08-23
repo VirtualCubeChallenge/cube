@@ -65,9 +65,8 @@
       psSaved: '写真を貼りました',
       psReadFail: 'この写真は読み込めませんでした',
       psSaveFail: '保存できませんでした。端末の空き容量を確かめてください',
-      psPrivacy: "🔒 選んだ写真は、この端末の中だけに保存されます。どこかへ送られることはありません。",
-      psPrivacyNote: "ブラウザのデータを消すと、写真も一緒に消えます。",
-      psPrivacyShort: "選んだ写真はこの端末の中だけに保存され、どこかへ送られることはありません。",
+      psPrivacy: "🔒 写真はこの端末の中のみ保存されます。",
+      psPrivacyShort: "写真はこの端末の中のみ保存されます。",
       shopMarkOriginal6: "オリジナル×6",
       psFacesTitle: "6面ぶんの写真",
       psFacesHint: "まとめて選ぶと1面目から順に入ります。面を押せば切り抜きを直せます",
@@ -94,9 +93,8 @@
       psSaved: 'Photo applied',
       psReadFail: "That photo couldn't be loaded",
       psSaveFail: "Couldn't save. Check the free space on your device",
-      psPrivacy: "🔒 Your photo is stored on this device only. It is never sent anywhere.",
-      psPrivacyNote: "Clearing your browser data deletes the photo too.",
-      psPrivacyShort: "Your photo is stored on this device only and is never sent anywhere.",
+      psPrivacy: "🔒 Photos are stored on this device only.",
+      psPrivacyShort: "Photos are stored on this device only.",
       shopMarkOriginal6: "Original ×6",
       psFacesTitle: "One photo per face",
       psFacesHint: "Pick several at once and they fill from face 1. Tap a face to adjust its crop",
@@ -123,9 +121,8 @@
       psSaved: '已贴上照片',
       psReadFail: '无法读取这张照片',
       psSaveFail: '保存失败，请确认设备的可用空间',
-      psPrivacy: "🔒 所选照片只保存在这台设备上，不会被发送到任何地方。",
-      psPrivacyNote: "清除浏览器数据时，照片也会一并删除。",
-      psPrivacyShort: "所选照片只保存在这台设备上，不会被发送到任何地方。",
+      psPrivacy: "🔒 照片仅保存在这台设备上。",
+      psPrivacyShort: "照片仅保存在这台设备上。",
       shopMarkOriginal6: "原创×6",
       psFacesTitle: "每面各一张照片",
       psFacesHint: "一次选多张会从第1面依次填入。点某一面即可调整裁剪",
@@ -152,9 +149,8 @@
       psSaved: '已貼上照片',
       psReadFail: '無法讀取這張照片',
       psSaveFail: '儲存失敗，請確認裝置的可用空間',
-      psPrivacy: "🔒 所選照片只儲存在這台裝置上，不會被傳送到任何地方。",
-      psPrivacyNote: "清除瀏覽器資料時，照片也會一併刪除。",
-      psPrivacyShort: "所選照片只儲存在這台裝置上，不會被傳送到任何地方。",
+      psPrivacy: "🔒 照片僅儲存在這台裝置上。",
+      psPrivacyShort: "照片僅儲存在這台裝置上。",
       shopMarkOriginal6: "原創×6",
       psFacesTitle: "每面各一張照片",
       psFacesHint: "一次選多張會從第1面依序填入。點某一面即可調整裁切",
@@ -181,9 +177,8 @@
       psSaved: '사진을 붙였습니다',
       psReadFail: '이 사진은 불러올 수 없었습니다',
       psSaveFail: '저장하지 못했습니다. 기기의 남은 용량을 확인해 주세요',
-      psPrivacy: "🔒 고른 사진은 이 기기 안에만 저장됩니다. 어디로도 전송되지 않습니다.",
-      psPrivacyNote: "브라우저 데이터를 지우면 사진도 함께 사라집니다.",
-      psPrivacyShort: "고른 사진은 이 기기 안에만 저장되며 어디로도 전송되지 않습니다.",
+      psPrivacy: "🔒 사진은 이 기기 안에만 저장됩니다.",
+      psPrivacyShort: "사진은 이 기기 안에만 저장됩니다.",
       shopMarkOriginal6: "오리지널×6",
       psFacesTitle: "면마다 사진 한 장",
       psFacesHint: "여러 장을 한 번에 고르면 1번 면부터 채워집니다. 면을 누르면 자르기를 고칠 수 있습니다",
@@ -210,9 +205,8 @@
       psSaved: 'Foto aplicada',
       psReadFail: 'No se pudo cargar esa foto',
       psSaveFail: 'No se pudo guardar. Comprueba el espacio libre del dispositivo',
-      psPrivacy: "🔒 Tu foto se guarda solo en este dispositivo. No se envía a ningún sitio.",
-      psPrivacyNote: "Si borras los datos del navegador, la foto también se borra.",
-      psPrivacyShort: "Tu foto se guarda solo en este dispositivo y no se envía a ningún sitio.",
+      psPrivacy: "🔒 Las fotos se guardan solo en este dispositivo.",
+      psPrivacyShort: "Las fotos se guardan solo en este dispositivo.",
       shopMarkOriginal6: "Original ×6",
       psFacesTitle: "Una foto por cara",
       psFacesHint: "Si eliges varias a la vez, se colocan desde la cara 1. Toca una cara para ajustar el recorte",
@@ -239,9 +233,8 @@
       psSaved: 'Foto dipasang',
       psReadFail: 'Foto itu tidak bisa dibaca',
       psSaveFail: 'Gagal menyimpan. Periksa ruang kosong di perangkat',
-      psPrivacy: "🔒 Foto yang dipilih hanya disimpan di perangkat ini. Tidak dikirim ke mana pun.",
-      psPrivacyNote: "Menghapus data peramban juga menghapus fotonya.",
-      psPrivacyShort: "Foto yang dipilih hanya disimpan di perangkat ini dan tidak dikirim ke mana pun.",
+      psPrivacy: "🔒 Foto hanya disimpan di perangkat ini.",
+      psPrivacyShort: "Foto hanya disimpan di perangkat ini.",
       shopMarkOriginal6: "Original ×6",
       psFacesTitle: "Satu foto tiap sisi",
       psFacesHint: "Pilih beberapa sekaligus dan terisi dari sisi 1. Ketuk sebuah sisi untuk mengatur potongannya",
@@ -268,9 +261,8 @@
       psSaved: 'Фото применено',
       psReadFail: 'Это фото не удалось загрузить',
       psSaveFail: 'Не удалось сохранить. Проверьте свободное место на устройстве',
-      psPrivacy: "🔒 Выбранное фото хранится только на этом устройстве. Оно никуда не отправляется.",
-      psPrivacyNote: "Если очистить данные браузера, фото тоже удалится.",
-      psPrivacyShort: "Выбранное фото хранится только на этом устройстве и никуда не отправляется.",
+      psPrivacy: "🔒 Фото хранятся только на этом устройстве.",
+      psPrivacyShort: "Фото хранятся только на этом устройстве.",
       shopMarkOriginal6: "Своя ×6",
       psFacesTitle: "По фото на каждую грань",
       psFacesHint: "Выберите сразу несколько — они заполнят грани с первой. Нажмите на грань, чтобы поправить обрезку",
@@ -297,9 +289,8 @@
       psSaved: 'Foto aplicada',
       psReadFail: 'Não foi possível carregar essa foto',
       psSaveFail: 'Não foi possível salvar. Verifique o espaço livre do aparelho',
-      psPrivacy: "🔒 Sua foto fica guardada só neste aparelho. Ela não é enviada para lugar nenhum.",
-      psPrivacyNote: "Se você limpar os dados do navegador, a foto também some.",
-      psPrivacyShort: "Sua foto fica guardada só neste aparelho e não é enviada para lugar nenhum.",
+      psPrivacy: "🔒 As fotos ficam guardadas só neste aparelho.",
+      psPrivacyShort: "As fotos ficam guardadas só neste aparelho.",
       shopMarkOriginal6: "Original ×6",
       psFacesTitle: "Uma foto por face",
       psFacesHint: "Escolha várias de uma vez e elas entram a partir da face 1. Toque numa face para ajustar o recorte",
@@ -412,7 +403,6 @@
     '.ps-privacy{margin:0 0 12px;padding:9px 11px;border-radius:10px;',
     '  background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07);',
     '  font-size:12px;line-height:1.65;color:#c2c2ce}',
-    '.ps-privacy-sub{display:block;margin-top:3px;font-size:11px;color:#8b8b97}',
     '.ps-hint{margin:12px 0 0;font-size:12px;line-height:1.5;color:#9a9aa6;text-align:center}',
     '.ps-note{margin:4px 0 0;font-size:11px;color:#7c7c88;text-align:center}',
 
@@ -501,8 +491,7 @@
       '<div class="ps-panel">' +
         '<button class="alg-panel-close-x" data-ps="close" aria-label="✕">✕</button>' +
         '<h2 class="ps-title" data-ps="title"></h2>' +
-        '<p class="ps-privacy"><span data-ps="privacy"></span>' +
-          '<span class="ps-privacy-sub" data-ps="privacyNote"></span></p>' +
+        '<p class="ps-privacy" data-ps="privacy"></p>' +
         '<div class="ps-faces-head">' +
           '<span class="ps-faces-title" data-ps="facesTitle"></span>' +
           '<span class="ps-faces-count" data-ps="facesCount"></span>' +
@@ -535,7 +524,7 @@
     el = {
       overlay: ov, panel: ov.querySelector('.ps-panel'),
       title: q('title'), hint: q('hint'), note: q('note'), empty: q('empty'),
-      privacy: q('privacy'), privacyNote: q('privacyNote'),
+      privacy: q('privacy'),
       faces: q('faces'), facesTitle: q('facesTitle'), facesCount: q('facesCount'),
       stage: q('stage'), img: q('img'), zoom: q('zoom'), zoomLabel: q('zoomLabel'),
       pick: q('pick'), apply: q('apply'), cancel: q('cancel'),
@@ -894,7 +883,6 @@
     el.title.textContent = T('psTitle');
     el.hint.textContent = T('psHint');
     el.privacy.textContent = T('psPrivacy');
-    el.privacyNote.textContent = T('psPrivacyNote');
     el.note.textContent = T('psGridNote');
     el.empty.textContent = T('psPick');
     el.facesTitle.textContent = T('psFacesTitle');

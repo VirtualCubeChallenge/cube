@@ -2,6 +2,18 @@
   "_note": "items は新しい順。新機能を足したら先頭に1件追加する。言語キーは ja/en/zh-CN/zh-TW/ko/es/id/ru/pt-BR の9つで、LANGS の code とそのまま一致する。無い言語は ja に落ちる（= ja だけは必ず書く）。guide は任意で、付けた項目にだけ「詳細→」ボタンが出る。",
   "items": [
     {
+      "date": "2026-08-24",
+      "ja": "自分の写真でキューブを作れるようになりました！ショップのキューブスキンに「オリジナル」が新登場。1枚を6面に貼るか、6枚を1面ずつ貼り分けるか選べます。写真はこの端末の中のみ保存されます。",
+      "en": "Make a cube from your own photos! The new Original skins are in the shop: one photo across all six faces, or six photos with one per face. Photos are stored on this device only.",
+      "zh-CN": "现在可以用自己的照片做方块了！商店的方块皮肤新增「原创」：一张照片贴满六面，或六张照片每面一张。照片仅保存在这台设备上。",
+      "zh-TW": "現在可以用自己的照片做方塊了！商店的方塊外觀新增「原創」：一張照片貼滿六面，或六張照片每面一張。照片僅儲存在這台裝置上。",
+      "ko": "내 사진으로 큐브를 만들 수 있습니다! 상점의 큐브 스킨에 「오리지널」이 새로 생겼어요. 한 장을 여섯 면에 붙이거나, 여섯 장을 면마다 한 장씩 붙일 수 있습니다. 사진은 이 기기 안에만 저장됩니다.",
+      "es": "¡Ya puedes hacer un cubo con tus propias fotos! En la tienda están las nuevas skins Original: una foto en las seis caras, o seis fotos con una por cara. Las fotos se guardan solo en este dispositivo.",
+      "id": "Kini kamu bisa membuat kubus dari fotomu sendiri! Skin kubus baru Original ada di toko: satu foto untuk enam sisi, atau enam foto satu per sisi. Foto hanya disimpan di perangkat ini.",
+      "ru": "Теперь кубик можно собрать из своих фотографий! В магазине появились скины «Своя»: одно фото на все шесть граней или шесть фото — по одному на грань. Фото хранятся только на этом устройстве.",
+      "pt-BR": "Agora dá para montar um cubo com suas próprias fotos! As novas skins Original estão na loja: uma foto nas seis faces, ou seis fotos com uma por face. As fotos ficam guardadas só neste aparelho."
+    },
+    {
       "date": "2026-08-23",
       "ja": "計測を一時停止できるようになりました！左上のタイムをタップ、☰メニューを開く、アプリを閉じる——どれでも自動でストップします。",
       "en": "You can now pause the timer! Tap the time in the top left, open the ☰ menu, or leave the app — any of these stops the clock.",
