@@ -1522,7 +1522,7 @@
        これまでの showSolvedMark がそのまま担当する。文言(9言語)とCSSも
        自前で持つので、i18n.js と style.css は無改変。
        写真はこの端末の中だけに保存され、どこへも送らない。 -->
-  <script src="photo-skin.js?v=20260823i"></script>
+  <script src="photo-skin.js?v=20260823j"></script>
   <!-- 大きな定数テーブルは index.html から切り出してある。どちらもトップレベルで
        const を宣言しているだけなので、このあとのスクリプトから普通に参照できる。 -->
   <script src="solver.js?v=20260818a"></script>
@@ -7904,11 +7904,10 @@ const PLL_DATA = {
        ・状態を var で持つのは、この下で定義される関数(executeTurn など)が
          ファイルの上のほうから先に呼ばれても TDZ で落ちないようにするため。 */
     var markGroups = [];       // 6面ぶんの入れ物 { group, n }（cubeGroup の子）
-    var markMats   = [];       // 9マスぶんのマテリアル（6面で使い回す）
-    var markGeom   = null;     // 板1枚ぶんの形（54枚で使い回す）
-    var markImg    = null;     // 写真そのもの（1枚だけ読み込んで使い回す）
-    var markImgUrl = null;
-    var markImgReady = false;
+    var markMats   = [];       // 写真1枚につき1つのマテリアル（同じ写真の面は共有）
+    var markGeom   = null;     // 1面ぶんの板の形（6面で使い回す）
+    var markImgs   = [];       // 6面ぶんの写真（同じ写真なら同じ Image が並ぶ）
+    var markImgKey = '';       // いま読み込んである写真の並び（読み直しの判定用）
     var markFadeRAF = null;
 
     function hideSolvedMark() {
@@ -7981,20 +7980,66 @@ const PLL_DATA = {
       }
     }
 
-    // 写真は1枚だけ読み込んで、54枚の板でテクスチャを共有する
-    // （THREE.Texture は同じ Image から作れば画像データは1つで済む）。
-    function withMarkImage(url, done) {
-      if (markImgUrl === url && markImgReady) { done(); return; }
-      markImgUrl = url;
-      markImgReady = false;
-      markImg = new Image();
-      markImg.onload = function () { markImgReady = true; done(); };
-      markImg.onerror = function () { markImgReady = false; };
-      markImg.src = url;
+    /* 6面ぶんの写真を読む。
+       「オリジナル」(1枚を6面に貼る)なら同じURLが6つ並ぶだけで、
+       そのときは Image も1枚しか作らない＝GPUへ送る絵も1枚で済む。
+       「オリジナル×6」なら6枚ぶん。まだ選んでいない面には null が入り、
+       その面には何も貼らない。 */
+    function withMarkImages(urls, done) {
+      const key = urls.map((u) => (u ? u.length + ':' + u.slice(-28) : '-')).join('|');
+      if (key === markImgKey && markImgs.length) { done(); return; }
+
+      const out = new Array(urls.length).fill(null);
+      const seen = {};
+      let pending = 0;
+      let broken = false;
+      const finish = function () {
+        if (broken || pending > 0) return;
+        markImgs = out;
+        markImgKey = key;
+        done();
+      };
+      urls.forEach(function (u, i) {
+        if (!u) return;
+        if (seen[u]) { out[i] = seen[u]; return; }   // 同じ写真は1枚だけ読む
+        const im = new Image();
+        seen[u] = im;
+        out[i] = im;
+        pending++;
+        im.onload  = function () { pending--; finish(); };
+        im.onerror = function () { pending--; broken = true; };
+        im.src = u;
+      });
+      if (pending === 0) finish();
+    }
+
+    /* 1面ぶんの板の形。3x3のマスに分かれた9枚を1つの形にまとめてあり、
+       写真は1枚のテクスチャとして貼る。以前は9枚を別々のメッシュにして
+       テクスチャも9つ作っていたが、同じ写真でもテクスチャの数だけGPUへ
+       送られるので、6面ぶん(=54枚)に増やすと現実的な重さではなくなる。
+       UVは「(i,j)のマスに、写真の(i,j)の切れ端」を割り当てる。 */
+    function makeTiledFaceGeom(tile) {
+      const pos = [], uv = [], idx = [];
+      const h = tile / 2;
+      let v = 0;
+      for (let i = -1; i <= 1; i++) {
+        for (let j = -1; j <= 1; j++) {
+          pos.push(i - h, j - h, 0,  i + h, j - h, 0,  i + h, j + h, 0,  i - h, j + h, 0);
+          const u0 = (i + 1) / 3, v0 = (j + 1) / 3, sp = 1 / 3;
+          uv.push(u0, v0,  u0 + sp, v0,  u0 + sp, v0 + sp,  u0, v0 + sp);
+          idx.push(v, v + 1, v + 2, v, v + 2, v + 3);
+          v += 4;
+        }
+      }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+      g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+      g.setIndex(idx);
+      return g;
     }
 
     function buildSolvedMark() {
-      if (!markImgReady || !markImg) return;
+      if (!markImgs.length) return;
       hideSolvedMark();
 
       // 板の一辺のサイズ。もとは0.9で、板と板のすき間からマスの色が
@@ -8004,31 +8049,8 @@ const PLL_DATA = {
       // 1ぴったりにしないのは、隣の板と厳密に重なるとチラつき
       // (Zファイティング)の恐れがあるため、ごくわずかだけ余白を残す。
       const MARK_TILE_SIZE = 0.998;
-      markGeom = new THREE.PlaneGeometry(MARK_TILE_SIZE, MARK_TILE_SIZE);
-      // まず9マスぶんのマテリアルを作る。写真を3x3に切り分けて、
-      // (i, j) のマスにはその位置の切れ端を割り当てる。
-      const cells = [];
-      for (let i = -1; i <= 1; i++) {
-        for (let j = -1; j <= 1; j++) {
-          const tex = new THREE.Texture(markImg);
-          tex.needsUpdate = true;
-          tex.minFilter = THREE.LinearFilter;   // ミップマップを作らない＝軽い
-          tex.magFilter = THREE.LinearFilter;
-          tex.generateMipmaps = false;
-          tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
-          tex.repeat.set(1 / 3, 1 / 3);
-          tex.offset.set((i + 1) / 3, (j + 1) / 3);
-          const mat = new THREE.MeshBasicMaterial({
-            map: tex,
-            transparent: true,
-            opacity: 0                          // ふわっと出す（下の fade）
-          });
-          markMats.push(mat);
-          cells.push({ i: i, j: j, mat: mat });
-        }
-      }
+      markGeom = makeTiledFaceGeom(MARK_TILE_SIZE);
 
-      // その9枚を、6面それぞれに同じ並びで貼っていく。
       // 板を置く距離は「今のマスの表面」+ 0.012（もともとの隙間つき
       // キューブ(1.47)に対する 1.482 と同じ余白）を、そのつど計算する。
       // キューブカラーの gapSize でマスを拡大縮小(cubieGapScale)している
@@ -8037,24 +8059,49 @@ const PLL_DATA = {
       // なってしまうため。
       const stickerSurface = 1 + (CUBIE_BASE_SIZE * cubieGapScale) / 2;
       const markOffset = stickerSurface + 0.012;
-      WORLD_FACES.forEach((face) => {
+
+      // 同じ写真を使う面どうしは、マテリアル（＝GPUへ送る絵）も1つで
+      // 済ませる。「オリジナル」は6面とも同じ写真なので、ここで1つに
+      // まとまる。「オリジナル×6」は6つになる。
+      const matOf = [];
+      const imgSeen = [];
+      WORLD_FACES.forEach((face, fi) => {
+        const im = markImgs[fi];
+        if (!im) return;                    // その面はまだ写真が無い
+        let mat = null;
+        for (let k = 0; k < imgSeen.length; k++) {
+          if (imgSeen[k] === im) { mat = matOf[k]; break; }
+        }
+        if (!mat) {
+          const tex = new THREE.Texture(im);
+          tex.needsUpdate = true;
+          tex.minFilter = THREE.LinearFilter;   // ミップマップを作らない＝軽い
+          tex.magFilter = THREE.LinearFilter;
+          tex.generateMipmaps = false;
+          tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+          mat = new THREE.MeshBasicMaterial({
+            map: tex,
+            transparent: true,
+            opacity: 0                          // ふわっと出す（下の fade）
+          });
+          imgSeen.push(im);
+          matOf.push(mat);
+          markMats.push(mat);
+        }
         const n = new THREE.Vector3(0, 0, 0);
         n[face.axis] = face.sign;
         const g = new THREE.Group();
         g.position.copy(n).multiplyScalar(markOffset);
-        cells.forEach((c) => {
-          const tile = new THREE.Mesh(markGeom, c.mat);
-          tile.position.set(c.i, c.j, 0);
-          g.add(tile);
-        });
+        g.add(new THREE.Mesh(markGeom, mat));
         cubeGroup.add(g);
         markGroups.push({ group: g, n: n });
       });
+      if (!markGroups.length) { markGeom.dispose(); markGeom = null; return; }
+
       // 板の向き（＝写真の上下）は、いまの持ち方から決める。
       orientMarkGroups();
 
       // 完成演出のフラッシュが引いたあと、0.5秒かけて浮かび上がる。
-      // マテリアルは6面で共有しているので、9個ぶん触れば全面に効く。
       const t0 = performance.now();
       const fade = (now) => {
         if (!markGroups.length) return;
@@ -8072,10 +8119,12 @@ const PLL_DATA = {
       // スイカ(果肉キューブ)を自分で消してしまう。
       if (window.WatermelonFX && WatermelonFX.isEquipped()) return;
       hideSolvedMark();
-      const url = (window.Shop && typeof Shop.getMarkImage === 'function')
-        ? Shop.getMarkImage() : null;
-      if (!url) return;                    // 「なし」なら何も出さない
-      withMarkImage(url, function () {
+      // 6面ぶんの並びで受け取る。1枚を全面に貼るスキンなら同じURLが6つ、
+      // オリジナル×6なら面ごとに別のURL（未設定の面は null）。
+      const urls = (window.Shop && typeof Shop.getMarkImages === 'function')
+        ? Shop.getMarkImages() : null;
+      if (!urls || !urls.some(Boolean)) return;   // 「なし」なら何も出さない
+      withMarkImages(urls, function () {
         // 読み込みを待つあいだにシャッフルされていたら、もう出さない。
         if (gameState === 'solved') buildSolvedMark();
       });
@@ -12000,7 +12049,12 @@ const Shop = (function () {
        この custom:true は「いちばん下に並べる」印も兼ねている（render()
        が custom を後ろへ回すので、新しいスキンをこの下に足しても
        オリジナルはいつも最後尾のまま）。 */
-    { id: 'original', cost: 150, cur: 'cyan', img: null, custom: true }
+    { id: 'original', cost: 150, cur: 'cyan', img: null, custom: true },
+    /* オリジナル×6。写真を6枚選んで、1面に1枚ずつ貼る。どの写真がどの面に
+       行くかは、キューブ自身の6方向(WORLD_FACES)の並び順そのまま。そろえた
+       ときのキューブの向きは毎回ちがうので、「1枚目が必ず正面」のような
+       固定はしていない。 */
+    { id: 'original6', cost: 500, cur: 'cyan', img: null, custom: true }
   ];
   const MARK_DEFAULT_ID = 'none';
   const MARK_OWNED_KEY  = 'rubiks-cube-shop-marks-owned';
@@ -12134,6 +12188,23 @@ const Shop = (function () {
     // そのときは null を返して、何も貼らないだけにする。
     if (m.custom) return (window.PhotoSkin && PhotoSkin.get(m.id)) || null;
     return m.img || null;
+  }
+
+  // 3D側が本当に欲しいのはこちら。6面ぶんの並びで返す。
+  // 1枚を全面に貼るスキンは、同じURLを6つ並べて渡す（向こうで
+  // 「同じ絵は1枚だけ読む」ようになっている）。
+  function markImages() {
+    const m = markById(equippedMark);
+    if (!m) return null;
+    if (m.custom && window.PhotoSkin) {
+      const all = PhotoSkin.getAll(m.id);
+      if (!all.length) return null;
+      if (all.length >= 6) return all.slice(0, 6);
+      const one = all[0] || null;
+      return one ? [one, one, one, one, one, one] : null;
+    }
+    const url = m.img || null;
+    return url ? [url, url, url, url, url, url] : null;
   }
   function applyMark(id) {
     const mark = markById(id) || markById(MARK_DEFAULT_ID);
@@ -12805,6 +12876,8 @@ const Shop = (function () {
     getOwned: function () { return owned.slice(); },
     // 3D側がそろった瞬間に読む（何も付けていなければ null）。
     getMarkImage: markImage,
+    // 6面ぶんの写真（オリジナル×6 用。1枚のスキンは同じURLが6つ並ぶ）
+    getMarkImages: markImages,
     MARKS: MARKS,
     applyMark: applyMark,
     getEquippedMark: function () { return equippedMark; },

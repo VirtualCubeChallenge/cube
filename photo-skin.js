@@ -26,8 +26,20 @@
 (function (global) {
   'use strict';
 
-  const STORE_KEY  = 'rubiks-cube-photo-skin';
-  const SLOT_IDS   = ['original'];
+  /* 枠は2種類。
+       original  … 1枚の写真を6面ぜんぶに貼る
+       original6 … 6枚の写真を1面ずつに貼り分ける
+     どちらも「引き換えるのは枠」で、写真の入れ替えは何度でもただ。 */
+  const SLOTS = {
+    original:  { faces: 1, keys: ['rubiks-cube-photo-skin'] },
+    original6: {
+      faces: 6,
+      keys: ['rubiks-cube-photo-skin-f0', 'rubiks-cube-photo-skin-f1',
+             'rubiks-cube-photo-skin-f2', 'rubiks-cube-photo-skin-f3',
+             'rubiks-cube-photo-skin-f4', 'rubiks-cube-photo-skin-f5']
+    }
+  };
+  const SLOT_IDS = Object.keys(SLOTS);
   const OUT_SIZE   = 512;      // 保存する一辺(px)
   const JPEG_Q     = 0.86;
   const MIN_SCALE  = 1;        // 1 = 枠いっぱい（これ以上は引けない＝余白を作らせない）
@@ -56,6 +68,12 @@
       psPrivacy: "🔒 選んだ写真は、この端末の中だけに保存されます。どこかへ送られることはありません。",
       psPrivacyNote: "ブラウザのデータを消すと、写真も一緒に消えます。",
       psPrivacyShort: "選んだ写真はこの端末の中だけに保存され、どこかへ送られることはありません。",
+      shopMarkOriginal6: "オリジナル×6",
+      psFacesTitle: "6面ぶんの写真",
+      psFacesHint: "面を選んでから、その面の写真を決めます",
+      psApplyFace: "この面にする",
+      psDeleteFace: "この面の写真を消す",
+      psDone: "閉じる",
       psZoom: '大きさ'
     },
     en: {
@@ -77,6 +95,12 @@
       psPrivacy: "🔒 Your photo is stored on this device only. It is never sent anywhere.",
       psPrivacyNote: "Clearing your browser data deletes the photo too.",
       psPrivacyShort: "Your photo is stored on this device only and is never sent anywhere.",
+      shopMarkOriginal6: "Original ×6",
+      psFacesTitle: "One photo per face",
+      psFacesHint: "Pick a face, then choose its photo",
+      psApplyFace: "Use for this face",
+      psDeleteFace: "Remove this face",
+      psDone: "Done",
       psZoom: 'Size'
     },
     'zh-CN': {
@@ -98,6 +122,12 @@
       psPrivacy: "🔒 所选照片只保存在这台设备上，不会被发送到任何地方。",
       psPrivacyNote: "清除浏览器数据时，照片也会一并删除。",
       psPrivacyShort: "所选照片只保存在这台设备上，不会被发送到任何地方。",
+      shopMarkOriginal6: "原创×6",
+      psFacesTitle: "每面各一张照片",
+      psFacesHint: "先选面，再决定这一面的照片",
+      psApplyFace: "用于这一面",
+      psDeleteFace: "删除这一面",
+      psDone: "完成",
       psZoom: '大小'
     },
     'zh-TW': {
@@ -119,6 +149,12 @@
       psPrivacy: "🔒 所選照片只儲存在這台裝置上，不會被傳送到任何地方。",
       psPrivacyNote: "清除瀏覽器資料時，照片也會一併刪除。",
       psPrivacyShort: "所選照片只儲存在這台裝置上，不會被傳送到任何地方。",
+      shopMarkOriginal6: "原創×6",
+      psFacesTitle: "每面各一張照片",
+      psFacesHint: "先選面，再決定這一面的照片",
+      psApplyFace: "用於這一面",
+      psDeleteFace: "刪除這一面",
+      psDone: "完成",
       psZoom: '大小'
     },
     ko: {
@@ -140,6 +176,12 @@
       psPrivacy: "🔒 고른 사진은 이 기기 안에만 저장됩니다. 어디로도 전송되지 않습니다.",
       psPrivacyNote: "브라우저 데이터를 지우면 사진도 함께 사라집니다.",
       psPrivacyShort: "고른 사진은 이 기기 안에만 저장되며 어디로도 전송되지 않습니다.",
+      shopMarkOriginal6: "오리지널×6",
+      psFacesTitle: "면마다 사진 한 장",
+      psFacesHint: "면을 고른 뒤 그 면의 사진을 정합니다",
+      psApplyFace: "이 면에 쓰기",
+      psDeleteFace: "이 면 사진 지우기",
+      psDone: "닫기",
       psZoom: '크기'
     },
     es: {
@@ -161,6 +203,12 @@
       psPrivacy: "🔒 Tu foto se guarda solo en este dispositivo. No se envía a ningún sitio.",
       psPrivacyNote: "Si borras los datos del navegador, la foto también se borra.",
       psPrivacyShort: "Tu foto se guarda solo en este dispositivo y no se envía a ningún sitio.",
+      shopMarkOriginal6: "Original ×6",
+      psFacesTitle: "Una foto por cara",
+      psFacesHint: "Elige una cara y luego su foto",
+      psApplyFace: "Usar en esta cara",
+      psDeleteFace: "Quitar esta cara",
+      psDone: "Listo",
       psZoom: 'Tamaño'
     },
     id: {
@@ -182,6 +230,12 @@
       psPrivacy: "🔒 Foto yang dipilih hanya disimpan di perangkat ini. Tidak dikirim ke mana pun.",
       psPrivacyNote: "Menghapus data peramban juga menghapus fotonya.",
       psPrivacyShort: "Foto yang dipilih hanya disimpan di perangkat ini dan tidak dikirim ke mana pun.",
+      shopMarkOriginal6: "Original ×6",
+      psFacesTitle: "Satu foto tiap sisi",
+      psFacesHint: "Pilih sisinya dulu, lalu tentukan fotonya",
+      psApplyFace: "Pakai untuk sisi ini",
+      psDeleteFace: "Hapus sisi ini",
+      psDone: "Selesai",
       psZoom: 'Ukuran'
     },
     ru: {
@@ -203,6 +257,12 @@
       psPrivacy: "🔒 Выбранное фото хранится только на этом устройстве. Оно никуда не отправляется.",
       psPrivacyNote: "Если очистить данные браузера, фото тоже удалится.",
       psPrivacyShort: "Выбранное фото хранится только на этом устройстве и никуда не отправляется.",
+      shopMarkOriginal6: "Своя ×6",
+      psFacesTitle: "По фото на каждую грань",
+      psFacesHint: "Выберите грань, затем её фото",
+      psApplyFace: "Взять для этой грани",
+      psDeleteFace: "Убрать с этой грани",
+      psDone: "Готово",
       psZoom: 'Размер'
     },
     'pt-BR': {
@@ -224,6 +284,12 @@
       psPrivacy: "🔒 Sua foto fica guardada só neste aparelho. Ela não é enviada para lugar nenhum.",
       psPrivacyNote: "Se você limpar os dados do navegador, a foto também some.",
       psPrivacyShort: "Sua foto fica guardada só neste aparelho e não é enviada para lugar nenhum.",
+      shopMarkOriginal6: "Original ×6",
+      psFacesTitle: "Uma foto por face",
+      psFacesHint: "Escolha a face e depois a foto dela",
+      psApplyFace: "Usar nesta face",
+      psDeleteFace: "Remover esta face",
+      psDone: "Pronto",
       psZoom: 'Tamanho'
     }
   };
@@ -252,30 +318,55 @@
   /* ============================================================
      しまう / 取り出す
      ============================================================ */
-  function keyOf(id) {
-    return SLOT_IDS.indexOf(id) < 0 ? null : STORE_KEY;
+  function facesOf(id) {
+    const sl = SLOTS[id];
+    return sl ? sl.faces : 0;
+  }
+  function keyOf(id, face) {
+    const sl = SLOTS[id];
+    if (!sl) return null;
+    return sl.keys[face || 0] || null;
   }
 
-  function get(id) {
-    const k = keyOf(id);
-    if (!k) return null;
+  function readKey(k) {
     try {
       const v = localStorage.getItem(k);
       return (v && v.slice(0, 11) === 'data:image/') ? v : null;
     } catch (e) { return null; }
   }
 
-  function put(id, dataUrl) {
-    const k = keyOf(id);
+  // その枠の写真を面の数だけ並べて返す（未設定の面は null）。
+  function getAll(id) {
+    const sl = SLOTS[id];
+    if (!sl) return [];
+    return sl.keys.map(readKey);
+  }
+  // 代表の1枚（ショップの見本や、1枚の枠のふつうの取り出しに使う）。
+  function get(id) {
+    const all = getAll(id);
+    for (let i = 0; i < all.length; i++) if (all[i]) return all[i];
+    return null;
+  }
+  function count(id) {
+    return getAll(id).filter(Boolean).length;
+  }
+
+  function put(id, face, dataUrl) {
+    const k = keyOf(id, face);
     if (!k) return false;
     try { localStorage.setItem(k, dataUrl); return true; }
     catch (e) { return false; }   // 容量いっぱい など
   }
 
-  function drop(id) {
-    const k = keyOf(id);
-    if (!k) return;
-    try { localStorage.removeItem(k); } catch (e) { /* 消せなくても致命的ではない */ }
+  // face を渡せばその面だけ、省けば枠ごと全部を消す。
+  function drop(id, face) {
+    const sl = SLOTS[id];
+    if (!sl) return;
+    const keys = (face === undefined) ? sl.keys : [sl.keys[face]];
+    keys.forEach(function (k) {
+      if (!k) return;
+      try { localStorage.removeItem(k); } catch (e) { /* 消せなくても致命的ではない */ }
+    });
   }
 
   /* ============================================================
@@ -325,6 +416,22 @@
     '.ps-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;',
     '  color:#6d6d79;font-size:13px;text-align:center;padding:24px;pointer-events:none}',
     '.ps-stage:not(.is-empty) .ps-empty{display:none}',
+
+    /* --- 6面ぶんの見本帯（オリジナル×6 のときだけ出す） --- */
+    '.ps-faces{display:none;gap:6px;margin:0 0 10px}',
+    '.ps-panel.is-multi .ps-faces{display:flex}',
+    '.ps-face{flex:1 1 0;min-width:0;aspect-ratio:1/1;border-radius:9px;',
+    '  background:#0e0e11 center/cover no-repeat;border:1px solid rgba(255,255,255,.10);',
+    '  padding:0;position:relative;color:#5f5f6b;font-size:11px;',
+    '  display:flex;align-items:center;justify-content:center}',
+    '.ps-face.is-on{border-color:var(--tc,#7cf0ff);',
+    '  box-shadow:0 0 0 1px var(--tc,#7cf0ff) inset}',
+    '.ps-face.is-set{color:transparent}',
+    '.ps-faces-head{display:none;align-items:baseline;justify-content:space-between;',
+    '  margin:0 2px 6px}',
+    '.ps-panel.is-multi .ps-faces-head{display:flex}',
+    '.ps-faces-title{font-size:12px;color:#c2c2ce}',
+    '.ps-faces-count{font-size:11px;color:#8b8b97;font-variant-numeric:tabular-nums}',
 
     /* --- 大きさのスライダー（つまめない環境のための逃げ道） --- */
     '.ps-zoom{display:flex;align-items:center;gap:10px;margin:12px 2px 0}',
@@ -378,6 +485,11 @@
         '<h2 class="ps-title" data-ps="title"></h2>' +
         '<p class="ps-privacy"><span data-ps="privacy"></span>' +
           '<span class="ps-privacy-sub" data-ps="privacyNote"></span></p>' +
+        '<div class="ps-faces-head">' +
+          '<span class="ps-faces-title" data-ps="facesTitle"></span>' +
+          '<span class="ps-faces-count" data-ps="facesCount"></span>' +
+        '</div>' +
+        '<div class="ps-faces" data-ps="faces"></div>' +
         '<div class="ps-stage is-empty" data-ps="stage">' +
           '<img class="ps-img" data-ps="img" alt="">' +
           '<div class="ps-grid"></div>' +
@@ -406,6 +518,7 @@
       overlay: ov, panel: ov.querySelector('.ps-panel'),
       title: q('title'), hint: q('hint'), note: q('note'), empty: q('empty'),
       privacy: q('privacy'), privacyNote: q('privacyNote'),
+      faces: q('faces'), facesTitle: q('facesTitle'), facesCount: q('facesCount'),
       stage: q('stage'), img: q('img'), zoom: q('zoom'), zoomLabel: q('zoomLabel'),
       pick: q('pick'), apply: q('apply'), cancel: q('cancel'),
       del: q('delete'), close: q('close'), file: q('file')
@@ -424,6 +537,8 @@
      計算は一度も起きない。
      ============================================================ */
   let slot = null;
+  let face = 0;          // オリジナル×6 のとき、いま決めている面
+  let savedAny = false;  // この画面を開いてから1枚でも保存したか
   let hooks = {};
   let img = new Image();
   let ready = false;
@@ -581,18 +696,44 @@
     let url = null;
     try { url = bake(); } catch (err) { url = null; }
     if (!url) { notify(T('psReadFail'), 'warn'); return; }
-    if (!put(slot, url)) { notify(T('psSaveFail'), 'warn'); return; }
-    const cb = hooks.onSave;
-    close();
-    if (typeof cb === 'function') cb(url);
+    if (!put(slot, face, url)) { notify(T('psSaveFail'), 'warn'); return; }
+    savedAny = true;
+
+    // 1枚だけの枠は、決めた時点でおしまい。
+    if (facesOf(slot) < 2) {
+      const cb = hooks.onSave;
+      close();
+      if (typeof cb === 'function') cb(url);
+      return;
+    }
+
+    // 6面ぶんの枠は、決めたらそのまま「まだ空いている次の面」へ進む。
+    // 6面ぜんぶ入っていれば、いま決めた面に留まる（見比べられるように）。
+    if (typeof hooks.onSave === 'function') hooks.onSave(get(slot));
+    const all = getAll(slot);
+    let next = -1;
+    for (let k = 1; k <= all.length; k++) {
+      const i = (face + k) % all.length;
+      if (!all[i]) { next = i; break; }
+    }
+    if (next >= 0) selectFace(next);
+    else { paintFaces(); refreshButtons(); }
   }
 
   function doDelete() {
     if (!slot) return;
     const id = slot;
+    const multi = facesOf(id) > 1;
+    const at = face;
     const run = function () {
-      drop(id);
+      drop(id, multi ? at : undefined);
       const cb = hooks.onDelete;
+      // 6面ぶんの枠は、1面消しても残りが生きているので画面は開けたまま。
+      if (multi && count(id) > 0) {
+        if (typeof cb === 'function') cb();
+        selectFace(at);
+        return;
+      }
       close();
       if (typeof cb === 'function') cb();
     };
@@ -612,12 +753,55 @@
   /* ============================================================
      開く / 閉じる
      ============================================================ */
+  // 6面ぶんの見本帯。マスを押すとその面に切り替わる。
+  function paintFaces() {
+    const n = facesOf(slot);
+    el.panel.classList.toggle('is-multi', n > 1);
+    if (n < 2) { el.faces.innerHTML = ''; return; }
+    const all = getAll(slot);
+    if (el.faces.children.length !== n) {
+      el.faces.innerHTML = '';
+      for (let i = 0; i < n; i++) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'ps-face';
+        b.dataset.face = String(i);
+        el.faces.appendChild(b);
+      }
+    }
+    for (let i = 0; i < n; i++) {
+      const b = el.faces.children[i];
+      b.textContent = String(i + 1);
+      b.classList.toggle('is-on', i === face);
+      b.classList.toggle('is-set', !!all[i]);
+      b.style.backgroundImage = all[i] ? 'url(' + all[i] + ')' : '';
+    }
+    el.facesCount.textContent = all.filter(Boolean).length + ' / ' + n;
+  }
+
+  function selectFace(i) {
+    face = i;
+    const saved = getAll(slot)[i];
+    if (saved) loadInto(saved, false);
+    else {
+      ready = false;
+      el.img.removeAttribute('src');
+      el.stage.classList.add('is-empty');
+    }
+    paintFaces();
+    refreshButtons();
+  }
+
   function refreshButtons() {
+    const multi = facesOf(slot) > 1;
     el.apply.disabled = !ready;
     el.apply.setAttribute('aria-disabled', ready ? 'false' : 'true');
     el.apply.style.opacity = ready ? '' : '.45';
     el.pick.textContent = ready ? T('psChange') : T('psPick');
-    const saved = !!get(slot);
+    el.apply.textContent = T(multi ? 'psApplyFace' : 'psApply');
+    el.del.textContent  = T(multi ? 'psDeleteFace' : 'psDelete');
+    el.cancel.textContent = T(multi ? 'psDone' : 'psCancel');
+    const saved = multi ? !!getAll(slot)[face] : !!get(slot);
     el.del.hidden = !saved;
   }
 
@@ -628,10 +812,11 @@
     el.privacyNote.textContent = T('psPrivacyNote');
     el.note.textContent = T('psGridNote');
     el.empty.textContent = T('psPick');
-    el.apply.textContent = T('psApply');
-    el.cancel.textContent = T('psCancel');
-    el.del.textContent = T('psDelete');
+    el.facesTitle.textContent = T('psFacesTitle');
+    el.hint.textContent = facesOf(slot) > 1 ? T('psFacesHint') : T('psHint');
     el.zoomLabel.textContent = T('psZoom');
+    // これにする / 消す / 閉じる の文言は、枠が1枚ぶんか6面ぶんかで
+    // 変わるので refreshButtons() 側でまとめて入れる。
     refreshButtons();
   }
 
@@ -640,16 +825,15 @@
     build();
     slot = id;
     hooks = opts || {};
+    savedAny = false;
+    // 開いた時点でいちばん自然な面 = まだ写真の無い最初の面。
+    // ぜんぶ埋まっていれば1面目から見せる。
+    const all = getAll(id);
+    face = 0;
+    for (let i = 0; i < all.length; i++) { if (!all[i]) { face = i; break; } }
     paintText();
-
-    const saved = get(id);
-    if (saved) loadInto(saved, false);
-    else {
-      ready = false;
-      el.img.removeAttribute('src');
-      el.stage.classList.add('is-empty');
-      refreshButtons();
-    }
+    paintFaces();
+    selectFace(face);
 
     el.overlay.classList.add('show');
     requestAnimationFrame(() => el.overlay.classList.add('show-visible'));
@@ -669,6 +853,8 @@
       el.stage.classList.add('is-empty');
     }, 200);
     slot = null;
+    face = 0;
+    savedAny = false;
     hooks = {};
     ready = false;
     pointers.clear();
@@ -695,6 +881,11 @@
       setScale(Number(el.zoom.value) / 100, 0, 0);
     });
 
+    el.faces.addEventListener('click', function (e) {
+      const b = e.target.closest ? e.target.closest('.ps-face') : null;
+      if (!b || !slot) return;
+      selectFace(Number(b.dataset.face) || 0);
+    });
     el.pick.addEventListener('click', () => el.file.click());
     el.file.addEventListener('change', onFile);
     el.apply.addEventListener('click', doApply);
@@ -723,7 +914,10 @@
 
   global.PhotoSkin = {
     SLOT_IDS: SLOT_IDS.slice(),
-    get: get,
+    faces: facesOf,
+    get: get,                 // 代表の1枚（見本用）
+    getAll: getAll,           // 面の数だけ並べた配列（未設定は null）
+    count: count,
     has: function (id) { return !!get(id); },
     open: open,
     close: close,
