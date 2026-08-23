@@ -70,7 +70,9 @@
       psPrivacyShort: "選んだ写真はこの端末の中だけに保存され、どこかへ送られることはありません。",
       shopMarkOriginal6: "オリジナル×6",
       psFacesTitle: "6面ぶんの写真",
-      psFacesHint: "面を選んでから、その面の写真を決めます",
+      psFacesHint: "まとめて選ぶと1面目から順に入ります。面を押せば切り抜きを直せます",
+      psPickMany: "写真をまとめて選ぶ",
+      psBatchNote: "写真を入れました。面を押すと切り抜きを直せます",
       psApplyFace: "この面にする",
       psDeleteFace: "この面の写真を消す",
       psDone: "閉じる",
@@ -97,7 +99,9 @@
       psPrivacyShort: "Your photo is stored on this device only and is never sent anywhere.",
       shopMarkOriginal6: "Original ×6",
       psFacesTitle: "One photo per face",
-      psFacesHint: "Pick a face, then choose its photo",
+      psFacesHint: "Pick several at once and they fill from face 1. Tap a face to adjust its crop",
+      psPickMany: "Choose photos",
+      psBatchNote: "Photos added. Tap a face to adjust its crop",
       psApplyFace: "Use for this face",
       psDeleteFace: "Remove this face",
       psDone: "Done",
@@ -124,7 +128,9 @@
       psPrivacyShort: "所选照片只保存在这台设备上，不会被发送到任何地方。",
       shopMarkOriginal6: "原创×6",
       psFacesTitle: "每面各一张照片",
-      psFacesHint: "先选面，再决定这一面的照片",
+      psFacesHint: "一次选多张会从第1面依次填入。点某一面即可调整裁剪",
+      psPickMany: "批量选择照片",
+      psBatchNote: "已添加照片。点某一面可调整裁剪",
       psApplyFace: "用于这一面",
       psDeleteFace: "删除这一面",
       psDone: "完成",
@@ -151,7 +157,9 @@
       psPrivacyShort: "所選照片只儲存在這台裝置上，不會被傳送到任何地方。",
       shopMarkOriginal6: "原創×6",
       psFacesTitle: "每面各一張照片",
-      psFacesHint: "先選面，再決定這一面的照片",
+      psFacesHint: "一次選多張會從第1面依序填入。點某一面即可調整裁切",
+      psPickMany: "批次選擇照片",
+      psBatchNote: "已加入照片。點某一面可調整裁切",
       psApplyFace: "用於這一面",
       psDeleteFace: "刪除這一面",
       psDone: "完成",
@@ -178,7 +186,9 @@
       psPrivacyShort: "고른 사진은 이 기기 안에만 저장되며 어디로도 전송되지 않습니다.",
       shopMarkOriginal6: "오리지널×6",
       psFacesTitle: "면마다 사진 한 장",
-      psFacesHint: "면을 고른 뒤 그 면의 사진을 정합니다",
+      psFacesHint: "여러 장을 한 번에 고르면 1번 면부터 채워집니다. 면을 누르면 자르기를 고칠 수 있습니다",
+      psPickMany: "사진 여러 장 고르기",
+      psBatchNote: "사진을 넣었습니다. 면을 누르면 자르기를 고칠 수 있습니다",
       psApplyFace: "이 면에 쓰기",
       psDeleteFace: "이 면 사진 지우기",
       psDone: "닫기",
@@ -205,7 +215,9 @@
       psPrivacyShort: "Tu foto se guarda solo en este dispositivo y no se envía a ningún sitio.",
       shopMarkOriginal6: "Original ×6",
       psFacesTitle: "Una foto por cara",
-      psFacesHint: "Elige una cara y luego su foto",
+      psFacesHint: "Si eliges varias a la vez, se colocan desde la cara 1. Toca una cara para ajustar el recorte",
+      psPickMany: "Elegir varias fotos",
+      psBatchNote: "Fotos añadidas. Toca una cara para ajustar el recorte",
       psApplyFace: "Usar en esta cara",
       psDeleteFace: "Quitar esta cara",
       psDone: "Listo",
@@ -232,7 +244,9 @@
       psPrivacyShort: "Foto yang dipilih hanya disimpan di perangkat ini dan tidak dikirim ke mana pun.",
       shopMarkOriginal6: "Original ×6",
       psFacesTitle: "Satu foto tiap sisi",
-      psFacesHint: "Pilih sisinya dulu, lalu tentukan fotonya",
+      psFacesHint: "Pilih beberapa sekaligus dan terisi dari sisi 1. Ketuk sebuah sisi untuk mengatur potongannya",
+      psPickMany: "Pilih beberapa foto",
+      psBatchNote: "Foto ditambahkan. Ketuk sebuah sisi untuk mengatur potongannya",
       psApplyFace: "Pakai untuk sisi ini",
       psDeleteFace: "Hapus sisi ini",
       psDone: "Selesai",
@@ -259,7 +273,9 @@
       psPrivacyShort: "Выбранное фото хранится только на этом устройстве и никуда не отправляется.",
       shopMarkOriginal6: "Своя ×6",
       psFacesTitle: "По фото на каждую грань",
-      psFacesHint: "Выберите грань, затем её фото",
+      psFacesHint: "Выберите сразу несколько — они заполнят грани с первой. Нажмите на грань, чтобы поправить обрезку",
+      psPickMany: "Выбрать несколько фото",
+      psBatchNote: "Фото добавлены. Нажмите на грань, чтобы поправить обрезку",
       psApplyFace: "Взять для этой грани",
       psDeleteFace: "Убрать с этой грани",
       psDone: "Готово",
@@ -286,7 +302,9 @@
       psPrivacyShort: "Sua foto fica guardada só neste aparelho e não é enviada para lugar nenhum.",
       shopMarkOriginal6: "Original ×6",
       psFacesTitle: "Uma foto por face",
-      psFacesHint: "Escolha a face e depois a foto dela",
+      psFacesHint: "Escolha várias de uma vez e elas entram a partir da face 1. Toque numa face para ajustar o recorte",
+      psPickMany: "Escolher várias fotos",
+      psBatchNote: "Fotos adicionadas. Toque numa face para ajustar o recorte",
       psApplyFace: "Usar nesta face",
       psDeleteFace: "Remover esta face",
       psDone: "Pronto",
@@ -658,14 +676,81 @@
     next.src = src;
   }
 
+  function readFile(f) {
+    return new Promise(function (res, rej) {
+      const fr = new FileReader();
+      fr.onload = function () { res(String(fr.result)); };
+      fr.onerror = rej;
+      fr.readAsDataURL(f);
+    });
+  }
+  function loadImage(src) {
+    return new Promise(function (res, rej) {
+      const im = new Image();
+      im.onload = function () { res(im); };
+      im.onerror = rej;
+      im.src = src;
+    });
+  }
+
+  /* まとめて選んだぶんは、1枚ずつ指で切り抜いてもらうわけにいかないので、
+     まん中を正方形に取る。あとから面を押せば、その面だけ切り抜き直せる。 */
+  function centerBake(im) {
+    const size = Math.min(im.naturalWidth, im.naturalHeight);
+    const cv = document.createElement('canvas');
+    cv.width = cv.height = OUT_SIZE;
+    const ctx = cv.getContext('2d');
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(im, (im.naturalWidth - size) / 2, (im.naturalHeight - size) / 2,
+                  size, size, 0, 0, OUT_SIZE, OUT_SIZE);
+    return cv.toDataURL('image/jpeg', JPEG_Q);
+  }
+
+  /* 何枚まとめて選ばれても、面の数だけ受け取る。
+     2枚以上なら1面目から順に、1枚だけならいま選んでいる面に入れる
+     （「6枚選んだのに3面目から入る」といった当てられ方をしないように）。 */
+  async function takeMany(files) {
+    const n = facesOf(slot);
+    const list = Array.prototype.slice.call(files, 0, n);
+    const start = list.length > 1 ? 0 : face;
+    const id = slot;
+    let bad = 0;
+
+    el.pick.disabled = true;
+    for (let k = 0; k < list.length; k++) {
+      if (slot !== id) return;              // 途中で閉じられた
+      const at = (start + k) % n;
+      try {
+        const im = await loadImage(await readFile(list[k]));
+        if (!put(id, at, centerBake(im))) { notify(T('psSaveFail'), 'warn'); break; }
+        savedAny = true;
+      } catch (err) { bad++; }
+      paintFaces();
+    }
+    el.pick.disabled = false;
+    if (slot !== id) return;
+
+    if (bad) notify(T('psReadFail'), 'warn');
+    if (savedAny) {
+      if (typeof hooks.onSave === 'function') hooks.onSave(get(id));
+      notify(T('psBatchNote'), 'good');
+    }
+    selectFace(start);
+  }
+
   function onFile(e) {
-    const f = e.target.files && e.target.files[0];
-    e.target.value = '';                    // 同じ写真をもう一度選べるように
-    if (!f) return;
-    const fr = new FileReader();
-    fr.onload = function () { loadInto(String(fr.result), false); };
-    fr.onerror = function () { notify(T('psReadFail'), 'warn'); };
-    fr.readAsDataURL(f);
+    const files = e.target.files;
+    const many = files && files.length > 1 && facesOf(slot) > 1;
+    // 同じ写真をもう一度選べるように、読む前に入力欄を空にする
+    // （files への参照はこのあとも生きている）。
+    const list = files ? Array.prototype.slice.call(files) : [];
+    e.target.value = '';
+    if (!list.length) return;
+    if (many) { takeMany(list); return; }
+    // 1枚だけなら、これまでどおり指で切り抜いてもらう。
+    readFile(list[0])
+      .then(function (url) { loadInto(url, false); })
+      .catch(function () { notify(T('psReadFail'), 'warn'); });
   }
 
   /* ============================================================
@@ -797,7 +882,7 @@
     el.apply.disabled = !ready;
     el.apply.setAttribute('aria-disabled', ready ? 'false' : 'true');
     el.apply.style.opacity = ready ? '' : '.45';
-    el.pick.textContent = ready ? T('psChange') : T('psPick');
+    el.pick.textContent = multi ? T('psPickMany') : (ready ? T('psChange') : T('psPick'));
     el.apply.textContent = T(multi ? 'psApplyFace' : 'psApply');
     el.del.textContent  = T(multi ? 'psDeleteFace' : 'psDelete');
     el.cancel.textContent = T(multi ? 'psDone' : 'psCancel');
@@ -831,6 +916,9 @@
     const all = getAll(id);
     face = 0;
     for (let i = 0; i < all.length; i++) { if (!all[i]) { face = i; break; } }
+    // 6面ぶんの枠のときだけ、写真をまとめて選べるようにする。
+    if (facesOf(id) > 1) el.file.setAttribute('multiple', '');
+    else el.file.removeAttribute('multiple');
     paintText();
     paintFaces();
     selectFace(face);
