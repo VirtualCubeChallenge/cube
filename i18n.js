@@ -4079,3 +4079,28 @@
     });
   });
 })();
+
+/* ============================================================
+   タイマー一時停止（左上のタイムをタップ／アプリを離れたとき）
+   既存の辞書は書き換えず、まだ無いキーだけを足すいつもの方式。
+   ============================================================ */
+(function () {
+  if (typeof I18N === 'undefined') return;
+  var PAUSE_I18N = {
+    ja:      { pauseTitle: 'タイマーストップ中',   pauseResume: '続ける' },
+    en:      { pauseTitle: 'Timer paused',         pauseResume: 'Resume' },
+    'zh-CN': { pauseTitle: '计时已暂停',           pauseResume: '继续' },
+    'zh-TW': { pauseTitle: '計時已暫停',           pauseResume: '繼續' },
+    ko:      { pauseTitle: '타이머 일시정지',      pauseResume: '계속하기' },
+    es:      { pauseTitle: 'Cronómetro en pausa',  pauseResume: 'Continuar' },
+    id:      { pauseTitle: 'Timer dijeda',         pauseResume: 'Lanjutkan' },
+    ru:      { pauseTitle: 'Таймер на паузе',      pauseResume: 'Продолжить' },
+    'pt-BR': { pauseTitle: 'Cronômetro pausado',   pauseResume: 'Continuar' }
+  };
+  Object.keys(PAUSE_I18N).forEach(function (lang) {
+    if (!I18N[lang]) I18N[lang] = {};
+    Object.keys(PAUSE_I18N[lang]).forEach(function (k) {
+      if (I18N[lang][k] === undefined) I18N[lang][k] = PAUSE_I18N[lang][k];
+    });
+  });
+})();
