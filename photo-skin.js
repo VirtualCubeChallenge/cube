@@ -631,6 +631,13 @@
 
     '.ps-file{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}',
 
+    /* hidden 属性を確実に効かせる。
+       .psg-agree{display:flex} や .ps-btn{display:flex} のように
+       display を自分で指定した要素は、hidden の既定値(display:none)を
+       打ち消してしまう。JS で hidden にしても消えない事故が起きるので、
+       この1行で押さえておく。 */
+    '#photo-skin-overlay [hidden],#photo-skin-guide-overlay [hidden]{display:none !important}',
+
     /* --- 「オリジナルスキンについて」の説明画面 --- */
     '#photo-skin-guide-overlay{position:fixed;inset:0;z-index:10210;display:none;',
     '  align-items:center;justify-content:center;padding:14px;',

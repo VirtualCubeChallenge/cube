@@ -1525,7 +1525,7 @@
        これまでの showSolvedMark がそのまま担当する。文言(9言語)とCSSも
        自前で持つので、i18n.js と style.css は無改変。
        写真はこの端末の中だけに保存され、どこへも送らない。 -->
-  <script src="photo-skin.js?v=20260824i"></script>
+  <script src="photo-skin.js?v=20260824k"></script>
   <script>
     /* ============================================================
        お問い合わせフォーム（Googleフォーム）のURL
@@ -12611,6 +12611,48 @@ const Shop = (function () {
     }
   }
 
+  /* 獲得演出を「引っかからせずに」始めるための下ごしらえ。
+
+     演出は開いた直後の数フレームがいちばん忙しい（暗転・光の柱・
+     粒の生成が同時に走る）。そこへ絵の展開が重なると、必ずそこで
+     引っかかる。とくにオリジナルは 512px の JPEG をデータURLのまま
+     6面に貼るので、展開の重さがそのままカクつきになって出ていた。
+     decode() で先に展開だけ済ませてから幕を開ける。 */
+  function preloadArt(src) {
+    return new Promise((done) => {
+      if (!src) { done(); return; }
+      const im = new Image();
+      const go = () => done();
+      im.onload = function () {
+        // decode() があれば、描ける状態になるまで待てる。
+        if (im.decode) im.decode().then(go, go); else go();
+      };
+      im.onerror = go;                 // 読めなくても演出は止めない
+      im.src = src;
+      setTimeout(go, 1200);            // 念のための打ち切り
+    });
+  }
+
+  /* 演出のあいだ、裏でショップを組み直さない。
+     カードの作り直しは同じ絵をもう一度並べる作業なので、演出の最中に
+     やると取り合いになる。幕が下りてからまとめて片付ける。 */
+  function playGetFX(mark, art, after) {
+    const finish = () => { if (typeof after === 'function') after(); };
+    if (typeof window.playSkinGetAnimation !== 'function') { finish(); return; }
+    preloadArt(art).then(() => new Promise((go) => {
+      // 直前に閉じた画面（切り抜き画面や確認）のフェードが終わるのを待つ。
+      // 幕が2枚重なって動いている最中に演出を始めると、その分だけ
+      // 最初のひと呼吸が重くなる。
+      setTimeout(go, 220);
+    })).then(() => {
+      let p = null;
+      try { p = window.playSkinGetAnimation({ name: markLabel(mark), img: art }); }
+      catch (err) { finish(); return; }
+      if (p && typeof p.then === 'function') p.then(finish, finish);
+      else finish();
+    });
+  }
+
   function buyMark(mark) {
     if (ownedMarks.indexOf(mark.id) !== -1) return;
     if (balance(mark.cur) < mark.cost) {
@@ -12621,20 +12663,23 @@ const Shop = (function () {
     spend(mark.cur, mark.cost);
     ownedMarks.push(mark.id);
     applyMark(mark.id);
-    render();
+    saveState();
 
     // スキンは「絵」が主役なので、トーストではなく獲得演出で見せる。
     // 演出が読み込めていない場合だけ、これまでどおりトーストに落とす。
-    if (typeof window.playSkinGetAnimation === 'function') {
-      window.playSkinGetAnimation({ name: markLabel(mark), img: mark.img || mark.thumb });
-    } else {
+    if (typeof window.playSkinGetAnimation !== 'function') {
+      render();
       toast(t('shopGot', { name: markLabel(mark) }), 'good');
+      return;
     }
-    const el = markGridEl && markGridEl.querySelector('[data-id="' + mark.id + '"]');
-    if (el && !reduced()) {
-      el.classList.add('just-got');
-      setTimeout(() => el.classList.remove('just-got'), 900);
-    }
+    playGetFX(mark, mark.img || mark.thumb, function () {
+      render();
+      const el = markGridEl && markGridEl.querySelector('[data-id="' + mark.id + '"]');
+      if (el && !reduced()) {
+        el.classList.add('just-got');
+        setTimeout(() => el.classList.remove('just-got'), 900);
+      }
+    });
   }
 
   // 色のカードとまったく同じ考え方：持っているなら付け替えるだけ、
@@ -12648,12 +12693,12 @@ const Shop = (function () {
     PhotoSkin.open(mark.id, {
       onSave: function (dataUrl) {
         applyMark(mark.id);
-        render();
         // 買ったその場で決まった1枚は、他のスキンと同じ獲得演出で見せる
         // （自分の写真がキューブになって出てくる）。
         if (justBought && typeof window.playSkinGetAnimation === 'function') {
-          window.playSkinGetAnimation({ name: markLabel(mark), img: dataUrl });
+          playGetFX(mark, dataUrl, function () { render(); });
         } else {
+          render();
           toast(t('psSaved'), 'good');
         }
       },
