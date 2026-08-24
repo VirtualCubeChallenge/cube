@@ -1522,7 +1522,7 @@
        これまでの showSolvedMark がそのまま担当する。文言(9言語)とCSSも
        自前で持つので、i18n.js と style.css は無改変。
        写真はこの端末の中だけに保存され、どこへも送らない。 -->
-  <script src="photo-skin.js?v=20260824c"></script>
+  <script src="photo-skin.js?v=20260824d"></script>
   <!-- 大きな定数テーブルは index.html から切り出してある。どちらもトップレベルで
        const を宣言しているだけなので、このあとのスクリプトから普通に参照できる。 -->
   <script src="solver.js?v=20260818a"></script>
@@ -6888,7 +6888,7 @@
             const text = noticeText(item);
             if (!text) return '';
             // guide付きの項目だけ「詳細→」を出す。押した先の説明画面は
-            // guideの値ごとに用意する(いまは 'home-screen' の1種類のみ)。
+            // guideの値ごとに用意する('home-screen' と 'photo-skin')。
             const detailBtn = item.guide
               ? '<button type="button" class="notice-detail-btn" data-guide="' + item.guide + '">' +
                 t('noticeDetailBtn') + ' →</button>'
@@ -6917,6 +6917,9 @@
       if (!btn) return;
       const guide = btn.dataset.guide;
       if (guide === 'home-screen') openHomeScreenGuide(btn);
+      // オリジナルスキンの権利まわりの説明。画面そのものは
+      // photo-skin.js が持っている（読み込んでいなければ何も起きない）。
+      else if (guide === 'photo-skin' && window.PhotoSkin) PhotoSkin.openGuide();
     });
 
     if (noticeBtn) menuAction(noticeBtn, openNotice);

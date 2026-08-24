@@ -75,6 +75,12 @@
       psApplyFace: "この面にする",
       psDeleteFace: "この面の写真を消す",
       psDone: "閉じる",
+      psRights: "他人が写っている写真、有名人の画像、他の人が作った絵やロゴは、公開・投稿しないでください。",
+      psGuideTitle: "オリジナルスキンについて",
+      psGuideP1: "写真はお使いの端末内にのみ保存され、どこへも送信されません。",
+      psGuideP2: "使う写真の権利はご自身でご確認ください。他人が写っている写真、有名人の画像、他の人が作った絵・キャラクター・ロゴを使った画面を、SNSなどに公開・投稿しないでください。",
+      psGuideP3: "ご自身で撮った写真や、権利をお持ちの画像のご利用をおすすめします。",
+      psGuideClose: "閉じる",
       psZoom: '大きさ'
     },
     en: {
@@ -103,6 +109,12 @@
       psApplyFace: "Use for this face",
       psDeleteFace: "Remove this face",
       psDone: "Done",
+      psRights: "Please don't publish or post photos of other people, images of celebrities, or artwork and logos made by someone else.",
+      psGuideTitle: "About Original skins",
+      psGuideP1: "Photos are stored only on your device and are never sent anywhere.",
+      psGuideP2: "Please make sure you have the rights to the photos you use. Don't publish or post screens made with photos of other people, images of celebrities, or artwork, characters, or logos created by someone else.",
+      psGuideP3: "We recommend using photos you took yourself, or images you hold the rights to.",
+      psGuideClose: "Close",
       psZoom: 'Size'
     },
     'zh-CN': {
@@ -131,6 +143,12 @@
       psApplyFace: "用于这一面",
       psDeleteFace: "删除这一面",
       psDone: "完成",
+      psRights: "请勿公开或发布含有他人、名人形象，或他人创作的图画与标志的画面。",
+      psGuideTitle: "关于原创皮肤",
+      psGuideP1: "照片仅保存在您的设备中，不会被发送到任何地方。",
+      psGuideP2: "请自行确认所用照片的权利。请勿将含有他人、名人形象，或他人创作的图画、角色、标志的画面公开或发布到社交网络等。",
+      psGuideP3: "建议使用您自己拍摄的照片，或您拥有权利的图片。",
+      psGuideClose: "关闭",
       psZoom: '大小'
     },
     'zh-TW': {
@@ -159,6 +177,12 @@
       psApplyFace: "用於這一面",
       psDeleteFace: "刪除這一面",
       psDone: "完成",
+      psRights: "請勿公開或發布含有他人、名人形象，或他人創作的圖畫與標誌的畫面。",
+      psGuideTitle: "關於原創外觀",
+      psGuideP1: "照片僅儲存在您的裝置中，不會被傳送到任何地方。",
+      psGuideP2: "請自行確認所用照片的權利。請勿將含有他人、名人形象，或他人創作的圖畫、角色、標誌的畫面公開或發布到社群網站等。",
+      psGuideP3: "建議使用您自己拍攝的照片，或您擁有權利的圖片。",
+      psGuideClose: "關閉",
       psZoom: '大小'
     },
     ko: {
@@ -187,6 +211,12 @@
       psApplyFace: "이 면에 쓰기",
       psDeleteFace: "이 면 사진 지우기",
       psDone: "닫기",
+      psRights: "다른 사람이 찍힌 사진, 유명인의 이미지, 다른 사람이 만든 그림이나 로고는 공개·게시하지 말아 주세요.",
+      psGuideTitle: "오리지널 스킨에 대하여",
+      psGuideP1: "사진은 사용 중인 기기 안에만 저장되며 어디로도 전송되지 않습니다.",
+      psGuideP2: "사용하는 사진의 권리는 직접 확인해 주세요. 다른 사람이 찍힌 사진, 유명인의 이미지, 다른 사람이 만든 그림·캐릭터·로고를 사용한 화면을 SNS 등에 공개·게시하지 말아 주세요.",
+      psGuideP3: "직접 찍은 사진이나 권리를 가진 이미지의 사용을 권장합니다.",
+      psGuideClose: "닫기",
       psZoom: '크기'
     },
     es: {
@@ -215,6 +245,12 @@
       psApplyFace: "Usar en esta cara",
       psDeleteFace: "Quitar esta cara",
       psDone: "Listo",
+      psRights: "No publiques fotos de otras personas, imágenes de famosos, ni dibujos o logotipos creados por otros.",
+      psGuideTitle: "Sobre las skins Original",
+      psGuideP1: "Las fotos se guardan solo en tu dispositivo y no se envían a ningún sitio.",
+      psGuideP2: "Comprueba que tienes los derechos de las fotos que uses. No publiques pantallas hechas con fotos de otras personas, imágenes de famosos, ni dibujos, personajes o logotipos creados por otros.",
+      psGuideP3: "Te recomendamos usar fotos hechas por ti o imágenes cuyos derechos poseas.",
+      psGuideClose: "Cerrar",
       psZoom: 'Tamaño'
     },
     id: {
@@ -243,6 +279,12 @@
       psApplyFace: "Pakai untuk sisi ini",
       psDeleteFace: "Hapus sisi ini",
       psDone: "Selesai",
+      psRights: "Mohon jangan membagikan foto orang lain, gambar selebritas, atau ilustrasi dan logo buatan orang lain.",
+      psGuideTitle: "Tentang skin Original",
+      psGuideP1: "Foto hanya disimpan di perangkatmu dan tidak dikirim ke mana pun.",
+      psGuideP2: "Pastikan kamu memiliki hak atas foto yang dipakai. Jangan membagikan tampilan yang memuat foto orang lain, gambar selebritas, atau ilustrasi, karakter, dan logo buatan orang lain.",
+      psGuideP3: "Sebaiknya gunakan foto hasil jepretanmu sendiri atau gambar yang hakmu.",
+      psGuideClose: "Tutup",
       psZoom: 'Ukuran'
     },
     ru: {
@@ -271,6 +313,12 @@
       psApplyFace: "Взять для этой грани",
       psDeleteFace: "Убрать с этой грани",
       psDone: "Готово",
+      psRights: "Пожалуйста, не публикуйте фото других людей, изображения знаменитостей, а также рисунки и логотипы, созданные другими.",
+      psGuideTitle: "О скинах «Своя»",
+      psGuideP1: "Фотографии хранятся только на вашем устройстве и никуда не отправляются.",
+      psGuideP2: "Убедитесь, что у вас есть права на используемые фото. Не публикуйте экраны с фотографиями других людей, изображениями знаменитостей, а также с рисунками, персонажами и логотипами, созданными другими.",
+      psGuideP3: "Рекомендуем использовать свои снимки или изображения, права на которые принадлежат вам.",
+      psGuideClose: "Закрыть",
       psZoom: 'Размер'
     },
     'pt-BR': {
@@ -299,6 +347,12 @@
       psApplyFace: "Usar nesta face",
       psDeleteFace: "Remover esta face",
       psDone: "Pronto",
+      psRights: "Por favor, não publique fotos de outras pessoas, imagens de celebridades, nem desenhos e logotipos feitos por outros.",
+      psGuideTitle: "Sobre as skins Original",
+      psGuideP1: "As fotos ficam guardadas só no seu aparelho e não são enviadas para lugar nenhum.",
+      psGuideP2: "Confirme que você tem os direitos das fotos que usar. Não publique telas feitas com fotos de outras pessoas, imagens de celebridades, nem desenhos, personagens ou logotipos criados por outros.",
+      psGuideP3: "Recomendamos usar fotos tiradas por você ou imagens cujos direitos sejam seus.",
+      psGuideClose: "Fechar",
       psZoom: 'Tamanho'
     }
   };
@@ -412,6 +466,10 @@
     '.ps-privacy{margin:0 0 10px;padding:8px 10px;border-radius:10px;',
     '  background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07);',
     '  font-size:11.5px;line-height:1.5;color:#b6b6c4}',
+    /* 権利の注意。安心させる🔒の行とは役割が違うので、間に線を1本
+       引いて「別の話」だと分かるようにしてある。 */
+    '.ps-rights{display:block;margin-top:7px;padding-top:7px;',
+    '  border-top:1px solid rgba(255,255,255,.07);color:#9a9aa8}',
     '.ps-hint{margin:8px 0 0;font-size:11.5px;line-height:1.5;',
     '  color:#8e8e9c;text-align:center}',
 
@@ -492,6 +550,16 @@
 
     '.ps-file{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}',
 
+    /* --- 「オリジナルスキンについて」の説明画面 --- */
+    '#photo-skin-guide-overlay{position:fixed;inset:0;z-index:10210;display:none;',
+    '  align-items:center;justify-content:center;padding:14px;',
+    '  background:rgba(8,8,11,.9);opacity:0;transition:opacity .2s ease}',
+    '#photo-skin-guide-overlay.show{display:flex}',
+    '#photo-skin-guide-overlay.show-visible{opacity:1}',
+    '.psg-panel{padding:16px 16px 18px}',
+    '.psg-p{margin:0 0 11px;font-size:13px;line-height:1.75;color:#c6c6d2}',
+    '.psg-p:last-of-type{margin-bottom:2px}',
+
     /* --- ショップのカードに付ける ✎ --- */
     '.shop-card.is-photo{position:relative}',
     '.shop-photo-edit{position:absolute;top:6px;right:6px;width:26px;height:26px;',
@@ -532,7 +600,10 @@
           '<h2 class="ps-title" data-ps="title"></h2>' +
           '<button class="ps-x ui-pressable" data-ps="close" aria-label="✕">✕</button>' +
         '</div>' +
-        '<p class="ps-privacy" data-ps="privacy"></p>' +
+        '<div class="ps-privacy">' +
+          '<span data-ps="privacy"></span>' +
+          '<span class="ps-rights" data-ps="rights"></span>' +
+        '</div>' +
         '<div class="ps-faces-head">' +
           '<span class="ps-faces-title" data-ps="facesTitle"></span>' +
           '<span class="ps-faces-count" data-ps="facesCount"></span>' +
@@ -565,7 +636,7 @@
     el = {
       overlay: ov, panel: ov.querySelector('.ps-panel'),
       title: q('title'), hint: q('hint'), empty: q('empty'), sep: q('sep'),
-      privacy: q('privacy'),
+      privacy: q('privacy'), rights: q('rights'),
       faces: q('faces'), facesTitle: q('facesTitle'), facesCount: q('facesCount'),
       stage: q('stage'), img: q('img'), zoom: q('zoom'), zoomLabel: q('zoomLabel'),
       pick: q('pick'), apply: q('apply'), cancel: q('cancel'),
@@ -923,6 +994,7 @@
   function paintText() {
     el.title.textContent = T('psTitle');
     el.privacy.textContent = T('psPrivacy');
+    el.rights.textContent = T('psRights');
     el.empty.textContent = T('psPick');
     el.facesTitle.textContent = T('psFacesTitle');
     el.hint.textContent = facesOf(slot) > 1 ? T('psFacesHint') : T('psHint');
@@ -1018,6 +1090,65 @@
   }
 
   /* ============================================================
+     「オリジナルスキンについて」— お知らせの［詳細→］から開く画面
+     ------------------------------------------------------------
+     切り抜き画面に全部書くと読まれないので、短い一行だけをその場に
+     置き、詳しい話はここへ分けた。お知らせ(#notice-overlay)の上に
+     出るので、重なり順は切り抜き画面よりさらに前にしてある。
+     ============================================================ */
+  let guideEl = null;
+
+  function buildGuide() {
+    if (guideEl) return guideEl;
+    injectCSS();
+    const ov = document.createElement('div');
+    ov.id = 'photo-skin-guide-overlay';
+    ov.setAttribute('role', 'dialog');
+    ov.setAttribute('aria-modal', 'true');
+    ov.innerHTML =
+      '<div class="ps-panel psg-panel">' +
+        '<div class="ps-head">' +
+          '<h2 class="ps-title" data-psg="title"></h2>' +
+          '<button class="ps-x ui-pressable" data-psg="x" aria-label="✕">✕</button>' +
+        '</div>' +
+        '<p class="psg-p" data-psg="p1"></p>' +
+        '<p class="psg-p" data-psg="p2"></p>' +
+        '<p class="psg-p" data-psg="p3"></p>' +
+        '<div class="ps-actions">' +
+          '<button class="ps-btn ps-btn-ghost ui-pressable" data-psg="close"></button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(ov);
+
+    const q = (n) => ov.querySelector('[data-psg="' + n + '"]');
+    guideEl = { overlay: ov, title: q('title'), p1: q('p1'), p2: q('p2'), p3: q('p3'),
+                x: q('x'), close: q('close') };
+
+    const shut = function () {
+      ov.classList.remove('show-visible');
+      setTimeout(function () { ov.classList.remove('show'); }, 200);
+    };
+    guideEl.x.addEventListener('click', shut);
+    guideEl.close.addEventListener('click', shut);
+    ov.addEventListener('click', function (e) { if (e.target === ov) shut(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && ov.classList.contains('show')) shut();
+    });
+    return guideEl;
+  }
+
+  function openGuide() {
+    const g = buildGuide();
+    g.title.textContent = T('psGuideTitle');
+    g.p1.textContent = T('psGuideP1');
+    g.p2.textContent = T('psGuideP2');
+    g.p3.textContent = T('psGuideP3');
+    g.close.textContent = T('psGuideClose');
+    g.overlay.classList.add('show');
+    requestAnimationFrame(() => g.overlay.classList.add('show-visible'));
+  }
+
+  /* ============================================================
      外向きの入口
      ============================================================ */
   // 画面は開かれる前に組み立てておく。index.html 側は起動時に一度だけ
@@ -1036,6 +1167,7 @@
     has: function (id) { return !!get(id); },
     open: open,
     close: close,
+    openGuide: openGuide,     // お知らせの［詳細→］から呼ばれる
     remove: drop
   };
 })(window);
