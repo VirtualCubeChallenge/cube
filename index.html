@@ -585,6 +585,9 @@
       </div>
       <div class="settings-footer-row">
         <button class="settings-footer-link" id="open-transfer-btn" data-i18n="transferLink">データの引き継ぎ<span class="settings-footer-arrow">›</span></button>
+        <!-- お問い合わせ。URL(window.CONTACT_FORM_URL)が空のあいだは
+             JS 側で丸ごと隠すので、貼るまでは何も出ない。 -->
+        <button class="settings-footer-link" id="open-contact-btn" data-i18n="psContactLink" hidden>お問い合わせ<span class="settings-footer-arrow">›</span></button>
       </div>
       </div>
     </div>
@@ -1517,6 +1520,24 @@
        キューブに触れた瞬間に光は引き、待ち時間も測り直す。
        この1行を外せば、ヘルプは元どおり「お手本パネルだけ」に戻る。 -->
   <script src="help-glow.js?v=20260823f"></script>
+  <!-- 「オリジナル」キューブスキン。写真をしまう場所（localStorage）と、
+       指で位置と大きさを決める切り抜き画面だけを持つ。面に貼るところは
+       これまでの showSolvedMark がそのまま担当する。文言(9言語)とCSSも
+       自前で持つので、i18n.js と style.css は無改変。
+       写真はこの端末の中だけに保存され、どこへも送らない。 -->
+  <script src="photo-skin.js?v=20260824k"></script>
+  <script>
+    /* ============================================================
+       お問い合わせフォーム（Googleフォーム）のURL
+       ------------------------------------------------------------
+       いまはメールを直接ひらく設定。Formspree の送り先URLを
+       contact.html に貼り終えたら、ここを 'contact.html' に変える。
+       それだけで、設定のいちばん下と「オリジナルスキンについて」の
+       両方に［お問い合わせ］が出る。外部サービスのURLでも動く。
+       空のあいだは、その行ごと出ない（リンク切れを見せないため）。
+       ============================================================ */
+    window.CONTACT_FORM_URL = 'mailto:virtualcubechallenge@gmail.com';
+  </script>
   <!-- 大きな定数テーブルは index.html から切り出してある。どちらもトップレベルで
        const を宣言しているだけなので、このあとのスクリプトから普通に参照できる。 -->
   <script src="solver.js?v=20260818a"></script>
@@ -3637,6 +3658,28 @@
        データの引き継ぎ（設定 → データの引き継ぎ）
        ------------------------------------------------------------ */
     (function setupTransferUI() {
+      /* お問い合わせ（Googleフォーム）。URL が入っているときだけ出す。
+         写真は端末から出ないので、こちらで消せるものは無い。それでも
+         窓口を置くのは、行き場のない苦情がホスティング先へ直行するのを
+         避けるため（受け取れる先が1つあるだけで話が早い）。 */
+      const contactBtn = document.getElementById('open-contact-btn');
+      if (contactBtn) {
+        const contactUrl = window.CONTACT_FORM_URL;
+        if (contactUrl) {
+          contactBtn.hidden = false;
+          contactBtn.addEventListener('click', () => {
+            // 同じサイトの中のページなら同じタブで開く。ホーム画面から
+            // 起動している状態で別タブにすると、アプリの外へ飛び出して
+            // 戻り方が分からなくなるため。
+            if (/^https?:/i.test(contactUrl)) {
+              window.open(contactUrl, '_blank', 'noopener,noreferrer');
+            } else {
+              window.location.href = contactUrl;
+            }
+          });
+        }
+      }
+
       const openBtn = document.getElementById('open-transfer-btn');
       const overlay = document.getElementById('transfer-overlay');
       const backBtn = document.getElementById('transfer-back-btn');
@@ -6882,7 +6925,7 @@
             const text = noticeText(item);
             if (!text) return '';
             // guide付きの項目だけ「詳細→」を出す。押した先の説明画面は
-            // guideの値ごとに用意する(いまは 'home-screen' の1種類のみ)。
+            // guideの値ごとに用意する('home-screen' と 'photo-skin')。
             const detailBtn = item.guide
               ? '<button type="button" class="notice-detail-btn" data-guide="' + item.guide + '">' +
                 t('noticeDetailBtn') + ' →</button>'
@@ -6911,6 +6954,9 @@
       if (!btn) return;
       const guide = btn.dataset.guide;
       if (guide === 'home-screen') openHomeScreenGuide(btn);
+      // オリジナルスキンの権利まわりの説明。画面そのものは
+      // photo-skin.js が持っている（読み込んでいなければ何も起きない）。
+      else if (guide === 'photo-skin' && window.PhotoSkin) PhotoSkin.openGuide();
     });
 
     if (noticeBtn) menuAction(noticeBtn, openNotice);
@@ -7898,11 +7944,10 @@ const PLL_DATA = {
        ・状態を var で持つのは、この下で定義される関数(executeTurn など)が
          ファイルの上のほうから先に呼ばれても TDZ で落ちないようにするため。 */
     var markGroups = [];       // 6面ぶんの入れ物 { group, n }（cubeGroup の子）
-    var markMats   = [];       // 9マスぶんのマテリアル（6面で使い回す）
-    var markGeom   = null;     // 板1枚ぶんの形（54枚で使い回す）
-    var markImg    = null;     // 写真そのもの（1枚だけ読み込んで使い回す）
-    var markImgUrl = null;
-    var markImgReady = false;
+    var markMats   = [];       // 写真1枚につき1つのマテリアル（同じ写真の面は共有）
+    var markGeom   = null;     // 1面ぶんの板の形（6面で使い回す）
+    var markImgs   = [];       // 6面ぶんの写真（同じ写真なら同じ Image が並ぶ）
+    var markImgKey = '';       // いま読み込んである写真の並び（読み直しの判定用）
     var markFadeRAF = null;
 
     function hideSolvedMark() {
@@ -7975,20 +8020,66 @@ const PLL_DATA = {
       }
     }
 
-    // 写真は1枚だけ読み込んで、54枚の板でテクスチャを共有する
-    // （THREE.Texture は同じ Image から作れば画像データは1つで済む）。
-    function withMarkImage(url, done) {
-      if (markImgUrl === url && markImgReady) { done(); return; }
-      markImgUrl = url;
-      markImgReady = false;
-      markImg = new Image();
-      markImg.onload = function () { markImgReady = true; done(); };
-      markImg.onerror = function () { markImgReady = false; };
-      markImg.src = url;
+    /* 6面ぶんの写真を読む。
+       「オリジナル」(1枚を6面に貼る)なら同じURLが6つ並ぶだけで、
+       そのときは Image も1枚しか作らない＝GPUへ送る絵も1枚で済む。
+       「オリジナル×6」なら6枚ぶん。まだ選んでいない面には null が入り、
+       その面には何も貼らない。 */
+    function withMarkImages(urls, done) {
+      const key = urls.map((u) => (u ? u.length + ':' + u.slice(-28) : '-')).join('|');
+      if (key === markImgKey && markImgs.length) { done(); return; }
+
+      const out = new Array(urls.length).fill(null);
+      const seen = {};
+      let pending = 0;
+      let broken = false;
+      const finish = function () {
+        if (broken || pending > 0) return;
+        markImgs = out;
+        markImgKey = key;
+        done();
+      };
+      urls.forEach(function (u, i) {
+        if (!u) return;
+        if (seen[u]) { out[i] = seen[u]; return; }   // 同じ写真は1枚だけ読む
+        const im = new Image();
+        seen[u] = im;
+        out[i] = im;
+        pending++;
+        im.onload  = function () { pending--; finish(); };
+        im.onerror = function () { pending--; broken = true; };
+        im.src = u;
+      });
+      if (pending === 0) finish();
+    }
+
+    /* 1面ぶんの板の形。3x3のマスに分かれた9枚を1つの形にまとめてあり、
+       写真は1枚のテクスチャとして貼る。以前は9枚を別々のメッシュにして
+       テクスチャも9つ作っていたが、同じ写真でもテクスチャの数だけGPUへ
+       送られるので、6面ぶん(=54枚)に増やすと現実的な重さではなくなる。
+       UVは「(i,j)のマスに、写真の(i,j)の切れ端」を割り当てる。 */
+    function makeTiledFaceGeom(tile) {
+      const pos = [], uv = [], idx = [];
+      const h = tile / 2;
+      let v = 0;
+      for (let i = -1; i <= 1; i++) {
+        for (let j = -1; j <= 1; j++) {
+          pos.push(i - h, j - h, 0,  i + h, j - h, 0,  i + h, j + h, 0,  i - h, j + h, 0);
+          const u0 = (i + 1) / 3, v0 = (j + 1) / 3, sp = 1 / 3;
+          uv.push(u0, v0,  u0 + sp, v0,  u0 + sp, v0 + sp,  u0, v0 + sp);
+          idx.push(v, v + 1, v + 2, v, v + 2, v + 3);
+          v += 4;
+        }
+      }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+      g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+      g.setIndex(idx);
+      return g;
     }
 
     function buildSolvedMark() {
-      if (!markImgReady || !markImg) return;
+      if (!markImgs.length) return;
       hideSolvedMark();
 
       // 板の一辺のサイズ。もとは0.9で、板と板のすき間からマスの色が
@@ -7998,31 +8089,8 @@ const PLL_DATA = {
       // 1ぴったりにしないのは、隣の板と厳密に重なるとチラつき
       // (Zファイティング)の恐れがあるため、ごくわずかだけ余白を残す。
       const MARK_TILE_SIZE = 0.998;
-      markGeom = new THREE.PlaneGeometry(MARK_TILE_SIZE, MARK_TILE_SIZE);
-      // まず9マスぶんのマテリアルを作る。写真を3x3に切り分けて、
-      // (i, j) のマスにはその位置の切れ端を割り当てる。
-      const cells = [];
-      for (let i = -1; i <= 1; i++) {
-        for (let j = -1; j <= 1; j++) {
-          const tex = new THREE.Texture(markImg);
-          tex.needsUpdate = true;
-          tex.minFilter = THREE.LinearFilter;   // ミップマップを作らない＝軽い
-          tex.magFilter = THREE.LinearFilter;
-          tex.generateMipmaps = false;
-          tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
-          tex.repeat.set(1 / 3, 1 / 3);
-          tex.offset.set((i + 1) / 3, (j + 1) / 3);
-          const mat = new THREE.MeshBasicMaterial({
-            map: tex,
-            transparent: true,
-            opacity: 0                          // ふわっと出す（下の fade）
-          });
-          markMats.push(mat);
-          cells.push({ i: i, j: j, mat: mat });
-        }
-      }
+      markGeom = makeTiledFaceGeom(MARK_TILE_SIZE);
 
-      // その9枚を、6面それぞれに同じ並びで貼っていく。
       // 板を置く距離は「今のマスの表面」+ 0.012（もともとの隙間つき
       // キューブ(1.47)に対する 1.482 と同じ余白）を、そのつど計算する。
       // キューブカラーの gapSize でマスを拡大縮小(cubieGapScale)している
@@ -8031,24 +8099,49 @@ const PLL_DATA = {
       // なってしまうため。
       const stickerSurface = 1 + (CUBIE_BASE_SIZE * cubieGapScale) / 2;
       const markOffset = stickerSurface + 0.012;
-      WORLD_FACES.forEach((face) => {
+
+      // 同じ写真を使う面どうしは、マテリアル（＝GPUへ送る絵）も1つで
+      // 済ませる。「オリジナル」は6面とも同じ写真なので、ここで1つに
+      // まとまる。「オリジナル×6」は6つになる。
+      const matOf = [];
+      const imgSeen = [];
+      WORLD_FACES.forEach((face, fi) => {
+        const im = markImgs[fi];
+        if (!im) return;                    // その面はまだ写真が無い
+        let mat = null;
+        for (let k = 0; k < imgSeen.length; k++) {
+          if (imgSeen[k] === im) { mat = matOf[k]; break; }
+        }
+        if (!mat) {
+          const tex = new THREE.Texture(im);
+          tex.needsUpdate = true;
+          tex.minFilter = THREE.LinearFilter;   // ミップマップを作らない＝軽い
+          tex.magFilter = THREE.LinearFilter;
+          tex.generateMipmaps = false;
+          tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+          mat = new THREE.MeshBasicMaterial({
+            map: tex,
+            transparent: true,
+            opacity: 0                          // ふわっと出す（下の fade）
+          });
+          imgSeen.push(im);
+          matOf.push(mat);
+          markMats.push(mat);
+        }
         const n = new THREE.Vector3(0, 0, 0);
         n[face.axis] = face.sign;
         const g = new THREE.Group();
         g.position.copy(n).multiplyScalar(markOffset);
-        cells.forEach((c) => {
-          const tile = new THREE.Mesh(markGeom, c.mat);
-          tile.position.set(c.i, c.j, 0);
-          g.add(tile);
-        });
+        g.add(new THREE.Mesh(markGeom, mat));
         cubeGroup.add(g);
         markGroups.push({ group: g, n: n });
       });
+      if (!markGroups.length) { markGeom.dispose(); markGeom = null; return; }
+
       // 板の向き（＝写真の上下）は、いまの持ち方から決める。
       orientMarkGroups();
 
       // 完成演出のフラッシュが引いたあと、0.5秒かけて浮かび上がる。
-      // マテリアルは6面で共有しているので、9個ぶん触れば全面に効く。
       const t0 = performance.now();
       const fade = (now) => {
         if (!markGroups.length) return;
@@ -8066,10 +8159,12 @@ const PLL_DATA = {
       // スイカ(果肉キューブ)を自分で消してしまう。
       if (window.WatermelonFX && WatermelonFX.isEquipped()) return;
       hideSolvedMark();
-      const url = (window.Shop && typeof Shop.getMarkImage === 'function')
-        ? Shop.getMarkImage() : null;
-      if (!url) return;                    // 「なし」なら何も出さない
-      withMarkImage(url, function () {
+      // 6面ぶんの並びで受け取る。1枚を全面に貼るスキンなら同じURLが6つ、
+      // オリジナル×6なら面ごとに別のURL（未設定の面は null）。
+      const urls = (window.Shop && typeof Shop.getMarkImages === 'function')
+        ? Shop.getMarkImages() : null;
+      if (!urls || !urls.some(Boolean)) return;   // 「なし」なら何も出さない
+      withMarkImages(urls, function () {
         // 読み込みを待つあいだにシャッフルされていたら、もう出さない。
         if (gameState === 'solved') buildSolvedMark();
       });
@@ -8484,7 +8579,8 @@ const PLL_DATA = {
       '#welcome-overlay', '#intro-overlay', '#settings-overlay', '#layout-overlay', '#transfer-overlay', '#records-overlay',
       '#stats-overlay', '#shop-overlay', '#gacha-overlay',
       '#oll-overlay', '#pll-overlay', '#zbll-overlay', '#pllt-overlay',
-      '#confirm-overlay', '#pause-overlay', '#lang-overlay', '#orientation-overlay'
+      '#confirm-overlay', '#pause-overlay', '#lang-overlay', '#orientation-overlay',
+      '#photo-skin-overlay'
     ];
 
     /* 【調べ方】以前はこれを150msごとに調べ直していたが、それが
@@ -11985,7 +12081,20 @@ const Shop = (function () {
     { id: 'none', cost: 0,  cur: 'cyan', img: null },
     { id: 'cat',  cost: 50, cur: 'cyan', img: MARK_IMG_CAT },
     { id: 'bird', cost: 50, cur: 'cyan', img: MARK_IMG_BIRD },
-    { id: 'watermelon', cost: 50, cur: 'cyan', img: null, thumb: MARK_IMG_MELON }
+    { id: 'watermelon', cost: 50, cur: 'cyan', img: null, thumb: MARK_IMG_MELON },
+    /* オリジナル。絵は品揃えの表ではなく端末の中(photo-skin.js)にあるので、
+       img は持たず custom:true の印だけを付ける。引き換えるのは「枠」で
+       あって「写真」ではないので、一度引き換えたあとは何度でも無料で
+       写真を選び直せる。
+       この custom:true は「いちばん下に並べる」印も兼ねている（render()
+       が custom を後ろへ回すので、新しいスキンをこの下に足しても
+       オリジナルはいつも最後尾のまま）。 */
+    { id: 'original', cost: 150, cur: 'cyan', img: null, custom: true },
+    /* オリジナル×6。写真を6枚選んで、1面に1枚ずつ貼る。どの写真がどの面に
+       行くかは、キューブ自身の6方向(WORLD_FACES)の並び順そのまま。そろえた
+       ときのキューブの向きは毎回ちがうので、「1枚目が必ず正面」のような
+       固定はしていない。 */
+    { id: 'original6', cost: 500, cur: 'cyan', img: null, custom: true }
   ];
   const MARK_DEFAULT_ID = 'none';
   const MARK_OWNED_KEY  = 'rubiks-cube-shop-marks-owned';
@@ -12113,7 +12222,29 @@ const Shop = (function () {
   // 「なし」のときは null なので、向こうは何も出さない。
   function markImage() {
     const m = markById(equippedMark);
-    return (m && m.img) || null;
+    if (!m) return null;
+    // オリジナルの絵は端末の中にある。引き継ぎコードには写真を含めない
+    // ので、別の端末へ移ったあとは「枠はあるが写真は無い」になりうる。
+    // そのときは null を返して、何も貼らないだけにする。
+    if (m.custom) return (window.PhotoSkin && PhotoSkin.get(m.id)) || null;
+    return m.img || null;
+  }
+
+  // 3D側が本当に欲しいのはこちら。6面ぶんの並びで返す。
+  // 1枚を全面に貼るスキンは、同じURLを6つ並べて渡す（向こうで
+  // 「同じ絵は1枚だけ読む」ようになっている）。
+  function markImages() {
+    const m = markById(equippedMark);
+    if (!m) return null;
+    if (m.custom && window.PhotoSkin) {
+      const all = PhotoSkin.getAll(m.id);
+      if (!all.length) return null;
+      if (all.length >= 6) return all.slice(0, 6);
+      const one = all[0] || null;
+      return one ? [one, one, one, one, one, one] : null;
+    }
+    const url = m.img || null;
+    return url ? [url, url, url, url, url, url] : null;
   }
   function applyMark(id) {
     const mark = markById(id) || markById(MARK_DEFAULT_ID);
@@ -12355,20 +12486,33 @@ const Shop = (function () {
       (!has && !enough ? ' short' : '');
     card.dataset.id = mark.id;
 
+    // オリジナルの枠は、絵が「品揃え」ではなく端末の中にある。
+    const photo = (mark.custom && window.PhotoSkin) ? PhotoSkin.get(mark.id) : null;
+
     let foot;
-    if (on)       foot = '<span class="shop-state on">' + t('shopUsing') + '</span>';
+    if (mark.custom && has && !photo) {
+      // 枠は持っているが、まだ写真を選んでいない
+      foot = '<span class="shop-state">' + t('psPick') + '</span>';
+    }
+    else if (on)  foot = '<span class="shop-state on">' + t('shopUsing') + '</span>';
     else if (has) foot = '<span class="shop-state">' + t('shopMarkEquip') + '</span>';
     else          foot = '<span class="shop-price">' + shardHtml(mark.cur) +
                          fmt(mark.cost) + '</span>';
 
-    const art = mark.img || mark.thumb;   // スイカは thumb だけを持つ
+    const art = photo || mark.img || mark.thumb;   // スイカは thumb だけを持つ
     const swatch = art
       ? '<span class="shop-swatch is-mark" style="--sw:#2f2f3a;background-image:url(' + art + ')"></span>'
       : '<span class="shop-swatch is-mark is-off" style="--sw:#2f2f3a"></span>';
 
+    // 写真の入った枠には ✎ を出す。付け替えと入れ替えは別の操作なので、
+    // 「押すと使う」「✎ を押すと写真を変える」で入口を分けておく。
+    const edit = (mark.custom && has && photo)
+      ? '<span class="shop-photo-edit" aria-hidden="true">✎</span>' : '';
+    if (mark.custom) card.classList.add('is-photo');
+
     card.innerHTML = swatch +
       '<span class="shop-name">' + markLabel(mark) + '</span>' +
-      foot;
+      foot + edit;
     return card;
   }
 
@@ -12421,7 +12565,12 @@ const Shop = (function () {
     THEMES.forEach((theme) => gridEl.appendChild(buildCard(theme)));
     if (markGridEl) {
       markGridEl.innerHTML = '';
-      MARKS.forEach((mark) => markGridEl.appendChild(buildMarkCard(mark)));
+      // オリジナル（自分の写真の枠）は、いつでもいちばん下。品揃えを
+      // 増やすときに MARKS のどこへ足しても位置が崩れないよう、
+      // 並べ替えは描くこの場で済ませてしまう。
+      const ordered = MARKS.filter((m) => !m.custom)
+                           .concat(MARKS.filter((m) => m.custom));
+      ordered.forEach((mark) => markGridEl.appendChild(buildMarkCard(mark)));
     }
     if (schemeGridEl) {
       schemeGridEl.innerHTML = '';
@@ -12462,6 +12611,60 @@ const Shop = (function () {
     }
   }
 
+  /* 獲得演出を「引っかからせずに」始めるための下ごしらえ。
+
+     演出は開いた直後の数フレームがいちばん忙しい（暗転・光の柱・
+     粒の生成が同時に走る）。そこへ絵の展開が重なると、必ずそこで
+     引っかかる。とくにオリジナルは 512px の JPEG をデータURLのまま
+     6面に貼るので、展開の重さがそのままカクつきになって出ていた。
+     decode() で先に展開だけ済ませてから幕を開ける。 */
+  function preloadOne(src) {
+    return new Promise((done) => {
+      if (!src) { done(); return; }
+      const im = new Image();
+      const go = () => done();
+      im.onload = function () {
+        // decode() があれば、描ける状態になるまで待てる。
+        if (im.decode) im.decode().then(go, go); else go();
+      };
+      im.onerror = go;                 // 読めなくても演出は止めない
+      im.src = src;
+      setTimeout(go, 1200);            // 念のための打ち切り
+    });
+  }
+  // 1枚でも、6面ぶんの配列でも受ける。
+  function preloadArt(art) {
+    const list = (Array.isArray(art) ? art : [art]).filter(Boolean);
+    if (!list.length) return Promise.resolve();
+    return Promise.all(list.map(preloadOne));
+  }
+
+  /* 演出のあいだ、裏でショップを組み直さない。
+     カードの作り直しは同じ絵をもう一度並べる作業なので、演出の最中に
+     やると取り合いになる。幕が下りてからまとめて片付ける。 */
+  function playGetFX(mark, art, after) {
+    const finish = () => { if (typeof after === 'function') after(); };
+    if (typeof window.playSkinGetAnimation !== 'function') { finish(); return; }
+    preloadArt(art).then(() => new Promise((go) => {
+      // 直前に閉じた画面（切り抜き画面や確認）のフェードが終わるのを待つ。
+      // 幕が2枚重なって動いている最中に演出を始めると、その分だけ
+      // 最初のひと呼吸が重くなる。
+      setTimeout(go, 220);
+    })).then(() => {
+      let p = null;
+      const many = Array.isArray(art);
+      try {
+        p = window.playSkinGetAnimation({
+          name: markLabel(mark),
+          img:  many ? (art.find(Boolean) || null) : art,   // 演出が古い版でも1枚は出る
+          imgs: many ? art : null
+        });
+      } catch (err) { finish(); return; }
+      if (p && typeof p.then === 'function') p.then(finish, finish);
+      else finish();
+    });
+  }
+
   function buyMark(mark) {
     if (ownedMarks.indexOf(mark.id) !== -1) return;
     if (balance(mark.cur) < mark.cost) {
@@ -12472,25 +12675,99 @@ const Shop = (function () {
     spend(mark.cur, mark.cost);
     ownedMarks.push(mark.id);
     applyMark(mark.id);
-    render();
+    saveState();
 
     // スキンは「絵」が主役なので、トーストではなく獲得演出で見せる。
     // 演出が読み込めていない場合だけ、これまでどおりトーストに落とす。
-    if (typeof window.playSkinGetAnimation === 'function') {
-      window.playSkinGetAnimation({ name: markLabel(mark), img: mark.img || mark.thumb });
-    } else {
+    if (typeof window.playSkinGetAnimation !== 'function') {
+      render();
       toast(t('shopGot', { name: markLabel(mark) }), 'good');
+      return;
     }
-    const el = markGridEl && markGridEl.querySelector('[data-id="' + mark.id + '"]');
-    if (el && !reduced()) {
-      el.classList.add('just-got');
-      setTimeout(() => el.classList.remove('just-got'), 900);
-    }
+    playGetFX(mark, mark.img || mark.thumb, function () {
+      render();
+      const el = markGridEl && markGridEl.querySelector('[data-id="' + mark.id + '"]');
+      if (el && !reduced()) {
+        el.classList.add('just-got');
+        setTimeout(() => el.classList.remove('just-got'), 900);
+      }
+    });
   }
 
   // 色のカードとまったく同じ考え方：持っているなら付け替えるだけ、
   // 足りないなら理由を出すだけ、引き換えるときだけ確認をはさむ。
+  /* ---- オリジナル（自分の写真を貼る枠）--------------------------------
+     お金のやりとりはここ（Shop）、写真そのものと切り抜き画面は
+     photo-skin.js、と受け持ちを分けてある。買う→選ぶ→切り抜く、が
+     ひと続きになるよう、引き換えたその足で切り抜き画面へ渡す。 */
+  function openPhotoEditor(mark, justBought) {
+    if (!window.PhotoSkin) { toast(t('shopShort'), 'warn'); return; }
+    PhotoSkin.open(mark.id, {
+      onSave: function (dataUrl) {
+        applyMark(mark.id);
+        // 買ったその場で決まった1枚は、他のスキンと同じ獲得演出で見せる
+        // （自分の写真がキューブになって出てくる）。
+        if (justBought && typeof window.playSkinGetAnimation === 'function') {
+          // オリジナル×6は、6面ぶんをそのまま渡して面ごとに貼らせる。
+          const art = (window.PhotoSkin && PhotoSkin.faces(mark.id) > 1)
+            ? PhotoSkin.getAll(mark.id) : dataUrl;
+          playGetFX(mark, art, function () { render(); });
+        } else {
+          render();
+          toast(t('psSaved'), 'good');
+        }
+      },
+      onDelete: function () {
+        // 使っていた写真を消したら、貼るものが無くなるので「なし」へ戻す。
+        if (equippedMark === mark.id) applyMark(MARK_DEFAULT_ID);
+        render();
+      }
+    });
+  }
+
+  function onPhotoTap(mark) {
+    const has   = ownedMarks.indexOf(mark.id) !== -1;
+    const photo = window.PhotoSkin ? PhotoSkin.get(mark.id) : null;
+    if (has) {
+      if (!photo) { openPhotoEditor(mark, false); return; }   // 枠だけある
+      if (mark.id !== equippedMark) { applyMark(mark.id); render(); return; }
+      openPhotoEditor(mark, false);   // すでに使っている枠 → 入れ替え
+      return;
+    }
+    if (balance(mark.cur) < mark.cost) { toast(t('shopShort'), 'warn'); return; }
+
+    // シャードを使う前に、権利と免責の説明を読んでもらう。
+    // チェックを入れるまで先へ進めない画面なので、素通りできない。
+    if (window.PhotoSkin && typeof PhotoSkin.openGuide === 'function') {
+      PhotoSkin.openGuide({ onAgree: function () { askRedeem(mark); } });
+      return;
+    }
+    askRedeem(mark);
+  }
+
+  // 同意のあとの、いつもの引き換え確認。
+  function askRedeem(mark) {
+    const shardName = t(mark.cur === 'rainbow' ? 'shopShardRainbow' : 'shopShardCyan');
+    const opts = {
+      title:  t('shopConfirmTitle', { name: markLabel(mark) }),
+      body:   t('shopConfirmBody', { shard: shardName, cost: fmt(mark.cost) }) +
+              ' ' + t('psPrivacyShort'),
+      ok:     t('shopRedeem'),
+      cancel: t('confirmCancel'),
+      onOk:   function () {
+        spend(mark.cur, mark.cost);
+        ownedMarks.push(mark.id);
+        saveState();
+        render();
+        openPhotoEditor(mark, true);
+      }
+    };
+    if (typeof askConfirm === 'function') askConfirm(opts);
+    else opts.onOk();
+  }
+
   function onMarkTap(mark) {
+    if (mark.custom) { onPhotoTap(mark); return; }
     if (ownedMarks.indexOf(mark.id) !== -1) {
       if (mark.id !== equippedMark) applyMark(mark.id);
       render();
@@ -12678,7 +12955,13 @@ const Shop = (function () {
         const card = e.target.closest ? e.target.closest('.shop-card') : null;
         if (!card) return;
         const mark = markById(card.dataset.id);
-        if (mark) onMarkTap(mark);
+        if (!mark) return;
+        // ✎ を押したときだけは「付け替え」ではなく写真の入れ替えへ直行する。
+        if (mark.custom && e.target.closest && e.target.closest('.shop-photo-edit')) {
+          openPhotoEditor(mark, false);
+          return;
+        }
+        onMarkTap(mark);
       });
     }
     if (schemeGridEl) {
@@ -12702,6 +12985,8 @@ const Shop = (function () {
     getOwned: function () { return owned.slice(); },
     // 3D側がそろった瞬間に読む（何も付けていなければ null）。
     getMarkImage: markImage,
+    // 6面ぶんの写真（オリジナル×6 用。1枚のスキンは同じURLが6つ並ぶ）
+    getMarkImages: markImages,
     MARKS: MARKS,
     applyMark: applyMark,
     getEquippedMark: function () { return equippedMark; },
@@ -12750,6 +13035,11 @@ const SkinGetFX = (function () {
   'use strict';
 
   const T = { GATHER: 120, FLASH: 700, LAND: 1560, TEXT: 1750 };
+
+  /* この演出の面の並び(U,D,F,B,R,L)から、本編の面の並び
+     (WORLD_FACES = R,L,U,D,F,B)の何番目かを引く表。
+     U→3番目(=添字2)、D→4番目、F→5番目、B→6番目、R→1番目、L→2番目。 */
+  const FACE_MAP = [2, 3, 4, 5, 0, 1];
 
   // 端末の力に合わせて粒の数を決める。coarse pointer（＝タッチ）と
   // 論理コア数で見分ける。数えるのは「同時に生きている粒」。
@@ -13024,10 +13314,29 @@ const SkinGetFX = (function () {
     close();                           // 連続で呼ばれても1つだけにする
     accentCache = null;                // テーマ色は演出ごとに1回だけ調べ直す
 
-    // 見た目を差し替える。写真スキンは6面すべてに同じ絵。
-    e.cube.classList.toggle('is-plain', !skin.img);
-    e.cube.style.setProperty('--sg-img', skin.img ? 'url(' + skin.img + ')' : 'none');
+    /* 見た目を差し替える。
+       skin.img  … 1枚を6面すべてに貼る（今までのスキンはこれ）
+       skin.imgs … 面ごとに別の絵（オリジナル×6）。並びは本編の
+                   WORLD_FACES(R,L,U,D,F,B)と同じで、この演出の
+                   面の並び(U,D,F,B,R,L)へ FACE_MAP で読み替える。
+                   そろえたときに出る面と、ここで見える面をそろえるため。 */
+    const faces = e.cube.querySelectorAll('.sg-face');
+    const multi = Array.isArray(skin.imgs) && skin.imgs.some(Boolean);
+    e.cube.classList.toggle('is-plain', !skin.img && !multi);
     e.cube.style.setProperty('--sg-plain-color', skin.color || '#2a2d36');
+    if (multi) {
+      // 変数のほうは切っておく（面ごとの指定だけを効かせる）
+      e.cube.style.setProperty('--sg-img', 'none');
+      faces.forEach((f, i) => {
+        const u = skin.imgs[FACE_MAP[i]];
+        // まだ選んでいない面は、素の色のまま。本編でもそうなる。
+        f.style.backgroundImage = u ? 'url(' + u + ')' : 'none';
+      });
+    } else {
+      // 面ごとの指定を消して、いつもの1枚貼りに戻す
+      faces.forEach((f) => { f.style.backgroundImage = ''; });
+      e.cube.style.setProperty('--sg-img', skin.img ? 'url(' + skin.img + ')' : 'none');
+    }
     e.name.textContent = skin.name || '';
     if (skin.kind) e.kind.textContent = skin.kind;
 
