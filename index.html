@@ -12618,7 +12618,7 @@ const Shop = (function () {
      引っかかる。とくにオリジナルは 512px の JPEG をデータURLのまま
      6面に貼るので、展開の重さがそのままカクつきになって出ていた。
      decode() で先に展開だけ済ませてから幕を開ける。 */
-  function preloadArt(src) {
+  function preloadOne(src) {
     return new Promise((done) => {
       if (!src) { done(); return; }
       const im = new Image();
@@ -12631,6 +12631,12 @@ const Shop = (function () {
       im.src = src;
       setTimeout(go, 1200);            // 念のための打ち切り
     });
+  }
+  // 1枚でも、6面ぶんの配列でも受ける。
+  function preloadArt(art) {
+    const list = (Array.isArray(art) ? art : [art]).filter(Boolean);
+    if (!list.length) return Promise.resolve();
+    return Promise.all(list.map(preloadOne));
   }
 
   /* 演出のあいだ、裏でショップを組み直さない。
@@ -12646,8 +12652,14 @@ const Shop = (function () {
       setTimeout(go, 220);
     })).then(() => {
       let p = null;
-      try { p = window.playSkinGetAnimation({ name: markLabel(mark), img: art }); }
-      catch (err) { finish(); return; }
+      const many = Array.isArray(art);
+      try {
+        p = window.playSkinGetAnimation({
+          name: markLabel(mark),
+          img:  many ? (art.find(Boolean) || null) : art,   // 演出が古い版でも1枚は出る
+          imgs: many ? art : null
+        });
+      } catch (err) { finish(); return; }
       if (p && typeof p.then === 'function') p.then(finish, finish);
       else finish();
     });
@@ -12696,7 +12708,10 @@ const Shop = (function () {
         // 買ったその場で決まった1枚は、他のスキンと同じ獲得演出で見せる
         // （自分の写真がキューブになって出てくる）。
         if (justBought && typeof window.playSkinGetAnimation === 'function') {
-          playGetFX(mark, dataUrl, function () { render(); });
+          // オリジナル×6は、6面ぶんをそのまま渡して面ごとに貼らせる。
+          const art = (window.PhotoSkin && PhotoSkin.faces(mark.id) > 1)
+            ? PhotoSkin.getAll(mark.id) : dataUrl;
+          playGetFX(mark, art, function () { render(); });
         } else {
           render();
           toast(t('psSaved'), 'good');
@@ -13021,6 +13036,11 @@ const SkinGetFX = (function () {
 
   const T = { GATHER: 120, FLASH: 700, LAND: 1560, TEXT: 1750 };
 
+  /* この演出の面の並び(U,D,F,B,R,L)から、本編の面の並び
+     (WORLD_FACES = R,L,U,D,F,B)の何番目かを引く表。
+     U→3番目(=添字2)、D→4番目、F→5番目、B→6番目、R→1番目、L→2番目。 */
+  const FACE_MAP = [2, 3, 4, 5, 0, 1];
+
   // 端末の力に合わせて粒の数を決める。coarse pointer（＝タッチ）と
   // 論理コア数で見分ける。数えるのは「同時に生きている粒」。
   const SMALL = matchMedia('(pointer: coarse)').matches ||
@@ -13294,10 +13314,29 @@ const SkinGetFX = (function () {
     close();                           // 連続で呼ばれても1つだけにする
     accentCache = null;                // テーマ色は演出ごとに1回だけ調べ直す
 
-    // 見た目を差し替える。写真スキンは6面すべてに同じ絵。
-    e.cube.classList.toggle('is-plain', !skin.img);
-    e.cube.style.setProperty('--sg-img', skin.img ? 'url(' + skin.img + ')' : 'none');
+    /* 見た目を差し替える。
+       skin.img  … 1枚を6面すべてに貼る（今までのスキンはこれ）
+       skin.imgs … 面ごとに別の絵（オリジナル×6）。並びは本編の
+                   WORLD_FACES(R,L,U,D,F,B)と同じで、この演出の
+                   面の並び(U,D,F,B,R,L)へ FACE_MAP で読み替える。
+                   そろえたときに出る面と、ここで見える面をそろえるため。 */
+    const faces = e.cube.querySelectorAll('.sg-face');
+    const multi = Array.isArray(skin.imgs) && skin.imgs.some(Boolean);
+    e.cube.classList.toggle('is-plain', !skin.img && !multi);
     e.cube.style.setProperty('--sg-plain-color', skin.color || '#2a2d36');
+    if (multi) {
+      // 変数のほうは切っておく（面ごとの指定だけを効かせる）
+      e.cube.style.setProperty('--sg-img', 'none');
+      faces.forEach((f, i) => {
+        const u = skin.imgs[FACE_MAP[i]];
+        // まだ選んでいない面は、素の色のまま。本編でもそうなる。
+        f.style.backgroundImage = u ? 'url(' + u + ')' : 'none';
+      });
+    } else {
+      // 面ごとの指定を消して、いつもの1枚貼りに戻す
+      faces.forEach((f) => { f.style.backgroundImage = ''; });
+      e.cube.style.setProperty('--sg-img', skin.img ? 'url(' + skin.img + ')' : 'none');
+    }
     e.name.textContent = skin.name || '';
     if (skin.kind) e.kind.textContent = skin.kind;
 
