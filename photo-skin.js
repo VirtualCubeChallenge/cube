@@ -81,6 +81,10 @@
       psGuideP2: "使う写真の権利はご自身でご確認ください。他人が写っている写真、有名人の画像、他の人が作った絵・キャラクター・ロゴを使った画面を、SNSなどに公開・投稿しないでください。",
       psGuideP3: "ご自身で撮った写真や、権利をお持ちの画像のご利用をおすすめします。",
       psGuideClose: "閉じる",
+      psContactLink: "お問い合わせ",
+      psContactNote: "権利についてのご連絡・削除のご依頼はこちらから",
+      psContactOpen: "フォームを開く",
+      psContactMail: "メールを送る",
       psZoom: '大きさ'
     },
     en: {
@@ -115,6 +119,10 @@
       psGuideP2: "Please make sure you have the rights to the photos you use. Don't publish or post screens made with photos of other people, images of celebrities, or artwork, characters, or logos created by someone else.",
       psGuideP3: "We recommend using photos you took yourself, or images you hold the rights to.",
       psGuideClose: "Close",
+      psContactLink: "Contact",
+      psContactNote: "For rights concerns or removal requests, please use this form",
+      psContactOpen: "Open the form",
+      psContactMail: "Send an email",
       psZoom: 'Size'
     },
     'zh-CN': {
@@ -149,6 +157,10 @@
       psGuideP2: "请自行确认所用照片的权利。请勿将含有他人、名人形象，或他人创作的图画、角色、标志的画面公开或发布到社交网络等。",
       psGuideP3: "建议使用您自己拍摄的照片，或您拥有权利的图片。",
       psGuideClose: "关闭",
+      psContactLink: "联系我们",
+      psContactNote: "有关权利的联系或删除请求，请使用此表单",
+      psContactOpen: "打开表单",
+      psContactMail: "发送邮件",
       psZoom: '大小'
     },
     'zh-TW': {
@@ -183,6 +195,10 @@
       psGuideP2: "請自行確認所用照片的權利。請勿將含有他人、名人形象，或他人創作的圖畫、角色、標誌的畫面公開或發布到社群網站等。",
       psGuideP3: "建議使用您自己拍攝的照片，或您擁有權利的圖片。",
       psGuideClose: "關閉",
+      psContactLink: "聯絡我們",
+      psContactNote: "有關權利的聯絡或刪除請求，請使用此表單",
+      psContactOpen: "開啟表單",
+      psContactMail: "發送郵件",
       psZoom: '大小'
     },
     ko: {
@@ -217,6 +233,10 @@
       psGuideP2: "사용하는 사진의 권리는 직접 확인해 주세요. 다른 사람이 찍힌 사진, 유명인의 이미지, 다른 사람이 만든 그림·캐릭터·로고를 사용한 화면을 SNS 등에 공개·게시하지 말아 주세요.",
       psGuideP3: "직접 찍은 사진이나 권리를 가진 이미지의 사용을 권장합니다.",
       psGuideClose: "닫기",
+      psContactLink: "문의하기",
+      psContactNote: "권리에 관한 연락·삭제 요청은 이곳에서",
+      psContactOpen: "양식 열기",
+      psContactMail: "메일 보내기",
       psZoom: '크기'
     },
     es: {
@@ -251,6 +271,10 @@
       psGuideP2: "Comprueba que tienes los derechos de las fotos que uses. No publiques pantallas hechas con fotos de otras personas, imágenes de famosos, ni dibujos, personajes o logotipos creados por otros.",
       psGuideP3: "Te recomendamos usar fotos hechas por ti o imágenes cuyos derechos poseas.",
       psGuideClose: "Cerrar",
+      psContactLink: "Contacto",
+      psContactNote: "Para asuntos de derechos o solicitudes de retirada, usa este formulario",
+      psContactOpen: "Abrir el formulario",
+      psContactMail: "Enviar un correo",
       psZoom: 'Tamaño'
     },
     id: {
@@ -285,6 +309,10 @@
       psGuideP2: "Pastikan kamu memiliki hak atas foto yang dipakai. Jangan membagikan tampilan yang memuat foto orang lain, gambar selebritas, atau ilustrasi, karakter, dan logo buatan orang lain.",
       psGuideP3: "Sebaiknya gunakan foto hasil jepretanmu sendiri atau gambar yang hakmu.",
       psGuideClose: "Tutup",
+      psContactLink: "Kontak",
+      psContactNote: "Untuk urusan hak atau permintaan penghapusan, gunakan formulir ini",
+      psContactOpen: "Buka formulir",
+      psContactMail: "Kirim email",
       psZoom: 'Ukuran'
     },
     ru: {
@@ -319,6 +347,10 @@
       psGuideP2: "Убедитесь, что у вас есть права на используемые фото. Не публикуйте экраны с фотографиями других людей, изображениями знаменитостей, а также с рисунками, персонажами и логотипами, созданными другими.",
       psGuideP3: "Рекомендуем использовать свои снимки или изображения, права на которые принадлежат вам.",
       psGuideClose: "Закрыть",
+      psContactLink: "Связаться",
+      psContactNote: "По вопросам прав и запросам на удаление — через эту форму",
+      psContactOpen: "Открыть форму",
+      psContactMail: "Написать письмо",
       psZoom: 'Размер'
     },
     'pt-BR': {
@@ -353,6 +385,10 @@
       psGuideP2: "Confirme que você tem os direitos das fotos que usar. Não publique telas feitas com fotos de outras pessoas, imagens de celebridades, nem desenhos, personagens ou logotipos criados por outros.",
       psGuideP3: "Recomendamos usar fotos tiradas por você ou imagens cujos direitos sejam seus.",
       psGuideClose: "Fechar",
+      psContactLink: "Contato",
+      psContactNote: "Para questões de direitos ou pedidos de remoção, use este formulário",
+      psContactOpen: "Abrir o formulário",
+      psContactMail: "Enviar um e-mail",
       psZoom: 'Tamanho'
     }
   };
@@ -559,6 +595,10 @@
     '.psg-panel{padding:16px 16px 18px}',
     '.psg-p{margin:0 0 11px;font-size:13px;line-height:1.75;color:#c6c6d2}',
     '.psg-p:last-of-type{margin-bottom:2px}',
+    '.psg-contact{margin-top:14px;padding-top:14px;',
+    '  border-top:1px solid rgba(255,255,255,.08)}',
+    '.psg-contact-note{margin:0 0 9px;font-size:12px;line-height:1.6;color:#9a9aa8}',
+    '.psg-contact a{text-decoration:none}',
 
     /* --- ショップのカードに付ける ✎ --- */
     '.shop-card.is-photo{position:relative}',
@@ -1114,6 +1154,11 @@
         '<p class="psg-p" data-psg="p1"></p>' +
         '<p class="psg-p" data-psg="p2"></p>' +
         '<p class="psg-p" data-psg="p3"></p>' +
+        '<div class="psg-contact" data-psg="contact" hidden>' +
+          '<p class="psg-contact-note" data-psg="contactNote"></p>' +
+          '<a class="ps-btn ps-btn-ghost ui-pressable" data-psg="contactBtn"' +
+            ' target="_blank" rel="noopener noreferrer"></a>' +
+        '</div>' +
         '<div class="ps-actions">' +
           '<button class="ps-btn ps-btn-ghost ui-pressable" data-psg="close"></button>' +
         '</div>' +
@@ -1122,7 +1167,8 @@
 
     const q = (n) => ov.querySelector('[data-psg="' + n + '"]');
     guideEl = { overlay: ov, title: q('title'), p1: q('p1'), p2: q('p2'), p3: q('p3'),
-                x: q('x'), close: q('close') };
+                x: q('x'), close: q('close'), contact: q('contact'),
+                contactNote: q('contactNote'), contactBtn: q('contactBtn') };
 
     const shut = function () {
       ov.classList.remove('show-visible');
@@ -1144,6 +1190,26 @@
     g.p2.textContent = T('psGuideP2');
     g.p3.textContent = T('psGuideP3');
     g.close.textContent = T('psGuideClose');
+    // お問い合わせフォームのURLが入っているときだけ出す。
+    // 空のまま出すとリンク切れになるので、行ごと隠しておく。
+    const url = global.CONTACT_FORM_URL;
+    if (url) {
+      g.contact.hidden = false;
+      g.contactNote.textContent = T('psContactNote');
+      // mailto: のときだけ「メールを送る」に言い替える。
+      // 押した先がメールアプリなのに「フォームを開く」と書いてあると、
+      // 開いた瞬間に戸惑わせてしまうため。
+      const isMail = /^mailto:/i.test(url);
+      g.contactBtn.textContent = T(isMail ? 'psContactMail' : 'psContactOpen');
+      g.contactBtn.href = url;
+      // 同じサイトの中のページ(contact.html)なら、同じタブで開く。
+      // 外部サービスのURLなら、これまでどおり別タブ。
+      const outside = /^https?:/i.test(url);
+      if (outside) { g.contactBtn.target = '_blank'; g.contactBtn.rel = 'noopener noreferrer'; }
+      else { g.contactBtn.removeAttribute('target'); g.contactBtn.removeAttribute('rel'); }
+    } else {
+      g.contact.hidden = true;
+    }
     g.overlay.classList.add('show');
     requestAnimationFrame(() => g.overlay.classList.add('show-visible'));
   }

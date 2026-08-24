@@ -585,6 +585,9 @@
       </div>
       <div class="settings-footer-row">
         <button class="settings-footer-link" id="open-transfer-btn" data-i18n="transferLink">データの引き継ぎ<span class="settings-footer-arrow">›</span></button>
+        <!-- お問い合わせ。URL(window.CONTACT_FORM_URL)が空のあいだは
+             JS 側で丸ごと隠すので、貼るまでは何も出ない。 -->
+        <button class="settings-footer-link" id="open-contact-btn" data-i18n="psContactLink" hidden>お問い合わせ<span class="settings-footer-arrow">›</span></button>
       </div>
       </div>
     </div>
@@ -1522,7 +1525,19 @@
        これまでの showSolvedMark がそのまま担当する。文言(9言語)とCSSも
        自前で持つので、i18n.js と style.css は無改変。
        写真はこの端末の中だけに保存され、どこへも送らない。 -->
-  <script src="photo-skin.js?v=20260824d"></script>
+  <script src="photo-skin.js?v=20260824g"></script>
+  <script>
+    /* ============================================================
+       お問い合わせフォーム（Googleフォーム）のURL
+       ------------------------------------------------------------
+       いまはメールを直接ひらく設定。Formspree の送り先URLを
+       contact.html に貼り終えたら、ここを 'contact.html' に変える。
+       それだけで、設定のいちばん下と「オリジナルスキンについて」の
+       両方に［お問い合わせ］が出る。外部サービスのURLでも動く。
+       空のあいだは、その行ごと出ない（リンク切れを見せないため）。
+       ============================================================ */
+    window.CONTACT_FORM_URL = 'mailto:virtualcubechallenge@gmail.com';
+  </script>
   <!-- 大きな定数テーブルは index.html から切り出してある。どちらもトップレベルで
        const を宣言しているだけなので、このあとのスクリプトから普通に参照できる。 -->
   <script src="solver.js?v=20260818a"></script>
@@ -3643,6 +3658,28 @@
        データの引き継ぎ（設定 → データの引き継ぎ）
        ------------------------------------------------------------ */
     (function setupTransferUI() {
+      /* お問い合わせ（Googleフォーム）。URL が入っているときだけ出す。
+         写真は端末から出ないので、こちらで消せるものは無い。それでも
+         窓口を置くのは、行き場のない苦情がホスティング先へ直行するのを
+         避けるため（受け取れる先が1つあるだけで話が早い）。 */
+      const contactBtn = document.getElementById('open-contact-btn');
+      if (contactBtn) {
+        const contactUrl = window.CONTACT_FORM_URL;
+        if (contactUrl) {
+          contactBtn.hidden = false;
+          contactBtn.addEventListener('click', () => {
+            // 同じサイトの中のページなら同じタブで開く。ホーム画面から
+            // 起動している状態で別タブにすると、アプリの外へ飛び出して
+            // 戻り方が分からなくなるため。
+            if (/^https?:/i.test(contactUrl)) {
+              window.open(contactUrl, '_blank', 'noopener,noreferrer');
+            } else {
+              window.location.href = contactUrl;
+            }
+          });
+        }
+      }
+
       const openBtn = document.getElementById('open-transfer-btn');
       const overlay = document.getElementById('transfer-overlay');
       const backBtn = document.getElementById('transfer-back-btn');
