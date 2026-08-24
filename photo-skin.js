@@ -83,6 +83,8 @@
       psGuideP3: "ご自身で撮影された写真や、権利をお持ちの画像のご利用をお願いいたします。",
       psGuideH2: "■ 免責事項",
       psGuideP4: "当アプリを利用してSNS等に投稿された画像により生じたトラブルについて、開発者は一切の責任を負いかねます。",
+      psAgreeCheck: "内容を確認し、同意します",
+      psAgreeGo: "同意して進む",
       psGuideClose: "閉じる",
       psContactLink: "お問い合わせ",
       psContactNote: "権利に関するお問い合わせ・ご意見はこちらから",
@@ -124,6 +126,8 @@
       psGuideP3: "Please use photos you took yourself, or images you hold the rights to.",
       psGuideH2: "■ Disclaimer",
       psGuideP4: "The developer accepts no responsibility for any trouble arising from images posted to social media using this app.",
+      psAgreeCheck: "I have read and agree to the above",
+      psAgreeGo: "Agree and continue",
       psGuideClose: "Close",
       psContactLink: "Contact",
       psContactNote: "For rights concerns and feedback, please get in touch here",
@@ -165,6 +169,8 @@
       psGuideP3: "请使用您自己拍摄的照片，或您拥有权利的图片。",
       psGuideH2: "■ 免责声明",
       psGuideP4: "对于使用本应用发布到社交网络等平台的图片所引起的纠纷，开发者概不负责。",
+      psAgreeCheck: "我已阅读并同意以上内容",
+      psAgreeGo: "同意并继续",
       psGuideClose: "关闭",
       psContactLink: "联系我们",
       psContactNote: "关于权利的咨询与意见请由此联系",
@@ -206,6 +212,8 @@
       psGuideP3: "請使用您自己拍攝的照片，或您擁有權利的圖片。",
       psGuideH2: "■ 免責聲明",
       psGuideP4: "對於使用本應用程式發布到社群網站等平台的圖片所引起的糾紛，開發者概不負責。",
+      psAgreeCheck: "我已閱讀並同意以上內容",
+      psAgreeGo: "同意並繼續",
       psGuideClose: "關閉",
       psContactLink: "聯絡我們",
       psContactNote: "關於權利的諮詢與意見請由此聯絡",
@@ -247,6 +255,8 @@
       psGuideP3: "직접 촬영하신 사진이나 권리를 가지고 계신 이미지를 이용해 주세요.",
       psGuideH2: "■ 면책 조항",
       psGuideP4: "본 앱을 이용해 SNS 등에 게시된 이미지로 인해 발생한 문제에 대해 개발자는 일절 책임지지 않습니다.",
+      psAgreeCheck: "위 내용을 확인했으며 동의합니다",
+      psAgreeGo: "동의하고 진행",
       psGuideClose: "닫기",
       psContactLink: "문의하기",
       psContactNote: "권리에 관한 문의·의견은 이곳에서",
@@ -288,6 +298,8 @@
       psGuideP3: "Usa fotos hechas por ti o imágenes cuyos derechos poseas.",
       psGuideH2: "■ Descargo de responsabilidad",
       psGuideP4: "El desarrollador no asume ninguna responsabilidad por los problemas derivados de imágenes publicadas en redes sociales mediante esta app.",
+      psAgreeCheck: "He leído y acepto lo anterior",
+      psAgreeGo: "Aceptar y continuar",
       psGuideClose: "Cerrar",
       psContactLink: "Contacto",
       psContactNote: "Para consultas sobre derechos y comentarios, escríbenos aquí",
@@ -329,6 +341,8 @@
       psGuideP3: "Gunakan foto hasil jepretanmu sendiri atau gambar yang kamu punya haknya.",
       psGuideH2: "■ Penafian",
       psGuideP4: "Pengembang tidak bertanggung jawab atas masalah apa pun yang timbul dari gambar yang diposting ke media sosial menggunakan aplikasi ini.",
+      psAgreeCheck: "Saya telah membaca dan menyetujui hal di atas",
+      psAgreeGo: "Setuju dan lanjutkan",
       psGuideClose: "Tutup",
       psContactLink: "Kontak",
       psContactNote: "Untuk pertanyaan soal hak dan masukan, hubungi kami di sini",
@@ -370,6 +384,8 @@
       psGuideP3: "Используйте свои снимки или изображения, права на которые принадлежат вам.",
       psGuideH2: "■ Отказ от ответственности",
       psGuideP4: "Разработчик не несёт ответственности за проблемы, возникшие из-за изображений, опубликованных в соцсетях с помощью этого приложения.",
+      psAgreeCheck: "Я прочитал(а) и согласен(на) с изложенным выше",
+      psAgreeGo: "Согласиться и продолжить",
       psGuideClose: "Закрыть",
       psContactLink: "Связаться",
       psContactNote: "По вопросам прав и с отзывами пишите сюда",
@@ -411,6 +427,8 @@
       psGuideP3: "Use fotos tiradas por você ou imagens cujos direitos sejam seus.",
       psGuideH2: "■ Isenção de responsabilidade",
       psGuideP4: "O desenvolvedor não se responsabiliza por problemas decorrentes de imagens publicadas em redes sociais usando este app.",
+      psAgreeCheck: "Li e concordo com o texto acima",
+      psAgreeGo: "Concordar e continuar",
       psGuideClose: "Fechar",
       psContactLink: "Contato",
       psContactNote: "Para dúvidas sobre direitos e comentários, fale conosco aqui",
@@ -625,6 +643,13 @@
     /* 見出し。3つの話（保存の話・権利の話・免責）が地続きに見えると
        全部読み飛ばされるので、区切りをはっきりさせる。 */
     '.psg-h{margin:16px 0 8px;font-size:13px;font-weight:700;color:#e2e2ea}',
+    /* 同意のチェック。行ぜんぶが押せるように <label> で包んである。 */
+    '.psg-agree{display:flex;align-items:center;gap:11px;margin-top:16px;',
+    '  padding:13px 13px;border-radius:12px;cursor:pointer;',
+    '  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);',
+    '  font-size:13.5px;font-weight:600;color:#e2e2ea;line-height:1.5}',
+    '.psg-agree input{flex:0 0 auto;width:22px;height:22px;margin:0;',
+    '  accent-color:var(--tc,#7cf0ff)}',
     '.psg-contact{margin-top:14px;padding-top:14px;',
     '  border-top:1px solid rgba(255,255,255,.08)}',
     '.psg-contact-note{margin:0 0 9px;font-size:12px;line-height:1.6;color:#9a9aa8}',
@@ -1167,6 +1192,7 @@
      出るので、重なり順は切り抜き画面よりさらに前にしてある。
      ============================================================ */
   let guideEl = null;
+  let guideAgree = null;      // 同意モードのとき、進んだ先で呼ぶ処理
 
   function buildGuide() {
     if (guideEl) return guideEl;
@@ -1192,7 +1218,12 @@
           '<a class="ps-btn ps-btn-ghost ui-pressable" data-psg="contactBtn"' +
             ' target="_blank" rel="noopener noreferrer"></a>' +
         '</div>' +
+        '<label class="psg-agree" data-psg="agreeRow" hidden>' +
+          '<input type="checkbox" data-psg="agreeBox">' +
+          '<span data-psg="agreeText"></span>' +
+        '</label>' +
         '<div class="ps-actions">' +
+          '<button class="ps-btn ps-btn-primary ui-pressable" data-psg="go" hidden></button>' +
           '<button class="ps-btn ps-btn-ghost ui-pressable" data-psg="close"></button>' +
         '</div>' +
       '</div>';
@@ -1202,23 +1233,42 @@
     guideEl = { overlay: ov, title: q('title'), p1: q('p1'), p2: q('p2'), p3: q('p3'),
                 p4: q('p4'), h1: q('h1'), h2: q('h2'),
                 x: q('x'), close: q('close'), contact: q('contact'),
+                agreeRow: q('agreeRow'), agreeBox: q('agreeBox'),
+                agreeText: q('agreeText'), go: q('go'),
                 contactNote: q('contactNote'), contactBtn: q('contactBtn') };
 
     const shut = function () {
+      guideAgree = null;            // 同意せずに閉じたら、引き換えには進まない
       ov.classList.remove('show-visible');
       setTimeout(function () { ov.classList.remove('show'); }, 200);
     };
+    guideEl.shut = shut;
     guideEl.x.addEventListener('click', shut);
     guideEl.close.addEventListener('click', shut);
     ov.addEventListener('click', function (e) { if (e.target === ov) shut(); });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && ov.classList.contains('show')) shut();
     });
+
+    // チェックが入るまで「同意して進む」は押せない。
+    guideEl.agreeBox.addEventListener('change', function () {
+      guideEl.go.disabled = !guideEl.agreeBox.checked;
+    });
+    guideEl.go.addEventListener('click', function () {
+      if (!guideEl.agreeBox.checked) return;
+      const done = guideAgree;
+      shut();
+      if (typeof done === 'function') done();
+    });
     return guideEl;
   }
 
-  function openGuide() {
+  /* opts.onAgree を渡すと「同意モード」になる。
+     チェックを入れるまで先へ進めないので、引き換えの直前に挟める。 */
+  function openGuide(opts) {
     const g = buildGuide();
+    const agreeMode = !!(opts && typeof opts.onAgree === 'function');
+    guideAgree = agreeMode ? opts.onAgree : null;
     g.title.textContent = T('psGuideTitle');
     g.p1.textContent = T('psGuideP1');
     g.p2.textContent = T('psGuideP2');
@@ -1229,7 +1279,17 @@
     g.close.textContent = T('psGuideClose');
     // お問い合わせフォームのURLが入っているときだけ出す。
     // 空のまま出すとリンク切れになるので、行ごと隠しておく。
-    const url = global.CONTACT_FORM_URL;
+    // 同意モードのときは、決めるべきことを1つに絞る。
+    // 問い合わせ先は、同意したあとでも設定からいつでも開ける。
+    g.agreeRow.hidden = !agreeMode;
+    g.go.hidden = !agreeMode;
+    g.agreeBox.checked = false;
+    g.go.disabled = true;
+    g.agreeText.textContent = T('psAgreeCheck');
+    g.go.textContent = T('psAgreeGo');
+    g.close.textContent = T(agreeMode ? 'psCancel' : 'psGuideClose');
+
+    const url = agreeMode ? '' : global.CONTACT_FORM_URL;
     if (url) {
       g.contact.hidden = false;
       g.contactNote.textContent = T('psContactNote');

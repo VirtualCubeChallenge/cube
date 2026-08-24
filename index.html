@@ -1525,7 +1525,7 @@
        これまでの showSolvedMark がそのまま担当する。文言(9言語)とCSSも
        自前で持つので、i18n.js と style.css は無改変。
        写真はこの端末の中だけに保存され、どこへも送らない。 -->
-  <script src="photo-skin.js?v=20260824h"></script>
+  <script src="photo-skin.js?v=20260824i"></script>
   <script>
     /* ============================================================
        お問い合わせフォーム（Googleフォーム）のURL
@@ -12675,10 +12675,19 @@ const Shop = (function () {
       return;
     }
     if (balance(mark.cur) < mark.cost) { toast(t('shopShort'), 'warn'); return; }
+
+    // シャードを使う前に、権利と免責の説明を読んでもらう。
+    // チェックを入れるまで先へ進めない画面なので、素通りできない。
+    if (window.PhotoSkin && typeof PhotoSkin.openGuide === 'function') {
+      PhotoSkin.openGuide({ onAgree: function () { askRedeem(mark); } });
+      return;
+    }
+    askRedeem(mark);
+  }
+
+  // 同意のあとの、いつもの引き換え確認。
+  function askRedeem(mark) {
     const shardName = t(mark.cur === 'rainbow' ? 'shopShardRainbow' : 'shopShardCyan');
-    // 引き換えを決める前に、写真がどこへ行くのかを読めるようにしておく。
-    // ここが「自分の写真を渡すことになるのでは」と身構える最初の場面
-    // なので、値段だけを見せて先へ進ませない。
     const opts = {
       title:  t('shopConfirmTitle', { name: markLabel(mark) }),
       body:   t('shopConfirmBody', { shard: shardName, cost: fmt(mark.cost) }) +
