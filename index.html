@@ -19,6 +19,18 @@
   <!-- 同じ中身が複数のURL(GitHub Pages / Vercelなど)に存在していても、
        Googleにはこちらを「正式なURL」として扱ってもらうための指定。 -->
   <link rel="canonical" href="https://virtualcubechallenge.github.io/cube/">
+  <!-- 検索結果に出るサイト名の指定。これが無いと、Googleは名前を読み取れず
+       ホスティング先の名前(「GitHub」など)で埋めてしまう。
+       url は canonical と同じ「サイトの入口」を指す。 -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Virtual Cube Challenge",
+    "alternateName": "\u30d0\u30fc\u30c1\u30e3\u30eb\u30ad\u30e5\u30fc\u30d6\u30c1\u30e3\u30ec\u30f3\u30b8",
+    "url": "https://virtualcubechallenge.github.io/cube/"
+  }
+  </script>
   <!-- Home Screen / standalone web-app support (iOS "Add to Home Screen") -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
@@ -1526,11 +1538,6 @@
        自前で持つので、i18n.js と style.css は無改変。
        写真はこの端末の中だけに保存され、どこへも送らない。 -->
   <script src="photo-skin.js?v=20260824k"></script>
-  <!-- 「回転記号トレーニング」。ドロワーのボタン・CSS・文言(9言語)まで
-       すべて自前で持つ。手元の実物キューブを使いながら R/R' のような
-       回転記号を覚える、コース選択→ステップ学習→確認テスト→振り返り
-       の一連の画面。i18n.js と style.css は無改変。 -->
-  <script src="notation-training.js?v=20260825a"></script>
   <script>
     /* ============================================================
        お問い合わせフォーム（Googleフォーム）のURL
