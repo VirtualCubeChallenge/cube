@@ -2,7 +2,7 @@
   "_note": "items は新しい順。新機能を足したら先頭に1件追加する。言語キーは ja/en/zh-CN/zh-TW/ko/es/id/ru/pt-BR の9つで、LANGS の code とそのまま一致する。無い言語は ja に落ちる（= ja だけは必ず書く）。guide は任意で、付けた項目にだけ「詳細→」ボタンが出る。",
   "items": [
     {
-      "date": "2026-08-26",
+      "date": "2026-08-27",
       "ja": "【アプデ情報】キューブカラーが5色追加！🎨\n和・パステル・ジュエル・ネオンポップ・モノクロームを実装しました✨\nショップの「キューブカラー」から、好きなデザインを選んで遊んでみてね！",
       "en": "[Update] 5 new cube colors! 🎨\nJapanese, Pastel, Jewel, Neon Pop and Monochrome are here ✨\nPick your favorite from Cube Colors in the shop!",
       "zh-CN": "【更新情报】方块颜色新增5种！🎨\n和风、粉彩、宝石、霓虹波普、单色已上线✨\n快去商店的「方块颜色」里挑一个喜欢的吧！",
