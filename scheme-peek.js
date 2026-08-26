@@ -27,9 +27,13 @@
   'use strict';
 
   const GRID_ID    = 'shop-scheme-grid';
+  // ? を出さない配色。標準は「元の色」そのものなので、
+  // わざわざ見え方を確かめる相手ではない。
+  const NO_PEEK    = ['default'];
   const OVERLAY_ID = 'scheme-peek-overlay';
   const FACES      = ['U', 'D', 'F', 'B', 'R', 'L'];
   const SWATCH_ORDER = ['U', 'D', 'L', 'R', 'F', 'B'];
+  const CUBE_PX    = 96;   // 見本の立方体の一辺(px)
 
   /* --- 「動きを減らす」設定なら回転を止める（ui-polish.js と同じ考え方） --- */
   let reduceMotion = false;
@@ -96,16 +100,24 @@
     '.spk-lead{font-size:12px;color:#9a9aa8;line-height:1.6;margin:0 0 14px}',
 
     /* ---- キューブの見本。背景はその配色の scene.background と同じ色 ---- */
-    '.spk-stage{border-radius:12px;padding:22px 0;margin-bottom:14px;',
+    '.spk-stage{border-radius:12px;padding:10px 0;margin-bottom:14px;',
     '  display:grid;place-items:center;overflow:hidden}',
-    '.spk-scene{width:150px;height:150px;perspective:620px}',
-    '.spk-cube{width:100%;height:100%;position:relative;transform-style:preserve-3d;',
+    /* 回すと角がいちばん外へ張り出す。箱(200px)は、立方体の対角
+       (96px × √3 ≒ 166px)に遠近の拡大ぶんを足しても収まる大きさ。
+       ここが足りないと、実機で見たとおり上下が切れる。 */
+    '.spk-scene{width:200px;height:200px;perspective:780px;position:relative}',
+    '.spk-cube{width:' + CUBE_PX + 'px;height:' + CUBE_PX + 'px;position:absolute;',
+    '  left:50%;top:50%;margin:-' + (CUBE_PX / 2) + 'px 0 0 -' + (CUBE_PX / 2) + 'px;',
+    '  transform-style:preserve-3d;',
     '  transform:rotateX(-24deg);animation:spkSpin 16s linear infinite}',
     '@keyframes spkSpin{from{transform:rotateX(-24deg) rotateY(0deg)}',
     '  to{transform:rotateX(-24deg) rotateY(360deg)}}',
-    '.spk-face{position:absolute;inset:0;display:grid;border-radius:5px;',
+    /* 角丸と余白は付けない。実機の3Dはマスが面のふちまで届いていて、
+       外周に黒い枠は出ない — 見本もそれに合わせる（マスとマスの
+       あいだの線だけが残る）。 */
+    '.spk-face{position:absolute;inset:0;display:grid;',
     '  grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr)}',
-    '.spk-face i{border-radius:2px;display:block}',
+    '.spk-face i{display:block}',
 
     /* ---- 6面の色見本（回転していて見えない面も確かめられるように） ---- */
     '.spk-swatches{display:flex;justify-content:center;gap:6px;margin-bottom:16px}',
@@ -178,10 +190,11 @@
     };
 
     // 6面ぶんの箱は1回だけ組み、以後は色を差し替えるだけにする。
+    const z = CUBE_PX / 2;
     const TF = {
-      U: 'rotateX(90deg) translateZ(75px)',  D: 'rotateX(-90deg) translateZ(75px)',
-      F: 'translateZ(75px)',                 B: 'rotateY(180deg) translateZ(75px)',
-      R: 'rotateY(90deg) translateZ(75px)',  L: 'rotateY(-90deg) translateZ(75px)'
+      U: 'rotateX(90deg) translateZ('  + z + 'px)', D: 'rotateX(-90deg) translateZ(' + z + 'px)',
+      F: 'translateZ('                 + z + 'px)', B: 'rotateY(180deg) translateZ(' + z + 'px)',
+      R: 'rotateY(90deg) translateZ('  + z + 'px)', L: 'rotateY(-90deg) translateZ(' + z + 'px)'
     };
     FACES.forEach((f) => {
       const face = document.createElement('div');
@@ -220,9 +233,11 @@
 
     const colors  = scheme.colors || {};
     const inner   = colors.I !== undefined ? colors.I : 0x18181c;
-    // gapSize は「マスの一辺」。1に近いほどすき間が詰まる。
-    // 3Dと同じ見え方になるよう、150px の見本に置き換えて出す。
-    const gap     = Math.max((1 - (scheme.gapSize || 0.94)) * 40, 0.5);
+    // gapSize は「マスの一辺」、マスの間隔は 1.0。すき間はマスに対して
+    // (1 - gapSize) / gapSize の比になるので、その比のまま px に直す。
+    // 外周には余白を置かない（実機の3Dにも黒い縁は無い）。
+    const g       = scheme.gapSize || 0.94;
+    const gap     = Math.max((1 - g) / g * (CUBE_PX / 3), 0.4);
 
     el.name.textContent = schemeLabel(scheme);
     el.lead.textContent = T('shopSchemePeekLead');
@@ -232,7 +247,6 @@
       const face = el.cells[f][0].parentNode;
       face.style.background = hex(inner);
       face.style.gap = gap + 'px';
-      face.style.padding = gap + 'px';
       const c = hex(colors[f]);
       el.cells[f].forEach((cell) => { cell.style.background = c; });
     });
@@ -286,6 +300,7 @@
     const cards = grid.querySelectorAll('.shop-card');
     for (let i = 0; i < cards.length; i++) {
       const card = cards[i];
+      if (NO_PEEK.indexOf(card.dataset.id) !== -1) continue;
       if (card.querySelector('.shop-scheme-peek')) continue;
       const b = document.createElement('span');
       b.className = 'shop-scheme-peek';

@@ -134,12 +134,13 @@
   };
 
   /* ============================================================
-     ④ 見やすい配色 — 赤と緑の見分けが苦手な人でも6面を判別できる
-        並び（Okabe-Ito のカラーユニバーサル推奨色）。要点は
+     ④ ネオンポップ — 蛍光色に振った明るい配色。並びは Okabe-Ito の
+        カラーユニバーサル推奨色そのままなので、見た目が派手なだけで
+        なく、赤と緑の見分けが苦手な人でも6面を判別できる。要点は
         「橙をピンクに置き換える」こと。
      ============================================================ */
-  const ACCESS = {
-    id: 'access', cost: 500, cur: 'cyan',
+  const NEON_POP = {
+    id: 'neonPop', cost: 500, cur: 'cyan',
     colors: {
       R: 0xD55E00,   // 朱（vermillion）
       L: 0xE86FB4,   // ピンク（橙の代わり）
@@ -188,7 +189,7 @@
   };
 
   // 並び順 = ショップに出る順。標準・エレクトリックの後ろに続く。
-  global.CUBE_SCHEMES_EXTRA = [WA, PASTEL, JEWEL, ACCESS, MONO];
+  global.CUBE_SCHEMES_EXTRA = [WA, PASTEL, JEWEL, NEON_POP, MONO];
 
   /* 文言（各配色の名前）は i18n.js の SCHEME_I18N にまとめてある。
      キーは 'shopScheme' + id の先頭大文字 — wa → shopSchemeWa など。 */
