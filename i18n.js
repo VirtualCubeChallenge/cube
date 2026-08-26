@@ -3287,63 +3287,135 @@
       shopSchemesLead: 'キューブのカラーテーマを変更できます',
       shopSchemeEquip: 'これにする',
       shopSchemeDefault: '標準',
-      shopSchemeNeonElectric: 'エレクトリック'
+      shopSchemeNeonElectric: 'エレクトリック',
+      shopSchemeWa: '和',
+      shopSchemePastel: 'パステル',
+      shopSchemeJewel: 'ジュエル',
+      shopSchemeAccess: '見やすい',
+      shopSchemeMono: 'モノクローム',
+      shopSchemePeek: 'この色を見る',
+      shopSchemePeekLead: '6面ぜんぶの色と、背景の見え方を確認できます。',
+      shopSchemePeekClose: '閉じる'
     },
     'en': {
       shopSchemes: 'Cube Colors',
       shopSchemesLead: "You can change the cube's color theme",
       shopSchemeEquip: 'Use this',
       shopSchemeDefault: 'Default',
-      shopSchemeNeonElectric: 'Electric'
+      shopSchemeNeonElectric: 'Electric',
+      shopSchemeWa: 'Japanese',
+      shopSchemePastel: 'Pastel',
+      shopSchemeJewel: 'Jewel',
+      shopSchemeAccess: 'Color Safe',
+      shopSchemeMono: 'Monochrome',
+      shopSchemePeek: 'Preview',
+      shopSchemePeekLead: 'See all six face colors and how the background looks.',
+      shopSchemePeekClose: 'Close'
     },
     'zh-CN': {
       shopSchemes: '方块颜色',
       shopSchemesLead: '可以更改方块的配色主题',
       shopSchemeEquip: '使用此配色',
       shopSchemeDefault: '标准',
-      shopSchemeNeonElectric: '电光'
+      shopSchemeNeonElectric: '电光',
+      shopSchemeWa: '和风',
+      shopSchemePastel: '粉彩',
+      shopSchemeJewel: '宝石',
+      shopSchemeAccess: '色觉友好',
+      shopSchemeMono: '单色',
+      shopSchemePeek: '预览',
+      shopSchemePeekLead: '可以确认六个面的颜色和背景的效果。',
+      shopSchemePeekClose: '关闭'
     },
     'zh-TW': {
       shopSchemes: '方塊顏色',
       shopSchemesLead: '可以更改方塊的配色主題',
       shopSchemeEquip: '使用此配色',
       shopSchemeDefault: '標準',
-      shopSchemeNeonElectric: '電光'
+      shopSchemeNeonElectric: '電光',
+      shopSchemeWa: '和風',
+      shopSchemePastel: '粉彩',
+      shopSchemeJewel: '寶石',
+      shopSchemeAccess: '色覺友善',
+      shopSchemeMono: '單色',
+      shopSchemePeek: '預覽',
+      shopSchemePeekLead: '可以確認六個面的顏色和背景的效果。',
+      shopSchemePeekClose: '關閉'
     },
     'ko': {
       shopSchemes: '큐브 컬러',
       shopSchemesLead: '큐브의 컬러 테마를 바꿀 수 있습니다',
       shopSchemeEquip: '이걸로 하기',
       shopSchemeDefault: '기본',
-      shopSchemeNeonElectric: '일렉트릭'
+      shopSchemeNeonElectric: '일렉트릭',
+      shopSchemeWa: '일본풍',
+      shopSchemePastel: '파스텔',
+      shopSchemeJewel: '주얼',
+      shopSchemeAccess: '잘 보이는',
+      shopSchemeMono: '모노크롬',
+      shopSchemePeek: '미리보기',
+      shopSchemePeekLead: '여섯 면의 색과 배경이 어떻게 보이는지 확인할 수 있습니다.',
+      shopSchemePeekClose: '닫기'
     },
     'es': {
       shopSchemes: 'Colores del cubo',
       shopSchemesLead: 'Puedes cambiar el tema de color del cubo',
       shopSchemeEquip: 'Usar este',
       shopSchemeDefault: 'Estándar',
-      shopSchemeNeonElectric: 'Eléctrico'
+      shopSchemeNeonElectric: 'Eléctrico',
+      shopSchemeWa: 'Japonés',
+      shopSchemePastel: 'Pastel',
+      shopSchemeJewel: 'Joya',
+      shopSchemeAccess: 'Color Seguro',
+      shopSchemeMono: 'Monocromo',
+      shopSchemePeek: 'Vista previa',
+      shopSchemePeekLead: 'Mira los colores de las seis caras y cómo se ve el fondo.',
+      shopSchemePeekClose: 'Cerrar'
     },
     'id': {
       shopSchemes: 'Warna Kubus',
       shopSchemesLead: 'Kamu bisa mengubah tema warna kubus',
       shopSchemeEquip: 'Pakai ini',
       shopSchemeDefault: 'Standar',
-      shopSchemeNeonElectric: 'Electric'
+      shopSchemeNeonElectric: 'Electric',
+      shopSchemeWa: 'Jepang',
+      shopSchemePastel: 'Pastel',
+      shopSchemeJewel: 'Permata',
+      shopSchemeAccess: 'Warna Aman',
+      shopSchemeMono: 'Monokrom',
+      shopSchemePeek: 'Pratinjau',
+      shopSchemePeekLead: 'Lihat warna keenam sisi dan tampilan latarnya.',
+      shopSchemePeekClose: 'Tutup'
     },
     'ru': {
       shopSchemes: 'Цвета кубика',
       shopSchemesLead: 'Можно изменить цветовую тему кубика',
       shopSchemeEquip: 'Выбрать эту тему',
       shopSchemeDefault: 'Стандарт',
-      shopSchemeNeonElectric: 'Электрик'
+      shopSchemeNeonElectric: 'Электрик',
+      shopSchemeWa: 'Японский',
+      shopSchemePastel: 'Пастель',
+      shopSchemeJewel: 'Самоцветы',
+      shopSchemeAccess: 'Различимый',
+      shopSchemeMono: 'Монохром',
+      shopSchemePeek: 'Предпросмотр',
+      shopSchemePeekLead: 'Посмотрите цвета всех шести граней и как выглядит фон.',
+      shopSchemePeekClose: 'Закрыть'
     },
     'pt-BR': {
       shopSchemes: 'Cores do cubo',
       shopSchemesLead: 'Você pode mudar o tema de cor do cubo',
       shopSchemeEquip: 'Usar este',
       shopSchemeDefault: 'Padrão',
-      shopSchemeNeonElectric: 'Elétrico'
+      shopSchemeNeonElectric: 'Elétrico',
+      shopSchemeWa: 'Japonês',
+      shopSchemePastel: 'Pastel',
+      shopSchemeJewel: 'Joia',
+      shopSchemeAccess: 'Cor Segura',
+      shopSchemeMono: 'Monocromático',
+      shopSchemePeek: 'Prévia',
+      shopSchemePeekLead: 'Veja as cores das seis faces e como fica o fundo.',
+      shopSchemePeekClose: 'Fechar'
     }
   };
   Object.keys(SCHEME_I18N).forEach(function (lang) {

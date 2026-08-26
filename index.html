@@ -1515,7 +1515,16 @@
 
   <!-- 多言語辞書(9ヶ国語)。下の本体スクリプトが起動直後から I18N を
        参照するため、必ずこれより先に読み込む。 -->
-  <script src="i18n.js?v=20260823e"></script>
+  <script src="i18n.js?v=20260826a"></script>
+
+  <!-- ショップ「キューブカラー」の追加配色（和/パステル/ジュエル/見やすい/
+       モノクローム）。Shop の const SCHEMES より "先" に読ませること。
+       Shop.init() の loadState() は「SCHEMES に無い id は持ち物から落とす」
+       作りなので、後読みにすると買った配色が次回起動で消えてしまう。 -->
+  <script src="cube-schemes.js?v=20260826a"></script>
+
+  <!-- キューブカラーのカードに付く ? （買う前に見え方を確かめる画面）。 -->
+  <script src="scheme-peek.js?v=20260826a"></script>
   <!-- 回し心地（磁力アシスト＋マグレブ微振動）のアニメーション・ドライバ。
        I18N への追記と設定スライダーの差し込みを兼ねるので、i18n.js より
        あと・本体スクリプトより先に読み込む。読み込んだだけでは何も起きず、
@@ -12131,7 +12140,7 @@ const Shop = (function () {
   const SCHEMES = [
     { id: 'default', cost: 0, cur: 'cyan' },
     {
-      id: 'neonElectric', cost: 1000, cur: 'cyan',
+      id: 'neonElectric', cost: 500, cur: 'cyan',
       colors: { R: 0xFF1744, L: 0xFF6D00, U: 0xFFFFFF, D: 0xFFF200, F: 0x00E676, B: 0x2979FF, I: 0x3a3a42 },
       bg: 0x000000,
       gapSize: 0.995,
@@ -12145,6 +12154,9 @@ const Shop = (function () {
       }
     }
   ];
+  // 追加配色（cube-schemes.js）を品揃えの後ろへ合流させる。ファイルを
+  // 読み込まなければこの行は何もしない＝標準とエレクトリックだけに戻る。
+  if (Array.isArray(window.CUBE_SCHEMES_EXTRA)) SCHEMES.push.apply(SCHEMES, window.CUBE_SCHEMES_EXTRA);
   // init3D() 内の colors 初期値・scene.background の初期値と同じもの。
   // 'default' に戻すときはここへ塗り直す。
   const DEFAULT_STICKER_COLORS = { R: 0xB71234, L: 0xFF5800, U: 0xFFFFFF, D: 0xFFD500, F: 0x009E60, B: 0x0051BA, I: 0x18181c };
