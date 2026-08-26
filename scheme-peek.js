@@ -75,19 +75,23 @@
      ============================================================ */
   const CSS = [
     /* ---- カードの右上に置く ? ----
-       黒い半透明の丸だと、下に来る色見本しだいで沈んで見えるうえ
-       「押せるもの」に見えなかった。アクセントカラーで塗って、
-       プレビューの「引き換える」ボタンと同じ色の言葉に揃える。 */
-    '.shop-scheme-peek{position:absolute;top:5px;right:5px;width:32px;height:32px;',
+       アクセントカラーで塗ると主役になってしまい、色見本より先に
+       目に入った。カードに溶けこむ薄いすりガラスに戻し、輪郭と
+       文字だけで「押せる」と分かる程度にとどめる。
+       小さくしたぶんは、下の ::after で当たり判定だけ広げて補う。 */
+    '.shop-scheme-peek{position:absolute;top:5px;right:5px;width:24px;height:24px;',
     '  display:flex;align-items:center;justify-content:center;border-radius:50%;',
-    '  background:var(--tc,#00ffcc);color:#101014;font-size:18px;font-weight:800;',
-    '  line-height:1;border:none;padding:0;font-family:inherit;cursor:pointer;z-index:2;',
-    '  box-shadow:0 1px 5px rgba(0,0,0,.5);',
-    '  transition:transform .1s ease-out,filter .1s ease-out}',
-    /* 指の当たり判定だけ 48px に広げる（見た目は 32px のまま）。
-       カードの角は他に何も置いていないので、少しはみ出しても困らない。 */
-    '.shop-scheme-peek::after{content:"";position:absolute;inset:-8px;border-radius:50%}',
-    '.shop-scheme-peek:active{transform:scale(.88);filter:brightness(1.12)}',
+    '  background:rgba(18,18,24,.42);color:rgba(232,232,238,.72);',
+    '  -webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);',
+    '  font-size:13px;font-weight:700;line-height:1;padding:0;',
+    '  border:1px solid rgba(255,255,255,.13);font-family:inherit;',
+    '  cursor:pointer;z-index:2;',
+    '  transition:transform .1s ease-out,background .15s ease,color .15s ease}',
+    /* 見た目は 24px のままで、指の当たり判定だけ 48px に広げる。
+       カードの角は他に何も置いていないので、はみ出しても困らない。 */
+    '.shop-scheme-peek::after{content:"";position:absolute;inset:-12px;border-radius:50%}',
+    '.shop-scheme-peek:active{transform:scale(.86);',
+    '  background:rgba(18,18,24,.72);color:#e8e8ee}',
 
     /* ---- オーバーレイ ---- */
     '#' + OVERLAY_ID + '{position:fixed;inset:0;z-index:2400;display:none;',
