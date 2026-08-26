@@ -11,7 +11,7 @@
    ------------------------------------------------------------
    ① i18n.js の <script> の直後（= <head> の中）に1行:
 
-        <script src="cube-schemes.js?v=20260826b"></script>
+        <script src="cube-schemes.js?v=20260826c"></script>
 
       ここに置く理由: Shop の const SCHEMES より "先" に
       window.CUBE_SCHEMES_EXTRA を用意しておく必要がある。
@@ -151,6 +151,9 @@
       I: 0x2A2A30
     },
     bg: 0x121214,    // 標準と同じ背景
+    // 標準寸法(未指定=0.94)のままだと、蛍光色の隣に来る黒い線が
+    // 太く目立ちすぎた。ジュエルと同じ 0.995 まで詰めて細い線にする。
+    gapSize: 0.995,
     faceColors: {
       R: { bg: '#D55E00', text: '#141416' },
       L: { bg: '#E86FB4', text: '#141416' },
