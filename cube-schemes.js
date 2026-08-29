@@ -11,7 +11,7 @@
    ------------------------------------------------------------
    ① i18n.js の <script> の直後（= <head> の中）に1行:
 
-        <script src="cube-schemes.js?v=20260826c"></script>
+        <script src="cube-schemes.js?v=20260830a"></script>
 
       ここに置く理由: Shop の const SCHEMES より "先" に
       window.CUBE_SCHEMES_EXTRA を用意しておく必要がある。
