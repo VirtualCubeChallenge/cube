@@ -3165,6 +3165,8 @@
       color: #b8b8c8;
       line-height: 1.7;
       margin: 9px 0 15px;
+      /* 本文に入れた改行をそのまま活かす（1行だけの確認文には影響しない）。 */
+      white-space: pre-line;
     }
     .confirm-actions {
       display: flex;
