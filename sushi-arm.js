@@ -92,7 +92,7 @@
 
   /* ---- 皿に並ぶ寿司の絵（viewBox 160×100 = 駒の縦横比 1.6） ----
      シャード寿司 … 水晶のように面で光を返すネタ＋金箔
-     大トロ       … 薄紅→深紅にサシ（霜降り）の入ったネタ＋金箔
+     大トロ       … 虹シャードと同じ色にサシ（霜降り）の入ったネタ＋金箔
      どちらも、粒の立ったシャリと皿に落ちる影の上に乗せる。
      色の段階はグラデーションに任せ、線は細めにして品よく見せる。 */
   const SUSHI_DEFS =
@@ -102,15 +102,17 @@
       '<linearGradient id="sa-g-cy" x1="0" y1="0" x2="1" y2="1">' +
         '<stop offset="0" stop-color="#f2fdff"/><stop offset=".3" stop-color="#9ae6ff"/>' +
         '<stop offset=".68" stop-color="#2fb0e4"/><stop offset="1" stop-color="#11609e"/></linearGradient>' +
+      /* 大トロ＝虹シャードと同じ色（ショップの虹シャードのアイコンと同じ6色） */
       '<linearGradient id="sa-g-toro" x1="0" y1="0" x2="1" y2="1">' +
-        '<stop offset="0" stop-color="#ffe0e3"/><stop offset=".28" stop-color="#ff9aa8"/>' +
-        '<stop offset=".7" stop-color="#e2475a"/><stop offset="1" stop-color="#a5263a"/></linearGradient>' +
+        '<stop offset="0" stop-color="#fdfbff"/><stop offset=".22" stop-color="#ffd7f0"/>' +
+        '<stop offset=".45" stop-color="#c9e3ff"/><stop offset=".66" stop-color="#9fc9ff"/>' +
+        '<stop offset=".84" stop-color="#c9a3e6"/><stop offset="1" stop-color="#e6a3b8"/></linearGradient>' +
       '<linearGradient id="sa-g-gold" x1="0" y1="0" x2="1" y2="1">' +
         '<stop offset="0" stop-color="#fff6c8"/><stop offset=".45" stop-color="#e8bb48"/><stop offset="1" stop-color="#9c6a10"/></linearGradient>' +
       '<radialGradient id="sa-g-glow-cy" cx=".5" cy=".5" r=".5">' +
         '<stop offset="0" stop-color="#5fd4ff" stop-opacity=".55"/><stop offset="1" stop-color="#5fd4ff" stop-opacity="0"/></radialGradient>' +
       '<radialGradient id="sa-g-glow-toro" cx=".5" cy=".5" r=".5">' +
-        '<stop offset="0" stop-color="#ffc27a" stop-opacity=".55"/><stop offset="1" stop-color="#ffc27a" stop-opacity="0"/></radialGradient>' +
+        '<stop offset="0" stop-color="#e3b8ff" stop-opacity=".6"/><stop offset="1" stop-color="#e3b8ff" stop-opacity="0"/></radialGradient>' +
 
       /* 共通：影とシャリ。シャリは低めに抑え、粒を少しずつずらして並べる */
       '<symbol id="sa-shari" viewBox="0 0 160 100">' +
@@ -139,19 +141,19 @@
         '<path d="M99 28l5-2 3 4-4 3Z" fill="url(#sa-g-gold)"/>' +
       '</symbol>' +
 
-      /* 大トロ：薄紅→深紅に、流れに沿った太いサシと細いサシ */
+      /* 大トロ：虹シャードの色に、流れに沿った太いサシと細いサシ */
       '<symbol id="sa-sushi-toro" viewBox="0 0 160 100">' +
         '<ellipse cx="80" cy="42" rx="78" ry="34" fill="url(#sa-g-glow-toro)"/>' +
         '<use href="#sa-shari"/>' +
-        '<path d="M4 56C6 32 36 14 80 12s72 10 76 36c-4 10-30 18-76 20S6 66 4 56Z" fill="url(#sa-g-toro)" stroke="#5c1420" stroke-width="2.4" stroke-linejoin="round"/>' +
-        '<g fill="none" stroke="#fff4f2" stroke-linecap="round">' +
+        '<path d="M4 56C6 32 36 14 80 12s72 10 76 36c-4 10-30 18-76 20S6 66 4 56Z" fill="url(#sa-g-toro)" stroke="#4a3566" stroke-width="2.4" stroke-linejoin="round"/>' +
+        '<g fill="none" stroke="#ffffff" stroke-linecap="round">' +
           '<path d="M16 52c16-16 34-24 52-32" stroke-width="4.5" opacity=".9"/>' +
           '<path d="M40 64c20-18 44-30 68-42" stroke-width="5" opacity=".9"/>' +
           '<path d="M82 66c18-14 40-24 62-32" stroke-width="4.5" opacity=".9"/>' +
           '<path d="M122 58c10-7 20-12 30-15" stroke-width="3" opacity=".85"/>' +
           '<path d="M30 42c10-8 20-12 30-16M66 52c12-9 26-16 40-21M102 54c12-7 24-12 36-16" stroke-width="2" opacity=".75"/>' +
         '</g>' +
-        '<path d="M6 60c18 9 46 12 74 10s60-8 74-18l1 6c-12 12-44 19-75 20S20 70 6 64Z" fill="#8e1f30" opacity=".5"/>' +
+        '<path d="M6 60c18 9 46 12 74 10s60-8 74-18l1 6c-12 12-44 19-75 20S20 70 6 64Z" fill="#7a5aa8" opacity=".45"/>' +
         '<path d="M28 28c28-10 64-14 98-4" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" opacity=".75"/>' +
         '<path d="M108 20l10-6 8 6-4 9-11 1Z" fill="url(#sa-g-gold)" stroke="#7a5208" stroke-width=".8"/>' +
         '<path d="M99 28l5-2 3 4-4 3Z" fill="url(#sa-g-gold)"/>' +
