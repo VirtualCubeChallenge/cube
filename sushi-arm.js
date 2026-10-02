@@ -11,7 +11,8 @@
      0.49s  ドスン！ 皿に置く（皿が沈む・米粒が跳ねる・「へい！お待ち！！」）
      0.55s  腕はサッと画面外へ引っ込み、皿の上に寿司が残る
    十貫（2〜10）… 腕が皿の上でポコポコポコと連打し、1つずつ並べる
-   爆速連握り（11以上）… 山盛りを一撃でどっさり置く
+   爆速連握り（11以上）… 寿司桶ごと一撃でどっさり置く
+   十貫・爆速連握りとも、皿には一貫と同じ大きさの寿司を10個てんこ盛りにする
 
    結果（水色の数字・大トロの演出・お会計）は、これまでどおり
    index.html の serveCyan / serveRainbow / showSummary が出す。
@@ -89,6 +90,74 @@
       '</g>' +
     '</svg>';
 
+  /* ---- 皿に並ぶ寿司の絵（viewBox 160×100 = 駒の縦横比 1.6） ----
+     シャード寿司 … 水晶のように面で光を返すネタ＋金箔
+     大トロ       … 薄紅→深紅にサシ（霜降り）の入ったネタ＋金箔
+     どちらも、粒の立ったシャリと皿に落ちる影の上に乗せる。
+     色の段階はグラデーションに任せ、線は細めにして品よく見せる。 */
+  const SUSHI_DEFS =
+    '<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>' +
+      '<linearGradient id="sa-g-shari" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#f4eedf"/><stop offset="1" stop-color="#d9cdb2"/></linearGradient>' +
+      '<linearGradient id="sa-g-cy" x1="0" y1="0" x2="1" y2="1">' +
+        '<stop offset="0" stop-color="#f2fdff"/><stop offset=".3" stop-color="#9ae6ff"/>' +
+        '<stop offset=".68" stop-color="#2fb0e4"/><stop offset="1" stop-color="#11609e"/></linearGradient>' +
+      '<linearGradient id="sa-g-toro" x1="0" y1="0" x2="1" y2="1">' +
+        '<stop offset="0" stop-color="#ffe0e3"/><stop offset=".28" stop-color="#ff9aa8"/>' +
+        '<stop offset=".7" stop-color="#e2475a"/><stop offset="1" stop-color="#a5263a"/></linearGradient>' +
+      '<linearGradient id="sa-g-gold" x1="0" y1="0" x2="1" y2="1">' +
+        '<stop offset="0" stop-color="#fff6c8"/><stop offset=".45" stop-color="#e8bb48"/><stop offset="1" stop-color="#9c6a10"/></linearGradient>' +
+      '<radialGradient id="sa-g-glow-cy" cx=".5" cy=".5" r=".5">' +
+        '<stop offset="0" stop-color="#5fd4ff" stop-opacity=".55"/><stop offset="1" stop-color="#5fd4ff" stop-opacity="0"/></radialGradient>' +
+      '<radialGradient id="sa-g-glow-toro" cx=".5" cy=".5" r=".5">' +
+        '<stop offset="0" stop-color="#ffc27a" stop-opacity=".55"/><stop offset="1" stop-color="#ffc27a" stop-opacity="0"/></radialGradient>' +
+
+      /* 共通：影とシャリ。シャリは低めに抑え、粒を少しずつずらして並べる */
+      '<symbol id="sa-shari" viewBox="0 0 160 100">' +
+        '<ellipse cx="80" cy="92" rx="64" ry="6.5" fill="#5a3c1c" opacity=".24"/>' +
+        '<path d="M24 75c0-12 22-18 56-18s56 6 56 18-22 17-56 17-56-5-56-17Z" fill="url(#sa-g-shari)" stroke="#3a2c20" stroke-width="2.4"/>' +
+        '<g fill="#fff" stroke="#e2d6bd" stroke-width=".9">' +
+          '<ellipse cx="40" cy="78" rx="5" ry="3" transform="rotate(-20 40 78)"/><ellipse cx="54" cy="85" rx="5" ry="3" transform="rotate(15 54 85)"/>' +
+          '<ellipse cx="68" cy="79" rx="5" ry="3" transform="rotate(-8 68 79)"/><ellipse cx="82" cy="86" rx="5" ry="3" transform="rotate(22 82 86)"/>' +
+          '<ellipse cx="96" cy="80" rx="5" ry="3" transform="rotate(-25 96 80)"/><ellipse cx="110" cy="85" rx="5" ry="3" transform="rotate(10 110 85)"/>' +
+          '<ellipse cx="122" cy="78" rx="4.5" ry="2.8" transform="rotate(-12 122 78)"/>' +
+        '</g></symbol>' +
+
+      /* シャード寿司：シャリより長いネタが両端で垂れる。面ごとに明暗を変えた水晶 */
+      '<symbol id="sa-sushi-cy" viewBox="0 0 160 100">' +
+        '<ellipse cx="80" cy="42" rx="78" ry="34" fill="url(#sa-g-glow-cy)"/>' +
+        '<use href="#sa-shari"/>' +
+        '<path d="M4 56C6 32 36 14 80 12s72 10 76 36c-4 10-30 18-76 20S6 66 4 56Z" fill="url(#sa-g-cy)" stroke="#0d3452" stroke-width="2.4" stroke-linejoin="round"/>' +
+        '<path d="M6 60c18 9 46 12 74 10s60-8 74-18l1 6c-12 12-44 19-75 20S20 70 6 64Z" fill="#0b4f80" opacity=".5"/>' +
+        '<path d="M24 30l38-14-6 30Z" fill="#fff" opacity=".45"/>' +
+        '<path d="M62 16h46l-12 26-40 4Z" fill="#fff" opacity=".18"/>' +
+        '<path d="M108 16l42 22-24 18-30-14Z" fill="#06395e" opacity=".2"/>' +
+        '<path d="M24 30l32 16-16 16-34-8Z" fill="#06395e" opacity=".14"/>' +
+        '<path d="M56 46l40-4 30 14-44 12Z" fill="#fff" opacity=".12"/>' +
+        '<path d="M28 28c28-10 64-14 98-4" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" opacity=".85"/>' +
+        '<path d="M108 20l10-6 8 6-4 9-11 1Z" fill="url(#sa-g-gold)" stroke="#7a5208" stroke-width=".8"/>' +
+        '<path d="M99 28l5-2 3 4-4 3Z" fill="url(#sa-g-gold)"/>' +
+      '</symbol>' +
+
+      /* 大トロ：薄紅→深紅に、流れに沿った太いサシと細いサシ */
+      '<symbol id="sa-sushi-toro" viewBox="0 0 160 100">' +
+        '<ellipse cx="80" cy="42" rx="78" ry="34" fill="url(#sa-g-glow-toro)"/>' +
+        '<use href="#sa-shari"/>' +
+        '<path d="M4 56C6 32 36 14 80 12s72 10 76 36c-4 10-30 18-76 20S6 66 4 56Z" fill="url(#sa-g-toro)" stroke="#5c1420" stroke-width="2.4" stroke-linejoin="round"/>' +
+        '<g fill="none" stroke="#fff4f2" stroke-linecap="round">' +
+          '<path d="M16 52c16-16 34-24 52-32" stroke-width="4.5" opacity=".9"/>' +
+          '<path d="M40 64c20-18 44-30 68-42" stroke-width="5" opacity=".9"/>' +
+          '<path d="M82 66c18-14 40-24 62-32" stroke-width="4.5" opacity=".9"/>' +
+          '<path d="M122 58c10-7 20-12 30-15" stroke-width="3" opacity=".85"/>' +
+          '<path d="M30 42c10-8 20-12 30-16M66 52c12-9 26-16 40-21M102 54c12-7 24-12 36-16" stroke-width="2" opacity=".75"/>' +
+        '</g>' +
+        '<path d="M6 60c18 9 46 12 74 10s60-8 74-18l1 6c-12 12-44 19-75 20S20 70 6 64Z" fill="#8e1f30" opacity=".5"/>' +
+        '<path d="M28 28c28-10 64-14 98-4" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" opacity=".75"/>' +
+        '<path d="M108 20l10-6 8 6-4 9-11 1Z" fill="url(#sa-g-gold)" stroke="#7a5208" stroke-width=".8"/>' +
+        '<path d="M99 28l5-2 3 4-4 3Z" fill="url(#sa-g-gold)"/>' +
+      '</symbol>' +
+    '</defs></svg>';
+
   const CSS = [
     /* 舞台（.gc-stage）の中に置く層。皿(4) < 皿の上の寿司(5) < 腕(7) < カットイン(10) */
     '#gc-stage{--sa-pw:clamp(150px,46vw,230px);--sa-aw:clamp(220px,68vw,330px)}',
@@ -100,14 +169,12 @@
     '  transform:translateX(-50%);pointer-events:none}',
     '.sa-piece{position:absolute;left:var(--x);top:var(--y);width:var(--w);aspect-ratio:1.6;opacity:0;',
     '  transform:translate(-50%,-50%) rotate(var(--r))}',
-    '.sa-piece i{position:absolute;z-index:1;left:4%;right:4%;top:4%;height:54%;',
-    '  border-radius:46% 46% 22% 22%/70% 70% 30% 30%;border:2.5px solid #2b2b2b;',
-    '  background:linear-gradient(160deg,#9fe9ff,#35b6e8);box-shadow:0 0 10px rgba(60,200,255,.85)}',
-    '.sa-piece b{position:absolute;left:8%;right:8%;bottom:4%;height:52%;border-radius:40%/50%;',
-    '  border:2.5px solid #2b2b2b;background:linear-gradient(#fff,#ece4d2)}',
-    '.sa-piece.big i,.sa-piece.big b{border-width:3px}',
-    '.sa-piece.toro i{background:repeating-linear-gradient(102deg,rgba(255,255,255,.85) 0 2px,transparent 2px 7px),',
-    '  linear-gradient(160deg,#ff8f8f,#e0523d);box-shadow:0 0 16px rgba(255,190,80,.95)}',
+    '.sa-piece svg{display:block;width:100%;height:100%;overflow:visible}',
+    /* 時々きらりと光る（opacity と transform だけ。駒ごとに間をずらす） */
+    '.sa-glint{position:absolute;left:30%;top:14%;width:16%;aspect-ratio:1;opacity:0;pointer-events:none;',
+    '  background:#fff;clip-path:polygon(50% 0,58% 42%,100% 50%,58% 58%,50% 100%,42% 58%,0 50%,42% 42%);',
+    '  animation:saGlint 2.8s ease-in-out var(--gd,0s) infinite}',
+    '@keyframes saGlint{0%,70%,100%{opacity:0;transform:scale(.3) rotate(0)}80%{opacity:.95;transform:scale(1) rotate(45deg)}}',
     '.sa-piece.in{animation:saLand .34s cubic-bezier(.2,1.6,.4,1) var(--d,0s) both}',
     '@keyframes saLand{0%{opacity:1;transform:translate(-50%,-50%) rotate(var(--r)) scale(1.35,.6)}',
     '  50%{opacity:1;transform:translate(-50%,-50%) rotate(var(--r)) scale(.9,1.12)}',
@@ -194,7 +261,7 @@
     '@keyframes saBand{0%{transform:scaleX(0)}20%{transform:scaleX(1)}74%{transform:scaleX(1);opacity:1}100%{transform:scaleX(1);opacity:0}}',
 
     '@media (prefers-reduced-motion: reduce){',
-    '  .sa-arm,.sa-cutin,.sa-boom{display:none}',
+    '  .sa-arm,.sa-cutin,.sa-boom,.sa-glint{display:none}',
     '  .gc-plate-wrap.sa-thud,.sa-pile.sa-thud,#gc-stage.sa-quake{animation:none}',
     '}'
   ].join('');
@@ -210,12 +277,13 @@
   /* ---- 皿の上の並べ方（皿の箱に対する % ） [x, y, 幅, 傾き] ----
      皿は奥に倒してあるので、見えている楕円はおおよそ縦 19〜81%。 */
   const ONE = [[50, 47, 46, -6]];
-  const ROW10 = [[30, 44], [44, 41], [58, 41], [72, 44], [24, 55],
-                 [38, 54], [52, 54], [66, 55], [78, 57], [50, 66]];
-  /* 山盛り：下の段から順に積む（後から置いたものが手前に重なる） */
-  const MOUND = [[26, 58], [38, 59], [50, 60], [62, 59], [74, 58],
-                 [32, 48], [44, 47], [56, 47], [68, 48],
-                 [38, 38], [50, 37], [62, 38], [50, 28]];
+  /* 十貫・爆速連握り：一貫と同じ大きさの寿司を、下から 4・3・2・1 段に
+     積み上げる「てんこ盛り」。上の段ほど後から置くので手前に重なり、
+     てっぺんは皿の縁より上まで盛り上がる。 */
+  const PYRAMID = [[22, 60, 46], [41, 61, 46], [60, 61, 46], [79, 60, 46],
+                   [31, 46, 46], [50, 46, 46], [69, 46, 46],
+                   [40, 32, 46], [60, 32, 46],
+                   [50, 18, 46]];
 
   let overlay = null, stage = null, plateWrap = null, pile = null;
   let arm = null, move = null, motion = null, ghost = null, cutin = null;
@@ -228,6 +296,7 @@
     plateWrap = document.getElementById('gc-plate-wrap');
     if (!overlay || !stage || !plateWrap) return false;
     injectCSS();
+    if (!document.getElementById('sa-g-shari')) document.body.insertAdjacentHTML('beforeend', SUSHI_DEFS);
 
     pile = document.createElement('div');
     pile.className = 'sa-pile';
@@ -303,6 +372,8 @@
   }
   function revealToro() {
     toroQueue.forEach(function (d) {
+      const u = d.querySelector('use');
+      if (u) u.setAttribute('href', '#sa-sushi-toro');
       d.classList.add('toro');
       d.classList.remove('in', 'fade', 'toro-now');
       void d.offsetWidth;
@@ -330,7 +401,9 @@
     d.style.setProperty('--y', p[1] + '%');
     d.style.setProperty('--w', (p[2] || opts.w || 19) + '%');
     d.style.setProperty('--r', (p[3] != null ? p[3] : Math.round(Math.random() * 24 - 12)) + 'deg');
-    d.innerHTML = '<i></i><b></b>';
+    // 絵はいったん全部シャード寿司。大トロは後光が出た瞬間に化ける（revealToro）。
+    d.innerHTML = '<svg viewBox="0 0 160 100" aria-hidden="true" focusable="false"><use href="#sa-sushi-cy"/></svg>' +
+      '<span class="sa-glint" style="--gd:' + (Math.random() * 2.6).toFixed(2) + 's"></span>';
     if (opts.toro) toroQueue.push(d);
     pile.appendChild(d);
     void d.offsetWidth;
@@ -378,8 +451,8 @@
       const times = Math.max(1, ctx.times | 0);
       const hits = Math.max(0, ctx.hits | 0);
       const mode = times === 1 ? 'one' : (times <= 10 ? 'jab' : 'big');
-      const layout = mode === 'one' ? ONE : (mode === 'jab' ? ROW10.slice(0, times) : MOUND);
-      /* 山盛りは13個しか置かないので、大トロの数は引いた回数に対する割合で
+      const layout = mode === 'one' ? ONE : (mode === 'jab' ? PYRAMID.slice(0, times) : PYRAMID);
+      /* 山盛りは10個しか置かないので、大トロの数は引いた回数に対する割合で
          決める（当たりがあれば最低1個）。全部が大トロに化けると嘘になる。 */
       const toroN = mode === 'big'
         ? (hits > 0 ? Math.max(1, Math.round(layout.length * hits / times)) : 0)
@@ -435,7 +508,7 @@
         L(function () {
           arm.classList.add('empty');
           layout.forEach(function (p, i) {
-            const opts = { toro: toro[i], big: !big, w: big ? 19 : 0 };
+            const opts = { toro: toro[i], big: true };
             if (big) L(function () { addPiece(p, opts); }, i * 18);
             else addPiece(p, opts);
           });
@@ -463,7 +536,7 @@
           ghost.style.animation = 'none';
           restart(motion, 'saJab ' + J + 'ms linear both');
           L(function () {
-            addPiece(p, { toro: toro[i], w: 20 });
+            addPiece(p, { toro: toro[i], big: true });
             if (i < n - 1) {
               tap();
               vib(8);
