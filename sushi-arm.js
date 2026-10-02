@@ -92,7 +92,7 @@
 
   /* ---- 皿に並ぶ寿司の絵（viewBox 160×100 = 駒の縦横比 1.6） ----
      シャード寿司 … 水晶のように面で光を返すネタ＋金箔
-     大トロ       … 虹シャードと同じ色にサシ（霜降り）の入ったネタ＋金箔
+     大トロ       … ルビーのような赤にサシ（霜降り）の入ったネタ＋金の縁と金箔
      どちらも、粒の立ったシャリと皿に落ちる影の上に乗せる。
      色の段階はグラデーションに任せ、線は細めにして品よく見せる。 */
   const SUSHI_DEFS =
@@ -102,20 +102,20 @@
       '<linearGradient id="sa-g-cy" x1="0" y1="0" x2="1" y2="1">' +
         '<stop offset="0" stop-color="#f2fdff"/><stop offset=".3" stop-color="#9ae6ff"/>' +
         '<stop offset=".68" stop-color="#2fb0e4"/><stop offset="1" stop-color="#11609e"/></linearGradient>' +
-      /* 大トロ＝虹シャードと同じ色（ショップの虹シャードのアイコンと同じ6色） */
+      /* 大トロ＝ルビーのような赤。上は淡い桜色、中ほどは艶のある紅、下は深い臙脂へ沈む */
       '<linearGradient id="sa-g-toro" x1="0" y1="0" x2="1" y2="1">' +
-        '<stop offset="0" stop-color="#fdfbff"/><stop offset=".2" stop-color="#ffd7f0"/>' +
-        '<stop offset=".42" stop-color="#c9e3ff"/><stop offset=".62" stop-color="#86b2ff"/>' +
-        '<stop offset=".82" stop-color="#a47fd8"/><stop offset="1" stop-color="#c2708f"/></linearGradient>' +
+        '<stop offset="0" stop-color="#ffe6e9"/><stop offset=".18" stop-color="#ff9fab"/>' +
+        '<stop offset=".42" stop-color="#ef4b5e"/><stop offset=".68" stop-color="#c41a38"/>' +
+        '<stop offset=".88" stop-color="#8c0f2a"/><stop offset="1" stop-color="#5c081c"/></linearGradient>' +
       /* 下側ほど濃く沈める影（奥行き） */
       '<linearGradient id="sa-g-deep" x1="0" y1="0" x2="0" y2="1">' +
-        '<stop offset=".35" stop-color="#3b2470" stop-opacity="0"/><stop offset="1" stop-color="#3b2470" stop-opacity=".45"/></linearGradient>' +
+        '<stop offset=".35" stop-color="#3d0412" stop-opacity="0"/><stop offset="1" stop-color="#3d0412" stop-opacity=".45"/></linearGradient>' +
       '<linearGradient id="sa-g-gold" x1="0" y1="0" x2="1" y2="1">' +
         '<stop offset="0" stop-color="#fff6c8"/><stop offset=".45" stop-color="#e8bb48"/><stop offset="1" stop-color="#9c6a10"/></linearGradient>' +
       /* 大トロの光沢用：真珠の揺らぎ・濡れたツヤ・横切る光の帯・ネタの形の切り抜き */
       '<linearGradient id="sa-g-iri" x1="1" y1="0" x2="0" y2="1">' +
-        '<stop offset="0" stop-color="#c9e3ff"/><stop offset=".35" stop-color="#ffd7f0"/>' +
-        '<stop offset=".6" stop-color="#fdfbff"/><stop offset="1" stop-color="#c9a3e6"/></linearGradient>' +
+        '<stop offset="0" stop-color="#ffd2da"/><stop offset=".35" stop-color="#fff1dc"/>' +
+        '<stop offset=".6" stop-color="#ffb8c4"/><stop offset="1" stop-color="#ffd59a"/></linearGradient>' +
       '<linearGradient id="sa-g-gloss" x1="0" y1="0" x2="0" y2="1">' +
         '<stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>' +
       '<linearGradient id="sa-g-sweep" x1="0" y1="0" x2="1" y2="0">' +
@@ -125,8 +125,8 @@
       '<radialGradient id="sa-g-glow-cy" cx=".5" cy=".5" r=".5">' +
         '<stop offset="0" stop-color="#5fd4ff" stop-opacity=".55"/><stop offset="1" stop-color="#5fd4ff" stop-opacity="0"/></radialGradient>' +
       '<radialGradient id="sa-g-glow-toro" cx=".5" cy=".5" r=".5">' +
-        '<stop offset="0" stop-color="#fff0c4" stop-opacity=".75"/><stop offset=".5" stop-color="#e3b8ff" stop-opacity=".45"/>' +
-        '<stop offset="1" stop-color="#e3b8ff" stop-opacity="0"/></radialGradient>' +
+        '<stop offset="0" stop-color="#fff0c4" stop-opacity=".75"/><stop offset=".5" stop-color="#ff8f8f" stop-opacity=".4"/>' +
+        '<stop offset="1" stop-color="#ff8f8f" stop-opacity="0"/></radialGradient>' +
 
       /* 共通：影とシャリ。シャリは低めに抑え、粒を少しずつずらして並べる */
       '<symbol id="sa-shari" viewBox="0 0 160 100">' +
@@ -155,16 +155,16 @@
         '<path d="M99 28l5-2 3 4-4 3Z" fill="url(#sa-g-gold)"/>' +
       '</symbol>' +
 
-      /* 大トロ：虹シャードの色。真珠の揺らぎ＋濡れたツヤ＋横切る光＋金の縁と金箔 */
+      /* 大トロ：ルビーの赤。真珠の揺らぎ＋濡れたツヤ＋横切る光＋金の縁と金箔 */
       '<symbol id="sa-sushi-toro" viewBox="0 0 160 100">' +
         '<ellipse cx="80" cy="42" rx="80" ry="36" fill="url(#sa-g-glow-toro)"/>' +
         '<use href="#sa-shari"/>' +
         '<path d="M4 56C6 32 36 14 80 12s72 10 76 36c-4 10-30 18-76 20S6 66 4 56Z" fill="url(#sa-g-toro)"/>' +
         /* 真珠のように角度で色が揺らぐ二枚目 */
-        '<path d="M4 56C6 32 36 14 80 12s72 10 76 36c-4 10-30 18-76 20S6 66 4 56Z" fill="url(#sa-g-iri)" opacity=".3"/>' +
+        '<path d="M4 56C6 32 36 14 80 12s72 10 76 36c-4 10-30 18-76 20S6 66 4 56Z" fill="url(#sa-g-iri)" opacity=".22"/>' +
         '<path d="M4 56C6 32 36 14 80 12s72 10 76 36c-4 10-30 18-76 20S6 66 4 56Z" fill="url(#sa-g-deep)"/>' +
         /* サシ */
-        '<g fill="none" stroke="#ffffff" stroke-linecap="round">' +
+        '<g fill="none" stroke="#fff3f3" stroke-linecap="round">' +
           '<path d="M16 52c16-16 34-24 52-32" stroke-width="4.5" opacity=".9"/>' +
           '<path d="M40 64c20-18 44-30 68-42" stroke-width="5" opacity=".9"/>' +
           '<path d="M82 66c18-14 40-24 62-32" stroke-width="4.5" opacity=".9"/>' +
@@ -172,7 +172,7 @@
           '<path d="M30 42c10-8 20-12 30-16M66 52c12-9 26-16 40-21M102 54c12-7 24-12 36-16" stroke-width="2" opacity=".75"/>' +
         '</g>' +
         /* 手前の厚み */
-        '<path d="M6 60c18 9 46 12 74 10s60-8 74-18l1 6c-12 12-44 19-75 20S20 70 6 64Z" fill="#4e3088" opacity=".55"/>' +
+        '<path d="M6 60c18 9 46 12 74 10s60-8 74-18l1 6c-12 12-44 19-75 20S20 70 6 64Z" fill="#5c0a1e" opacity=".55"/>' +
         /* 濡れたツヤ（上半分にかかる白い光沢の面） */
         '<path d="M12 46C18 28 44 17 80 15s62 8 70 26c-22-9-46-13-70-13S30 35 12 46Z" fill="url(#sa-g-gloss)" opacity=".55"/>' +
         /* 数秒おきに、ネタの上を光の帯が横切る（ネタの形で切り抜く） */
@@ -183,8 +183,8 @@
         '<path d="M30 27c28-11 64-15 96-5" fill="none" stroke="#fff" stroke-width="4.6" stroke-linecap="round" opacity=".95"/>' +
         '<path d="M38 36c12-5 24-7 36-8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/>' +
         '<circle cx="132" cy="30" r="3.2" fill="#fff"/><circle cx="140" cy="35" r="1.6" fill="#fff" opacity=".9"/>' +
-        /* 輪郭：濃い藤色の線の芯に、金の細線を通す */
-        '<path d="M4 56C6 32 36 14 80 12s72 10 76 36c-4 10-30 18-76 20S6 66 4 56Z" fill="none" stroke="#4a3566" stroke-width="2.6" stroke-linejoin="round"/>' +
+        /* 輪郭：深い臙脂の線の芯に、金の細線を通す */
+        '<path d="M4 56C6 32 36 14 80 12s72 10 76 36c-4 10-30 18-76 20S6 66 4 56Z" fill="none" stroke="#4a0816" stroke-width="2.6" stroke-linejoin="round"/>' +
         '<path d="M4 56C6 32 36 14 80 12s72 10 76 36c-4 10-30 18-76 20S6 66 4 56Z" fill="none" stroke="url(#sa-g-gold)" stroke-width="1.2" stroke-linejoin="round" opacity=".95"/>' +
         /* 金箔を3片 */
         '<path d="M106 18l11-7 9 7-4 10-12 1Z" fill="url(#sa-g-gold)" stroke="#7a5208" stroke-width=".8"/>' +
