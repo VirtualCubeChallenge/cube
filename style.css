@@ -5438,17 +5438,26 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  /* 見出し＋木札と残高が1行に収まらないときは、残高を2行目へ送る。
+     以前は見出しのほうが縮められ、貫数が4桁（1,000〜）になると
+     「ショップ」が1文字幅まで潰れて縦書きになっていた。 */
+  flex-wrap: wrap;
+  gap: 6px 10px;
   margin-bottom: 4px;
 }
 .shop-header h2 {
   font-size: 16px;
   margin: 0;
+  /* 見出しは常に横1行。縮めない・折り返さない。 */
+  white-space: nowrap;
+  flex: none;
 }
 .shop-wallets {
   display: flex;
   align-items: center;
   gap: 8px;
+  /* 2行目に落ちたときも右寄せのままにする */
+  margin-left: auto;
 }
 .shop-wallet {
   display: inline-flex;
@@ -6962,7 +6971,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  min-width: 0;
+  /* 縮めない。幅が足りないときは .shop-header 側で残高が2行目へ落ちる。 */
+  flex: none;
 }
 .shop-gacha-entry {
   position: relative;
