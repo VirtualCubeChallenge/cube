@@ -7143,7 +7143,10 @@
   display: flex;
   justify-content: center;
   gap: 3px;
-  z-index: 7;
+  /* 大将・吹き出し・皿の舞台（.gc-stage, 5）より後ろ、後光（3）より前。
+     暖簾を下げたぶん掛け声の吹き出しと重なるようになったので、
+     吹き出しが暖簾の裏に隠れないよう舞台の後ろへ回す。 */
+  z-index: 4;
   pointer-events: none;
   transform: translateY(-14%);
   transition: transform .5s cubic-bezier(.2, 1.5, .4, 1);
