@@ -7135,14 +7135,17 @@
    下りてきて「もう握れない（＝早く食べて）」を絵で伝える。 */
 .gc-noren {
   position: absolute;
-  left: 0; right: 0; top: 0;
+  /* ステータスバー・ノッチの裏に入らないよう、安全領域の下から吊るす。
+     以前は画面の最上端から吊るしたうえで 58% も引っ込めていたので、
+     開店中は「回転鮨」の文字が見出しの裏に隠れて読めなかった。 */
+  left: 0; right: 0; top: env(safe-area-inset-top, 0px);
   height: 96px;
   display: flex;
   justify-content: center;
   gap: 3px;
   z-index: 7;
   pointer-events: none;
-  transform: translateY(-58%);
+  transform: translateY(-14%);
   transition: transform .5s cubic-bezier(.2, 1.5, .4, 1);
 }
 .gc-noren.is-closed { transform: translateY(0); }
@@ -7161,7 +7164,10 @@
   background: linear-gradient(#8c2f28, #6d211c);
   border-radius: 2px 2px 5px 5px;
   display: flex;
-  align-items: center;
+  /* 文字は裾に寄せる。上半分は見出しの行（タイトル・木札・✕）と
+     重なるので、そこより下で読めるようにする。 */
+  align-items: flex-end;
+  padding-bottom: 9px;
   justify-content: center;
   transform-origin: 50% 0;
   animation: gc-noren-sway 3.4s ease-in-out infinite;
@@ -7170,11 +7176,14 @@
 .gc-noren-cloth:nth-child(3) { animation-delay: -.9s; }
 .gc-noren-cloth:nth-child(4) { animation-delay: -1.8s; }
 .gc-noren-cloth span {
+  /* 1枚に1文字なので縦書き指定はしない。vertical-rl のままだと
+     文字の箱が潰れ、文字だけが箱より下にずれて描かれるため、
+     裾に寄せたときに布の下へはみ出していた。 */
+  display: block;
+  line-height: 1;
   color: #fdf3dd;
   font-size: 22px;
   font-weight: 900;
-  writing-mode: vertical-rl;
-  letter-spacing: .1em;
 }
 @keyframes gc-noren-sway {
   0%, 100% { transform: rotate(-1.1deg); }
