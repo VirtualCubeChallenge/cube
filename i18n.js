@@ -3002,7 +3002,7 @@
       sushiDraw10:      '十貫',
       sushiDrawAll:     '爆速連握り',
       sushiHintGet:     '',
-      sushiHintFull:    'ネタ切れです。のれんが下りる前に食べてください',
+      sushiHintFull:    'ネタが満タンです！これ以上はたまらないので、握ってください',
       sushiHintNone:    'PLL2側面判断検定で一問正解するごとに一貫たまります。\n　　　　　※現在は売り切れです。',
       sushiConfirmBody: '{n}貫ぶん、一気に握ります。',
       sushiTally:       'お会計',
