@@ -488,10 +488,10 @@
   const R = 33.5;              // 中心から丸までの距離（ステージの%）
   const BASE = [-90, 150, 30]; // 検定=上、フラッシュ=左下、ビジョン=右下
   const CHARGE_FROM = 260;     // これより速く回すとチャージがたまる(度/秒)
-  const CHARGE_FULL = 760;     // この速さで最大の勢いでたまる（指でくるくる回せる程度）
-  const CHARGE_RATE = 0.9;     // たまる速さ
-  const CHARGE_LEAK = 0.45;    // ゆるめたときに抜ける速さ
-  const BURST_MIN = 0.28;      // これ以上たまっていたら、離した瞬間に弾ける
+  const CHARGE_FULL = 600;     // この速さ以上なら、最大の勢いでたまる（指でくるくる回せる程度）
+  const CHARGE_SECONDS = 10;   // 最大の勢いで回し続けて、いちばん小さくなるまでの秒数
+  const CHARGE_LEAK = 0.15;    // ゆるめたときに抜ける速さ（1秒あたり。少し止まっても大きくは戻らない）
+  const BURST_MIN = 0.15;      // これ以上たまっていたら、離した瞬間に弾ける（1.5秒ほど回せば届く）
   let nodeEls = [], lineEls = [], lightEl = null, vortexEl = null, netEl = null;
   let prismEl = null, prism2El = null, whiteEl = null;
   let theta = 0;               // 全体の回転角(度)。0 = 初期の並び
@@ -511,7 +511,8 @@
 
   function place() {
     const c = charge;
-    const k = c > 0 ? eased(Math.min(1, c)) : 0;
+    // 縮み方は回した時間にほぼ比例（じわじわ小さくなり、最後は限りなく小さく）
+    const k = c > 0 ? Math.min(1, c) : 0;
     // c>0：小さく、中心へ。c<0（回復のふくらみすぎ）：ほんの少し大きく、外へ
     const scale = c >= 0 ? 1 - 0.95 * k : 1 - c * 0.35;
     const rf = c >= 0 ? 1 - 0.97 * k : 1 - c * 0.22;
@@ -582,8 +583,10 @@
       if (!reduceMotion) {
         const w = Math.abs(dragOmega);
         if (w > CHARGE_FROM) {
-          const g = Math.min(1, (w - CHARGE_FROM) / (CHARGE_FULL - CHARGE_FROM));
-          charge += dt * CHARGE_RATE * g * (1.04 - charge);   // 1に近いほど伸びが鈍る
+          // ほどほどの速さでもしっかりたまるよう、速さの効き方はゆるい曲線にする
+          const g = Math.pow(Math.min(1, (w - CHARGE_FROM) / (CHARGE_FULL - CHARGE_FROM)), 0.6);
+          // 回し続けた時間にほぼ比例してたまる（最大の勢いで CHARGE_SECONDS 秒で満タン）
+          charge += dt * g / CHARGE_SECONDS;
         } else {
           charge -= dt * CHARGE_LEAK * (1 - w / CHARGE_FROM);
         }
