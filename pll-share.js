@@ -21,15 +21,15 @@
   const HASHTAG = '#VirtualCubeChallenge';
 
   const SHARE_I18N = {
-    ja:      { shareX: 'Xでシェア', shareScore: '正解', shareAvg: '平均判別', shareTime: '回答タイム', shareBest: '自己ベスト更新！' },
-    en:      { shareX: 'Share on X', shareScore: 'Correct', shareAvg: 'Avg recognition', shareTime: 'Answer time', shareBest: 'New personal best!' },
-    'zh-CN': { shareX: '分享到 X', shareScore: '正确', shareAvg: '平均判断', shareTime: '作答用时', shareBest: '刷新个人最佳！' },
-    'zh-TW': { shareX: '分享到 X', shareScore: '正確', shareAvg: '平均判斷', shareTime: '作答用時', shareBest: '刷新個人最佳！' },
-    ko:      { shareX: 'X에 공유', shareScore: '정답', shareAvg: '평균 판별', shareTime: '답변 시간', shareBest: '개인 최고 기록 갱신!' },
-    es:      { shareX: 'Compartir en X', shareScore: 'Aciertos', shareAvg: 'Reconocimiento medio', shareTime: 'Tiempo de respuesta', shareBest: '¡Nuevo récord personal!' },
-    id:      { shareX: 'Bagikan ke X', shareScore: 'Benar', shareAvg: 'Rata-rata pengenalan', shareTime: 'Waktu menjawab', shareBest: 'Rekor pribadi baru!' },
-    ru:      { shareX: 'Поделиться в X', shareScore: 'Верно', shareAvg: 'Среднее распознавание', shareTime: 'Время ответа', shareBest: 'Новый личный рекорд!' },
-    'pt-BR': { shareX: 'Compartilhar no X', shareScore: 'Acertos', shareAvg: 'Reconhecimento médio', shareTime: 'Tempo de resposta', shareBest: 'Novo recorde pessoal!' }
+    ja:      { shareX: 'Xでシェア', shareScore: '正解', shareAvg: '平均判別', shareTime: '回答タイム', shareBest: '自己ベスト更新！', shareSaved: '結果の画像を保存しました。Xの投稿に添付してください' },
+    en:      { shareX: 'Share on X', shareScore: 'Correct', shareAvg: 'Avg recognition', shareTime: 'Answer time', shareBest: 'New personal best!', shareSaved: 'Saved the result image. Attach it to your X post.' },
+    'zh-CN': { shareX: '分享到 X', shareScore: '正确', shareAvg: '平均判断', shareTime: '作答用时', shareBest: '刷新个人最佳！', shareSaved: '已保存结果图片，请在 X 帖子中附上。' },
+    'zh-TW': { shareX: '分享到 X', shareScore: '正確', shareAvg: '平均判斷', shareTime: '作答用時', shareBest: '刷新個人最佳！', shareSaved: '已儲存結果圖片，請在 X 貼文中附上。' },
+    ko:      { shareX: 'X에 공유', shareScore: '정답', shareAvg: '평균 판별', shareTime: '답변 시간', shareBest: '개인 최고 기록 갱신!', shareSaved: '결과 이미지를 저장했어요. X 게시물에 첨부해 주세요.' },
+    es:      { shareX: 'Compartir en X', shareScore: 'Aciertos', shareAvg: 'Reconocimiento medio', shareTime: 'Tiempo de respuesta', shareBest: '¡Nuevo récord personal!', shareSaved: 'Imagen del resultado guardada. Adjúntala a tu publicación en X.' },
+    id:      { shareX: 'Bagikan ke X', shareScore: 'Benar', shareAvg: 'Rata-rata pengenalan', shareTime: 'Waktu menjawab', shareBest: 'Rekor pribadi baru!', shareSaved: 'Gambar hasil disimpan. Lampirkan di postingan X kamu.' },
+    ru:      { shareX: 'Поделиться в X', shareScore: 'Верно', shareAvg: 'Среднее распознавание', shareTime: 'Время ответа', shareBest: 'Новый личный рекорд!', shareSaved: 'Изображение результата сохранено. Прикрепите его к посту в X.' },
+    'pt-BR': { shareX: 'Compartilhar no X', shareScore: 'Acertos', shareAvg: 'Reconhecimento médio', shareTime: 'Tempo de resposta', shareBest: 'Novo recorde pessoal!', shareSaved: 'Imagem do resultado salva. Anexe-a ao seu post no X.' }
   };
   if (typeof I18N !== 'undefined' && I18N) {
     Object.keys(SHARE_I18N).forEach(function (lang) {
@@ -53,7 +53,15 @@
 
   /* ------------------------------------------------------------ 見た目 -- */
   const CSS = [
-    '.pls-share{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:8px;',
+    // 2列（左=戻るの上、右=もう一度挑戦の上）。下の .pllt-result-actions と同じ列幅・すき間
+    '.pls-top{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;align-items:stretch}',
+    '.pls-top+.pllt-result-actions{margin-top:8px}',
+    '.pls-top .pllt-ticket-row{margin:0;min-width:0;flex-wrap:nowrap}',
+    // 半分の幅に収まるよう、ここでだけ木札を少し詰める（寿司屋へ飛ぶ「›」が付いても収まるように）
+    '.pls-top .pllt-ticket-row .pllt-kan-fuda{max-width:100%;min-width:0;white-space:nowrap;gap:5px;padding:6px 9px 7px}',
+    // 幅の狭い端末では「ためた貫」の文字を省き、「貫 +10」だけにする
+    '@media (max-width:400px){.pls-top .pllt-ticket-row .pllt-kan-label{display:none}}',
+    '.pls-share{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:0;min-width:0;',
     '  padding:12px 14px;border-radius:10px;background:#000;color:#fff;border:1px solid #3a3a46;',
     '  font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;touch-action:manipulation;',
     '  -webkit-tap-highlight-color:transparent;transition:transform .12s ease,border-color .12s ease}',
@@ -120,41 +128,373 @@
       const st = global.PllFlash && global.PllFlash.getState();
       if (st && st.targetPLLs && st.targetPLLs.length) {
         const oks = st.targetPLLs.map(function (name, i) { return st.userAnswers[i] === name; });
-        lines.push('', grid(oks, vision ? 3 : 5));
+        void oks;   // 正誤のマスは画像に描くので、文面には入れない
       }
     } catch (e) {}
     lines.push('', HASHTAG);
     return lines.join('\n');
   }
 
+  /* ------------------------------------------------------ 結果の画像 --
+     文字だけだと書き換えて投稿できてしまうので、リザルト画面と同じ内容を
+     1枚の画像（1080×1350）に描いて添付する。画面の DOM をそのまま写すのでは
+     なく、同じ数字・同じキューブを canvas に描き直す（3D の CSS は画像に
+     写せないため）。日時も焼き込む。 */
+  const IW = 1080, IH = 1350;
+  function css(name, fb) {
+    try {
+      const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      return v || fb;
+    } catch (e) { return fb; }
+  }
+  function fontStack() {
+    try { return getComputedStyle(document.body).fontFamily || 'sans-serif'; } catch (e) { return 'sans-serif'; }
+  }
+  function rr(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+  function shade(hex, k) {
+    const n = parseInt(hex.replace('#', ''), 16);
+    const r = Math.round(((n >> 16) & 255) * k), g = Math.round(((n >> 8) & 255) * k), b = Math.round((n & 255) * k);
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+  }
+  // 画面と同じ見え方（上面＋手前の2面）のキューブを、等角図で描く
+  function drawCube(ctx, cx, cy, a, cube) {
+    const c30 = Math.cos(Math.PI / 6);
+    const T = [cx, cy - a], Rt = [cx + a * c30, cy - a / 2], C = [cx, cy], Lt = [cx - a * c30, cy - a / 2];
+    const left = cube.angle === 'FL' ? cube.L : cube.F;
+    const right = cube.angle === 'FL' ? cube.F : cube.R;
+    function quad(p0, ex, ey, u0, v0, u1, v1, col) {
+      const P = function (u, v) { return [p0[0] + ex[0] * u + ey[0] * v, p0[1] + ex[1] * u + ey[1] * v]; };
+      const g = 0.06;  // ステッカーのすき間
+      const q = [P(u0 + g / 3, v0 + g / 3), P(u1 - g / 3, v0 + g / 3), P(u1 - g / 3, v1 - g / 3), P(u0 + g / 3, v1 - g / 3)];
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.moveTo(q[0][0], q[0][1]); ctx.lineTo(q[1][0], q[1][1]); ctx.lineTo(q[2][0], q[2][1]); ctx.lineTo(q[3][0], q[3][1]);
+      ctx.closePath(); ctx.fill();
+    }
+    // 黒い本体
+    ctx.fillStyle = '#0b0b0f';
+    ctx.beginPath();
+    ctx.moveTo(T[0], T[1]); ctx.lineTo(Rt[0], Rt[1]); ctx.lineTo(Rt[0], Rt[1] + a); ctx.lineTo(C[0], C[1] + a);
+    ctx.lineTo(Lt[0], Lt[1] + a); ctx.lineTo(Lt[0], Lt[1]); ctx.closePath(); ctx.fill();
+    const third = 1 / 3;
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) {
+      // 上面
+      quad(Lt, [T[0] - Lt[0], T[1] - Lt[1]], [C[0] - Lt[0], C[1] - Lt[1]], c * third, r * third, (c + 1) * third, (r + 1) * third, cube.U);
+      // 手前の左の面・右の面（上段3マスがPLLの見える部分）。右は少し暗くして立体に見せる
+      quad(Lt, [C[0] - Lt[0], C[1] - Lt[1]], [0, a], c * third, r * third, (c + 1) * third, (r + 1) * third, shade(left[r * 3 + c], 0.9));
+      quad(C, [Rt[0] - C[0], Rt[1] - C[1]], [0, a], c * third, r * third, (c + 1) * third, (r + 1) * third, shade(right[r * 3 + c], 0.75));
+    }
+  }
+  function fitText(ctx, s, maxW) {
+    if (ctx.measureText(s).width <= maxW) return s;
+    while (s.length > 1 && ctx.measureText(s + '…').width > maxW) s = s.slice(0, -1);
+    return s + '…';
+  }
+  function stamp() {
+    const d = new Date(), z = function (n) { return (n < 10 ? '0' : '') + n; };
+    return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + ' ' + z(d.getHours()) + ':' + z(d.getMinutes());
+  }
+
+  // 共通の枠：背景・パネル・見出し・数字3つ・足もと。中身（ふりかえり）は draw() に任せる
+  function renderCard(o) {
+    const cv = document.createElement('canvas');
+    cv.width = IW; cv.height = IH;
+    const ctx = cv.getContext('2d');
+    const F = fontStack();
+    const tc = css('--tc', '#2ef2c0');
+    const tcRgb = css('--tc-rgb', '46,242,192');
+
+    ctx.fillStyle = '#06060a'; ctx.fillRect(0, 0, IW, IH);
+    let g = ctx.createRadialGradient(IW * 0.5, 0, 0, IW * 0.5, 0, IW * 0.9);
+    g.addColorStop(0, 'rgba(' + tcRgb + ',.20)'); g.addColorStop(1, 'rgba(' + tcRgb + ',0)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, IW, IH);
+    g = ctx.createRadialGradient(IW, IH, 0, IW, IH, IW * 0.9);
+    g.addColorStop(0, 'rgba(150,80,255,.16)'); g.addColorStop(1, 'rgba(150,80,255,0)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, IW, IH);
+
+    const PX = 48, PY = 48, PW = IW - 96, PH = IH - 96;
+    rr(ctx, PX, PY, PW, PH, 36);
+    ctx.fillStyle = '#121218'; ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = '#2c2c38'; ctx.stroke();
+
+    const L = PX + 44, R = PX + PW - 44, CW = R - L;
+    ctx.textBaseline = 'alphabetic';
+    // アプリ名
+    ctx.font = '800 26px ' + F; ctx.fillStyle = tc; ctx.textAlign = 'left';
+    ctx.fillText('VIRTUAL CUBE CHALLENGE', L, PY + 72);
+    // モード名と難易度
+    ctx.font = '900 56px ' + F; ctx.fillStyle = '#f2f2f8';
+    ctx.fillText(fitText(ctx, o.title, CW - (o.level ? 200 : 0)), L, PY + 148);
+    if (o.level) {
+      ctx.font = '900 34px ' + F;
+      const w = Math.max(120, ctx.measureText(o.level).width + 52);
+      rr(ctx, R - w, PY + 98, w, 64, 32);
+      ctx.fillStyle = 'rgba(' + tcRgb + ',.14)'; ctx.fill();
+      ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(' + tcRgb + ',.6)'; ctx.stroke();
+      ctx.fillStyle = tc; ctx.textAlign = 'center';
+      ctx.fillText(o.level, R - w / 2, PY + 142);
+    }
+    let y = PY + 178;
+    if (o.best) {
+      ctx.font = '900 28px ' + F; ctx.textAlign = 'left';
+      const s = '🏆 ' + tx('shareBest');
+      const w = ctx.measureText(s).width + 44;
+      rr(ctx, L, y, w, 52, 26);
+      ctx.fillStyle = 'rgba(255,200,80,.14)'; ctx.fill();
+      ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(255,200,80,.7)'; ctx.stroke();
+      ctx.fillStyle = '#ffd36a'; ctx.fillText(s, L + 22, y + 36);
+      y += 70;
+    } else {
+      y += 18;
+    }
+    // 数字3つ（画面の .pllt-summary と同じ並び）
+    const gap = 20, bw = (CW - gap * 2) / 3, bh = 150;
+    o.stats.forEach(function (st, i) {
+      const x = L + i * (bw + gap);
+      rr(ctx, x, y, bw, bh, 22);
+      ctx.fillStyle = '#17171e'; ctx.fill();
+      ctx.lineWidth = 2; ctx.strokeStyle = '#2a2a36'; ctx.stroke();
+      ctx.textAlign = 'center';
+      ctx.font = '700 26px ' + F; ctx.fillStyle = '#8b8b9c';
+      ctx.fillText(fitText(ctx, st.label, bw - 20), x + bw / 2, y + 46);
+      ctx.font = '900 ' + (st.small ? 48 : 60) + 'px ' + F; ctx.fillStyle = tc;
+      const main = st.value, sub = st.sub || '';
+      ctx.font = '900 60px ' + F;
+      let mw = ctx.measureText(main).width;
+      ctx.font = '800 28px ' + F;
+      const sw = sub ? ctx.measureText(sub).width + 6 : 0;
+      let size = 60;
+      while (mw + sw > bw - 24 && size > 34) { size -= 2; ctx.font = '900 ' + size + 'px ' + F; mw = ctx.measureText(main).width; }
+      const sx = x + bw / 2 - (mw + sw) / 2;
+      ctx.textAlign = 'left';
+      ctx.font = '900 ' + size + 'px ' + F; ctx.fillStyle = tc;
+      ctx.fillText(main, sx, y + 118);
+      if (sub) { ctx.font = '800 28px ' + F; ctx.fillStyle = 'rgba(' + tcRgb + ',.75)'; ctx.fillText(sub, sx + mw + 6, y + 118); }
+    });
+    y += bh + 46;
+    // ふりかえりの見出し
+    ctx.textAlign = 'left'; ctx.font = '800 30px ' + F; ctx.fillStyle = '#9a9aac';
+    ctx.fillText(o.reviewTitle, L, y);
+    y += 22;
+    const footY = PY + PH - 40;
+    o.draw(ctx, { L: L, R: R, CW: CW, top: y, bottom: footY - 48, F: F, tc: tc, tcRgb: tcRgb });
+    // 足もと：日時と URL・ハッシュタグ
+    ctx.strokeStyle = '#26262f'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(L, footY - 34); ctx.lineTo(R, footY - 34); ctx.stroke();
+    // 左に日時、右にサイトの URL（ハッシュタグは投稿の文面のほうに入れる）
+    ctx.font = '700 24px ' + F; ctx.fillStyle = '#6e6e80'; ctx.textAlign = 'left';
+    ctx.fillText(stamp(), L, footY);
+    ctx.textAlign = 'right';
+    ctx.fillText(SITE_URL.replace(/^https:\/\//, ''), R, footY);
+    return cv;
+  }
+
+  // フラッシュ・ビジョン：1問ずつのマス（番号・○✕・キューブ・PLL名・あなたの答え）
+  function drawCells(cubes, names, answers, cols) {
+    return function (ctx, b) {
+      const n = names.length, rows = Math.ceil(n / cols);
+      const gap = 18;
+      const cw = (b.CW - gap * (cols - 1)) / cols;
+      const ch = Math.min(cols === 3 ? 236 : 300, (b.bottom - b.top - gap * (rows - 1)) / rows);
+      const totalH = rows * ch + (rows - 1) * gap;
+      const y0 = b.top + Math.max(0, (b.bottom - b.top - totalH) / 2);
+      for (let i = 0; i < n; i++) {
+        const r = (i / cols) | 0, c = i % cols;
+        // 最後の段が埋まりきらないときは中央に寄せる
+        const inRow = r === rows - 1 ? n - r * cols : cols;
+        const offX = (cols - inRow) * (cw + gap) / 2;
+        const x = b.L + offX + c * (cw + gap), y = y0 + r * (ch + gap);
+        const ok = answers[i] === names[i];
+        rr(ctx, x, y, cw, ch, 20);
+        ctx.fillStyle = ok ? '#14181a' : '#22151a'; ctx.fill();
+        ctx.lineWidth = 2; ctx.strokeStyle = ok ? 'rgba(79,224,168,.45)' : 'rgba(255,106,122,.6)'; ctx.stroke();
+        ctx.font = '900 30px ' + b.F; ctx.textAlign = 'left'; ctx.fillStyle = '#ff4d6a';
+        ctx.fillText(String.fromCharCode(0x2460 + i), x + 14, y + 40);
+        ctx.textAlign = 'right'; ctx.fillStyle = ok ? '#4fe0a8' : '#ff6a7a';
+        ctx.fillText(ok ? '○' : '✕', x + cw - 16, y + 40);
+        const name = names[i], you = answers[i];
+        const nameY = y + ch - (ok ? 26 : 56);
+        const a = Math.min(cw * 0.3, (nameY - 40 - (y + 30)) / 1.9);
+        drawCube(ctx, x + cw / 2, y + 30 + (nameY - 40 - (y + 30)) / 2 + a * 0.05, a, cubes[i]);
+        ctx.textAlign = 'center'; ctx.font = '900 38px ' + b.F; ctx.fillStyle = '#eeeef4';
+        ctx.fillText(name, x + cw / 2, nameY);
+        if (!ok) {
+          ctx.font = '700 24px ' + b.F; ctx.fillStyle = '#9a9aac';
+          ctx.fillText(fitText(ctx, tx('plfYours') + ' ' + (you || '—'), cw - 16), x + cw / 2, y + ch - 20);
+        }
+      }
+    };
+  }
+
+  function cardPlf() {
+    const root = $('plf-overlay');
+    const vision = !!(root && root.dataset.mode === 'vision');
+    const st = global.PllFlash.getState();
+    const cubes = global.PllFlash.getCubes ? global.PllFlash.getCubes() : [];
+    const nb = $('plf-newbest');
+    const acc = txt('plf-res-acc');
+    return renderCard({
+      title: (vision ? '👁 ' + tx('plvTitle') : '⚡ ' + tx('plfTitle')),
+      level: txt('plf-res-lv'),
+      best: !!(nb && !nb.hidden),
+      stats: [
+        { label: tx('plfScore'), value: txt('plf-res-score'), sub: acc },
+        { label: tx('plfTime'), value: txt('plf-res-time'), sub: 's' },
+        { label: tx('plfHudLevel'), value: txt('plf-res-lv') }
+      ],
+      reviewTitle: txt('plf-rev-title') || tx('plfReview'),
+      draw: drawCells(cubes, st.targetPLLs, st.userAnswers, vision ? 3 : 5)
+    });
+  }
+
+  // PLL検定：画面と同じ「PLL別の成績」の表
+  function cardPllt() {
+    const rows = Array.prototype.map.call(document.querySelectorAll('#pllt-res-rows .pllt-res-row'), function (row) {
+      const cells = row.querySelectorAll('.pllt-res-cell');
+      const nameCell = cells[0];
+      return {
+        name: nameCell && nameCell.firstChild ? nameCell.firstChild.textContent.trim() : '',
+        weak: row.classList.contains('weak'),
+        n: cells[1] ? cells[1].textContent : '', acc: cells[2] ? cells[2].textContent : '', t: cells[3] ? cells[3].textContent : ''
+      };
+    });
+    return renderCard({
+      title: '🧊 ' + tx('plltTitle'),
+      level: '',
+      best: false,
+      stats: [
+        { label: tx('plltAvgTime'), value: txt('pllt-res-avg'), sub: 's' },
+        { label: tx('plltTotalTime'), value: txt('pllt-res-total'), sub: 's' },
+        { label: tx('plltFinalScore'), value: txt('pllt-res-score'), sub: txt('pllt-res-acc') }
+      ],
+      reviewTitle: tx('plltDetail'),
+      draw: function (ctx, b) {
+        const colX = [b.L + 24, b.L + b.CW * 0.56, b.L + b.CW * 0.77, b.R - 24];
+        let y = b.top + 30;
+        ctx.font = '800 26px ' + b.F; ctx.fillStyle = '#8b8b9c';
+        [tx('plltColCase'), tx('plltColAttempts'), tx('plltColAcc'), tx('plltColTime')].forEach(function (h, i) {
+          ctx.textAlign = i === 0 ? 'left' : (i === 3 ? 'right' : 'center');
+          ctx.fillText(h, colX[i], y);
+        });
+        y += 18;
+        // 行が少なければ1行を高くして、表を枠いっぱいに見やすく広げる
+        const rowH = Math.max(46, Math.min(64, Math.floor((b.bottom - y) / Math.max(1, rows.length))));
+        const maxRows = Math.floor((b.bottom - y) / rowH);
+        const show = rows.length > maxRows ? rows.slice(0, maxRows - 1) : rows;
+        show.forEach(function (r) {
+          if (r.weak) { ctx.fillStyle = 'rgba(255,90,110,.10)'; ctx.fillRect(b.L, y, b.CW, rowH); }
+          ctx.strokeStyle = '#24242e'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(b.L, y + rowH); ctx.lineTo(b.R, y + rowH); ctx.stroke();
+          const ty = y + rowH / 2 + 11;
+          ctx.font = '900 30px ' + b.F; ctx.fillStyle = '#eeeef4'; ctx.textAlign = 'left';
+          ctx.fillText(r.name, colX[0], ty);
+          if (r.weak) {
+            const nw = ctx.measureText(r.name).width;
+            ctx.font = '800 20px ' + b.F;
+            const tag = tx('plltPractice'), tw = ctx.measureText(tag).width + 18;
+            rr(ctx, colX[0] + nw + 14, y + 12, tw, 28, 7);
+            ctx.fillStyle = 'rgba(255,90,110,.18)'; ctx.fill();
+            ctx.strokeStyle = 'rgba(255,120,135,.6)'; ctx.lineWidth = 1.5; ctx.stroke();
+            ctx.fillStyle = '#ff9aa6'; ctx.fillText(tag, colX[0] + nw + 23, y + 33);
+          }
+          ctx.font = '700 28px ' + b.F; ctx.fillStyle = '#d4d4de';
+          ctx.textAlign = 'center'; ctx.fillText(r.n, colX[1], ty); ctx.fillText(r.acc, colX[2], ty);
+          ctx.textAlign = 'right'; ctx.fillText(r.t, colX[3], ty);
+          y += rowH;
+        });
+        if (show.length < rows.length) {
+          ctx.font = '700 24px ' + b.F; ctx.fillStyle = '#6e6e80'; ctx.textAlign = 'center';
+          ctx.fillText('+' + (rows.length - show.length) + ' PLL', (b.L + b.R) / 2, y + 34);
+        }
+      }
+    });
+  }
+
   /* ------------------------------------------------------------ 送る -- */
+  function dataUrlToFile(url, name) {
+    const bin = atob(url.split(',')[1]);
+    const arr = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return new File([arr], name, { type: 'image/png' });
+  }
   function openX(text) {
     const url = 'https://x.com/intent/post?text=' + encodeURIComponent(text) +
       '&url=' + encodeURIComponent(SITE_URL);
     // ホーム画面に置いたアプリから開いても、アプリ自体は離れないように新しいタブで開く
     const a = document.createElement('a');
-    a.href = url;
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+  function toast(msg) {
+    let el = $('pls-toast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'pls-toast';
+      el.style.cssText = 'position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);' +
+        'z-index:10400;max-width:88vw;padding:12px 16px;border-radius:12px;background:#1c1c24;border:1px solid #3a3a48;' +
+        'color:#e6e6ee;font-size:13px;font-weight:700;line-height:1.5;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.5);' +
+        'transition:opacity .25s;opacity:0;pointer-events:none';
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.style.opacity = '1';
+    clearTimeout(el._t);
+    el._t = setTimeout(function () { el.style.opacity = '0'; }, 4200);
+  }
+  // 画像を作って共有する。スマホでは共有シート（X を選ぶと画像付きで投稿画面が開く）。
+  // 共有シートで画像を渡せない環境（PC など）では、画像を保存してから X の投稿画面を開く。
+  function shareResult(kind) {
+    let cv;
+    try { cv = kind === 'pllt' ? cardPllt() : cardPlf(); } catch (e) { cv = null; }
+    const caption = (kind === 'pllt' ? textPllt() : textPlf());
+    if (!cv) { openX(caption); return; }
+    // toDataURL は同期なので、タップの直後のまま共有シートを開ける（iPhone はここが大事）
+    const file = dataUrlToFile(cv.toDataURL('image/png'), 'vcc-result.png');
+    const data = { files: [file], text: caption + '\n' + SITE_URL };
+    if (navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
+      navigator.share(data).catch(function () { /* 閉じただけ */ });
+      return;
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(file); a.download = 'vcc-result.png';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+    toast(tx('shareSaved'));
+    openX(caption);
   }
 
   /* ---------------------------------------------------------- 取り付け -- */
+  // 「戻る／もう一度挑戦」の真上に1段足して、左=Xでシェア（戻るの上）、
+  // 右=ためた貫の木札（もう一度挑戦の上）に並べる。木札が無い画面
+  // （フラッシュ・ビジョン）では、Xでシェアを左の列（戻るの上）にだけ置く。
   function addTo(section, id, onClick) {
     if (!section || $(id)) return;
     const actions = section.querySelector('.pllt-result-actions');
     if (!actions) return;
     injectCSS();
-    actions.insertAdjacentElement('afterend', makeButton(id, onClick));
+    const top = document.createElement('div');
+    top.className = 'pls-top';
+    top.appendChild(makeButton(id, onClick));
+    // 木札は、見た目の決まり（.pllt-ticket-row の下で効く CSS）を崩さないよう
+    // 外側の .pllt-ticket-row ごと移す
+    const tk = section.querySelector('.pllt-ticket-row');
+    if (tk) top.appendChild(tk);
+    actions.insertAdjacentElement('beforebegin', top);
     paintButtons();
   }
   function attachPllt() {
-    addTo(document.querySelector('#pllt-overlay .pllt-result'), 'pls-share-pllt', function () { openX(textPllt()); });
+    addTo(document.querySelector('#pllt-overlay .pllt-result'), 'pls-share-pllt', function () { shareResult('pllt'); });
   }
   function attachPlf() {
-    addTo(document.querySelector('#plf-overlay .plf-result'), 'pls-share-plf', function () { openX(textPlf()); });
+    addTo(document.querySelector('#plf-overlay .plf-result'), 'pls-share-plf', function () { shareResult('plf'); });
   }
 
   function boot() {
@@ -174,5 +514,9 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 
-  global.PllShare = { textPllt: textPllt, textPlf: textPlf };
+  global.PllShare = {
+    textPllt: textPllt, textPlf: textPlf, share: shareResult,
+    // 確認用：シェア画像を data URL で返す（'pllt' | 'plf'）
+    image: function (kind) { return (kind === 'pllt' ? cardPllt() : cardPlf()).toDataURL('image/png'); }
+  };
 })(window);
