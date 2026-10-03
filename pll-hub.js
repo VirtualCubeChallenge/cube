@@ -245,25 +245,57 @@
     '  .pllh-btn:hover .pllh-ring{box-shadow:0 0 0 2px rgba(255,255,255,.14),0 0 20px 5px rgba(var(--h),.8),',
     '    0 0 52px 12px rgba(var(--h),.38),inset 0 0 26px 4px rgba(var(--h),.6),inset 0 0 3px 1px rgba(255,255,255,.5)}}',
 
-    /* ---- 選んだ丸が中央へ吸い込まれる ---- */
+    /* ---- 選んだ丸：ためて → 中央へ → 閃光 → モードへ ----------------
+       0.00s  触れた丸が少し縮み、光の輪が3回、外から内へ集まってくる（ため）
+       0.30s  ほかの2つと線が静かに消え、背景が暗くなる
+       0.31s  丸が白熱しながら中央へ滑り、大きくなる
+       0.92s  中央に着いたところで衝撃波が2重に広がる
+       1.00s  中心から光が満ちて画面を包む
+       1.30s  モードを開く（光の中からふわっと現れる） */
     '#pllh-overlay.going .pllh-btn{pointer-events:none}',
-    '#pllh-overlay.going .pllh-node{transition:transform .32s ease,opacity .32s ease}',
-    '#pllh-overlay.going .pllh-node:not(.chosen){transform:scale(.55);opacity:0}',
-    '#pllh-overlay.going .pllh-net,#pllh-overlay.going .pllh-core{transition:opacity .25s;opacity:0}',
-    '.pllh-node.chosen{z-index:2;animation:pllh-suck .5s cubic-bezier(.55,0,.25,1) forwards!important}',
+    '#pllh-overlay.going .pllh-close{opacity:0;pointer-events:none;transition:opacity .4s}',
+    '#pllh-overlay.going .pllh-node:not(.chosen){transition:transform .7s cubic-bezier(.4,0,.2,1) .12s,opacity .55s ease .12s;transform:scale(.6);opacity:0}',
+    '#pllh-overlay.going .pllh-net,#pllh-overlay.going .pllh-core{transition:opacity .45s .1s;opacity:0}',
+    '.pllh-dim{position:absolute;inset:0;pointer-events:none;background:#020208;opacity:0;transition:opacity .25s}',
+    '#pllh-overlay.going .pllh-dim{opacity:.62;transition:opacity .8s ease .15s}',
+
+    '.pllh-node.chosen{z-index:2;animation:pllh-suck 1.12s forwards!important}',
     '.pllh-node.chosen .pllh-float{animation:none}',
-    '.pllh-node.chosen .pllh-btn{transform:scale(1.08)}',
-    '.pllh-node.chosen .pllh-pulse{animation:pllh-pulse .5s ease-out forwards}',
     '@keyframes pllh-suck{',
-    '  0%{transform:translate3d(0,0,0) scale(1);opacity:1}',
-    '  70%{opacity:1}',
-    '  100%{transform:translate3d(var(--dx),var(--dy),0) scale(1.9);opacity:0}}',
-    '@keyframes pllh-pulse{from{transform:scale(1);opacity:.95}to{transform:scale(1.9);opacity:0}}',
-    // 中央に吸い込まれた瞬間の閃光
-    '.pllh-flash{position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px;border-radius:50%;',
-    '  pointer-events:none;opacity:0;background:#fff;box-shadow:0 0 60px 30px rgba(var(--fh,var(--a)),.8)}',
-    '#pllh-overlay.going .pllh-flash{animation:pllh-bang .55s .28s ease-out both}',
-    '@keyframes pllh-bang{0%{transform:scale(.2);opacity:0}40%{opacity:1}100%{transform:scale(40);opacity:0}}',
+    '  0%{transform:translate3d(0,0,0) scale(1);animation-timing-function:cubic-bezier(.3,0,.3,1)}',
+    '  27%{transform:translate3d(0,0,0) scale(.86);animation-timing-function:cubic-bezier(.6,0,.15,1)}',
+    '  82%{transform:translate3d(var(--dx),var(--dy),0) scale(1.42);animation-timing-function:ease-in-out}',
+    '  100%{transform:translate3d(var(--dx),var(--dy),0) scale(1.34)}}',
+    // ネオン管が白熱していく
+    '.pllh-node.chosen .pllh-ring{animation:pllh-charge 1.12s ease-in forwards}',
+    '@keyframes pllh-charge{',
+    '  0%{border-color:rgb(var(--h));box-shadow:0 0 0 2px rgba(255,255,255,.18),0 0 22px 6px rgba(var(--h),.9),0 0 64px 16px rgba(var(--h),.45),',
+    '    inset 0 0 30px 6px rgba(var(--h),.7),inset 0 0 3px 1px rgba(255,255,255,.6)}',
+    '  100%{border-color:#f4fbff;box-shadow:0 0 0 3px rgba(255,255,255,.55),0 0 34px 12px rgba(var(--h),1),0 0 110px 40px rgba(var(--h),.6),',
+    '    inset 0 0 46px 14px rgba(var(--h),.95),inset 0 0 8px 3px #fff}}',
+    '.pllh-node.chosen .pllh-ico{animation:pllh-icohot 1.12s forwards}',
+    '@keyframes pllh-icohot{0%{transform:scale(1)}27%{transform:scale(.9)}82%{transform:scale(1.12)}100%{transform:scale(1.08)}}',
+    '.pllh-node.chosen .pllh-orbit{opacity:0;transition:opacity .35s}',
+    // 外から内へ集まる光の輪（3回）
+    '.pllh-node.chosen .pllh-pulse{animation:pllh-gather .3s ease-in 3 both}',
+    '@keyframes pllh-gather{from{transform:scale(1.85);opacity:0}60%{opacity:.85}to{transform:scale(1);opacity:0}}',
+    // 中央に着いた瞬間の衝撃波（2重）
+    '.pllh-wave{position:absolute;left:50%;top:50%;width:calc(var(--S)*.4);height:calc(var(--S)*.4);',
+    '  margin:calc(var(--S)*-.2) 0 0 calc(var(--S)*-.2);border-radius:50%;pointer-events:none;opacity:0;',
+    '  border:2px solid rgba(255,255,255,.9);box-shadow:0 0 24px 4px rgba(var(--fh,var(--a)),.9),inset 0 0 24px 4px rgba(var(--fh,var(--a)),.6)}',
+    '.pllh-wave.w2{border-width:1px}',
+    '#pllh-overlay.going .pllh-wave{animation:pllh-wave .8s .9s cubic-bezier(.15,.6,.3,1) both}',
+    '#pllh-overlay.going .pllh-wave.w2{animation-delay:1.02s}',
+    '@keyframes pllh-wave{0%{transform:scale(.8);opacity:0}15%{opacity:1}100%{transform:scale(4.2);opacity:0}}',
+    // 中心から光が満ちる
+    '.pllh-flash{position:absolute;left:50%;top:50%;width:20px;height:20px;margin:-10px;border-radius:50%;',
+    '  pointer-events:none;opacity:0;',
+    '  background:radial-gradient(circle,#fff 0,#fff 7%,rgba(var(--fh,var(--a)),.95) 24%,rgba(var(--fh,var(--a)),.8) 50%,rgba(var(--fh,var(--a)),0) 70%)}',
+    '#pllh-overlay.going .pllh-flash{animation:pllh-bang .4s .92s cubic-bezier(.45,0,.55,1) both}',
+    '@keyframes pllh-bang{0%{transform:scale(1);opacity:0}20%{opacity:1}100%{transform:scale(150);opacity:.92}}',
+    // 開いたモードは光の中からふわっと現れる（pll-hub.js が一瞬だけ付けるクラス）
+    '#pllt-overlay.pllh-arrive,#plf-overlay.pllh-arrive{animation:pllh-arrive .65s cubic-bezier(.2,.7,.2,1) both}',
+    '@keyframes pllh-arrive{from{opacity:0;transform:scale(1.05)}to{opacity:1;transform:none}}',
 
     /* ---- 横長の画面（タブレット横・PC）：少し小さめに ---- */
     '@media (min-aspect-ratio:1/1){.pllh-stage{--S:min(86vh,calc(100vh - 90px),600px);transform:translate(-50%,-50%)}}',
@@ -273,7 +305,9 @@
     '  .pllh-stars,.pllh-lines,.pllh-float,.pllh-orbit,.pllh-scan::before,.pllh-core,.pllh-net line{animation:none!important}',
     '  #pllh-overlay.enter .pllh-node{animation:pllh-fade .2s both}',
     '  .pllh-node.chosen{animation:pllh-fade .2s reverse forwards!important}',
-    '  #pllh-overlay.going .pllh-flash{animation:none}}'
+    '  .pllh-node.chosen *{animation:none!important}',
+    '  #pllh-overlay.going .pllh-flash,#pllh-overlay.going .pllh-wave{animation:none}',
+    '  #pllt-overlay.pllh-arrive,#plf-overlay.pllh-arrive{animation:pllh-fade .2s both}}'
   ].join('\n');
 
   function injectCSS() {
@@ -288,6 +322,7 @@
   let root = null;
   let busy = false;      // 吸い込み演出中は二度押しさせない
   let goTimer = 0;
+  const LAUNCH_MS = 1300;   // 押してからモードを開くまで（ための演出の長さ）
 
   function build() {
     if (root && root.dataset.built) return true;
@@ -331,6 +366,7 @@
       '<div class="pllh-stars" aria-hidden="true"></div>' +
       '<div class="pllh-horizon" aria-hidden="true"></div>' +
       '<div class="pllh-floor" aria-hidden="true"><div class="pllh-plane"><div class="pllh-lines"></div></div></div>' +
+      '<div class="pllh-dim" aria-hidden="true"></div>' +
       '<button type="button" class="pllh-close" id="pllh-close">' +
         '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5 15 15M15 5 5 15"/></svg>' +
       '</button>' +
@@ -338,6 +374,8 @@
         '<svg class="pllh-net" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' + lines + '</svg>' +
         '<span class="pllh-core" aria-hidden="true"></span>' +
         nodes +
+        '<span class="pllh-wave" aria-hidden="true"></span>' +
+        '<span class="pllh-wave w2" aria-hidden="true"></span>' +
         '<span class="pllh-flash" aria-hidden="true"></span>' +
       '</div>';
 
@@ -386,6 +424,9 @@
   // モードが開いた/閉じたら、ハブを隠す/戻す
   function syncCovered() {
     if (!root || !root.classList.contains('show')) return;
+    // 演出の途中（モードが光の中から現れている最中）は choose() に任せる。
+    // ここで先に隠すと、フェードしてくるモードの後ろにゲーム画面が透けてしまう。
+    if (busy) return;
     const covered = modeOpen();
     if (covered === root.classList.contains('covered')) return;
     root.classList.toggle('covered', covered);
@@ -419,6 +460,7 @@
     busy = false;
     root.classList.remove('going');
     root.querySelectorAll('.pllh-node.chosen').forEach(function (n) { n.classList.remove('chosen'); });
+    modeEls().forEach(function (el) { if (el) el.classList.remove('pllh-arrive'); });
   }
 
   function launch(mode) {
@@ -439,19 +481,38 @@
     root.style.setProperty('--fh', 'var(' + hue + ')');
     node.classList.add('chosen');
     root.classList.add('going');
+    buzz(8);
     goTimer = setTimeout(function () {
       goTimer = 0;
       launch(mode);
-      if (modeOpen()) {
-        root.classList.add('covered');
-        // 隠れてから元の並びに戻しておく（戻ってきたときに登場し直す）
-        setTimeout(resetGoing, 260);
+      const el = openedEl();
+      if (el) {
+        buzz(18);
+        el.classList.remove('pllh-arrive');
+        void el.offsetWidth;
+        el.classList.add('pllh-arrive');
+        // モードが現れきってから、下のハブを隠して元の並びに戻す
+        goTimer = setTimeout(function () {
+          goTimer = 0;
+          el.classList.remove('pllh-arrive');
+          resetGoing();
+          syncCovered();
+        }, reduceMotion ? 220 : 700);
       } else {
         // 開けなかった（3D の準備前など）：その場で元に戻す
         resetGoing();
         replayEnter();
       }
-    }, reduceMotion ? 120 : 470);
+    }, reduceMotion ? 150 : LAUNCH_MS);
+  }
+  function openedEl() {
+    const els = modeEls();
+    for (let i = 0; i < els.length; i++) if (els[i] && els[i].classList.contains('show')) return els[i];
+    return null;
+  }
+  // 対応している端末（Android など）でだけ、ごく短く震える。iPhone では何も起きない。
+  function buzz(ms) {
+    try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {}
   }
 
   /* ---------------------------------------------------- 開く / 閉じる -- */
