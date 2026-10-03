@@ -188,6 +188,7 @@
     '.pllh-btn{--h:var(--a);position:relative;display:block;width:100%;height:100%;padding:0;margin:0;',
     '  border:none;border-radius:50%;cursor:pointer;color:rgb(var(--h));background:none;outline:none;',
     '  transition:transform .18s cubic-bezier(.3,1.6,.5,1)}',
+    '.pllh-btn{-webkit-touch-callout:none}',
     '.pllh-node[data-hue="b"] .pllh-btn{--h:var(--b)}',
     '.pllh-node[data-hue="c"] .pllh-btn{--h:var(--c)}',
     // ネオン管の外枠（太い管＋内側の暗いガラス）
@@ -244,6 +245,13 @@
     '@media (hover:hover){.pllh-btn:hover{transform:scale(1.05)}',
     '  .pllh-btn:hover .pllh-ring{box-shadow:0 0 0 2px rgba(255,255,255,.14),0 0 20px 5px rgba(var(--h),.8),',
     '    0 0 52px 12px rgba(var(--h),.38),inset 0 0 26px 4px rgba(var(--h),.6),inset 0 0 3px 1px rgba(255,255,255,.5)}}',
+
+    /* ---- 長押しで回転中：中心の核と結ぶ線が強く光る ---- */
+    '.pllh-core{transition:transform .4s ease,box-shadow .4s ease}',
+    '#pllh-overlay.spinning .pllh-core{animation:none;opacity:1;transform:scale(1.7);',
+    '  box-shadow:0 0 14px 5px rgba(var(--a),.95),0 0 46px 18px rgba(var(--b),.5)}',
+    '.pllh-net line{transition:stroke .4s ease}',
+    '#pllh-overlay.spinning .pllh-net line{stroke:rgba(190,200,255,.7)}',
 
     /* ---- 選んだ丸：ためて → 中央へ → 閃光 → モードへ ----------------
        0.00s  触れた丸が少し縮み、光の輪が3回、外から内へ集まってくる（ため）
@@ -380,14 +388,10 @@
       '</div>';
 
     document.getElementById('pllh-close').addEventListener('click', close);
-    root.querySelectorAll('.pllh-btn').forEach(function (b) {
-      // iOS の :active は離すまで出ないことがあるので、指が触れた瞬間に自前で光らせる
-      b.addEventListener('pointerdown', function () { b.classList.add('press'); });
-      ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) {
-        b.addEventListener(ev, function () { b.classList.remove('press'); });
-      });
-      b.addEventListener('click', function () { choose(b); });
-    });
+    root.querySelectorAll('.pllh-btn').forEach(bindPress);
+    nodeEls = Array.prototype.slice.call(root.querySelectorAll('.pllh-node'));
+    lineEls = Array.prototype.slice.call(root.querySelectorAll('.pllh-net line'));
+    place();
     paintLabels();
     if (typeof global.onI18n === 'function') global.onI18n(paintLabels);
     watchModes();
@@ -405,6 +409,139 @@
       const s = tx(n.label, n.id);
       b.setAttribute('aria-label', s);
       b.title = s;
+    });
+  }
+
+  /* ------------------------------------------------------ 長押しで回転 --
+     丸を長押しすると、3つが三角形の中心を軸にクルクル回り出す。
+     押しているあいだはじわっと加速し、離すと勢いのまま減速して、
+     いちばん近い「三角形の位置」にバネのように軽く行き過ぎてから収まる。
+     どの位置に来ても、丸の並び（上・左下・右下）は常にきれいな正三角形。
+     - 長押しと判定されるまで（0.35秒）に指を離せば、ふつうのタップ。
+     - 長押しした後に離しても、モードには入らない（回しただけ）。
+     - 回した向きはこの画面を開いているあいだ覚えている。 */
+  const HOLD_MS = 350;       // ここまで押し続けたら長押し
+  const MOVE_TOL = 12;       // これ以上指が動いたら長押しをやめる(px)
+  const OMEGA_MAX = 320;     // 最高の回転速度(度/秒)
+  const R = 33.5;            // 中心から丸までの距離（ステージの%）
+  const BASE = [-90, 150, 30];   // 検定=上、フラッシュ=左下、ビジョン=右下
+  let nodeEls = [], lineEls = [];
+  let theta = 0;             // 全体の回転角(度)。0 = 初期の並び
+  let omega = 0;             // 回転速度(度/秒)
+  let phase = 'idle';        // idle | spin(押している) | settle(離して収まるまで)
+  let target = 0;
+  let raf = 0, lastT = 0, lastSlot = 0;
+  let holdTimer = 0, holdBtn = null, holdX = 0, holdY = 0, suppressClick = false;
+
+  function place() {
+    NODES.forEach(function (n, i) {
+      const a = (BASE[i] + theta) * Math.PI / 180;
+      n.x = 50 + R * Math.cos(a);
+      n.y = 50 + R * Math.sin(a);
+      const el = nodeEls[i];
+      if (el) {
+        el.style.setProperty('--x', n.x.toFixed(3));
+        el.style.setProperty('--y', n.y.toFixed(3));
+      }
+    });
+    lineEls.forEach(function (ln, i) {
+      const a = NODES[i], b = NODES[(i + 1) % NODES.length];
+      ln.setAttribute('x1', a.x.toFixed(3)); ln.setAttribute('y1', a.y.toFixed(3));
+      ln.setAttribute('x2', b.x.toFixed(3)); ln.setAttribute('y2', b.y.toFixed(3));
+    });
+  }
+
+  function frame(t) {
+    raf = 0;
+    const dt = Math.min(0.05, Math.max(0, (t - lastT) / 1000));
+    lastT = t;
+    if (phase === 'spin') {
+      // 押しているあいだ：最高速度へじわっと近づく
+      omega += (OMEGA_MAX - omega) * (1 - Math.exp(-dt * 2.4));
+      theta += omega * dt;
+    } else if (phase === 'settle') {
+      // 離した後：目標の位置へバネで寄せる（少しだけ行き過ぎてから戻る）
+      const K = 70, C = 2 * Math.sqrt(K) * 0.72;
+      omega += (K * (target - theta) - C * omega) * dt;
+      theta += omega * dt;
+      if (Math.abs(target - theta) < 0.04 && Math.abs(omega) < 2) {
+        theta = ((target % 360) + 360) % 360;
+        target = theta;
+        omega = 0;
+        phase = 'idle';
+        root.classList.remove('spinning');
+      }
+    }
+    // 位置を1つ通り過ぎるごとに、対応端末ではコツッと震える
+    const slot = Math.round(theta / 120);
+    if (slot !== lastSlot) { lastSlot = slot; buzz(5); }
+    place();
+    if (phase !== 'idle') raf = requestAnimationFrame(frame);
+  }
+  function kick() {
+    if (raf) return;
+    lastT = performance.now();
+    raf = requestAnimationFrame(frame);
+  }
+  function startSpin() {
+    if (busy || !root) return;
+    suppressClick = true;
+    phase = 'spin';
+    root.classList.add('spinning');
+    lastSlot = Math.round(theta / 120);
+    buzz(12);
+    if (reduceMotion) {
+      // 動きを減らす設定：長押し1回で1つ分だけ、すっと送る
+      phase = 'idle';
+      theta = (Math.round(theta / 120) + 1) * 120 % 360;
+      place();
+      root.classList.remove('spinning');
+      return;
+    }
+    kick();
+  }
+  function releaseSpin() {
+    if (phase !== 'spin') return;
+    // 今の勢いで止まりそうな所を見積もり、そこから最寄りの位置へ。
+    // 回っている向きの先へ必ず進める（逆戻りすると不自然に見える）。
+    const projected = theta + omega * 0.32;
+    target = Math.max(Math.round(projected / 120), Math.ceil(theta / 120 - 0.15)) * 120;
+    phase = 'settle';
+    kick();
+  }
+  function cancelHold() {
+    clearTimeout(holdTimer); holdTimer = 0;
+  }
+
+  function bindPress(b) {
+    b.addEventListener('pointerdown', function (e) {
+      if (busy || phase === 'settle') return;
+      // iOS の :active は離すまで出ないことがあるので、指が触れた瞬間に自前で光らせる
+      b.classList.add('press');
+      suppressClick = false;
+      holdBtn = b; holdX = e.clientX; holdY = e.clientY;
+      // 回り出すと丸が指の下から離れていくので、離した合図を取りこぼさないよう捕まえておく
+      try { b.setPointerCapture(e.pointerId); } catch (err) {}
+      cancelHold();
+      holdTimer = setTimeout(function () { holdTimer = 0; startSpin(); }, HOLD_MS);
+    });
+    b.addEventListener('pointermove', function (e) {
+      if (!holdTimer || holdBtn !== b) return;
+      if (Math.abs(e.clientX - holdX) > MOVE_TOL || Math.abs(e.clientY - holdY) > MOVE_TOL) cancelHold();
+    });
+    const end = function () {
+      b.classList.remove('press');
+      cancelHold();
+      if (holdBtn === b) { holdBtn = null; releaseSpin(); }
+    };
+    b.addEventListener('pointerup', end);
+    b.addEventListener('pointercancel', end);
+    b.addEventListener('lostpointercapture', end);
+    // 長押しで出る iOS のメニューや選択を出さない
+    b.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    b.addEventListener('click', function (e) {
+      if (suppressClick || phase !== 'idle') { suppressClick = false; e.preventDefault(); return; }
+      choose(b);
     });
   }
 
@@ -472,7 +609,7 @@
   }
 
   function choose(btn) {
-    if (busy || !root) return;
+    if (busy || !root || phase !== 'idle') return;
     const mode = btn.dataset.mode;
     const node = btn.closest('.pllh-node');
     busy = true;
@@ -547,6 +684,8 @@
   global.PllHub = {
     open: open,
     close: close,
-    isOpen: function () { return !!(root && root.classList.contains('show')); }
+    isOpen: function () { return !!(root && root.classList.contains('show')); },
+    // 確認用：今の回転角（0 / 120 / 240）
+    getAngle: function () { return theta; }
   };
 })(window);
