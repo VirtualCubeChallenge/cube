@@ -287,6 +287,11 @@
     '.pllh-whiteout i.pop{animation:pllh-wo 1s cubic-bezier(.2,.6,.3,1) both}',
     '@keyframes pllh-wo{0%{opacity:0}7%{opacity:1}100%{opacity:0}}',
     '.pllh-fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}',
+    // 大きく弾けたときの画面の揺れ（transform は使わず、個別の translate で揺らす）
+    '#pllh-overlay.pllh-shake .pllh-stage,#pllh-overlay.pllh-shake .pllh-fx,#pllh-overlay.pllh-shake .pllh-floor{animation:pllh-shake .45s ease-out}',
+    '#pllh-overlay.pllh-shake2 .pllh-stage,#pllh-overlay.pllh-shake2 .pllh-fx,#pllh-overlay.pllh-shake2 .pllh-floor{animation:pllh-shake2 .7s ease-out}',
+    '@keyframes pllh-shake{0%{translate:0 0}15%{translate:-5px 3px}30%{translate:4px -4px}45%{translate:-3px 2px}60%{translate:2px -1px}100%{translate:0 0}}',
+    '@keyframes pllh-shake2{0%{translate:0 0}10%{translate:-10px 6px}22%{translate:9px -8px}34%{translate:-7px 5px}46%{translate:6px -4px}60%{translate:-3px 2px}75%{translate:2px -1px}100%{translate:0 0}}',
 
     /* ---- 回転中：中心の核と結ぶ線が強く光る ---- */
     '.pllh-core{transition:transform .4s ease,box-shadow .4s ease}',
@@ -357,6 +362,7 @@
     '  .pllh-node.chosen{animation:pllh-fade .2s reverse forwards!important}',
     '  .pllh-node.chosen *{animation:none!important}',
     '  #pllh-overlay.going .pllh-flash,#pllh-overlay.going .pllh-wave{animation:none}',
+    '  #pllh-overlay.pllh-shake *,#pllh-overlay.pllh-shake2 *{translate:none!important}',
     '  #pllt-overlay.pllh-arrive,#plf-overlay.pllh-arrive{animation:pllh-fade .2s both}}'
   ].join('\n');
 
@@ -736,14 +742,19 @@
   }
 
   /* ------------------------------------------------------- 花火 (canvas) --
-     火花・きらめき・ぼんやりした光の玉・光の輪を、弾けたときだけ描く。
-     描くものが無くなったらループを止める。色は淡いパステル（水色・藤色・
-     桜色・薄緑・淡い金・白）を「足し算」で重ねて、にじむように光らせる。 */
+     弾けたときだけ描き、描くものが無くなったらループを止める。
+     色は淡いパステルと鮮やかなプリズムを「足し算」で重ねて光らせる。
+
+     ためた量 I（0.15〜1）で豪華さが変わる：
+       〜0.35  ：火花と光の輪だけの、控えめな花火
+       0.35〜  ：細い光の筋が画面の端まで飛び、中心へ戻って再び弾け、
+                  もう一度端まで飛んでいく（本数は I に応じて増える）
+       0.8〜   ：再び弾けるたびに画面が揺れ、輪と火花も増える
+       0.97〜  ：満タン。端 → 中心 → 端 → 中心 → 端 と2往復する大フィナーレ */
   const PALETTE = [[150, 232, 255], [196, 172, 255], [255, 176, 228], [168, 255, 222], [255, 234, 168], [255, 255, 255]];
-  // たくさんためて弾けたときに混ざる、鮮やかなプリズムの色
   const VIVID = [[255, 61, 110], [255, 138, 61], [255, 226, 61], [125, 255, 77], [61, 255, 180], [61, 216, 255], [61, 123, 255], [155, 92, 255], [255, 77, 216]];
-  let fxCanvas = null, fxCtx = null, fxRaf = 0, fxLast = 0, fxW = 0, fxH = 0;
-  const sparks = [], rings = [];
+  let fxCanvas = null, fxCtx = null, fxRaf = 0, fxLast = 0, fxW = 0, fxH = 0, fxTime = 0;
+  const sparks = [], rings = [], streaks = [], events = [];
   function pick(a) { return a[(Math.random() * a.length) | 0]; }
   function fxSize() {
     const dpr = Math.min(2, global.devicePixelRatio || 1);
@@ -754,53 +765,162 @@
       fxCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
   }
+  // (x,y) から角度 a の向きに、画面の端まで何px あるか
+  function edgeDist(x, y, a) {
+    const c = Math.cos(a), sn = Math.sin(a);
+    let d = 1e9;
+    if (c > 1e-4) d = Math.min(d, (fxW - x) / c); else if (c < -1e-4) d = Math.min(d, -x / c);
+    if (sn > 1e-4) d = Math.min(d, (fxH - y) / sn); else if (sn < -1e-4) d = Math.min(d, -y / sn);
+    return d;
+  }
+  // 画面全体がふわっと白むひかり
+  function flashAt(x, y, op) {
+    const wo = root.querySelector('.pllh-whiteout');
+    if (!wo) return;
+    wo.style.setProperty('--wx', x + 'px'); wo.style.setProperty('--wy', y + 'px');
+    wo.style.opacity = Math.min(1, op).toFixed(2);
+    const inner = wo.firstChild;
+    inner.classList.remove('pop'); void inner.offsetWidth; inner.classList.add('pop');
+  }
+  function shake(strong) {
+    root.classList.remove('pllh-shake', 'pllh-shake2');
+    void root.offsetWidth;
+    root.classList.add(strong ? 'pllh-shake2' : 'pllh-shake');
+  }
+  // 1回の「ドン」：火花・光の玉・光の輪・白むひかり
+  function popAt(x, y, P, vividRate) {
+    const boost = 0.5 + 0.95 * P;
+    const n = Math.round(50 + 380 * Math.pow(P, 1.4));
+    for (let i = 0; i < n; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      const sp = (200 + Math.random() * Math.random() * 1050) * boost;
+      sparks.push({ x: x, y: y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp,
+        life: 0.9 + Math.random() * 1.3, age: 0, size: 1 + Math.random() * 2.2 * boost,
+        col: Math.random() < vividRate ? pick(VIVID) : pick(PALETTE), crackle: Math.random() < 0.25 * P, kind: 0, tw: Math.random() * 6 });
+    }
+    const m = Math.round(6 + 18 * P);
+    for (let i = 0; i < m; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      const sp = (30 + Math.random() * 160) * boost;
+      sparks.push({ x: x, y: y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp,
+        life: 1.6 + Math.random() * 1.3, age: 0, size: 7 + Math.random() * 18 * boost,
+        col: Math.random() < vividRate ? pick(VIVID) : pick(PALETTE), crackle: false, kind: 1, tw: 0 });
+    }
+    const rc = 2 + Math.round(3 * P);
+    for (let i = 0; i < rc; i++) {
+      rings.push({ x: x, y: y, r: 4, sp: (900 - i * 110) * boost, age: -i * 0.07, life: 0.85 + i * 0.08,
+        col: i === 0 ? [240, 244, 255] : (Math.random() < vividRate ? pick(VIVID) : pick(PALETTE)), w: i === 0 ? 3.4 : 2 });
+    }
+    flashAt(x, y, 0.35 + 0.65 * P);
+  }
+  // 細い光の筋（端 → 中心 → 端 …）。動きは時間の関数で決めるので、
+  // 全部の筋がちょうど同じ瞬間に中心へ戻ってくる（そこで再び弾ける）。
+  function addStreaks(x, y, I, legs) {
+    const k = Math.min(1, (I - 0.35) / 0.65);
+    const n = Math.round(30 + 190 * Math.pow(k, 1.1));
+    for (let i = 0; i < n; i++) {
+      streaks.push({ x: x, y: y, a: Math.random() * Math.PI * 2, twist: (Math.random() - 0.5) * 1.6,
+        age: -Math.random() * 0.04, legs: legs, h0: Math.random() * 360,
+        w: 0.8 + Math.random() * (0.8 + 0.9 * k), rj: 0.96 + Math.random() * 0.1 });
+    }
+  }
+  const OUT = 0.55, IN = 0.62;      // 端まで飛ぶ時間 / 中心へ戻る時間
+  function streakPos(s, t, out) {
+    // legs = 端へ出ていく回数。出る → 戻る → 出る … の順に区切る
+    let tt = Math.max(0, t), ang = s.a;
+    for (let leg = 0; leg < s.legs; leg++) {
+      const R = edgeDist(s.x, s.y, ang) * s.rj;
+      if (tt <= OUT || leg === s.legs - 1) {
+        const p = Math.min(1, tt / OUT);
+        const e = 1 - Math.pow(1 - p, 3);
+        // 最後の飛び出しは、端の少し先まで抜けていく
+        const r = R * e * (leg === s.legs - 1 ? 1.04 : 1);
+        out.x = s.x + Math.cos(ang) * r; out.y = s.y + Math.sin(ang) * r;
+        out.leg = leg * 2; out.p = p;
+        return out;
+      }
+      tt -= OUT;
+      if (tt <= IN) {
+        const p = tt / IN;
+        const sm = p * p * (3 - 2 * p);
+        const a2 = ang + s.twist * sm;               // 渦を巻きながら中心へ
+        const r = R * (1 - sm);
+        out.x = s.x + Math.cos(a2) * r; out.y = s.y + Math.sin(a2) * r;
+        out.leg = leg * 2 + 1; out.p = p;
+        return out;
+      }
+      tt -= IN;
+      ang = ang + s.twist + Math.PI;                // 中心を突き抜けて反対側の端へ
+    }
+    return out;
+  }
+  const _p0 = {}, _p1 = {}, _p2 = {};
+
   function burst(I) {
     if (!root || !fxCanvas) return;
     fxSize();
     const st = root.querySelector('.pllh-stage').getBoundingClientRect();
     const rr = root.getBoundingClientRect();
     const x = st.left + st.width / 2 - rr.left, y = st.top + st.height / 2 - rr.top;
-    const boost = 0.55 + 0.7 * I;
-    // 火花
-    const n = Math.round(80 + 190 * I);
-    for (let i = 0; i < n; i++) {
-      const ang = Math.random() * Math.PI * 2;
-      const sp = (220 + Math.random() * Math.random() * 980) * boost;
-      sparks.push({ x: x, y: y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp,
-        life: 0.9 + Math.random() * 1.2, age: 0, size: 1 + Math.random() * 2.2 * boost,
-        col: Math.random() < I * 0.75 ? pick(VIVID) : pick(PALETTE), crackle: Math.random() < 0.22 * I, kind: 0, tw: Math.random() * 6 });
+    const vivid = Math.min(1, I * 0.9);
+    popAt(x, y, I, vivid);
+    if (I >= 0.35) {
+      const legs = I >= 0.97 ? 3 : 2;               // 満タンは2往復
+      addStreaks(x, y, I, legs);
+      // 筋が中心へ戻ってくる瞬間ごとに、もう一度弾ける
+      for (let k = 1; k < legs; k++) {
+        const at = fxTime + k * (OUT + IN);
+        const P = Math.min(1, I * (0.55 + 0.25 * k));
+        events.push({ at: at, fn: function () {
+          popAt(x, y, P, vivid);
+          if (I >= 0.8) shake(k === legs - 1);
+          try { if (navigator.vibrate) navigator.vibrate([18, 30, 30]); } catch (e) {}
+        } });
+      }
     }
-    // ふわっと漂う光の玉
-    const m = Math.round(8 + 14 * I);
-    for (let i = 0; i < m; i++) {
-      const ang = Math.random() * Math.PI * 2;
-      const sp = (30 + Math.random() * 140) * boost;
-      sparks.push({ x: x, y: y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp,
-        life: 1.6 + Math.random() * 1.2, age: 0, size: 7 + Math.random() * 16 * boost,
-        col: pick(PALETTE), crackle: false, kind: 1, tw: 0 });
-    }
-    // 光の輪（2重）
-    rings.push({ x: x, y: y, r: 6, sp: 820 * boost, age: 0, life: 0.85, col: [235, 240, 255], w: 3.2 });
-    rings.push({ x: x, y: y, r: 2, sp: 560 * boost, age: -0.07, life: 1.0, col: pick(PALETTE.slice(1, 4)), w: 2 });
-    // 画面全体がふわっと白むひかり
-    const wo = root.querySelector('.pllh-whiteout');
-    if (wo) {
-      wo.style.setProperty('--wx', x + 'px'); wo.style.setProperty('--wy', y + 'px');
-      wo.style.opacity = (0.45 + 0.55 * I).toFixed(2);
-      const inner = wo.firstChild;
-      inner.classList.remove('pop'); void inner.offsetWidth; inner.classList.add('pop');
-    }
-    try { if (navigator.vibrate) navigator.vibrate([14, 40, 24]); } catch (e) {}
+    if (I >= 0.8) shake(I >= 0.97);
+    try { if (navigator.vibrate) navigator.vibrate(I >= 0.8 ? [24, 40, 40, 30, 30] : [14, 40, 24]); } catch (e) {}
     if (!fxRaf) { fxLast = performance.now(); fxRaf = requestAnimationFrame(fxFrame); }
   }
   function fxFrame(t) {
     fxRaf = 0;
     const dt = Math.min(0.05, Math.max(0, (t - fxLast) / 1000));
     fxLast = t;
+    fxTime += dt;
+    for (let i = events.length - 1; i >= 0; i--) {
+      if (fxTime >= events[i].at) { const ev = events[i]; events.splice(i, 1); ev.fn(); }
+    }
     const ctx = fxCtx;
     ctx.globalCompositeOperation = 'source-over';
     ctx.clearRect(0, 0, fxW, fxH);
     ctx.globalCompositeOperation = 'lighter';
+    ctx.lineCap = 'round';
+
+    // 光の筋
+    for (let i = streaks.length - 1; i >= 0; i--) {
+      const s = streaks[i];
+      s.age += dt;
+      const total = s.legs * OUT + (s.legs - 1) * IN;
+      if (s.age >= total) { streaks.splice(i, 1); continue; }
+      if (s.age < 0) continue;
+      streakPos(s, s.age, _p0);
+      streakPos(s, s.age - 0.03, _p1);
+      streakPos(s, s.age - 0.065, _p2);
+      // 最後の飛び出しの後半で消えていく
+      let a = 0.95;
+      const fadeFrom = total - OUT * 0.55;
+      if (s.age > fadeFrom) a *= Math.max(0, 1 - (s.age - fadeFrom) / (OUT * 0.55));
+      // 色はプリズムの中を流れるように変わっていく
+      const hue = (s.h0 + s.age * 220) % 360;
+      ctx.lineWidth = s.w;
+      ctx.strokeStyle = 'hsla(' + hue.toFixed(0) + ',100%,70%,' + (a * 0.45).toFixed(3) + ')';
+      ctx.beginPath(); ctx.moveTo(_p2.x, _p2.y); ctx.lineTo(_p1.x, _p1.y); ctx.stroke();
+      ctx.strokeStyle = 'hsla(' + hue.toFixed(0) + ',100%,76%,' + a.toFixed(3) + ')';
+      ctx.beginPath(); ctx.moveTo(_p1.x, _p1.y); ctx.lineTo(_p0.x, _p0.y); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,' + (a * 0.85).toFixed(3) + ')';
+      ctx.beginPath(); ctx.arc(_p0.x, _p0.y, s.w * 0.75, 0, Math.PI * 2); ctx.fill();
+    }
+
     for (let i = sparks.length - 1; i >= 0; i--) {
       const p = sparks[i];
       p.age += dt;
@@ -823,15 +943,12 @@
       }
       let a = Math.pow(1 - u, 1.3);
       if (u > 0.45) a *= 0.55 + 0.45 * Math.sin(p.age * 38 + p.tw);   // 消えぎわにちらちら瞬く
-      // 尾を引く線
       ctx.strokeStyle = 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + (a * 0.85).toFixed(3) + ')';
       ctx.lineWidth = p.size;
-      ctx.lineCap = 'round';
       ctx.beginPath();
       ctx.moveTo(p.x - p.vx * 0.045, p.y - p.vy * 0.045);
       ctx.lineTo(p.x, p.y);
       ctx.stroke();
-      // 先端の白い芯
       ctx.fillStyle = 'rgba(255,255,255,' + (a * 0.9).toFixed(3) + ')';
       ctx.beginPath(); ctx.arc(p.x, p.y, p.size * 0.55, 0, Math.PI * 2); ctx.fill();
       // 途中でパチパチと小さく弾ける
@@ -857,13 +974,14 @@
       ctx.lineWidth = r.w * (1 - u) + 0.5;
       ctx.beginPath(); ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2); ctx.stroke();
     }
-    if (sparks.length || rings.length) fxRaf = requestAnimationFrame(fxFrame);
+    if (sparks.length || rings.length || streaks.length || events.length) fxRaf = requestAnimationFrame(fxFrame);
     else ctx.clearRect(0, 0, fxW, fxH);
   }
   function fxClear() {
     if (fxRaf) { cancelAnimationFrame(fxRaf); fxRaf = 0; }
-    sparks.length = 0; rings.length = 0;
+    sparks.length = 0; rings.length = 0; streaks.length = 0; events.length = 0;
     if (fxCtx) fxCtx.clearRect(0, 0, fxW, fxH);
+    if (root) root.classList.remove('pllh-shake', 'pllh-shake2');
   }
 
   /* ------------------------------------------------- モードとの行き来 -- */
