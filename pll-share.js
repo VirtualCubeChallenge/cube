@@ -56,6 +56,8 @@
     // 2列（左=戻るの上、右=もう一度挑戦の上）。下の .pllt-result-actions と同じ列幅・すき間
     '.pls-top{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;align-items:stretch}',
     '.pls-top+.pllt-result-actions{margin-top:8px}',
+    // 木札の無い画面（フラッシュ・ビジョン）では、Xでシェアを同じ大きさのまま中央に置く
+    '.pls-top>.pls-share:only-child{grid-column:1/-1;justify-self:center;width:calc(50% - 4px)}',
     '.pls-top .pllt-ticket-row{margin:0;min-width:0;flex-wrap:nowrap;display:flex;align-items:stretch}',
     // 木札は、隣の「Xでシェア」や下の「戻る／もう一度挑戦」と同じ大きさ（列いっぱい・同じ高さ・同じ角丸）にする
     '#pllt-overlay .pls-top .pllt-ticket-row .pllt-kan-fuda{box-sizing:border-box;width:100%;max-width:none;min-width:0;',
@@ -561,7 +563,7 @@
   /* ---------------------------------------------------------- 取り付け -- */
   // 「戻る／もう一度挑戦」の真上に1段足して、左=Xでシェア（戻るの上）、
   // 右=ためた貫の木札（もう一度挑戦の上）に並べる。木札が無い画面
-  // （フラッシュ・ビジョン）では、Xでシェアを左の列（戻るの上）にだけ置く。
+  // （フラッシュ・ビジョン）では、Xでシェアを中央に置く。
   function addTo(section, id, onClick) {
     if (!section || $(id)) return;
     const actions = section.querySelector('.pllt-result-actions');
