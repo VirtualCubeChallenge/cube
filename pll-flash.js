@@ -910,7 +910,7 @@
     setText('plf-res-score-label', tx('plfScore'));
     setText('plf-res-time-label', tx('plfTime'));
     setText('plf-res-lv-label', tx('plfHudLevel'));
-    setText('plf-rev-title', tx('plfReview'));
+    setText('plf-rev-title', tx('plltResultTitle'));   // 見出しは「リザルト」（シェア画像と同じ）
     setText('plf-back', tx('plltBack'));
     setText('plf-retry', tx('plltRetry'));
     document.querySelectorAll('#plf-answers .pllt-group-label').forEach(function (e) {
