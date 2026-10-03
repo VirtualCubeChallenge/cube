@@ -3,15 +3,15 @@
   "items": [
     {
       "date": "2026-10-03",
-      "ja": "【アプデ情報】新モード「PLLフラッシュ」登場！⚡\n一瞬ずつ出るPLLを覚えて、最後にまとめて答えよう。初級〜鬼（0.25秒×10問）の4段階です。\nトレーニング → PLL検定の画面の「PLLフラッシュ」から遊べます！",
-      "en": "[Update] New mode: PLL Flash! ⚡\nMemorize PLLs that flash by, then answer them all at the end. Four levels, from Easy up to Pro (0.25s × 10).\nFind it under Training, on the PLL test screen!",
-      "zh-CN": "【更新情报】新模式「PLL闪现」登场！⚡\n记住一闪而过的PLL，最后一起作答。从初级到魔鬼（0.25秒×10题）共4档。\n在「训练」的PLL检定画面中点「PLL闪现」就能玩！",
-      "zh-TW": "【更新情報】新模式「PLL閃現」登場！⚡\n記住一閃而過的PLL，最後一起作答。從初級到魔鬼（0.25秒×10題）共4檔。\n在「訓練」的PLL檢定畫面中點「PLL閃現」就能玩！",
-      "ko": "【업데이트】새 모드 「PLL 플래시」 등장! ⚡\n순식간에 지나가는 PLL을 외워서 마지막에 한꺼번에 답하세요. 초급부터 귀신(0.25초×10문제)까지 4단계입니다.\n트레이닝 → PLL 검정 화면의 「PLL 플래시」에서 즐길 수 있어요!",
-      "es": "[Novedades] ¡Nuevo modo: PLL Flash! ⚡\nMemoriza los PLL que pasan en un instante y respóndelos todos al final. Cuatro niveles, de Fácil a Pro (0,25 s × 10).\n¡Está en Entrenamiento, en la pantalla del examen de PLL!",
-      "id": "[Pembaruan] Mode baru: PLL Flash! ⚡\nHafalkan PLL yang lewat sekejap, lalu jawab semuanya di akhir. Empat tingkat, dari Mudah sampai Pro (0,25 dtk × 10).\nAda di Latihan, pada layar ujian PLL!",
-      "ru": "[Обновление] Новый режим — PLL-вспышка! ⚡\nЗапомните мелькающие PLL и ответьте на все в конце. Четыре уровня: от лёгкого до «Демона» (0,25 с × 10).\nОн в разделе «Тренировка», на экране теста PLL!",
-      "pt-BR": "[Novidades] Novo modo: PLL Flash! ⚡\nMemorize os PLLs que passam num instante e responda todos no fim. Quatro níveis, do Fácil ao Pro (0,25 s × 10).\nEstá em Treino, na tela do teste de PLL!"
+      "ja": "【アプデ情報】新モード「PLLフラッシュ」「PLLビジョン」登場！⚡👁\nフラッシュは一瞬ずつ出るPLLを覚えて、ビジョンは3×3に並んだ9個を一度に見て、最後にまとめて答えよう。どちらも初級〜鬼の4段階です。\nトレーニング → PLL検定の画面から遊べます！",
+      "en": "[Update] Two new modes: PLL Flash and PLL Vision! ⚡👁\nFlash shows PLLs one at a time; Vision shows nine at once in a 3×3 grid — remember them and answer at the end. Four levels each, from Easy to Pro.\nFind them under Training, on the PLL test screen!",
+      "zh-CN": "【更新情报】新模式「PLL闪现」「PLL视野」登场！⚡👁\n闪现会逐个快速显示PLL，视野会一次显示3×3排列的9个PLL，记住后最后一起作答。两种模式都有初级到魔鬼4档。\n在「训练」的PLL检定画面中就能玩！",
+      "zh-TW": "【更新情報】新模式「PLL閃現」「PLL視野」登場！⚡👁\n閃現會逐個快速顯示PLL，視野會一次顯示3×3排列的9個PLL，記住後最後一起作答。兩種模式都有初級到魔鬼4檔。\n在「訓練」的PLL檢定畫面中就能玩！",
+      "ko": "【업데이트】새 모드 「PLL 플래시」「PLL 비전」 등장! ⚡👁\n플래시는 PLL이 하나씩 순식간에, 비전은 3×3으로 9개가 한꺼번에 나옵니다. 기억해 두었다가 마지막에 답하세요. 둘 다 초급부터 귀신까지 4단계입니다.\n트레이닝 → PLL 검정 화면에서 즐길 수 있어요!",
+      "es": "[Novedades] ¡Dos modos nuevos: PLL Flash y PLL Visión! ⚡👁\nFlash muestra los PLL uno a uno; Visión muestra nueve a la vez en una cuadrícula de 3×3. Recuérdalos y responde al final. Cuatro niveles en cada uno, de Fácil a Pro.\n¡Están en Entrenamiento, en la pantalla del examen de PLL!",
+      "id": "[Pembaruan] Dua mode baru: PLL Flash dan PLL Vision! ⚡👁\nFlash menampilkan PLL satu per satu; Vision menampilkan sembilan sekaligus dalam kotak 3×3. Ingat, lalu jawab di akhir. Masing-masing punya empat tingkat, dari Mudah sampai Pro.\nAda di Latihan, pada layar ujian PLL!",
+      "ru": "[Обновление] Два новых режима: PLL-вспышка и PLL-обзор! ⚡👁\nВо «вспышке» PLL мелькают по одному, в «обзоре» девять появляются сразу в сетке 3×3. Запомните их и ответьте в конце. В каждом режиме четыре уровня — от лёгкого до «Демона».\nОни в разделе «Тренировка», на экране теста PLL!",
+      "pt-BR": "[Novidades] Dois modos novos: PLL Flash e PLL Visão! ⚡👁\nO Flash mostra os PLLs um a um; o Visão mostra nove de uma vez numa grade 3×3. Lembre-se deles e responda no fim. Quatro níveis em cada um, do Fácil ao Pro.\nEstão em Treino, na tela do teste de PLL!"
     },
     {
       "date": "2026-08-30",

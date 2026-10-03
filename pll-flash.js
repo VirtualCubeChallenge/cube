@@ -1,5 +1,11 @@
 /* ============================================================
-   pll-flash.js — PLLフラッシュ（連続表示モード）
+   pll-flash.js — PLLフラッシュ（連続表示）／PLLビジョン（一括表示）
+   ------------------------------------------------------------
+   2つのモードを1ファイルで持つ。違うのは「どう見せるか」だけで、
+   回答画面（ボタン・赤い番号・1つ戻る・全リセット）とリザルトは共通。
+     flash  … 1問ずつ一瞬だけ表示（下の説明）
+     vision … 3×3のマスに9問を同時に表示し、時間が来たら一斉に消す。
+              上面は回さない（AUFなし・正位置）。回答のスロットも3×3。
    ------------------------------------------------------------
    流れ
      設定（難易度）→ 3・2・1・START → PLLの画像を1問ずつ一瞬だけ表示
@@ -48,7 +54,14 @@
     { id: 'hard',   key: 'plfLvHard',   showMs: 500,  gapMs: 200, count: 5 },
     { id: 'pro',    key: 'plfLvPro',    showMs: 250,  gapMs: 140, count: 10 }
   ];
-  const STORAGE_KEY = 'rubiks-cube-pll-flash';
+  /* PLLビジョンの難易度。9問は固定で、変わるのは表示時間だけ。 */
+  const VLEVELS = [
+    { id: 'easy',   key: 'plfLvEasy',   showMs: 5000, count: 9 },
+    { id: 'normal', key: 'plfLvNormal', showMs: 3000, count: 9 },
+    { id: 'hard',   key: 'plfLvHard',   showMs: 2000, count: 9 },
+    { id: 'pro',    key: 'plfLvPro',    showMs: 1000, count: 9 }
+  ];
+  const STORAGE_KEY = 'rubiks-cube-pll-flash';   // 両モード共用（ビジョンの記録は v: 付きのキー）
   const PLLT_KEY = 'rubiks-cube-pll-trainer';   // 上面の色の選択だけ借りる
   const COUNT_FROM = 3;
   const COUNT_STEP = 700;     // PLL検定と同じテンポ
@@ -93,7 +106,11 @@
       plfUndo: '1つ戻る', plfReset: '全リセット', plfSubmit: '確定する', plfRemain: 'あと {n} 問',
       plfScore: '正解', plfTime: '回答タイム', plfReview: 'ふりかえり', plfAsked: '出題', plfYours: 'あなた',
       plfNewBest: '自己ベスト更新！', plfQuitTitle: 'PLLフラッシュをやめますか？',
-      plfQuitBody: '入力した回答は消えます。', plfQuitOk: 'やめる', plfSlot: '{i}問目'
+      plfQuitBody: '入力した回答は消えます。', plfQuitOk: 'やめる', plfSlot: '{i}問目',
+      plvEntry: 'PLLビジョン', plvEntrySub: '9個のPLLを一度に見て、まとめて答える',
+      plvTitle: 'PLLビジョン', plvLead: '3×3に並んだ9個のPLLを一度に見て覚え、まとめて答える',
+      plvRule: '表示が消えたら、マスの位置ごとにボタンをタップ', plvHudLeft: '残り',
+      plvAnsLead: '出ていた位置ごとに答えてください。マスをタップすると、そこだけ選び直せます', plvQuitTitle: 'PLLビジョンをやめますか？'
     },
     en: {
       plfEntry: 'PLL Flash', plfEntrySub: 'Memorize PLLs that flash by, then answer them all',
@@ -108,7 +125,11 @@
       plfUndo: 'Undo', plfReset: 'Reset all', plfSubmit: 'Submit', plfRemain: '{n} left',
       plfScore: 'Correct', plfTime: 'Answer time', plfReview: 'Review', plfAsked: 'Shown', plfYours: 'You',
       plfNewBest: 'New personal best!', plfQuitTitle: 'Quit PLL Flash?',
-      plfQuitBody: 'Your answers will be lost.', plfQuitOk: 'Quit', plfSlot: 'Case {i}'
+      plfQuitBody: 'Your answers will be lost.', plfQuitOk: 'Quit', plfSlot: 'Case {i}',
+      plvEntry: 'PLL Vision', plvEntrySub: 'See 9 PLLs at once, then answer them all',
+      plvTitle: 'PLL Vision', plvLead: 'Nine PLLs appear at once in a 3×3 grid — take them in at a glance and answer at the end',
+      plvRule: 'When they disappear, tap the answer for each square', plvHudLeft: 'Left',
+      plvAnsLead: 'Answer for each square. Tap a square to redo just that one', plvQuitTitle: 'Quit PLL Vision?'
     },
     'zh-CN': {
       plfEntry: 'PLL闪现', plfEntrySub: '记住一闪而过的PLL，最后一起作答',
@@ -123,7 +144,11 @@
       plfUndo: '撤销一步', plfReset: '全部重置', plfSubmit: '确定', plfRemain: '还剩 {n} 题',
       plfScore: '正确', plfTime: '作答时间', plfReview: '回顾', plfAsked: '出题', plfYours: '你的答案',
       plfNewBest: '刷新个人最佳！', plfQuitTitle: '要退出PLL闪现吗？',
-      plfQuitBody: '已输入的答案将被清除。', plfQuitOk: '退出', plfSlot: '第{i}题'
+      plfQuitBody: '已输入的答案将被清除。', plfQuitOk: '退出', plfSlot: '第{i}题',
+      plvEntry: 'PLL视野', plvEntrySub: '一次看9个PLL，最后一起作答',
+      plvTitle: 'PLL视野', plvLead: '3×3排列的9个PLL同时出现——一眼记住，最后一起作答',
+      plvRule: '画面消失后，按格子位置逐一点击答案', plvHudLeft: '剩余',
+      plvAnsLead: '请按格子位置作答。点击格子可以只重选那一格', plvQuitTitle: '要退出PLL视野吗？'
     },
     'zh-TW': {
       plfEntry: 'PLL閃現', plfEntrySub: '記住一閃而過的PLL，最後一起作答',
@@ -138,7 +163,11 @@
       plfUndo: '還原一步', plfReset: '全部重設', plfSubmit: '確定', plfRemain: '還剩 {n} 題',
       plfScore: '正確', plfTime: '作答時間', plfReview: '回顧', plfAsked: '出題', plfYours: '你的答案',
       plfNewBest: '刷新個人最佳！', plfQuitTitle: '要結束PLL閃現嗎？',
-      plfQuitBody: '已輸入的答案將被清除。', plfQuitOk: '結束', plfSlot: '第{i}題'
+      plfQuitBody: '已輸入的答案將被清除。', plfQuitOk: '結束', plfSlot: '第{i}題',
+      plvEntry: 'PLL視野', plvEntrySub: '一次看9個PLL，最後一起作答',
+      plvTitle: 'PLL視野', plvLead: '3×3排列的9個PLL同時出現——一眼記住，最後一起作答',
+      plvRule: '畫面消失後，按格子位置逐一點選答案', plvHudLeft: '剩餘',
+      plvAnsLead: '請按格子位置作答。點選格子可以只重選那一格', plvQuitTitle: '要結束PLL視野嗎？'
     },
     ko: {
       plfEntry: 'PLL 플래시', plfEntrySub: '순식간에 지나가는 PLL을 외워서 한꺼번에 답하기',
@@ -153,7 +182,11 @@
       plfUndo: '하나 취소', plfReset: '전부 리셋', plfSubmit: '확정', plfRemain: '{n}문제 남음',
       plfScore: '정답', plfTime: '답변 시간', plfReview: '돌아보기', plfAsked: '출제', plfYours: '내 답',
       plfNewBest: '최고 기록 갱신!', plfQuitTitle: 'PLL 플래시를 그만둘까요?',
-      plfQuitBody: '입력한 답이 지워집니다.', plfQuitOk: '그만두기', plfSlot: '{i}번 문제'
+      plfQuitBody: '입력한 답이 지워집니다.', plfQuitOk: '그만두기', plfSlot: '{i}번 문제',
+      plvEntry: 'PLL 비전', plvEntrySub: 'PLL 9개를 한 번에 보고 한꺼번에 답하기',
+      plvTitle: 'PLL 비전', plvLead: '3×3으로 놓인 PLL 9개가 한꺼번에 나옵니다. 한눈에 기억해 두었다가 마지막에 답하세요',
+      plvRule: '사라지면 칸 위치별로 버튼을 탭하세요', plvHudLeft: '남은 시간',
+      plvAnsLead: '칸 위치별로 답하세요. 칸을 탭하면 그 칸만 다시 고를 수 있어요', plvQuitTitle: 'PLL 비전을 그만둘까요?'
     },
     es: {
       plfEntry: 'PLL Flash', plfEntrySub: 'Memoriza los PLL que pasan en un instante y responde al final',
@@ -168,7 +201,11 @@
       plfUndo: 'Deshacer', plfReset: 'Borrar todo', plfSubmit: 'Enviar', plfRemain: 'Faltan {n}',
       plfScore: 'Aciertos', plfTime: 'Tiempo de respuesta', plfReview: 'Repaso', plfAsked: 'Salió', plfYours: 'Tú',
       plfNewBest: '¡Nuevo récord personal!', plfQuitTitle: '¿Salir de PLL Flash?',
-      plfQuitBody: 'Se borrarán tus respuestas.', plfQuitOk: 'Salir', plfSlot: 'Caso {i}'
+      plfQuitBody: 'Se borrarán tus respuestas.', plfQuitOk: 'Salir', plfSlot: 'Caso {i}',
+      plvEntry: 'PLL Visión', plvEntrySub: 'Mira 9 PLL a la vez y responde al final',
+      plvTitle: 'PLL Visión', plvLead: 'Nueve PLL aparecen a la vez en una cuadrícula de 3×3: captúralos de un vistazo y responde al final',
+      plvRule: 'Cuando desaparezcan, toca la respuesta de cada casilla', plvHudLeft: 'Quedan',
+      plvAnsLead: 'Responde por casilla. Toca una casilla para cambiar solo esa', plvQuitTitle: '¿Salir de PLL Visión?'
     },
     id: {
       plfEntry: 'PLL Flash', plfEntrySub: 'Hafalkan PLL yang lewat sekejap, lalu jawab semuanya',
@@ -183,7 +220,11 @@
       plfUndo: 'Batalkan', plfReset: 'Reset semua', plfSubmit: 'Kirim', plfRemain: '{n} lagi',
       plfScore: 'Benar', plfTime: 'Waktu jawab', plfReview: 'Ulasan', plfAsked: 'Soal', plfYours: 'Kamu',
       plfNewBest: 'Rekor pribadi baru!', plfQuitTitle: 'Keluar dari PLL Flash?',
-      plfQuitBody: 'Jawaban yang sudah diisi akan hilang.', plfQuitOk: 'Keluar', plfSlot: 'Soal {i}'
+      plfQuitBody: 'Jawaban yang sudah diisi akan hilang.', plfQuitOk: 'Keluar', plfSlot: 'Soal {i}',
+      plvEntry: 'PLL Vision', plvEntrySub: 'Lihat 9 PLL sekaligus, lalu jawab semuanya',
+      plvTitle: 'PLL Vision', plvLead: 'Sembilan PLL muncul bersamaan dalam kotak 3×3 — tangkap sekilas, lalu jawab di akhir',
+      plvRule: 'Setelah hilang, ketuk jawaban untuk tiap kotak', plvHudLeft: 'Sisa',
+      plvAnsLead: 'Jawab untuk tiap kotak. Ketuk kotak untuk mengganti kotak itu saja', plvQuitTitle: 'Keluar dari PLL Vision?'
     },
     ru: {
       plfEntry: 'PLL-вспышка', plfEntrySub: 'Запомните мелькающие PLL и ответьте на все сразу',
@@ -198,7 +239,11 @@
       plfUndo: 'Отменить', plfReset: 'Сбросить всё', plfSubmit: 'Готово', plfRemain: 'Осталось {n}',
       plfScore: 'Верно', plfTime: 'Время ответа', plfReview: 'Разбор', plfAsked: 'Было', plfYours: 'Вы',
       plfNewBest: 'Новый личный рекорд!', plfQuitTitle: 'Выйти из PLL-вспышки?',
-      plfQuitBody: 'Введённые ответы будут удалены.', plfQuitOk: 'Выйти', plfSlot: 'Случай {i}'
+      plfQuitBody: 'Введённые ответы будут удалены.', plfQuitOk: 'Выйти', plfSlot: 'Случай {i}',
+      plvEntry: 'PLL-обзор', plvEntrySub: 'Девять PLL сразу — запомните и ответьте на все',
+      plvTitle: 'PLL-обзор', plvLead: 'Девять PLL появляются одновременно в сетке 3×3 — охватите их одним взглядом и ответьте в конце',
+      plvRule: 'Когда они исчезнут, нажмите ответ для каждой клетки', plvHudLeft: 'Осталось',
+      plvAnsLead: 'Отвечайте по клеткам. Нажмите клетку, чтобы изменить только её', plvQuitTitle: 'Выйти из PLL-обзора?'
     },
     'pt-BR': {
       plfEntry: 'PLL Flash', plfEntrySub: 'Memorize os PLLs que passam num instante e responda no fim',
@@ -213,7 +258,11 @@
       plfUndo: 'Desfazer', plfReset: 'Limpar tudo', plfSubmit: 'Enviar', plfRemain: 'Faltam {n}',
       plfScore: 'Acertos', plfTime: 'Tempo de resposta', plfReview: 'Revisão', plfAsked: 'Saiu', plfYours: 'Você',
       plfNewBest: 'Novo recorde pessoal!', plfQuitTitle: 'Sair do PLL Flash?',
-      plfQuitBody: 'As respostas digitadas serão apagadas.', plfQuitOk: 'Sair', plfSlot: 'Caso {i}'
+      plfQuitBody: 'As respostas digitadas serão apagadas.', plfQuitOk: 'Sair', plfSlot: 'Caso {i}',
+      plvEntry: 'PLL Visão', plvEntrySub: 'Veja 9 PLLs de uma vez e responda no fim',
+      plvTitle: 'PLL Visão', plvLead: 'Nove PLLs aparecem juntos numa grade 3×3 — capte num relance e responda no fim',
+      plvRule: 'Quando sumirem, toque a resposta de cada casa', plvHudLeft: 'Restam',
+      plvAnsLead: 'Responda por casa. Toque uma casa para trocar só ela', plvQuitTitle: 'Sair do PLL Visão?'
     }
   };
   if (typeof I18N !== 'undefined' && I18N) {
@@ -396,6 +445,42 @@
     '  .plf-answer .pllt-group-row{grid-auto-rows:minmax(40px,auto)}',
     '  .plf-submit{padding:11px}.plf-lead{display:none}',
     '}',
+    /* ---- PLLビジョン：3×3に9台を同時に並べる ---- */
+    '#plf-overlay[data-mode="vision"] .plf-dots{display:none}',
+    '.plv-board{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}',
+    '.plv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:min(96vw,58vh,540px);opacity:0}',
+    '.plv-board.on .plv-grid{opacity:1}',
+    '.plv-cell{position:relative;aspect-ratio:1;display:flex;align-items:center;justify-content:center;',
+    '  border-radius:12px;background:#121218;border:1px solid #2c2c38;overflow:hidden}',
+    /* マスの幅の約半分を一辺に。傾けた立方体（一辺×1.45の箱）がマスからはみ出さない大きさ */
+    '.plv-cell .pllt-stage{--pllt-s:calc(min(96vw,58vh,540px) / 3 * .5);transition:none}',
+    '.plv-no{position:absolute;left:6px;top:4px;font-size:11px;font-weight:900;color:#ff4d6a;line-height:1;z-index:1}',
+    /* 残り時間の帯（transform だけで縮める） */
+    '.plv-bar{width:min(96vw,58vh,540px);height:4px;border-radius:2px;background:#2c2c38;overflow:hidden;opacity:0}',
+    '.plv-bar i{display:block;height:100%;background:var(--tc);transform-origin:0 50%;',
+    '  box-shadow:0 0 8px rgba(var(--tc-rgb),.7)}',
+    '.plv-board.on .plv-bar{opacity:1}',
+    '.plv-board.on .plv-bar i{animation:plvBar var(--plv-ms,3000ms) linear both}',
+    '@keyframes plvBar{from{transform:scaleX(1)}to{transform:scaleX(0)}}',
+    /* 回答スロットを3×3に。出題のマスと同じ並び */
+    '#plf-overlay[data-mode="vision"] .plf-slot{height:40px}',
+    /* リザルトのふりかえりも3×3 */
+    '.plf-rev.plv-rev{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}',
+    '.plv-rev-cell{position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;padding:16px 4px 7px;',
+    '  border-radius:10px;background:#15151b;border:1px solid #2c2c38;text-align:center;min-width:0}',
+    '.plv-rev-cell.ok{border-color:rgba(79,224,168,.35)}',
+    '.plv-rev-cell.ng{border-color:rgba(255,106,122,.45);background:rgba(255,106,122,.06)}',
+    '.plv-rev-cell .plf-rev-no{position:absolute;left:5px;top:3px;font-size:12px}',
+    '.plv-rev-cell .plf-rev-mark{position:absolute;right:6px;top:2px;font-size:13px}',
+    '.plv-rev-cell.ok .plf-rev-mark{color:#4fe0a8}.plv-rev-cell.ng .plf-rev-mark{color:#ff6a7a}',
+    '.plv-rev-cell .pllt-stage{--pllt-s:40px;perspective:400px;transition:none}',
+    '.plv-rev-cell .pllt-sticker{box-shadow:inset 0 0 0 .6px rgba(255,255,255,.62)}',
+    '.plv-rev-name{font-size:15px;font-weight:900;color:#e6e6ee;line-height:1.15}',
+    '.plv-rev-you{font-size:10px;color:#8b8b9c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}',
+    '.plv-rev-you b{color:#ff9aa6;margin-left:3px}',
+    '@media (prefers-reduced-motion: reduce){',
+    '  .plv-board.on .plv-bar i{animation:none}',
+    '}',
     '@media (prefers-reduced-motion: reduce){',
     '  #plf-overlay{transition-duration:.01ms}',
     '  .plf-card.on .pllt-stage,.plf-submit.nudge,.plf-slot.cur::after{animation:none}',
@@ -416,14 +501,16 @@
      best[levelId] = { c: 正解数, n: 問題数, ms: 回答タイム }
      「正解数が多いほう、同じなら速いほう」を自己ベストとする。
      ============================================================ */
-  let store = { v: 1, level: 'normal', plays: 0, best: {} };
+  let store = { v: 1, level: 'normal', vlevel: 'normal', plays: 0, vplays: 0, best: {} };
   function loadStore() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
       const p = JSON.parse(raw);
       if (!p || typeof p !== 'object') return;
-      if (levelById(p.level)) store.level = p.level;
+      if (findLevel(LEVELS, p.level)) store.level = p.level;
+      if (findLevel(VLEVELS, p.vlevel)) store.vlevel = p.vlevel;
+      if (typeof p.vplays === 'number') store.vplays = p.vplays;
       if (typeof p.plays === 'number') store.plays = p.plays;
       if (p.best && typeof p.best === 'object') store.best = p.best;
     } catch (e) { /* 使えない環境ならその場かぎり */ }
@@ -431,9 +518,22 @@
   function saveStore() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(store)); } catch (e) { /* 保存不可 */ }
   }
-  function levelById(id) {
-    for (let i = 0; i < LEVELS.length; i++) if (LEVELS[i].id === id) return LEVELS[i];
+  function findLevel(list, id) {
+    for (let i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
     return null;
+  }
+  function isVision() { return state.mode === 'vision'; }
+  function levels() { return isVision() ? VLEVELS : LEVELS; }
+  function levelById(id) { return findLevel(levels(), id); }
+  function curLevelId() { return isVision() ? store.vlevel : store.level; }
+  function setLevelId(id) { if (isVision()) store.vlevel = id; else store.level = id; }
+  // 自己ベストのキー。フラッシュは従来どおり難易度名だけ、ビジョンは v: を付ける。
+  function bestKey(id) { return isVision() ? 'v:' + id : id; }
+  // 文言のキー。モードで違うものだけ切り替える。
+  function K(name) {
+    const V = { title: 'plvTitle', lead: 'plvLead', rule: 'plvRule', ansLead: 'plvAnsLead', quit: 'plvQuitTitle' };
+    const F = { title: 'plfTitle', lead: 'plfLead', rule: 'plfRule', ansLead: 'plfAnsLead', quit: 'plfQuitTitle' };
+    return (isVision() ? V : F)[name];
   }
   function better(a, b) {   // a が b より良いか
     if (!b) return true;
@@ -474,8 +574,9 @@
       const name = NAMES[(Math.random() * NAMES.length) | 0];
       const entry = src[name];
       if (!entry) { i--; continue; }
-      // 上面の向きは PLL検定と同じく4通りからランダム（画面には出さない）。
-      const auf = (Math.random() * 4) | 0;
+      // 上面の向き: フラッシュは PLL検定と同じく4通りからランダム（画面には出さない）。
+      // ビジョンは回さない（正位置のみ）。
+      const auf = isVision() ? 0 : (Math.random() * 4) | 0;
       list.push({
         name: name,
         auf: auf,
@@ -525,6 +626,7 @@
      状態
      ============================================================ */
   const state = {
+    mode: 'flash',    // 'flash' | 'vision'
     view: 'setup',
     level: LEVELS[1],
     targetPLLs: [],
@@ -577,6 +679,10 @@
       '</header>' +
       '<div class="plf-stage" id="plf-stage">' +
         '<div class="plf-cover" aria-hidden="true"><span class="pllt-cover-mark" id="plf-cover-mark">3</span></div>' +
+        '<div class="plv-board" id="plv-board" aria-hidden="true">' +
+          '<div class="plv-grid" id="plv-grid"></div>' +
+          '<div class="plv-bar"><i></i></div>' +
+        '</div>' +
       '</div>' +
       '<div class="plf-dots" id="plf-dots" aria-hidden="true"></div>' +
     '</section>' +
@@ -714,7 +820,7 @@
     box.addEventListener('click', function (e) {
       const b = e.target.closest ? e.target.closest('.plf-level') : null;
       if (!b) return;
-      store.level = b.dataset.level;
+      setLevelId(b.dataset.level);
       saveStore();
       haptic(6);
       paintSetup();
@@ -762,17 +868,17 @@
     ['plf-close-setup', 'plf-close-result', 'plf-quit-flash', 'plf-quit-answer'].forEach(function (id) {
       const e = $(id); if (e) e.setAttribute('aria-label', closeLabel);
     });
-    setText('plf-title', tx('plfTitle'));
-    setText('plf-lead', tx('plfLead'));
-    setText('plf-rule', tx('plfRule'));
+    setText('plf-title', tx(K('title')));
+    setText('plf-lead', tx(K('lead')));
+    setText('plf-rule', tx(K('rule')));
     setText('plf-level-label', tx('plfLevel'));
     setText('plf-start', tx('plltStart'));
     setText('plf-note', tx('plfNoKan'));
-    setText('plf-hud-q-label', tx('plfHudQ'));
+    setText('plf-hud-q-label', tx(isVision() ? 'plvHudLeft' : 'plfHudQ'));
     setText('plf-hud-lv-label', tx('plfHudLevel'));
     setText('plf-hud-lv2-label', tx('plfHudLevel'));
     setText('plf-hud-t-label', tx('plfHudTime'));
-    setText('plf-ans-lead', tx('plfAnsLead'));
+    setText('plf-ans-lead', tx(K('ansLead')));
     setText('plf-undo-txt', tx('plfUndo'));
     setText('plf-reset-txt', tx('plfReset'));
     setText('plf-res-title', tx('plltResultTitle'));
@@ -791,7 +897,7 @@
   function fmtSec(ms) { return (ms / 1000).toFixed(2); }
 
   function paintSetup() {
-    const cur = levelById(store.level) || LEVELS[1];
+    const cur = levelById(curLevelId()) || levels()[1];
     state.level = cur;
     document.querySelectorAll('#plf-levels .plf-level').forEach(function (b) {
       const lv = levelById(b.dataset.level);
@@ -799,9 +905,10 @@
       b.classList.toggle('on', on);
       b.setAttribute('aria-pressed', String(on));
       b.querySelector('b').textContent = tx(lv.key);
-      b.querySelector('span').textContent = tx('plfLvSpec', { sec: String(lv.showMs / 1000), n: lv.count });
+      const sec = isVision() ? (lv.showMs / 1000).toFixed(1) : String(lv.showMs / 1000);
+      b.querySelector('span').textContent = tx('plfLvSpec', { sec: sec, n: lv.count });
     });
-    const best = store.best[cur.id];
+    const best = store.best[bestKey(cur.id)];
     setText('plf-best', best
       ? tx('plfBest', { c: best.c, n: best.n, t: fmtSec(best.ms) })
       : tx('plfNoBest'));
@@ -815,9 +922,11 @@
   /* ============================================================
      開く／閉じる
      ============================================================ */
-  function open() {
+  function open(mode) {
     if (!build()) return;
     if (!global.PLL_DATA) return;   // 3D初期化前（PLLの表がまだ無い）
+    state.mode = mode === 'vision' ? 'vision' : 'flash';
+    root.dataset.mode = state.mode;
     paintTexts();
     paintSetup();
     setView('setup');
@@ -838,7 +947,7 @@
      ① カウントダウン → ② フラッシュ
      ============================================================ */
   function start() {
-    const level = levelById(store.level) || LEVELS[1];
+    const level = levelById(curLevelId()) || levels()[1];
     state.level = level;
     state.targetPLLs = makeTargets(level);
     if (!state.targetPLLs.length) return;
@@ -847,13 +956,32 @@
     state.history = [];
     state.ansAccum = 0;
     state.ansMs = 0;
-    store.plays++;
+    if (isVision()) store.vplays++; else store.plays++;
     saveStore();
 
     // 図は先に全部作っておく。0.25秒の鬼でも、表示は class を1つ
     // 付け外しするだけになり、描画の遅れで見える時間が削れない。
     const stage = $('plf-stage');
     stage.querySelectorAll('.plf-card').forEach(function (c) { c.remove(); });
+    const vgrid = $('plv-grid');
+    vgrid.innerHTML = '';
+    $('plv-board').classList.remove('on');
+    if (isVision()) {
+      // 9台を3×3に組んでおき、合図とともに一斉に出す。
+      state.targetPLLs.forEach(function (item, i) {
+        const cell = document.createElement('div');
+        cell.className = 'plv-cell';
+        cell.innerHTML = '<span class="plv-no">' + (i + 1) + '</span>';
+        cell.appendChild(makeCube(item));
+        vgrid.appendChild(cell);
+      });
+      $('plv-board').style.setProperty('--plv-ms', level.showMs + 'ms');
+      setText('plf-hud-q', (level.showMs / 1000).toFixed(1));
+      setText('plf-hud-lv', tx(level.key));
+      setView('flash');
+      requestAnimationFrame(function () { countdown(showVision); });
+      return;
+    }
     state.targetPLLs.forEach(function (item, i) {
       const card = document.createElement('div');
       card.className = 'plf-card';
@@ -925,8 +1053,36 @@
     });
   }
 
+  /* PLLビジョン：9台を一斉に出し、時間が来たら一斉に消す */
+  function showVision() {
+    const board = $('plv-board');
+    const ms = state.level.showMs;
+    board.classList.add('on');
+    const left = $('plf-hud-q');
+    requestAnimationFrame(function () {
+      const t0 = performance.now();
+      const loop = function () {
+        if (state.view !== 'flash' || !board.classList.contains('on')) return;
+        const rest = Math.max(0, ms - (performance.now() - t0));
+        left.textContent = (rest / 1000).toFixed(1);
+        rafId = requestAnimationFrame(loop);
+      };
+      stopRaf();
+      rafId = requestAnimationFrame(loop);
+      later(function () {
+        board.classList.remove('on');
+        stopRaf();
+        left.textContent = '0.0';
+        later(goAnswer, TAIL_MS);
+      }, ms);
+    });
+  }
+
   function abortFlash() {
     clearTimers();
+    stopRaf();
+    const board = $('plv-board');
+    if (board) board.classList.remove('on');
     if (root) root.classList.remove('counting');
     const stage = $('plf-stage');
     if (stage) stage.querySelectorAll('.plf-card.on').forEach(function (c) { c.classList.remove('on'); });
@@ -950,7 +1106,8 @@
   function buildSlots() {
     const box = $('plf-slots');
     box.innerHTML = '';
-    box.style.setProperty('--plf-cols', String(Math.min(5, state.targetPLLs.length)));
+    // ビジョンは出題のマスと同じ3×3、フラッシュは5個ずつの段。
+    box.style.setProperty('--plf-cols', String(isVision() ? 3 : Math.min(5, state.targetPLLs.length)));
     state.targetPLLs.forEach(function (_, i) {
       const b = document.createElement('button');
       b.type = 'button';
@@ -1087,7 +1244,7 @@
     const touched = state.userAnswers.some(function (a) { return a !== null; });
     if (touched && typeof askConfirm === 'function') {
       askConfirm({
-        title: tx('plfQuitTitle'), body: tx('plfQuitBody'),
+        title: tx(K('quit')), body: tx('plfQuitBody'),
         ok: tx('plfQuitOk'), cancel: tx('plltBack'), onOk: doQuit
       });
       return;
@@ -1123,8 +1280,8 @@
     let isBest = false;
     if (fresh) {
       const rec = { c: c, n: n, ms: Math.round(state.ansMs) };
-      if (better(rec, store.best[state.level.id])) {
-        store.best[state.level.id] = rec;
+      if (better(rec, store.best[bestKey(state.level.id)])) {
+        store.best[bestKey(state.level.id)] = rec;
         isBest = true;
       }
       saveStore();
@@ -1144,6 +1301,33 @@
 
     const rev = $('plf-rev');
     rev.innerHTML = '';
+    rev.classList.toggle('plv-rev', isVision());
+    if (isVision()) {
+      // 出題と同じ3×3で、どのマスを当て、どのマスを外したかを見せる。
+      list.forEach(function (it, i) {
+        const ok = ans[i] === it.name;
+        const cell = document.createElement('div');
+        cell.className = 'plv-rev-cell ' + (ok ? 'ok' : 'ng');
+        cell.innerHTML = '<span class="plf-rev-no">' + circled(i) + '</span>' +
+          '<span class="plf-rev-mark">' + (ok ? '○' : '✕') + '</span>';
+        cell.appendChild(makeCube(it));
+        const nm = document.createElement('span');
+        nm.className = 'plv-rev-name';
+        nm.textContent = it.name;
+        cell.appendChild(nm);
+        if (!ok) {
+          const you = document.createElement('span');
+          you.className = 'plv-rev-you';
+          you.innerHTML = tx('plfYours') + '<b></b>';
+          you.querySelector('b').textContent = ans[i] || '—';
+          cell.appendChild(you);
+        }
+        rev.appendChild(cell);
+      });
+      const sc = root.querySelector('.plf-result .pllt-panel-scroll');
+      if (fresh && sc) sc.scrollTop = 0;
+      return;
+    }
     list.forEach(function (it, i) {
       const ok = ans[i] === it.name;
       const row = document.createElement('div');
@@ -1207,25 +1391,34 @@
   /* ============================================================
      入口：PLL検定の設定画面、スタートボタンの下に差し込む
      ============================================================ */
+  const ENTRIES = [
+    { id: 'plf-entry', mode: 'flash',  ico: '⚡', title: 'plfEntry', sub: 'plfEntrySub' },
+    { id: 'plv-entry', mode: 'vision', ico: '👁', title: 'plvEntry', sub: 'plvEntrySub' }
+  ];
   function paintEntry() {
-    const b = $('plf-entry');
-    if (!b) return;
-    b.querySelector('b').textContent = tx('plfEntry');
-    b.querySelector('.plf-entry-txt span').textContent = tx('plfEntrySub');
+    ENTRIES.forEach(function (en) {
+      const b = $(en.id);
+      if (!b) return;
+      b.querySelector('b').textContent = tx(en.title);
+      b.querySelector('.plf-entry-txt span').textContent = tx(en.sub);
+    });
   }
   function addEntry() {
     if ($('plf-entry')) return;
-    const anchor = $('pllt-start');
+    let anchor = $('pllt-start');
     if (!anchor) return;
     injectCSS();
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.id = 'plf-entry';
-    b.className = 'plf-entry ui-pressable';
-    b.innerHTML = '<span class="plf-entry-ico" aria-hidden="true">⚡</span>' +
-      '<span class="plf-entry-txt"><b></b><span></span></span>';
-    anchor.insertAdjacentElement('afterend', b);
-    b.addEventListener('click', open);
+    ENTRIES.forEach(function (en) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.id = en.id;
+      b.className = 'plf-entry ui-pressable';
+      b.innerHTML = '<span class="plf-entry-ico" aria-hidden="true">' + en.ico + '</span>' +
+        '<span class="plf-entry-txt"><b></b><span></span></span>';
+      anchor.insertAdjacentElement('afterend', b);
+      anchor = b;
+      b.addEventListener('click', function () { open(en.mode); });
+    });
     paintEntry();
     if (typeof onI18n === 'function') onI18n(paintEntry);
   }
@@ -1239,12 +1432,13 @@
 
   // 拡張・確認用（外から開く・状態を覗く）
   global.PllFlash = {
-    open: open,
+    open: function () { open('flash'); },
+    openVision: function () { open('vision'); },
     close: close,
     LEVELS: LEVELS,
     getState: function () {
       return {
-        view: state.view, level: state.level.id,
+        mode: state.mode, view: state.view, level: state.level.id,
         targetPLLs: state.targetPLLs.map(function (x) { return x.name; }),
         userAnswers: state.userAnswers.slice(), cursor: state.cursor
       };
