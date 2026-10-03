@@ -57,7 +57,9 @@
     '.pls-top{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;align-items:stretch}',
     '.pls-top+.pllt-result-actions{margin-top:8px}',
     // 木札の無い画面（フラッシュ・ビジョン）では、Xでシェアを同じ大きさのまま中央に置く
-    '.pls-top>.pls-share:only-child{grid-column:1/-1;justify-self:center;width:calc(50% - 4px)}',
+    // （:only-child に頼らず、JS が付ける .solo で判定する。中に他の要素が入っても崩れないように）
+    '#plf-overlay .pls-top.solo,.pls-top.solo{display:flex!important;justify-content:center!important}',
+    '#plf-overlay .pls-top.solo .pls-share,.pls-top.solo .pls-share{flex:0 0 auto;width:calc(50% - 4px)!important;margin:0 auto!important}',
     '.pls-top .pllt-ticket-row{margin:0;min-width:0;flex-wrap:nowrap;display:flex;align-items:stretch}',
     // 木札は、隣の「Xでシェア」や下の「戻る／もう一度挑戦」と同じ大きさ（列いっぱい・同じ高さ・同じ角丸）にする
     '#pllt-overlay .pls-top .pllt-ticket-row .pllt-kan-fuda{box-sizing:border-box;width:100%;max-width:none;min-width:0;',
@@ -576,6 +578,7 @@
     // 外側の .pllt-ticket-row ごと移す
     const tk = section.querySelector('.pllt-ticket-row');
     if (tk) top.appendChild(tk);
+    else top.classList.add('solo');
     actions.insertAdjacentElement('beforebegin', top);
     paintButtons();
   }
