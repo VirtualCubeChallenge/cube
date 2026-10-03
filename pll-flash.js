@@ -13,7 +13,7 @@
      見た目は style.css の .pllt-group / .pllt-ans をそのまま使う。
 
    状態（State）
-     targetPLLs  … 出題の配列。{ name, auf, ring, up }
+     targetPLLs  … 出題の配列。{ name, auf, ring, up, angle }
      userAnswers … ユーザーの解答。問題数と同じ長さで、未入力は null
      cursor      … 次にボタンを押したとき書き込むスロット（-1 = 全部埋まった）
      history     … 「1つ戻る」用の操作履歴（全リセットも1手として戻せる）
@@ -41,12 +41,12 @@
      showMs … 1問を見せる時間 / gapMs … 次の問題までの暗転
      暗転を挟まないと、同じPLLが2回続いたときに「1回長く出た」ように
      見えて区別できない。短い難易度ほど暗転も短くしてテンポを保つ。
-     auf    … true なら U / U' / U2 のどれかを掛けて出す（向きが毎回変わる） */
+     AUF（上面の向き）は難易度で分けず、PLL検定と同じく毎問ランダム。 */
   const LEVELS = [
-    { id: 'easy',   key: 'plfLvEasy',   showMs: 1500, gapMs: 300, count: 3,  auf: false },
-    { id: 'normal', key: 'plfLvNormal', showMs: 1000, gapMs: 260, count: 5,  auf: false },
-    { id: 'hard',   key: 'plfLvHard',   showMs: 500,  gapMs: 200, count: 5,  auf: true  },
-    { id: 'pro',    key: 'plfLvPro',    showMs: 250,  gapMs: 140, count: 10, auf: true  }
+    { id: 'easy',   key: 'plfLvEasy',   showMs: 1500, gapMs: 300, count: 3 },
+    { id: 'normal', key: 'plfLvNormal', showMs: 1000, gapMs: 260, count: 5 },
+    { id: 'hard',   key: 'plfLvHard',   showMs: 500,  gapMs: 200, count: 5 },
+    { id: 'pro',    key: 'plfLvPro',    showMs: 250,  gapMs: 140, count: 10 }
   ];
   const STORAGE_KEY = 'rubiks-cube-pll-flash';
   const PLLT_KEY = 'rubiks-cube-pll-trainer';   // 上面の色の選択だけ借りる
@@ -74,8 +74,6 @@
     g: { U: 'g', F: 'y', B: 'w', R: 'r', L: 'o' },
     b: { U: 'b', F: 'w', B: 'y', R: 'r', L: 'o' }
   };
-  // AUF の回し量（リングを何マス×3ずらすか）→ 表示用の記号
-  const AUF_LABEL = ['', 'U', 'U2', "U'"];
 
   /* ============================================================
      文言（既存 I18N は無改変。無いキーだけ足す）
@@ -87,7 +85,7 @@
       plfTitle: 'PLLフラッシュ', plfLead: '次々に一瞬だけ出るPLLを覚えて、最後にまとめて答える',
       plfRule: '全問見終わったら、出た順にボタンをタップ',
       plfLevel: '難易度', plfLvEasy: '初級', plfLvNormal: '中級', plfLvHard: '上級', plfLvPro: '鬼',
-      plfLvSpec: '{sec}秒 × {n}問', plfAufOn: 'AUFあり', plfAufOff: 'AUFなし',
+      plfLvSpec: '{sec}秒 × {n}問',
       plfBest: '自己ベスト {c}/{n}（{t}秒）', plfNoBest: '自己ベスト —',
       plfNoKan: 'このモードでは貫はたまりません',
       plfHudQ: '問題', plfHudLevel: '難易度', plfHudTime: '回答タイム', plfHudInput: '入力',
@@ -102,7 +100,7 @@
       plfTitle: 'PLL Flash', plfLead: 'PLLs flash by one at a time — remember them and answer at the end',
       plfRule: 'When they’re done, tap the answers in the order they appeared',
       plfLevel: 'Difficulty', plfLvEasy: 'Easy', plfLvNormal: 'Normal', plfLvHard: 'Hard', plfLvPro: 'Pro',
-      plfLvSpec: '{sec}s × {n}', plfAufOn: 'AUF on', plfAufOff: 'AUF off',
+      plfLvSpec: '{sec}s × {n}',
       plfBest: 'Best {c}/{n} ({t}s)', plfNoBest: 'Best —',
       plfNoKan: 'This mode doesn’t earn pieces',
       plfHudQ: 'Case', plfHudLevel: 'Level', plfHudTime: 'Answer time', plfHudInput: 'Entered',
@@ -117,7 +115,7 @@
       plfTitle: 'PLL闪现', plfLead: 'PLL会一个接一个快速闪过，记住它们，最后一起作答',
       plfRule: '全部看完后，按出现的顺序点击答案',
       plfLevel: '难度', plfLvEasy: '初级', plfLvNormal: '中级', plfLvHard: '高级', plfLvPro: '魔鬼',
-      plfLvSpec: '{sec}秒 × {n}题', plfAufOn: '有AUF', plfAufOff: '无AUF',
+      plfLvSpec: '{sec}秒 × {n}题',
       plfBest: '最佳 {c}/{n}（{t}秒）', plfNoBest: '最佳 —',
       plfNoKan: '此模式不会攒贯',
       plfHudQ: '题目', plfHudLevel: '难度', plfHudTime: '作答时间', plfHudInput: '已输入',
@@ -132,7 +130,7 @@
       plfTitle: 'PLL閃現', plfLead: 'PLL會一個接一個快速閃過，記住它們，最後一起作答',
       plfRule: '全部看完後，按出現的順序點選答案',
       plfLevel: '難度', plfLvEasy: '初級', plfLvNormal: '中級', plfLvHard: '高級', plfLvPro: '魔鬼',
-      plfLvSpec: '{sec}秒 × {n}題', plfAufOn: '有AUF', plfAufOff: '無AUF',
+      plfLvSpec: '{sec}秒 × {n}題',
       plfBest: '最佳 {c}/{n}（{t}秒）', plfNoBest: '最佳 —',
       plfNoKan: '此模式不會攢貫',
       plfHudQ: '題目', plfHudLevel: '難度', plfHudTime: '作答時間', plfHudInput: '已輸入',
@@ -147,7 +145,7 @@
       plfTitle: 'PLL 플래시', plfLead: 'PLL이 하나씩 순식간에 지나갑니다. 기억해 두었다가 마지막에 한꺼번에 답하세요',
       plfRule: '모두 본 뒤 나온 순서대로 버튼을 탭하세요',
       plfLevel: '난이도', plfLvEasy: '초급', plfLvNormal: '중급', plfLvHard: '상급', plfLvPro: '귀신',
-      plfLvSpec: '{sec}초 × {n}문제', plfAufOn: 'AUF 있음', plfAufOff: 'AUF 없음',
+      plfLvSpec: '{sec}초 × {n}문제',
       plfBest: '최고 기록 {c}/{n} ({t}초)', plfNoBest: '최고 기록 —',
       plfNoKan: '이 모드에서는 점이 모이지 않습니다',
       plfHudQ: '문제', plfHudLevel: '난이도', plfHudTime: '답변 시간', plfHudInput: '입력',
@@ -162,7 +160,7 @@
       plfTitle: 'PLL Flash', plfLead: 'Los PLL aparecen uno tras otro por un instante: recuérdalos y responde al final',
       plfRule: 'Cuando terminen, toca las respuestas en el orden en que salieron',
       plfLevel: 'Dificultad', plfLvEasy: 'Fácil', plfLvNormal: 'Normal', plfLvHard: 'Difícil', plfLvPro: 'Pro',
-      plfLvSpec: '{sec} s × {n}', plfAufOn: 'Con AUF', plfAufOff: 'Sin AUF',
+      plfLvSpec: '{sec} s × {n}',
       plfBest: 'Récord {c}/{n} ({t} s)', plfNoBest: 'Récord —',
       plfNoKan: 'Este modo no da piezas',
       plfHudQ: 'Caso', plfHudLevel: 'Nivel', plfHudTime: 'Tiempo de respuesta', plfHudInput: 'Respondidas',
@@ -177,7 +175,7 @@
       plfTitle: 'PLL Flash', plfLead: 'PLL muncul satu per satu hanya sekejap — ingat, lalu jawab di akhir',
       plfRule: 'Setelah semuanya lewat, ketuk jawaban sesuai urutan kemunculan',
       plfLevel: 'Tingkat', plfLvEasy: 'Mudah', plfLvNormal: 'Normal', plfLvHard: 'Sulit', plfLvPro: 'Pro',
-      plfLvSpec: '{sec} dtk × {n}', plfAufOn: 'Dengan AUF', plfAufOff: 'Tanpa AUF',
+      plfLvSpec: '{sec} dtk × {n}',
       plfBest: 'Terbaik {c}/{n} ({t} dtk)', plfNoBest: 'Terbaik —',
       plfNoKan: 'Mode ini tidak menambah potong',
       plfHudQ: 'Soal', plfHudLevel: 'Tingkat', plfHudTime: 'Waktu jawab', plfHudInput: 'Terisi',
@@ -192,7 +190,7 @@
       plfTitle: 'PLL-вспышка', plfLead: 'PLL появляются по одному на мгновение — запомните их и ответьте в конце',
       plfRule: 'Когда показ закончится, нажмите ответы в том порядке, в каком они шли',
       plfLevel: 'Сложность', plfLvEasy: 'Лёгкий', plfLvNormal: 'Средний', plfLvHard: 'Сложный', plfLvPro: 'Демон',
-      plfLvSpec: '{sec} с × {n}', plfAufOn: 'С AUF', plfAufOff: 'Без AUF',
+      plfLvSpec: '{sec} с × {n}',
       plfBest: 'Рекорд {c}/{n} ({t} с)', plfNoBest: 'Рекорд —',
       plfNoKan: 'В этом режиме кусочки не копятся',
       plfHudQ: 'Случай', plfHudLevel: 'Уровень', plfHudTime: 'Время ответа', plfHudInput: 'Введено',
@@ -207,7 +205,7 @@
       plfTitle: 'PLL Flash', plfLead: 'Os PLLs aparecem um a um por um instante — lembre-se deles e responda no fim',
       plfRule: 'Quando acabar, toque as respostas na ordem em que apareceram',
       plfLevel: 'Dificuldade', plfLvEasy: 'Fácil', plfLvNormal: 'Normal', plfLvHard: 'Difícil', plfLvPro: 'Pro',
-      plfLvSpec: '{sec} s × {n}', plfAufOn: 'Com AUF', plfAufOff: 'Sem AUF',
+      plfLvSpec: '{sec} s × {n}',
       plfBest: 'Recorde {c}/{n} ({t} s)', plfNoBest: 'Recorde —',
       plfNoKan: 'Este modo não rende peças',
       plfHudQ: 'Caso', plfHudLevel: 'Nível', plfHudTime: 'Tempo de resposta', plfHudInput: 'Respondidas',
@@ -275,7 +273,6 @@
     '  font-family:inherit;cursor:pointer;touch-action:manipulation;transition:color .12s,border-color .12s,background .12s}',
     '.plf-level b{font-size:15px;font-weight:900;color:#e6e6ee;letter-spacing:.02em}',
     '.plf-level span{font-size:11px;font-weight:700;font-variant-numeric:tabular-nums}',
-    '.plf-level em{font-style:normal;font-size:10px;font-weight:700;color:#7a7a90}',
     '.plf-level.on{border-color:var(--tc);background:rgba(var(--tc-rgb),.12);color:var(--tc)}',
     '.plf-level.on b{color:var(--tc)}',
     '.plf-level[data-level="pro"] b::after{content:"\\1F479";margin-left:4px;font-size:13px}',
@@ -478,8 +475,8 @@
       const name = NAMES[(Math.random() * NAMES.length) | 0];
       const entry = src[name];
       if (!entry) { i--; continue; }
-      // AUF ありは U / U2 / U' のどれか。なしは回さない。
-      const auf = level.auf ? 1 + ((Math.random() * 3) | 0) : 0;
+      // 上面の向きは PLL検定と同じく4通りからランダム（画面には出さない）。
+      const auf = (Math.random() * 4) | 0;
       list.push({
         name: name,
         auf: auf,
@@ -712,7 +709,7 @@
       b.type = 'button';
       b.className = 'plf-level';
       b.dataset.level = lv.id;
-      b.innerHTML = '<b></b><span></span><em></em>';
+      b.innerHTML = '<b></b><span></span>';
       box.appendChild(b);
     });
     box.addEventListener('click', function (e) {
@@ -804,7 +801,6 @@
       b.setAttribute('aria-pressed', String(on));
       b.querySelector('b').textContent = tx(lv.key);
       b.querySelector('span').textContent = tx('plfLvSpec', { sec: String(lv.showMs / 1000), n: lv.count });
-      b.querySelector('em').textContent = tx(lv.auf ? 'plfAufOn' : 'plfAufOff');
     });
     const best = store.best[cur.id];
     setText('plf-best', best
@@ -1164,7 +1160,7 @@
       const a = document.createElement('i');
       a.className = 'plf-rev-auf';
       a.style.fontStyle = 'normal';
-      a.textContent = it.angle + (it.auf ? ' · ' + AUF_LABEL[it.auf] : '');
+      a.textContent = it.angle;
       asked.appendChild(a);
       const you = document.createElement('span');
       you.className = 'you';
