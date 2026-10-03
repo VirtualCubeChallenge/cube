@@ -9195,7 +9195,11 @@ const PLL_DATA = {
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x17171b);
         const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
-        camera.position.copy(new THREE.Vector3(2.32, 3.91, 5.31).normalize().multiplyScalar(11.6));
+        // カメラの距離。枠(#demo-canvas-wrap)の大きさは変えず、寄って中のキューブだけを
+        // 大きく見せる（2026-10-03 に 11.6 → 9.8、約1.18倍）。面を回している最中の
+        // 角まで含めた外接球（半径≒2.55）の見かけの半径が約15.1°で、視野の半分(16°)
+        // に収まる＝回しても枠からはみ出さない。これより寄せるなら 9.3 あたりが限界。
+        camera.position.copy(new THREE.Vector3(2.32, 3.91, 5.31).normalize().multiplyScalar(9.8));
         camera.lookAt(0, 0, 0);
         scene.add(new THREE.AmbientLight(0xffffff, 0.78));
         const d1 = new THREE.DirectionalLight(0xffffff, 0.55); d1.position.set(10, 20, 15); scene.add(d1);
@@ -9376,6 +9380,9 @@ const PLL_DATA = {
       // 0 = 通常（21手以上）／ 1 = ギリギリゾーン（20手以下、手数は隠す）
       // 2 = ラスト1手（完成直前、最高潮の演出）
       const THRILL_THRESHOLD = 20; // これ以下で手数を隠す
+      // タップキューブのときは逆に、ふだんは手数を出さず、のこりがこの手数
+      // 以内になったときだけ「のこり n 手」を出す（2026-10-03）。
+      const TAP_SHOW_MOVES = 15;
       function setThrillZone(level) {
         panel.classList.remove('thrill-zone', 'final-move');
         remainEl.classList.remove('thrill-zone', 'final-move');
@@ -9407,6 +9414,14 @@ const PLL_DATA = {
         phaseEl.textContent = phKey ? t(phKey) : t('phaseNext');
         if (zone === 2) {
           remainEl.innerHTML = '<b>FINISH HIM!</b>';
+        } else if (document.body.classList.contains('tap-mode')) {
+          // タップキューブ：のこり16手以上は手数の表示ごと出さない
+          if (left <= TAP_SHOW_MOVES) {
+            remainEl.innerHTML = t('movesLeft', { n: left });
+          } else {
+            remainEl.innerHTML = '';
+            remainEl.classList.add('hidden');
+          }
         } else if (zone === 1) {
           remainEl.innerHTML = t('movesLeftHidden');
         } else {
