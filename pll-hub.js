@@ -501,6 +501,7 @@
   let raf = 0, lastT = 0, lastSlot = 0;
   let drag = null;             // { id, btn, x0, y0, cx, cy, prevA, moved, samples }
   let suppressClick = false;
+  let tapAt = -1e9;            // 指のタップで開いた時刻（直後の click を二重に処理しない）
   let charge = 0, chargeV = 0; // チャージと、回復のバネの速度
   let light = 0;               // 中心の白い光の強さ
   let dragOmega = 0, lastMoveT = 0;
@@ -648,12 +649,17 @@
   }
   function bindPress(b) {
     b.addEventListener('pointerdown', function (e) {
-      if (busy || drag || !root) return;
+      if (busy || !root) return;
+      // 前のタッチの「離した」合図を取りこぼしていても、ここで捨てて受け付け直す
+      // （残ったままだと、以後のタップが全部無視されてしまう）
+      if (drag) { if (drag.btn) drag.btn.classList.remove('press'); drag = null; }
       b.classList.add('press');
-      // 回っている／戻っている最中に触れた＝つかむ。このタッチではモードに入らない。
-      suppressClick = phase !== 'idle' || !chargeQuiet();
-      stopMotion();
-      if (phase !== 'idle') { phase = 'drag'; omega = 0; kick(); }
+      // 回っている最中に触れた＝つかんで止める。このタッチではモードに入らない。
+      // 丸が大きさを戻している最中（チャージの回復中）は止めない＝そのまま戻り続ける。
+      const moving = phase === 'coast' || phase === 'settle' || phase === 'drag';
+      suppressClick = moving || Math.abs(charge) > 0.05;
+      if (moving) { phase = 'drag'; omega = 0; }
+      kick();
       const st = root.querySelector('.pllh-stage').getBoundingClientRect();
       drag = { id: e.pointerId, btn: b, x0: e.clientX, y0: e.clientY,
                cx: st.left + st.width / 2, cy: st.top + st.height / 2,
@@ -690,7 +696,15 @@
       b.classList.remove('press');
       const d = drag;
       drag = null;
-      if (phase !== 'drag') return;            // ふつうのタップ（click で処理）
+      if (phase !== 'drag') {
+        // ふつうのタップ。iPhone では指を捕まえていると click が来ないことが
+        // あるので、離した瞬間にここで開く（あとから来る click は無視する）。
+        if (e && e.type === 'pointerup' && !d.moved && !suppressClick) {
+          tapAt = performance.now();
+          choose(b);
+        }
+        return;
+      }
       // 離す直前 0.09秒ぶんの動きから、はじいた速さを出す
       const sm = d.samples, now = performance.now();
       omega = 0;
@@ -711,7 +725,9 @@
     // 長押しで出る iOS のメニューや選択を出さない
     b.addEventListener('contextmenu', function (e) { e.preventDefault(); });
     b.addEventListener('click', function (e) {
-      if (suppressClick || phase !== 'idle' || !chargeQuiet()) { suppressClick = false; e.preventDefault(); return; }
+      // 指のタップは pointerup で処理済み。ここに来るのはキーボード（Enter/Space）など
+      if (performance.now() - tapAt < 800) return;
+      if (suppressClick || phase !== 'idle') { suppressClick = false; e.preventDefault(); return; }
       choose(b);
     });
   }
@@ -911,7 +927,10 @@
   }
 
   function choose(btn) {
-    if (busy || !root || phase !== 'idle' || !chargeQuiet()) return;
+    if (busy || !root || phase !== 'idle' || Math.abs(charge) > 0.05) return;
+    // 回復のほんの名残りは、ここで消してから進む
+    charge = 0; chargeV = 0; light = 0;
+    place();
     const mode = btn.dataset.mode;
     const node = btn.closest('.pllh-node');
     busy = true;
