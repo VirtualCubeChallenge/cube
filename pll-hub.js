@@ -695,7 +695,7 @@
       const mdt = Math.max(0.004, (now - lastMoveT) / 1000);
       dragOmega += (d / mdt - dragOmega) * 0.3;   // なぞる速さ（なめらかにならしたもの）
       lastMoveT = now;
-      drag.samples.push({ t: now, th: theta });
+      drag.samples.push({ t: now, th: theta, x: e.clientX, y: e.clientY });
       while (drag.samples.length > 2 && now - drag.samples[0].t > 90) drag.samples.shift();
     });
     const end = function (e) {
@@ -722,7 +722,16 @@
       }
       omega = Math.max(-OMEGA_LIMIT, Math.min(OMEGA_LIMIT, omega));
       if (reduceMotion) omega = 0;
-      if (charge >= BURST_MIN) burst(charge);
+      if (charge >= BURST_MIN) {
+        // 離す直前の指の速さと向き（px/秒）。満タンのときだけ、この向きへ飛ばす
+        let fvx = 0, fvy = 0;
+        if (sm.length >= 2 && now - sm[sm.length - 1].t < 80) {
+          const f = sm[0], l = sm[sm.length - 1];
+          const span = (l.t - f.t) / 1000;
+          if (span > 0.008) { fvx = (l.x - f.x) / span; fvy = (l.y - f.y) / span; }
+        }
+        burst(charge, fvx, fvy);
+      }
       if (Math.abs(omega) >= 140) phase = 'coast'; else toSettle();
       kick();
     };
@@ -748,6 +757,8 @@
        （しだれ柳のように、光の尾が下へ流れていく）。
      - ためた量 I（0.15〜1）で、星の数・届く距離・塵の量・残る時間・
        色の鮮やかさが増える。満タンなら画面いっぱいに開き、塵が長く降る。
+     - 満タンで指をはじいて離すと、開いた花火がまるごと、はじいた向きへ
+       勢いよく流れていく（速くはじくほど遠くまで）。
      描くものが無くなったらループを止める。 */
   const PALETTE = [[150, 232, 255], [196, 172, 255], [255, 176, 228], [168, 255, 222], [255, 234, 168], [255, 255, 255]];
   const VIVID = [[255, 61, 110], [255, 138, 61], [255, 226, 61], [125, 255, 77], [61, 255, 180], [61, 216, 255], [61, 123, 255], [155, 92, 255], [255, 77, 216]];
@@ -779,7 +790,9 @@
   const DUST_DRAG = 2.6;        // 塵の空気抵抗（大きい＝ふわふわ）
   const DUST_G = 72;            // 塵の重力。終端速度 ≒ 28px/秒で、ゆっくり舞い落ちる
 
-  function burst(I) {
+  const AIM_FROM = 0.97;        // ここまでためたら（＝満タン）、はじいた向きへ飛ばす
+  const AIM_MIN_SPEED = 150;    // 指がこれより遅ければ、向きは付けずにふつうに開く(px/秒)
+  function burst(I, fvx, fvy) {
     if (!root || !fxCanvas) return;
     fxSize();
     const st = root.querySelector('.pllh-stage').getBoundingClientRect();
@@ -789,15 +802,24 @@
     const reach = Math.max(fxW, fxH) * (0.22 + 0.42 * I);
     const v0 = reach * STAR_DRAG;            // 抵抗だけで止まるまでの距離 ≒ 初速 / 抵抗
     const vividRate = Math.min(1, 0.15 + I * 0.85);
-    const n = Math.round(60 + 200 * Math.pow(I, 1.2));
+    let n = Math.round(60 + 200 * Math.pow(I, 1.2));
+    // 満タンで、指をはじいて離したか
+    const fs = Math.hypot(fvx || 0, fvy || 0);
+    const aim = I >= AIM_FROM && fs >= AIM_MIN_SPEED && !reduceMotion;
+    const dx = aim ? fvx / fs : 0, dy = aim ? fvy / fs : 0;
+    // 速くはじくほど遠くまで（画面の外まで）飛ぶ
+    const drift = v0 * (0.8 + 0.5 * Math.min(1, fs / 2500));
+    if (aim) n = Math.round(n * 1.25);
     const life = 2.0 + 1.7 * I;
     for (let i = 0; i < n; i++) {
       // 球の表面に均等に散らした向きを、画面に投影する（本物の花火の開き方）
       const z = Math.random() * 2 - 1, th = Math.random() * Math.PI * 2;
       const rxy = Math.sqrt(1 - z * z);
-      const sp = v0 * (0.9 + Math.random() * 0.14);
+      const sp = v0 * (0.9 + Math.random() * 0.14) * (aim ? 0.6 : 1);
       const col = Math.random() < vividRate ? pick(VIVID) : pick(PALETTE);
-      stars.push({ x: x, y: y, vx: Math.cos(th) * rxy * sp, vy: Math.sin(th) * rxy * sp,
+      // 満タン：開いた花火まるごとが、はじいた向きへ勢いよく流れていく
+      const dr = aim ? drift * (0.8 + Math.random() * 0.4) : 0;
+      stars.push({ x: x, y: y, vx: Math.cos(th) * rxy * sp + dx * dr, vy: Math.sin(th) * rxy * sp + dy * dr,
         age: 0, life: life * (0.8 + Math.random() * 0.35), size: 1.3 + Math.random() * (1 + 1.2 * I),
         col: col, emit: 0, rate: 10 + 22 * I, tw: Math.random() * 6 });
     }
