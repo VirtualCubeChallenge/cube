@@ -2,6 +2,18 @@
   "_note": "items は新しい順。新機能を足したら先頭に1件追加する。言語キーは ja/en/zh-CN/zh-TW/ko/es/id/ru/pt-BR の9つで、LANGS の code とそのまま一致する。無い言語は ja に落ちる（= ja だけは必ず書く）。guide は任意で、付けた項目にだけ「詳細→」ボタンが出る。",
   "items": [
     {
+      "date": "2026-10-03",
+      "ja": "【アプデ情報】新モード「PLLフラッシュ」登場！⚡\n一瞬ずつ出るPLLを覚えて、最後にまとめて答えよう。初級〜鬼（0.25秒×10問）の4段階です。\nトレーニング → PLL検定の画面の「PLLフラッシュ」から遊べます！",
+      "en": "[Update] New mode: PLL Flash! ⚡\nMemorize PLLs that flash by, then answer them all at the end. Four levels, from Easy up to Pro (0.25s × 10).\nFind it under Training, on the PLL test screen!",
+      "zh-CN": "【更新情报】新模式「PLL闪现」登场！⚡\n记住一闪而过的PLL，最后一起作答。从初级到魔鬼（0.25秒×10题）共4档。\n在「训练」的PLL检定画面中点「PLL闪现」就能玩！",
+      "zh-TW": "【更新情報】新模式「PLL閃現」登場！⚡\n記住一閃而過的PLL，最後一起作答。從初級到魔鬼（0.25秒×10題）共4檔。\n在「訓練」的PLL檢定畫面中點「PLL閃現」就能玩！",
+      "ko": "【업데이트】새 모드 「PLL 플래시」 등장! ⚡\n순식간에 지나가는 PLL을 외워서 마지막에 한꺼번에 답하세요. 초급부터 귀신(0.25초×10문제)까지 4단계입니다.\n트레이닝 → PLL 검정 화면의 「PLL 플래시」에서 즐길 수 있어요!",
+      "es": "[Novedades] ¡Nuevo modo: PLL Flash! ⚡\nMemoriza los PLL que pasan en un instante y respóndelos todos al final. Cuatro niveles, de Fácil a Pro (0,25 s × 10).\n¡Está en Entrenamiento, en la pantalla del examen de PLL!",
+      "id": "[Pembaruan] Mode baru: PLL Flash! ⚡\nHafalkan PLL yang lewat sekejap, lalu jawab semuanya di akhir. Empat tingkat, dari Mudah sampai Pro (0,25 dtk × 10).\nAda di Latihan, pada layar ujian PLL!",
+      "ru": "[Обновление] Новый режим — PLL-вспышка! ⚡\nЗапомните мелькающие PLL и ответьте на все в конце. Четыре уровня: от лёгкого до «Демона» (0,25 с × 10).\nОн в разделе «Тренировка», на экране теста PLL!",
+      "pt-BR": "[Novidades] Novo modo: PLL Flash! ⚡\nMemorize os PLLs que passam num instante e responda todos no fim. Quatro níveis, do Fácil ao Pro (0,25 s × 10).\nEstá em Treino, na tela do teste de PLL!"
+    },
+    {
       "date": "2026-08-30",
       "ja": "【アプデ情報】キューブカラーが5色追加！🎨\n和・パステル・ジュエル・ネオンポップ・モノクロームを実装しました✨\nショップの「キューブカラー」から、好きなデザインを選んで遊んでみてね！",
       "en": "[Update] 5 new cube colors! 🎨\nJapanese, Pastel, Jewel, Neon Pop and Monochrome are here ✨\nPick your favorite from Cube Colors in the shop!",

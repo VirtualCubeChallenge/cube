@@ -1554,6 +1554,9 @@
   <!-- 寿司屋ガチャの「握って出す」演出を、画面外から飛び込むゴリゴリの腕に
        差し替える。この1行を消せば、従来の「その場で握って皿を回す」演出に戻る。 -->
   <script src="sushi-arm.js?v=20261002f"></script>
+  <!-- PLLフラッシュ（連続表示モード）。PLL検定の設定画面に入口ボタンを
+       差し込む。この1行を消せば、入口ごと消えて今までどおりに戻る。 -->
+  <script src="pll-flash.js?v=20261003a"></script>
   <script>
     /* ============================================================
        お問い合わせフォーム（Googleフォーム）のURL
@@ -13656,7 +13659,9 @@ const BackupTransfer = (function () {
     'rubiks-cube-intro-seen',
     'rubiks-cube-notation-tutorial', 'rubiks-cube-notation-tutorial-step',
     // 2026-08-23 追加（回転を高速にする）。並びは末尾に足すだけ。
-    'rubiks-cube-fast-turns'
+    'rubiks-cube-fast-turns',
+    // 2026-10-03 追加（PLLフラッシュの自己ベスト・難易度）。並びは末尾に足すだけ。
+    'rubiks-cube-pll-flash'
   ];
 
   function supported() {
