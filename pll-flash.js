@@ -383,7 +383,6 @@
     '.plf-rev-txt span{color:#8b8b9c}',
     '.plf-rev-txt b{color:#e6e6ee;font-weight:900;margin-left:4px}',
     '.plf-rev-row.ng .plf-rev-txt .you b{color:#ff9aa6}',
-    '.plf-rev-auf{font-size:9px;font-weight:800;color:#71718a;margin-left:6px;padding:1px 5px;border-radius:5px;border:1px solid #3a3a48}',
     '.plf-rev-mark{font-size:17px;font-weight:900;text-align:center}',
     '.plf-rev-row.ok .plf-rev-mark{color:#4fe0a8}',
     '.plf-rev-row.ng .plf-rev-mark{color:#ff6a7a}',
@@ -1157,11 +1156,6 @@
       const asked = document.createElement('span');
       asked.innerHTML = tx('plfAsked') + '<b></b>';
       asked.querySelector('b').textContent = it.name;
-      const a = document.createElement('i');
-      a.className = 'plf-rev-auf';
-      a.style.fontStyle = 'normal';
-      a.textContent = it.angle;
-      asked.appendChild(a);
       const you = document.createElement('span');
       you.className = 'you';
       you.innerHTML = tx('plfYours') + '<b></b>';
