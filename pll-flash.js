@@ -738,14 +738,17 @@
     if (built) return true;
     if (!document.body) return false;
     injectCSS();
-    root = document.createElement('div');
+    // index.html に空の入れ物を置いてある（ゲーム側のオーバーレイ一覧が
+    // 起動時に見つけられるように）。無ければ作る。
+    root = document.getElementById('plf-overlay') || document.createElement('div');
     root.id = 'plf-overlay';
+    root.hidden = false;
     root.setAttribute('role', 'dialog');
     root.setAttribute('aria-modal', 'true');
     root.setAttribute('aria-labelledby', 'plf-title');
     root.dataset.view = 'setup';
     root.innerHTML = HTML;
-    document.body.appendChild(root);
+    if (!root.parentNode) document.body.appendChild(root);
     built = true;
 
     buildLevels();
@@ -1427,7 +1430,9 @@
 
   function boot() {
     loadStore();
-    addEntry();
+    // 入口はトレーニングのハブ画面（pll-hub.js）に移した。
+    // 検定の設定画面に⚡/👁の行を足すのは、ハブが無いときだけ。
+    if (!global.PllHub) addEntry();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();

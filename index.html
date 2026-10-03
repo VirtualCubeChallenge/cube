@@ -1556,7 +1556,10 @@
   <script src="sushi-arm.js?v=20261002f"></script>
   <!-- PLLフラッシュ（連続表示モード）。PLL検定の設定画面に入口ボタンを
        差し込む。この1行を消せば、入口ごと消えて今までどおりに戻る。 -->
-  <script src="pll-flash.js?v=20261003h"></script>
+  <script src="pll-flash.js?v=20261003i"></script>
+  <!-- トレーニングの入口：PLL検定／フラッシュ／ビジョンを選ぶハブ画面。
+       ドロワーの「トレーニング」はここを開く。 -->
+  <script src="pll-hub.js?v=20261003a"></script>
   <script>
     /* ============================================================
        お問い合わせフォーム（Googleフォーム）のURL
@@ -6230,6 +6233,7 @@
       '#records-overlay', '#stats-overlay', '#shop-overlay', '#gacha-overlay',
       '#sg-overlay', '#notice-overlay', '#homescreen-guide-overlay',
       '#oll-overlay', '#pll-overlay', '#zbll-overlay', '#pllt-overlay',
+      '#pllh-overlay', '#plf-overlay',
       '#confirm-overlay', '#lang-overlay', '#welcome-overlay', '#intro-overlay'
     ];
     // 横向き案内(#orientation-overlay)は z-index が桁違いに大きく、
@@ -8610,6 +8614,7 @@ const PLL_DATA = {
       '#welcome-overlay', '#intro-overlay', '#settings-overlay', '#layout-overlay', '#transfer-overlay', '#records-overlay',
       '#stats-overlay', '#shop-overlay', '#gacha-overlay',
       '#oll-overlay', '#pll-overlay', '#zbll-overlay', '#pllt-overlay',
+      '#pllh-overlay', '#plf-overlay',
       '#confirm-overlay', '#pause-overlay', '#lang-overlay', '#orientation-overlay',
       '#photo-skin-overlay'
     ];
@@ -10152,6 +10157,14 @@ const PLL_DATA = {
     <div class="pllt-flash" id="pllt-flash" aria-hidden="true"></div>
   </div>
   <!-- === PLL 2側面判断トレーナー : マークアップ ここまで ================ -->
+
+  <!-- PLLフラッシュ／トレーニング選択ハブの入れ物。中身は pll-flash.js と
+       pll-hub.js が作る。空のまま先に置いておくのは、起動時に作る
+       「全画面オーバーレイの一覧」（一時停止の幕・キューブ描画の停止）が
+       この2つを見つけられるようにするため。中身ができるまでは hidden で
+       消しておく（空の div でも「開いている」と数えられてしまうので）。 -->
+  <div id="pllh-overlay" hidden></div>
+  <div id="plf-overlay" hidden></div>
 
 
   <script>
@@ -15944,13 +15957,18 @@ const PllTrainer = (function () {
 
   loadStore();
 
-  // 入口はドロワーメニューの「トレーニング」の1か所のみ。
+  // 入口はドロワーメニューの「トレーニング」の1か所のみ（→ハブ→検定）。
   // PLLボタン（一覧）の中には出さない。
   (function bindEntry() {
     const menuBtn = q('training-btn');
+    // まずモード選択ハブ（pll-hub.js）を開く。読み込めていなければ従来どおり検定へ。
+    const openTraining = () => {
+      if (window.PllHub && typeof PllHub.open === 'function' && PllHub.open()) return;
+      open();
+    };
     if (menuBtn) {
-      if (typeof menuAction === 'function') menuAction(menuBtn, open);
-      else menuBtn.addEventListener('click', open);
+      if (typeof menuAction === 'function') menuAction(menuBtn, openTraining);
+      else menuBtn.addEventListener('click', openTraining);
     }
   })();
 
