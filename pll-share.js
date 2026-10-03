@@ -21,15 +21,15 @@
   const HASHTAG = '#VirtualCubeChallenge';
 
   const SHARE_I18N = {
-    ja:      { shareX: 'Xでシェア', shareScore: '正解', shareAvg: '平均判別', shareTime: '回答タイム', shareBest: '自己ベスト更新！', shareSaved: '結果の画像を保存しました。Xの投稿に添付してください' },
-    en:      { shareX: 'Share on X', shareScore: 'Correct', shareAvg: 'Avg recognition', shareTime: 'Answer time', shareBest: 'New personal best!', shareSaved: 'Saved the result image. Attach it to your X post.' },
-    'zh-CN': { shareX: '分享到 X', shareScore: '正确', shareAvg: '平均判断', shareTime: '作答用时', shareBest: '刷新个人最佳！', shareSaved: '已保存结果图片，请在 X 帖子中附上。' },
-    'zh-TW': { shareX: '分享到 X', shareScore: '正確', shareAvg: '平均判斷', shareTime: '作答用時', shareBest: '刷新個人最佳！', shareSaved: '已儲存結果圖片，請在 X 貼文中附上。' },
-    ko:      { shareX: 'X에 공유', shareScore: '정답', shareAvg: '평균 판별', shareTime: '답변 시간', shareBest: '개인 최고 기록 갱신!', shareSaved: '결과 이미지를 저장했어요. X 게시물에 첨부해 주세요.' },
-    es:      { shareX: 'Compartir en X', shareScore: 'Aciertos', shareAvg: 'Reconocimiento medio', shareTime: 'Tiempo de respuesta', shareBest: '¡Nuevo récord personal!', shareSaved: 'Imagen del resultado guardada. Adjúntala a tu publicación en X.' },
-    id:      { shareX: 'Bagikan ke X', shareScore: 'Benar', shareAvg: 'Rata-rata pengenalan', shareTime: 'Waktu menjawab', shareBest: 'Rekor pribadi baru!', shareSaved: 'Gambar hasil disimpan. Lampirkan di postingan X kamu.' },
-    ru:      { shareX: 'Поделиться в X', shareScore: 'Верно', shareAvg: 'Среднее распознавание', shareTime: 'Время ответа', shareBest: 'Новый личный рекорд!', shareSaved: 'Изображение результата сохранено. Прикрепите его к посту в X.' },
-    'pt-BR': { shareX: 'Compartilhar no X', shareScore: 'Acertos', shareAvg: 'Reconhecimento médio', shareTime: 'Tempo de resposta', shareBest: 'Novo recorde pessoal!', shareSaved: 'Imagem do resultado salva. Anexe-a ao seu post no X.' }
+    ja:      { shareX: 'Xでシェア', shareScore: '正解', shareAvg: '平均判別', shareTime: '回答タイム', shareBest: '自己ベスト更新！', shareSaved: '結果の画像を保存しました。Xの投稿に添付してください', shareOpenX: 'Xを開いて投稿', shareSaveImg: '画像を保存・共有', shareCopied: '結果の画像をコピーしました', shareCopyFail: '画像をコピーできませんでした', sharePasteHint: 'Xの投稿画面で本文の欄を長押し →「ペースト」で、この画像を添付できます', shareSaveHint: '「画像を保存・共有」で写真に保存してから、Xの投稿に添付してください' },
+    en:      { shareX: 'Share on X', shareScore: 'Correct', shareAvg: 'Avg recognition', shareTime: 'Answer time', shareBest: 'New personal best!', shareSaved: 'Saved the result image. Attach it to your X post.', shareOpenX: 'Open X to post', shareSaveImg: 'Save / share image', shareCopied: 'Result image copied', shareCopyFail: "Couldn't copy the image", sharePasteHint: 'In the X post screen, long-press the text box and tap Paste to attach this image.', shareSaveHint: 'Use “Save / share image” to save it, then attach it to your X post.' },
+    'zh-CN': { shareX: '分享到 X', shareScore: '正确', shareAvg: '平均判断', shareTime: '作答用时', shareBest: '刷新个人最佳！', shareSaved: '已保存结果图片，请在 X 帖子中附上。', shareOpenX: '打开 X 发帖', shareSaveImg: '保存/分享图片', shareCopied: '已复制结果图片', shareCopyFail: '无法复制图片', sharePasteHint: '在 X 发帖界面长按输入框 →「粘贴」即可附上这张图片。', shareSaveHint: '请用「保存/分享图片」保存后，再附到 X 帖子中。' },
+    'zh-TW': { shareX: '分享到 X', shareScore: '正確', shareAvg: '平均判斷', shareTime: '作答用時', shareBest: '刷新個人最佳！', shareSaved: '已儲存結果圖片，請在 X 貼文中附上。', shareOpenX: '打開 X 發文', shareSaveImg: '儲存/分享圖片', shareCopied: '已複製結果圖片', shareCopyFail: '無法複製圖片', sharePasteHint: '在 X 發文畫面長按輸入框 →「貼上」即可附上這張圖片。', shareSaveHint: '請用「儲存/分享圖片」儲存後，再附到 X 貼文中。' },
+    ko:      { shareX: 'X에 공유', shareScore: '정답', shareAvg: '평균 판별', shareTime: '답변 시간', shareBest: '개인 최고 기록 갱신!', shareSaved: '결과 이미지를 저장했어요. X 게시물에 첨부해 주세요.', shareOpenX: 'X 열어서 게시', shareSaveImg: '이미지 저장·공유', shareCopied: '결과 이미지를 복사했어요', shareCopyFail: '이미지를 복사하지 못했어요', sharePasteHint: 'X 작성 화면에서 입력란을 길게 눌러 ‘붙여넣기’하면 이 이미지가 첨부돼요.', shareSaveHint: '‘이미지 저장·공유’로 저장한 뒤 X 게시물에 첨부해 주세요.' },
+    es:      { shareX: 'Compartir en X', shareScore: 'Aciertos', shareAvg: 'Reconocimiento medio', shareTime: 'Tiempo de respuesta', shareBest: '¡Nuevo récord personal!', shareSaved: 'Imagen del resultado guardada. Adjúntala a tu publicación en X.', shareOpenX: 'Abrir X para publicar', shareSaveImg: 'Guardar / compartir imagen', shareCopied: 'Imagen del resultado copiada', shareCopyFail: 'No se pudo copiar la imagen', sharePasteHint: 'En X, mantén pulsado el cuadro de texto y toca Pegar para adjuntar esta imagen.', shareSaveHint: 'Usa «Guardar / compartir imagen» y luego adjúntala a tu publicación en X.' },
+    id:      { shareX: 'Bagikan ke X', shareScore: 'Benar', shareAvg: 'Rata-rata pengenalan', shareTime: 'Waktu menjawab', shareBest: 'Rekor pribadi baru!', shareSaved: 'Gambar hasil disimpan. Lampirkan di postingan X kamu.', shareOpenX: 'Buka X untuk posting', shareSaveImg: 'Simpan / bagikan gambar', shareCopied: 'Gambar hasil disalin', shareCopyFail: 'Gambar tidak bisa disalin', sharePasteHint: 'Di layar posting X, tekan lama kolom teks lalu ketuk Tempel untuk melampirkan gambar ini.', shareSaveHint: 'Gunakan “Simpan / bagikan gambar”, lalu lampirkan di postingan X.' },
+    ru:      { shareX: 'Поделиться в X', shareScore: 'Верно', shareAvg: 'Среднее распознавание', shareTime: 'Время ответа', shareBest: 'Новый личный рекорд!', shareSaved: 'Изображение результата сохранено. Прикрепите его к посту в X.', shareOpenX: 'Открыть X и опубликовать', shareSaveImg: 'Сохранить / поделиться', shareCopied: 'Изображение результата скопировано', shareCopyFail: 'Не удалось скопировать изображение', sharePasteHint: 'В окне поста X нажмите и удерживайте поле текста и выберите «Вставить», чтобы прикрепить изображение.', shareSaveHint: 'Сохраните его через «Сохранить / поделиться» и прикрепите к посту в X.' },
+    'pt-BR': { shareX: 'Compartilhar no X', shareScore: 'Acertos', shareAvg: 'Reconhecimento médio', shareTime: 'Tempo de resposta', shareBest: 'Novo recorde pessoal!', shareSaved: 'Imagem do resultado salva. Anexe-a ao seu post no X.', shareOpenX: 'Abrir o X para postar', shareSaveImg: 'Salvar / compartilhar imagem', shareCopied: 'Imagem do resultado copiada', shareCopyFail: 'Não foi possível copiar a imagem', sharePasteHint: 'Na tela de post do X, toque e segure a caixa de texto e escolha Colar para anexar esta imagem.', shareSaveHint: 'Use “Salvar / compartilhar imagem” e depois anexe ao seu post no X.' }
   };
   if (typeof I18N !== 'undefined' && I18N) {
     Object.keys(SHARE_I18N).forEach(function (lang) {
@@ -449,18 +449,71 @@
     clearTimeout(el._t);
     el._t = setTimeout(function () { el.style.opacity = '0'; }, 4200);
   }
-  // 画像を作って共有する。スマホでは共有シート（X を選ぶと画像付きで投稿画面が開く）。
-  // 共有シートで画像を渡せない環境（PC など）では、画像を保存してから X の投稿画面を開く。
-  function shareResult(kind) {
-    let cv;
-    try { cv = kind === 'pllt' ? cardPllt() : cardPlf(); } catch (e) { cv = null; }
-    const caption = (kind === 'pllt' ? textPllt() : textPlf());
-    if (!cv) { openX(caption); return; }
-    // toDataURL は同期なので、タップの直後のまま共有シートを開ける（iPhone はここが大事）
-    const file = dataUrlToFile(cv.toDataURL('image/png'), 'vcc-result.png');
-    const data = { files: [file], text: caption + '\n' + SITE_URL };
+  /* Web ページから「画像付きの X の投稿画面」を直接開く方法は無い
+     （X の投稿用リンクは文字しか渡せず、共有シートは X 以外の候補も並ぶ）。
+     そこで、押した瞬間に結果画像をクリップボードへコピーしておき、
+     確認の小窓（画像のプレビュー付き）から X を開く。X の投稿欄で
+     長押し →「ペースト」で、その画像がそのまま添付される。
+     コピーできない環境向けに、小窓には「画像を保存」も置く。 */
+  let dlg = null, cur = null;   // cur = { file, url, caption }
+  const DLG_CSS = [
+    '#pls-dlg{position:fixed;inset:0;z-index:10350;display:none;align-items:center;justify-content:center;',
+    '  padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));',
+    '  background:rgba(4,4,8,.78);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}',
+    '#pls-dlg.show{display:flex}',
+    '.pls-box{position:relative;width:100%;max-width:420px;max-height:100%;overflow-y:auto;display:flex;flex-direction:column;',
+    '  gap:10px;padding:16px;border-radius:18px;background:#14141a;border:1px solid #2c2c38;color:#e6e6ee;',
+    '  box-shadow:0 18px 50px rgba(0,0,0,.6)}',
+    '.pls-close{position:absolute;top:8px;right:8px;width:36px;height:36px;border-radius:50%;border:1px solid #3a3a48;',
+    '  background:#1c1c24;color:#c8c8d4;font-size:16px;cursor:pointer}',
+    '.pls-img{display:block;width:auto;max-width:100%;max-height:min(46vh,420px);margin:34px auto 0;border-radius:12px;',
+    '  border:1px solid #2c2c38;-webkit-touch-callout:default}',
+    '.pls-status{font-size:13px;font-weight:800;text-align:center;color:#4fe0a8}',
+    '.pls-status.ng{color:#ffb86a}',
+    '.pls-hint{margin:0;font-size:12px;line-height:1.55;text-align:center;color:#9a9aac}',
+    '.pls-go{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border-radius:12px;',
+    '  background:#000;color:#fff;border:1px solid #4a4a58;font-family:inherit;font-size:15px;font-weight:900;cursor:pointer}',
+    '.pls-go svg{width:16px;height:16px;fill:currentColor}',
+    '.pls-sub{width:100%;padding:11px;border-radius:12px;background:#1c1c24;color:#c8c8d4;border:1px solid #3a3a48;',
+    '  font-family:inherit;font-size:13px;font-weight:800;cursor:pointer}'
+  ].join('\n');
+  function buildDlg() {
+    if (dlg) return dlg;
+    const st = document.createElement('style');
+    st.id = 'pll-share-dlg-style'; st.textContent = DLG_CSS;
+    document.head.appendChild(st);
+    dlg = document.createElement('div');
+    dlg.id = 'pls-dlg';
+    dlg.setAttribute('role', 'dialog'); dlg.setAttribute('aria-modal', 'true');
+    dlg.innerHTML =
+      '<div class="pls-box">' +
+        '<button type="button" class="pls-close" aria-label="✕">✕</button>' +
+        '<img class="pls-img" alt="">' +
+        '<div class="pls-status"></div>' +
+        '<button type="button" class="pls-go">' + X_LOGO + '<span></span></button>' +
+        '<p class="pls-hint"></p>' +
+        '<button type="button" class="pls-sub"></button>' +
+      '</div>';
+    document.body.appendChild(dlg);
+    const close = function () { dlg.classList.remove('show'); };
+    dlg.querySelector('.pls-close').addEventListener('click', close);
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) close(); });
+    dlg.querySelector('.pls-go').addEventListener('click', function () { if (cur) openX(cur.caption); });
+    dlg.querySelector('.pls-sub').addEventListener('click', function () { if (cur) saveImage(cur.file); });
+    return dlg;
+  }
+  function paintDlg(copied) {
+    dlg.querySelector('.pls-go span').textContent = tx('shareOpenX');
+    dlg.querySelector('.pls-sub').textContent = tx('shareSaveImg');
+    const stt = dlg.querySelector('.pls-status');
+    stt.classList.toggle('ng', !copied);
+    stt.textContent = copied ? '✓ ' + tx('shareCopied') : tx('shareCopyFail');
+    dlg.querySelector('.pls-hint').textContent = copied ? tx('sharePasteHint') : tx('shareSaveHint');
+  }
+  // 画像だけを共有シートへ（写真に保存・X アプリへ直接 など）。無理なら保存
+  function saveImage(file) {
     if (navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
-      navigator.share(data).catch(function () { /* 閉じただけ */ });
+      navigator.share({ files: [file] }).catch(function () {});
       return;
     }
     const a = document.createElement('a');
@@ -468,7 +521,32 @@
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
     toast(tx('shareSaved'));
-    openX(caption);
+  }
+  // 押した瞬間（＝操作の直後）にクリップボードへ書く。iPhone の Safari は、
+  // 画像の中身を Promise で渡せば「操作の直後」とみなしてくれる。
+  function copyImage(blobPromise) {
+    try {
+      if (!navigator.clipboard || !navigator.clipboard.write || typeof ClipboardItem === 'undefined') {
+        return Promise.reject(new Error('no clipboard'));
+      }
+      return navigator.clipboard.write([new ClipboardItem({ 'image/png': blobPromise })]);
+    } catch (e) { return Promise.reject(e); }
+  }
+  function shareResult(kind) {
+    let cv;
+    try { cv = kind === 'pllt' ? cardPllt() : cardPlf(); } catch (e) { cv = null; }
+    const caption = (kind === 'pllt' ? textPllt() : textPlf());
+    if (!cv) { openX(caption); return; }
+    const url = cv.toDataURL('image/png');
+    const file = dataUrlToFile(url, 'vcc-result.png');
+    cur = { file: file, url: url, caption: caption };
+    const copying = copyImage(Promise.resolve(file));
+    buildDlg();
+    dlg.querySelector('.pls-img').src = url;
+    paintDlg(true);
+    dlg.querySelector('.pls-status').textContent = '…';
+    dlg.classList.add('show');
+    copying.then(function () { paintDlg(true); }, function () { paintDlg(false); });
   }
 
   /* ---------------------------------------------------------- 取り付け -- */
