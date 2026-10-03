@@ -247,7 +247,33 @@
     '  .pllh-btn:hover .pllh-ring{box-shadow:0 0 0 2px rgba(255,255,255,.14),0 0 20px 5px rgba(var(--h),.8),',
     '    0 0 52px 12px rgba(var(--h),.38),inset 0 0 26px 4px rgba(var(--h),.6),inset 0 0 3px 1px rgba(255,255,255,.5)}}',
 
-    /* ---- 長押しで回転中：中心の核と結ぶ線が強く光る ---- */
+    /* ---- チャージ：中心の白い光と淡い虹色の渦、白く光る丸 ---- */
+    '.pllh-vortex{position:absolute;left:50%;top:50%;width:calc(var(--S)*1.5);height:calc(var(--S)*1.5);',
+    '  margin:calc(var(--S)*-.75) 0 0 calc(var(--S)*-.75);border-radius:50%;pointer-events:none;opacity:0;',
+    '  background:conic-gradient(from 0deg,rgba(150,232,255,0),rgba(150,232,255,.55) 10%,rgba(196,172,255,0) 24%,',
+    '    rgba(255,176,228,.5) 36%,rgba(255,176,228,0) 49%,rgba(168,255,222,.48) 61%,rgba(168,255,222,0) 74%,',
+    '    rgba(196,172,255,.55) 87%,rgba(150,232,255,0));',
+    '  -webkit-mask-image:radial-gradient(circle,transparent 6%,#000 24%,rgba(0,0,0,.6) 46%,transparent 70%);',
+    '  mask-image:radial-gradient(circle,transparent 6%,#000 24%,rgba(0,0,0,.6) 46%,transparent 70%);',
+    '  filter:blur(8px);will-change:transform,opacity}',
+    '.pllh-light{position:absolute;left:50%;top:50%;width:calc(var(--S)*.62);height:calc(var(--S)*.62);',
+    '  margin:calc(var(--S)*-.31) 0 0 calc(var(--S)*-.31);border-radius:50%;pointer-events:none;opacity:0;z-index:3;',
+    '  transform:scale(.15);will-change:transform,opacity;',
+    '  background:radial-gradient(circle,#fff 0,#fff 9%,rgba(246,244,255,.92) 17%,rgba(214,200,255,.55) 30%,',
+    '    rgba(170,226,255,.26) 46%,rgba(255,190,235,.10) 58%,transparent 70%)}',
+    // 縮むほど丸が白く光る（--cw は JS が 0〜1 で入れる）
+    '.pllh-ring::after{content:"";position:absolute;inset:-4px;border-radius:50%;pointer-events:none;opacity:var(--cw,0);',
+    '  background:radial-gradient(circle,#fff 0,rgba(255,255,255,.9) 38%,rgba(225,232,255,.35) 60%,transparent 74%)}',
+    // 弾けた瞬間の、画面全体がふわっと白むひかり（濃さは JS が opacity で決める）
+    '.pllh-whiteout{position:absolute;inset:0;pointer-events:none;z-index:4;opacity:0}',
+    '.pllh-whiteout i{position:absolute;inset:0;opacity:0;',
+    '  background:radial-gradient(circle at var(--wx,50%) var(--wy,50%),#fff 0,rgba(255,250,255,.88) 10%,',
+    '    rgba(222,206,255,.5) 30%,rgba(165,220,255,.2) 55%,rgba(255,190,235,.06) 75%,transparent 90%)}',
+    '.pllh-whiteout i.pop{animation:pllh-wo 1s cubic-bezier(.2,.6,.3,1) both}',
+    '@keyframes pllh-wo{0%{opacity:0}7%{opacity:1}100%{opacity:0}}',
+    '.pllh-fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}',
+
+    /* ---- 回転中：中心の核と結ぶ線が強く光る ---- */
     '.pllh-core{transition:transform .4s ease,box-shadow .4s ease}',
     '#pllh-overlay.spinning .pllh-core{animation:none;opacity:1;transform:scale(1.7);',
     '  box-shadow:0 0 14px 5px rgba(var(--a),.95),0 0 46px 18px rgba(var(--b),.5)}',
@@ -381,17 +407,26 @@
       '</button>' +
       '<div class="pllh-stage">' +
         '<svg class="pllh-net" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' + lines + '</svg>' +
+        '<span class="pllh-vortex" aria-hidden="true"></span>' +
         '<span class="pllh-core" aria-hidden="true"></span>' +
         nodes +
+        '<span class="pllh-light" aria-hidden="true"></span>' +
         '<span class="pllh-wave" aria-hidden="true"></span>' +
         '<span class="pllh-wave w2" aria-hidden="true"></span>' +
         '<span class="pllh-flash" aria-hidden="true"></span>' +
-      '</div>';
+      '</div>' +
+      '<div class="pllh-whiteout" aria-hidden="true"><i></i></div>' +
+      '<canvas class="pllh-fx" aria-hidden="true"></canvas>';
 
     document.getElementById('pllh-close').addEventListener('click', close);
     root.querySelectorAll('.pllh-btn').forEach(bindPress);
     nodeEls = Array.prototype.slice.call(root.querySelectorAll('.pllh-node'));
     lineEls = Array.prototype.slice.call(root.querySelectorAll('.pllh-net line'));
+    lightEl = root.querySelector('.pllh-light');
+    vortexEl = root.querySelector('.pllh-vortex');
+    netEl = root.querySelector('.pllh-net');
+    fxCanvas = root.querySelector('.pllh-fx');
+    fxCtx = fxCanvas.getContext('2d');
     place();
     paintLabels();
     if (typeof global.onI18n === 'function') global.onI18n(paintLabels);
@@ -414,19 +449,32 @@
   }
 
   /* ------------------------------------------------------ 指で回す ------
-     丸に指を置いたまま、円を描くようになぞると、3つが三角形の中心を軸に
+     丸に指を置いたまま円を描くようになぞると、3つが三角形の中心を軸に
      指についてくる。離すとなぞっていた速さのまま惰性で回り、だんだん
      遅くなって、いちばん近い「三角形の位置」にバネのように収まる。
-     - 速くはじけばよく回り、ゆっくり離せばその場で近い位置へ収まる。
      - 回っている最中に丸に触れると、そこでつかんで止められる。
      - 指がほとんど動かずに離れたら、ふつうのタップ（そのモードへ）。
-     - 回した並びはこの画面を開いているあいだ覚えている。 */
+
+     【チャージ】速く回し続けるほど「チャージ c (0〜1)」がたまり、
+       丸は小さく白く光りながら中心へ吸い寄せられ、中心の白い光と
+       淡い虹色の渦が大きくなる。c は 1 に近づくほど伸びが鈍る
+       （限りなく小さくはなるが、消えきらない）。
+       回す手をゆるめると c は少しずつ抜けていく。
+     【弾ける】ある程度たまった状態で指を離すと、中心からパステルの
+       火花が花火のように弾け、光の輪が広がる。
+     【回復】そのあと丸は中心から、ゆっくりバネのように元の大きさと
+       位置へ戻る（ほんの少しふくらみすぎてから落ち着く）。 */
   const DRAG_TOL = 8;          // これ以上動いたら「なぞっている」(px)
   const FRICTION = 2.6;        // 惰性の減り方（大きいほど早く止まる）
   const OMEGA_LIMIT = 1500;    // はじいたときの速さの上限(度/秒)
   const R = 33.5;              // 中心から丸までの距離（ステージの%）
   const BASE = [-90, 150, 30]; // 検定=上、フラッシュ=左下、ビジョン=右下
-  let nodeEls = [], lineEls = [];
+  const CHARGE_FROM = 260;     // これより速く回すとチャージがたまる(度/秒)
+  const CHARGE_FULL = 760;     // この速さで最大の勢いでたまる（指でくるくる回せる程度）
+  const CHARGE_RATE = 0.9;     // たまる速さ
+  const CHARGE_LEAK = 0.45;    // ゆるめたときに抜ける速さ
+  const BURST_MIN = 0.28;      // これ以上たまっていたら、離した瞬間に弾ける
+  let nodeEls = [], lineEls = [], lightEl = null, vortexEl = null, netEl = null;
   let theta = 0;               // 全体の回転角(度)。0 = 初期の並び
   let omega = 0;               // 回転の速さ(度/秒)
   let phase = 'idle';          // idle | drag | coast(惰性) | settle(収まり中)
@@ -434,16 +482,29 @@
   let raf = 0, lastT = 0, lastSlot = 0;
   let drag = null;             // { id, btn, x0, y0, cx, cy, prevA, moved, samples }
   let suppressClick = false;
+  let charge = 0, chargeV = 0; // チャージと、回復のバネの速度
+  let light = 0;               // 中心の白い光の強さ
+  let dragOmega = 0, lastMoveT = 0;
+
+  function eased(c) { return 1 - (1 - c) * (1 - c); }
 
   function place() {
+    const c = charge;
+    const k = c > 0 ? eased(Math.min(1, c)) : 0;
+    // c>0：小さく、中心へ。c<0（回復のふくらみすぎ）：ほんの少し大きく、外へ
+    const scale = c >= 0 ? 1 - 0.95 * k : 1 - c * 0.35;
+    const rf = c >= 0 ? 1 - 0.97 * k : 1 - c * 0.22;
     NODES.forEach(function (n, i) {
       const a = (BASE[i] + theta) * Math.PI / 180;
-      n.x = 50 + R * Math.cos(a);
-      n.y = 50 + R * Math.sin(a);
+      n.x = 50 + R * rf * Math.cos(a);
+      n.y = 50 + R * rf * Math.sin(a);
       const el = nodeEls[i];
       if (el) {
         el.style.setProperty('--x', n.x.toFixed(3));
         el.style.setProperty('--y', n.y.toFixed(3));
+        // transform は登場・吸い込みのアニメが使うので、大きさは個別の scale で
+        el.style.scale = scale.toFixed(4);
+        el.style.setProperty('--cw', k.toFixed(3));
       }
     });
     lineEls.forEach(function (ln, i) {
@@ -451,9 +512,19 @@
       ln.setAttribute('x1', p.x.toFixed(3)); ln.setAttribute('y1', p.y.toFixed(3));
       ln.setAttribute('x2', q.x.toFixed(3)); ln.setAttribute('y2', q.y.toFixed(3));
     });
-    // 位置を1つ通り過ぎるごとに、対応端末ではコツッと震える
+    // 線は登場・吸い込みの演出でも opacity を使うので、縮んでいる間だけ上書きする
+    if (netEl) netEl.style.opacity = k > 0 ? (1 - k).toFixed(3) : '';
+    if (lightEl) {
+      lightEl.style.opacity = Math.min(1, light * 1.25).toFixed(3);
+      lightEl.style.transform = 'scale(' + (0.15 + 1.15 * light).toFixed(3) + ')';
+    }
+    if (vortexEl) {
+      vortexEl.style.opacity = (light * 0.75).toFixed(3);
+      vortexEl.style.transform = 'rotate(' + (theta * 1.7).toFixed(1) + 'deg) scale(' + (0.55 + 0.55 * light).toFixed(3) + ')';
+    }
+    // 位置を1つ通り過ぎるごとに、対応端末ではコツッと震える（縮んでいる間は鳴らさない）
     const slot = Math.round(theta / 120);
-    if (slot !== lastSlot) { lastSlot = slot; buzz(5); }
+    if (slot !== lastSlot) { lastSlot = slot; if (k < 0.3) buzz(5); }
   }
 
   function toSettle() {
@@ -461,17 +532,44 @@
     target = Math.round((theta + omega * 0.22) / 120) * 120;
     phase = 'settle';
   }
+  function chargeQuiet() {
+    return charge === 0 && chargeV === 0 && light < 0.002;
+  }
   function frame(t) {
     raf = 0;
     const dt = Math.min(0.05, Math.max(0, (t - lastT) / 1000));
     lastT = t;
+    if (phase === 'drag') {
+      // 指が止まったら、測っている速さもすっと落とす
+      if (t - lastMoveT > 60) dragOmega *= Math.exp(-dt * 8);
+      if (!reduceMotion) {
+        const w = Math.abs(dragOmega);
+        if (w > CHARGE_FROM) {
+          const g = Math.min(1, (w - CHARGE_FROM) / (CHARGE_FULL - CHARGE_FROM));
+          charge += dt * CHARGE_RATE * g * (1.04 - charge);   // 1に近いほど伸びが鈍る
+        } else {
+          charge -= dt * CHARGE_LEAK * (1 - w / CHARGE_FROM);
+        }
+        charge = Math.max(0, Math.min(1, charge));
+      }
+      chargeV = 0;
+      light = charge;
+    } else {
+      // 離した後：チャージはバネでゆっくり 0 へ（少しふくらみすぎてから落ち着く）
+      if (charge !== 0 || chargeV !== 0) {
+        const K = 3.6, C = 2 * Math.sqrt(K) * 0.62;   // ゆっくり（2秒強かけて）戻る
+        chargeV += (-K * charge - C * chargeV) * dt;
+        charge += chargeV * dt;
+        if (Math.abs(charge) < 0.0008 && Math.abs(chargeV) < 0.003) { charge = 0; chargeV = 0; }
+      }
+      light *= Math.exp(-dt * 9);
+      if (light < 0.002) light = 0;
+    }
     if (phase === 'coast') {
-      // 惰性：なぞった速さから、なめらかに減速していく
       omega *= Math.exp(-FRICTION * dt);
       theta += omega * dt;
       if (Math.abs(omega) < 140) toSettle();
     } else if (phase === 'settle') {
-      // 目標の位置へバネで寄せる（ほんの少し行き過ぎてから戻る）
       const K = 70, C = 2 * Math.sqrt(K) * 0.75;
       omega += (K * (target - theta) - C * omega) * dt;
       theta += omega * dt;
@@ -480,11 +578,14 @@
         lastSlot = Math.round(theta / 120);
         omega = 0;
         phase = 'idle';
-        if (root) root.classList.remove('spinning');
       }
     }
     place();
-    if (phase === 'coast' || phase === 'settle') raf = requestAnimationFrame(frame);
+    if (phase === 'idle' && chargeQuiet()) {
+      if (root) root.classList.remove('spinning');
+      return;
+    }
+    raf = requestAnimationFrame(frame);
   }
   function kick() {
     if (raf) return;
@@ -494,6 +595,17 @@
   function stopMotion() {
     if (raf) { cancelAnimationFrame(raf); raf = 0; }
   }
+  // 画面を閉じた・開き直したときに、回転以外の途中状態を捨てる
+  function resetCharge() {
+    stopMotion();
+    drag = null;
+    charge = 0; chargeV = 0; light = 0; omega = 0; dragOmega = 0;
+    theta = Math.round(theta / 120) * 120 % 360;
+    phase = 'idle';
+    if (root) root.classList.remove('spinning');
+    if (nodeEls.length) place();
+    fxClear();
+  }
 
   function angleAt(x, y) {
     return Math.atan2(y - drag.cy, x - drag.cx) * 180 / Math.PI;
@@ -501,17 +613,17 @@
   function bindPress(b) {
     b.addEventListener('pointerdown', function (e) {
       if (busy || drag || !root) return;
-      // iOS の :active は離すまで出ないことがあるので、指が触れた瞬間に自前で光らせる
       b.classList.add('press');
-      // 回っている最中に触れた＝つかんで止める。このタッチではモードに入らない。
-      suppressClick = phase !== 'idle';
+      // 回っている／戻っている最中に触れた＝つかむ。このタッチではモードに入らない。
+      suppressClick = phase !== 'idle' || !chargeQuiet();
       stopMotion();
-      if (phase !== 'idle') { phase = 'drag'; omega = 0; }
+      if (phase !== 'idle') { phase = 'drag'; omega = 0; kick(); }
       const st = root.querySelector('.pllh-stage').getBoundingClientRect();
       drag = { id: e.pointerId, btn: b, x0: e.clientX, y0: e.clientY,
                cx: st.left + st.width / 2, cy: st.top + st.height / 2,
                prevA: 0, moved: false, samples: [] };
       drag.prevA = angleAt(e.clientX, e.clientY);
+      dragOmega = 0; lastMoveT = performance.now();
       // 丸が指の下から動いていっても、指の動きを最後まで受け取れるように捕まえておく
       try { b.setPointerCapture(e.pointerId); } catch (err) {}
     });
@@ -523,6 +635,7 @@
         suppressClick = true;
         phase = 'drag';
         root.classList.add('spinning');
+        kick();
       }
       const a = angleAt(e.clientX, e.clientY);
       let d = a - drag.prevA;
@@ -530,9 +643,11 @@
       drag.prevA = a;
       theta += d;
       const now = performance.now();
+      const mdt = Math.max(0.004, (now - lastMoveT) / 1000);
+      dragOmega += (d / mdt - dragOmega) * 0.3;   // なぞる速さ（なめらかにならしたもの）
+      lastMoveT = now;
       drag.samples.push({ t: now, th: theta });
       while (drag.samples.length > 2 && now - drag.samples[0].t > 90) drag.samples.shift();
-      place();
     });
     const end = function (e) {
       if (!drag || drag.btn !== b || (e && e.pointerId !== undefined && e.pointerId !== drag.id)) return;
@@ -550,6 +665,7 @@
       }
       omega = Math.max(-OMEGA_LIMIT, Math.min(OMEGA_LIMIT, omega));
       if (reduceMotion) omega = 0;
+      if (charge >= BURST_MIN) burst(charge);
       if (Math.abs(omega) >= 140) phase = 'coast'; else toSettle();
       kick();
     };
@@ -559,9 +675,138 @@
     // 長押しで出る iOS のメニューや選択を出さない
     b.addEventListener('contextmenu', function (e) { e.preventDefault(); });
     b.addEventListener('click', function (e) {
-      if (suppressClick || phase !== 'idle') { suppressClick = false; e.preventDefault(); return; }
+      if (suppressClick || phase !== 'idle' || !chargeQuiet()) { suppressClick = false; e.preventDefault(); return; }
       choose(b);
     });
+  }
+
+  /* ------------------------------------------------------- 花火 (canvas) --
+     火花・きらめき・ぼんやりした光の玉・光の輪を、弾けたときだけ描く。
+     描くものが無くなったらループを止める。色は淡いパステル（水色・藤色・
+     桜色・薄緑・淡い金・白）を「足し算」で重ねて、にじむように光らせる。 */
+  const PALETTE = [[150, 232, 255], [196, 172, 255], [255, 176, 228], [168, 255, 222], [255, 234, 168], [255, 255, 255]];
+  let fxCanvas = null, fxCtx = null, fxRaf = 0, fxLast = 0, fxW = 0, fxH = 0;
+  const sparks = [], rings = [];
+  function pick(a) { return a[(Math.random() * a.length) | 0]; }
+  function fxSize() {
+    const dpr = Math.min(2, global.devicePixelRatio || 1);
+    const w = root.clientWidth, h = root.clientHeight;
+    if (w !== fxW || h !== fxH || fxCanvas.width !== Math.round(w * dpr)) {
+      fxW = w; fxH = h;
+      fxCanvas.width = Math.round(w * dpr); fxCanvas.height = Math.round(h * dpr);
+      fxCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+  }
+  function burst(I) {
+    if (!root || !fxCanvas) return;
+    fxSize();
+    const st = root.querySelector('.pllh-stage').getBoundingClientRect();
+    const rr = root.getBoundingClientRect();
+    const x = st.left + st.width / 2 - rr.left, y = st.top + st.height / 2 - rr.top;
+    const boost = 0.55 + 0.7 * I;
+    // 火花
+    const n = Math.round(80 + 190 * I);
+    for (let i = 0; i < n; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      const sp = (220 + Math.random() * Math.random() * 980) * boost;
+      sparks.push({ x: x, y: y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp,
+        life: 0.9 + Math.random() * 1.2, age: 0, size: 1 + Math.random() * 2.2 * boost,
+        col: pick(PALETTE), crackle: Math.random() < 0.22 * I, kind: 0, tw: Math.random() * 6 });
+    }
+    // ふわっと漂う光の玉
+    const m = Math.round(8 + 14 * I);
+    for (let i = 0; i < m; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      const sp = (30 + Math.random() * 140) * boost;
+      sparks.push({ x: x, y: y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp,
+        life: 1.6 + Math.random() * 1.2, age: 0, size: 7 + Math.random() * 16 * boost,
+        col: pick(PALETTE), crackle: false, kind: 1, tw: 0 });
+    }
+    // 光の輪（2重）
+    rings.push({ x: x, y: y, r: 6, sp: 820 * boost, age: 0, life: 0.85, col: [235, 240, 255], w: 3.2 });
+    rings.push({ x: x, y: y, r: 2, sp: 560 * boost, age: -0.07, life: 1.0, col: pick(PALETTE.slice(1, 4)), w: 2 });
+    // 画面全体がふわっと白むひかり
+    const wo = root.querySelector('.pllh-whiteout');
+    if (wo) {
+      wo.style.setProperty('--wx', x + 'px'); wo.style.setProperty('--wy', y + 'px');
+      wo.style.opacity = (0.45 + 0.55 * I).toFixed(2);
+      const inner = wo.firstChild;
+      inner.classList.remove('pop'); void inner.offsetWidth; inner.classList.add('pop');
+    }
+    try { if (navigator.vibrate) navigator.vibrate([14, 40, 24]); } catch (e) {}
+    if (!fxRaf) { fxLast = performance.now(); fxRaf = requestAnimationFrame(fxFrame); }
+  }
+  function fxFrame(t) {
+    fxRaf = 0;
+    const dt = Math.min(0.05, Math.max(0, (t - fxLast) / 1000));
+    fxLast = t;
+    const ctx = fxCtx;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.clearRect(0, 0, fxW, fxH);
+    ctx.globalCompositeOperation = 'lighter';
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const p = sparks[i];
+      p.age += dt;
+      const u = p.age / p.life;
+      if (u >= 1) { sparks.splice(i, 1); continue; }
+      const dragK = p.kind ? 1.3 : 2.0;
+      p.vx *= Math.exp(-dragK * dt); p.vy *= Math.exp(-dragK * dt);
+      p.vy += (p.kind ? 8 : 70) * dt;              // ほんの少しだけ垂れる
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      const c = p.col;
+      if (p.kind === 1) {
+        // 光の玉：ぼんやり大きく、ゆっくり消える
+        const a = 0.22 * Math.sin(Math.PI * Math.min(1, u * 1.4)) * (1 - u);
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+        g.addColorStop(0, 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a.toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',0)');
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+        continue;
+      }
+      let a = Math.pow(1 - u, 1.3);
+      if (u > 0.45) a *= 0.55 + 0.45 * Math.sin(p.age * 38 + p.tw);   // 消えぎわにちらちら瞬く
+      // 尾を引く線
+      ctx.strokeStyle = 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + (a * 0.85).toFixed(3) + ')';
+      ctx.lineWidth = p.size;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(p.x - p.vx * 0.045, p.y - p.vy * 0.045);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      // 先端の白い芯
+      ctx.fillStyle = 'rgba(255,255,255,' + (a * 0.9).toFixed(3) + ')';
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.size * 0.55, 0, Math.PI * 2); ctx.fill();
+      // 途中でパチパチと小さく弾ける
+      if (p.crackle && u > 0.42) {
+        p.crackle = false;
+        for (let k = 0; k < 7; k++) {
+          const ang = Math.random() * Math.PI * 2, sp = 50 + Math.random() * 130;
+          sparks.push({ x: p.x, y: p.y, vx: Math.cos(ang) * sp + p.vx * 0.3, vy: Math.sin(ang) * sp + p.vy * 0.3,
+            life: 0.35 + Math.random() * 0.4, age: 0, size: 0.7 + Math.random() * 0.9,
+            col: pick([[255, 255, 255], [255, 236, 180], c]), crackle: false, kind: 0, tw: Math.random() * 6 });
+        }
+      }
+    }
+    for (let i = rings.length - 1; i >= 0; i--) {
+      const r = rings[i];
+      r.age += dt;
+      if (r.age < 0) continue;
+      const u = r.age / r.life;
+      if (u >= 1) { rings.splice(i, 1); continue; }
+      r.r += r.sp * dt * (1 - u);
+      const a = Math.pow(1 - u, 2);
+      ctx.strokeStyle = 'rgba(' + r.col[0] + ',' + r.col[1] + ',' + r.col[2] + ',' + (a * 0.8).toFixed(3) + ')';
+      ctx.lineWidth = r.w * (1 - u) + 0.5;
+      ctx.beginPath(); ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2); ctx.stroke();
+    }
+    if (sparks.length || rings.length) fxRaf = requestAnimationFrame(fxFrame);
+    else ctx.clearRect(0, 0, fxW, fxH);
+  }
+  function fxClear() {
+    if (fxRaf) { cancelAnimationFrame(fxRaf); fxRaf = 0; }
+    sparks.length = 0; rings.length = 0;
+    if (fxCtx) fxCtx.clearRect(0, 0, fxW, fxH);
   }
 
   /* ------------------------------------------------- モードとの行き来 -- */
@@ -628,7 +873,7 @@
   }
 
   function choose(btn) {
-    if (busy || !root || phase !== 'idle') return;
+    if (busy || !root || phase !== 'idle' || !chargeQuiet()) return;
     const mode = btn.dataset.mode;
     const node = btn.closest('.pllh-node');
     busy = true;
@@ -675,6 +920,7 @@
   function open() {
     if (!build()) return false;
     resetGoing();
+    resetCharge();
     root.classList.remove('covered');
     root.classList.add('show');
     void root.offsetWidth;
@@ -685,6 +931,7 @@
   function close() {
     if (!root) return;
     resetGoing();
+    resetCharge();
     root.classList.remove('in', 'enter');
     setTimeout(function () {
       if (!root.classList.contains('in')) root.classList.remove('show', 'covered');
@@ -705,6 +952,7 @@
     close: close,
     isOpen: function () { return !!(root && root.classList.contains('show')); },
     // 確認用：今の回転角（0 / 120 / 240）
-    getAngle: function () { return theta; }
+    getAngle: function () { return theta; },
+    getCharge: function () { return charge; }
   };
 })(window);
