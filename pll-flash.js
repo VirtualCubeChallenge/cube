@@ -56,10 +56,10 @@
   ];
   /* PLLビジョンの難易度。9問は固定で、変わるのは表示時間だけ。 */
   const VLEVELS = [
-    { id: 'easy',   key: 'plfLvEasy',   showMs: 5000, count: 9 },
-    { id: 'normal', key: 'plfLvNormal', showMs: 3000, count: 9 },
-    { id: 'hard',   key: 'plfLvHard',   showMs: 2000, count: 9 },
-    { id: 'pro',    key: 'plfLvPro',    showMs: 1000, count: 9 }
+    { id: 'easy',   key: 'plfLvEasy',   showMs: 20000, count: 9 },
+    { id: 'normal', key: 'plfLvNormal', showMs: 18000, count: 9 },
+    { id: 'hard',   key: 'plfLvHard',   showMs: 15000, count: 9 },
+    { id: 'pro',    key: 'plfLvPro',    showMs: 8000, count: 9 }
   ];
   const STORAGE_KEY = 'rubiks-cube-pll-flash';   // 両モード共用（ビジョンの記録は v: 付きのキー）
   const PLLT_KEY = 'rubiks-cube-pll-trainer';   // 上面の色の選択だけ借りる
@@ -905,7 +905,7 @@
       b.classList.toggle('on', on);
       b.setAttribute('aria-pressed', String(on));
       b.querySelector('b').textContent = tx(lv.key);
-      const sec = isVision() ? (lv.showMs / 1000).toFixed(1) : String(lv.showMs / 1000);
+      const sec = String(lv.showMs / 1000);
       b.querySelector('span').textContent = tx('plfLvSpec', { sec: sec, n: lv.count });
     });
     const best = store.best[bestKey(cur.id)];
