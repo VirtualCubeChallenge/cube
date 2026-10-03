@@ -1554,6 +1554,12 @@
   <!-- 寿司屋ガチャの「握って出す」演出を、画面外から飛び込むゴリゴリの腕に
        差し替える。この1行を消せば、従来の「その場で握って皿を回す」演出に戻る。 -->
   <script src="sushi-arm.js?v=20261002f"></script>
+  <!-- PLLフラッシュ（連続表示モード）。PLL検定の設定画面に入口ボタンを
+       差し込む。この1行を消せば、入口ごと消えて今までどおりに戻る。 -->
+  <script src="pll-flash.js?v=20261003j"></script>
+  <!-- トレーニングの入口：PLL検定／フラッシュ／ビジョンを選ぶハブ画面。
+       ドロワーの「トレーニング」はここを開く。 -->
+  <script src="pll-hub.js?v=20261003k"></script>
   <script>
     /* ============================================================
        お問い合わせフォーム（Googleフォーム）のURL
@@ -6227,6 +6233,7 @@
       '#records-overlay', '#stats-overlay', '#shop-overlay', '#gacha-overlay',
       '#sg-overlay', '#notice-overlay', '#homescreen-guide-overlay',
       '#oll-overlay', '#pll-overlay', '#zbll-overlay', '#pllt-overlay',
+      '#pllh-overlay', '#plf-overlay',
       '#confirm-overlay', '#lang-overlay', '#welcome-overlay', '#intro-overlay'
     ];
     // 横向き案内(#orientation-overlay)は z-index が桁違いに大きく、
@@ -8607,6 +8614,7 @@ const PLL_DATA = {
       '#welcome-overlay', '#intro-overlay', '#settings-overlay', '#layout-overlay', '#transfer-overlay', '#records-overlay',
       '#stats-overlay', '#shop-overlay', '#gacha-overlay',
       '#oll-overlay', '#pll-overlay', '#zbll-overlay', '#pllt-overlay',
+      '#pllh-overlay', '#plf-overlay',
       '#confirm-overlay', '#pause-overlay', '#lang-overlay', '#orientation-overlay',
       '#photo-skin-overlay'
     ];
@@ -9195,7 +9203,11 @@ const PLL_DATA = {
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x17171b);
         const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
-        camera.position.copy(new THREE.Vector3(2.32, 3.91, 5.31).normalize().multiplyScalar(11.6));
+        // カメラの距離。枠(#demo-canvas-wrap)の大きさは変えず、寄って中のキューブだけを
+        // 大きく見せる（2026-10-03 に 11.6 → 9.8、約1.18倍）。面を回している最中の
+        // 角まで含めた外接球（半径≒2.55）の見かけの半径が約15.1°で、視野の半分(16°)
+        // に収まる＝回しても枠からはみ出さない。これより寄せるなら 9.3 あたりが限界。
+        camera.position.copy(new THREE.Vector3(2.32, 3.91, 5.31).normalize().multiplyScalar(9.8));
         camera.lookAt(0, 0, 0);
         scene.add(new THREE.AmbientLight(0xffffff, 0.78));
         const d1 = new THREE.DirectionalLight(0xffffff, 0.55); d1.position.set(10, 20, 15); scene.add(d1);
@@ -9376,6 +9388,9 @@ const PLL_DATA = {
       // 0 = 通常（21手以上）／ 1 = ギリギリゾーン（20手以下、手数は隠す）
       // 2 = ラスト1手（完成直前、最高潮の演出）
       const THRILL_THRESHOLD = 20; // これ以下で手数を隠す
+      // タップキューブのときは逆に、ふだんは手数を出さず、のこりがこの手数
+      // 以内になったときだけ「のこり n 手」を出す（2026-10-03）。
+      const TAP_SHOW_MOVES = 15;
       function setThrillZone(level) {
         panel.classList.remove('thrill-zone', 'final-move');
         remainEl.classList.remove('thrill-zone', 'final-move');
@@ -9407,6 +9422,14 @@ const PLL_DATA = {
         phaseEl.textContent = phKey ? t(phKey) : t('phaseNext');
         if (zone === 2) {
           remainEl.innerHTML = '<b>FINISH HIM!</b>';
+        } else if (document.body.classList.contains('tap-mode')) {
+          // タップキューブ：のこり16手以上は手数の表示ごと出さない
+          if (left <= TAP_SHOW_MOVES) {
+            remainEl.innerHTML = t('movesLeft', { n: left });
+          } else {
+            remainEl.innerHTML = '';
+            remainEl.classList.add('hidden');
+          }
         } else if (zone === 1) {
           remainEl.innerHTML = t('movesLeftHidden');
         } else {
@@ -10134,6 +10157,14 @@ const PLL_DATA = {
     <div class="pllt-flash" id="pllt-flash" aria-hidden="true"></div>
   </div>
   <!-- === PLL 2側面判断トレーナー : マークアップ ここまで ================ -->
+
+  <!-- PLLフラッシュ／トレーニング選択ハブの入れ物。中身は pll-flash.js と
+       pll-hub.js が作る。空のまま先に置いておくのは、起動時に作る
+       「全画面オーバーレイの一覧」（一時停止の幕・キューブ描画の停止）が
+       この2つを見つけられるようにするため。中身ができるまでは hidden で
+       消しておく（空の div でも「開いている」と数えられてしまうので）。 -->
+  <div id="pllh-overlay" hidden></div>
+  <div id="plf-overlay" hidden></div>
 
 
   <script>
@@ -13641,7 +13672,9 @@ const BackupTransfer = (function () {
     'rubiks-cube-intro-seen',
     'rubiks-cube-notation-tutorial', 'rubiks-cube-notation-tutorial-step',
     // 2026-08-23 追加（回転を高速にする）。並びは末尾に足すだけ。
-    'rubiks-cube-fast-turns'
+    'rubiks-cube-fast-turns',
+    // 2026-10-03 追加（PLLフラッシュの自己ベスト・難易度）。並びは末尾に足すだけ。
+    'rubiks-cube-pll-flash'
   ];
 
   function supported() {
@@ -15924,13 +15957,18 @@ const PllTrainer = (function () {
 
   loadStore();
 
-  // 入口はドロワーメニューの「トレーニング」の1か所のみ。
+  // 入口はドロワーメニューの「トレーニング」の1か所のみ（→ハブ→検定）。
   // PLLボタン（一覧）の中には出さない。
   (function bindEntry() {
     const menuBtn = q('training-btn');
+    // まずモード選択ハブ（pll-hub.js）を開く。読み込めていなければ従来どおり検定へ。
+    const openTraining = () => {
+      if (window.PllHub && typeof PllHub.open === 'function' && PllHub.open()) return;
+      open();
+    };
     if (menuBtn) {
-      if (typeof menuAction === 'function') menuAction(menuBtn, open);
-      else menuBtn.addEventListener('click', open);
+      if (typeof menuAction === 'function') menuAction(menuBtn, openTraining);
+      else menuBtn.addEventListener('click', openTraining);
     }
   })();
 

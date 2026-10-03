@@ -2,6 +2,18 @@
   "_note": "items は新しい順。新機能を足したら先頭に1件追加する。言語キーは ja/en/zh-CN/zh-TW/ko/es/id/ru/pt-BR の9つで、LANGS の code とそのまま一致する。無い言語は ja に落ちる（= ja だけは必ず書く）。guide は任意で、付けた項目にだけ「詳細→」ボタンが出る。",
   "items": [
     {
+      "date": "2026-10-03",
+      "ja": "【アプデ情報】新モード「PLLフラッシュ」「PLLビジョン」登場！⚡👁\nフラッシュは一瞬ずつ出るPLLを覚えて、ビジョンは3×3に並んだ9個を一度に見て、最後にまとめて答えよう。どちらも初級〜鬼の4段階です。\nトレーニングを開くと、3つのモードから選べます！",
+      "en": "[Update] Two new modes: PLL Flash and PLL Vision! ⚡👁\nFlash shows PLLs one at a time; Vision shows nine at once in a 3×3 grid — remember them and answer at the end. Four levels each, from Easy to Pro.\nOpen Training and pick from the three modes!",
+      "zh-CN": "【更新情报】新模式「PLL闪现」「PLL视野」登场！⚡👁\n闪现会逐个快速显示PLL，视野会一次显示3×3排列的9个PLL，记住后最后一起作答。两种模式都有初级到魔鬼4档。\n打开「训练」，即可从3种模式中选择！",
+      "zh-TW": "【更新情報】新模式「PLL閃現」「PLL視野」登場！⚡👁\n閃現會逐個快速顯示PLL，視野會一次顯示3×3排列的9個PLL，記住後最後一起作答。兩種模式都有初級到魔鬼4檔。\n打開「訓練」，即可從3種模式中選擇！",
+      "ko": "【업데이트】새 모드 「PLL 플래시」「PLL 비전」 등장! ⚡👁\n플래시는 PLL이 하나씩 순식간에, 비전은 3×3으로 9개가 한꺼번에 나옵니다. 기억해 두었다가 마지막에 답하세요. 둘 다 초급부터 귀신까지 4단계입니다.\n트레이닝을 열면 3가지 모드 중에서 고를 수 있어요!",
+      "es": "[Novedades] ¡Dos modos nuevos: PLL Flash y PLL Visión! ⚡👁\nFlash muestra los PLL uno a uno; Visión muestra nueve a la vez en una cuadrícula de 3×3. Recuérdalos y responde al final. Cuatro niveles en cada uno, de Fácil a Pro.\n¡Abre Entrenamiento y elige entre los tres modos!",
+      "id": "[Pembaruan] Dua mode baru: PLL Flash dan PLL Vision! ⚡👁\nFlash menampilkan PLL satu per satu; Vision menampilkan sembilan sekaligus dalam kotak 3×3. Ingat, lalu jawab di akhir. Masing-masing punya empat tingkat, dari Mudah sampai Pro.\nBuka Latihan dan pilih dari tiga mode!",
+      "ru": "[Обновление] Два новых режима: PLL-вспышка и PLL-обзор! ⚡👁\nВо «вспышке» PLL мелькают по одному, в «обзоре» девять появляются сразу в сетке 3×3. Запомните их и ответьте в конце. В каждом режиме четыре уровня — от лёгкого до «Демона».\nОткройте «Тренировку» и выберите один из трёх режимов!",
+      "pt-BR": "[Novidades] Dois modos novos: PLL Flash e PLL Visão! ⚡👁\nO Flash mostra os PLLs um a um; o Visão mostra nove de uma vez numa grade 3×3. Lembre-se deles e responda no fim. Quatro níveis em cada um, do Fácil ao Pro.\nAbra Treino e escolha entre os três modos!"
+    },
+    {
       "date": "2026-08-30",
       "ja": "【アプデ情報】キューブカラーが5色追加！🎨\n和・パステル・ジュエル・ネオンポップ・モノクロームを実装しました✨\nショップの「キューブカラー」から、好きなデザインを選んで遊んでみてね！",
       "en": "[Update] 5 new cube colors! 🎨\nJapanese, Pastel, Jewel, Neon Pop and Monochrome are here ✨\nPick your favorite from Cube Colors in the shop!",
