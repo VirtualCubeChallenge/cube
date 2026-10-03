@@ -188,7 +188,8 @@
     '.pllh-btn{--h:var(--a);position:relative;display:block;width:100%;height:100%;padding:0;margin:0;',
     '  border:none;border-radius:50%;cursor:pointer;color:rgb(var(--h));background:none;outline:none;',
     '  transition:transform .18s cubic-bezier(.3,1.6,.5,1)}',
-    '.pllh-btn{-webkit-touch-callout:none}',
+    // 指でなぞって回すので、ブラウザ側のスクロールやズームに取られないようにする
+    '.pllh-btn{-webkit-touch-callout:none;touch-action:none}',
     '.pllh-node[data-hue="b"] .pllh-btn{--h:var(--b)}',
     '.pllh-node[data-hue="c"] .pllh-btn{--h:var(--c)}',
     // ネオン管の外枠（太い管＋内側の暗いガラス）
@@ -412,26 +413,27 @@
     });
   }
 
-  /* ------------------------------------------------------ 長押しで回転 --
-     丸を長押しすると、3つが三角形の中心を軸にクルクル回り出す。
-     押しているあいだはじわっと加速し、離すと勢いのまま減速して、
-     いちばん近い「三角形の位置」にバネのように軽く行き過ぎてから収まる。
-     どの位置に来ても、丸の並び（上・左下・右下）は常にきれいな正三角形。
-     - 長押しと判定されるまで（0.35秒）に指を離せば、ふつうのタップ。
-     - 長押しした後に離しても、モードには入らない（回しただけ）。
-     - 回した向きはこの画面を開いているあいだ覚えている。 */
-  const HOLD_MS = 350;       // ここまで押し続けたら長押し
-  const MOVE_TOL = 12;       // これ以上指が動いたら長押しをやめる(px)
-  const OMEGA_MAX = 320;     // 最高の回転速度(度/秒)
-  const R = 33.5;            // 中心から丸までの距離（ステージの%）
-  const BASE = [-90, 150, 30];   // 検定=上、フラッシュ=左下、ビジョン=右下
+  /* ------------------------------------------------------ 指で回す ------
+     丸に指を置いたまま、円を描くようになぞると、3つが三角形の中心を軸に
+     指についてくる。離すとなぞっていた速さのまま惰性で回り、だんだん
+     遅くなって、いちばん近い「三角形の位置」にバネのように収まる。
+     - 速くはじけばよく回り、ゆっくり離せばその場で近い位置へ収まる。
+     - 回っている最中に丸に触れると、そこでつかんで止められる。
+     - 指がほとんど動かずに離れたら、ふつうのタップ（そのモードへ）。
+     - 回した並びはこの画面を開いているあいだ覚えている。 */
+  const DRAG_TOL = 8;          // これ以上動いたら「なぞっている」(px)
+  const FRICTION = 2.6;        // 惰性の減り方（大きいほど早く止まる）
+  const OMEGA_LIMIT = 1500;    // はじいたときの速さの上限(度/秒)
+  const R = 33.5;              // 中心から丸までの距離（ステージの%）
+  const BASE = [-90, 150, 30]; // 検定=上、フラッシュ=左下、ビジョン=右下
   let nodeEls = [], lineEls = [];
-  let theta = 0;             // 全体の回転角(度)。0 = 初期の並び
-  let omega = 0;             // 回転速度(度/秒)
-  let phase = 'idle';        // idle | spin(押している) | settle(離して収まるまで)
+  let theta = 0;               // 全体の回転角(度)。0 = 初期の並び
+  let omega = 0;               // 回転の速さ(度/秒)
+  let phase = 'idle';          // idle | drag | coast(惰性) | settle(収まり中)
   let target = 0;
   let raf = 0, lastT = 0, lastSlot = 0;
-  let holdTimer = 0, holdBtn = null, holdX = 0, holdY = 0, suppressClick = false;
+  let drag = null;             // { id, btn, x0, y0, cx, cy, prevA, moved, samples }
+  let suppressClick = false;
 
   function place() {
     NODES.forEach(function (n, i) {
@@ -445,94 +447,111 @@
       }
     });
     lineEls.forEach(function (ln, i) {
-      const a = NODES[i], b = NODES[(i + 1) % NODES.length];
-      ln.setAttribute('x1', a.x.toFixed(3)); ln.setAttribute('y1', a.y.toFixed(3));
-      ln.setAttribute('x2', b.x.toFixed(3)); ln.setAttribute('y2', b.y.toFixed(3));
+      const p = NODES[i], q = NODES[(i + 1) % NODES.length];
+      ln.setAttribute('x1', p.x.toFixed(3)); ln.setAttribute('y1', p.y.toFixed(3));
+      ln.setAttribute('x2', q.x.toFixed(3)); ln.setAttribute('y2', q.y.toFixed(3));
     });
+    // 位置を1つ通り過ぎるごとに、対応端末ではコツッと震える
+    const slot = Math.round(theta / 120);
+    if (slot !== lastSlot) { lastSlot = slot; buzz(5); }
   }
 
+  function toSettle() {
+    // 今の勢いで少し先まで見越して、最寄りの位置へ
+    target = Math.round((theta + omega * 0.22) / 120) * 120;
+    phase = 'settle';
+  }
   function frame(t) {
     raf = 0;
     const dt = Math.min(0.05, Math.max(0, (t - lastT) / 1000));
     lastT = t;
-    if (phase === 'spin') {
-      // 押しているあいだ：最高速度へじわっと近づく
-      omega += (OMEGA_MAX - omega) * (1 - Math.exp(-dt * 2.4));
+    if (phase === 'coast') {
+      // 惰性：なぞった速さから、なめらかに減速していく
+      omega *= Math.exp(-FRICTION * dt);
       theta += omega * dt;
+      if (Math.abs(omega) < 140) toSettle();
     } else if (phase === 'settle') {
-      // 離した後：目標の位置へバネで寄せる（少しだけ行き過ぎてから戻る）
-      const K = 70, C = 2 * Math.sqrt(K) * 0.72;
+      // 目標の位置へバネで寄せる（ほんの少し行き過ぎてから戻る）
+      const K = 70, C = 2 * Math.sqrt(K) * 0.75;
       omega += (K * (target - theta) - C * omega) * dt;
       theta += omega * dt;
       if (Math.abs(target - theta) < 0.04 && Math.abs(omega) < 2) {
         theta = ((target % 360) + 360) % 360;
-        target = theta;
+        lastSlot = Math.round(theta / 120);
         omega = 0;
         phase = 'idle';
-        root.classList.remove('spinning');
+        if (root) root.classList.remove('spinning');
       }
     }
-    // 位置を1つ通り過ぎるごとに、対応端末ではコツッと震える
-    const slot = Math.round(theta / 120);
-    if (slot !== lastSlot) { lastSlot = slot; buzz(5); }
     place();
-    if (phase !== 'idle') raf = requestAnimationFrame(frame);
+    if (phase === 'coast' || phase === 'settle') raf = requestAnimationFrame(frame);
   }
   function kick() {
     if (raf) return;
     lastT = performance.now();
     raf = requestAnimationFrame(frame);
   }
-  function startSpin() {
-    if (busy || !root) return;
-    suppressClick = true;
-    phase = 'spin';
-    root.classList.add('spinning');
-    lastSlot = Math.round(theta / 120);
-    buzz(12);
-    if (reduceMotion) {
-      // 動きを減らす設定：長押し1回で1つ分だけ、すっと送る
-      phase = 'idle';
-      theta = (Math.round(theta / 120) + 1) * 120 % 360;
-      place();
-      root.classList.remove('spinning');
-      return;
-    }
-    kick();
-  }
-  function releaseSpin() {
-    if (phase !== 'spin') return;
-    // 今の勢いで止まりそうな所を見積もり、そこから最寄りの位置へ。
-    // 回っている向きの先へ必ず進める（逆戻りすると不自然に見える）。
-    const projected = theta + omega * 0.32;
-    target = Math.max(Math.round(projected / 120), Math.ceil(theta / 120 - 0.15)) * 120;
-    phase = 'settle';
-    kick();
-  }
-  function cancelHold() {
-    clearTimeout(holdTimer); holdTimer = 0;
+  function stopMotion() {
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
   }
 
+  function angleAt(x, y) {
+    return Math.atan2(y - drag.cy, x - drag.cx) * 180 / Math.PI;
+  }
   function bindPress(b) {
     b.addEventListener('pointerdown', function (e) {
-      if (busy || phase === 'settle') return;
+      if (busy || drag || !root) return;
       // iOS の :active は離すまで出ないことがあるので、指が触れた瞬間に自前で光らせる
       b.classList.add('press');
-      suppressClick = false;
-      holdBtn = b; holdX = e.clientX; holdY = e.clientY;
-      // 回り出すと丸が指の下から離れていくので、離した合図を取りこぼさないよう捕まえておく
+      // 回っている最中に触れた＝つかんで止める。このタッチではモードに入らない。
+      suppressClick = phase !== 'idle';
+      stopMotion();
+      if (phase !== 'idle') { phase = 'drag'; omega = 0; }
+      const st = root.querySelector('.pllh-stage').getBoundingClientRect();
+      drag = { id: e.pointerId, btn: b, x0: e.clientX, y0: e.clientY,
+               cx: st.left + st.width / 2, cy: st.top + st.height / 2,
+               prevA: 0, moved: false, samples: [] };
+      drag.prevA = angleAt(e.clientX, e.clientY);
+      // 丸が指の下から動いていっても、指の動きを最後まで受け取れるように捕まえておく
       try { b.setPointerCapture(e.pointerId); } catch (err) {}
-      cancelHold();
-      holdTimer = setTimeout(function () { holdTimer = 0; startSpin(); }, HOLD_MS);
     });
     b.addEventListener('pointermove', function (e) {
-      if (!holdTimer || holdBtn !== b) return;
-      if (Math.abs(e.clientX - holdX) > MOVE_TOL || Math.abs(e.clientY - holdY) > MOVE_TOL) cancelHold();
+      if (!drag || drag.btn !== b || e.pointerId !== drag.id) return;
+      if (!drag.moved) {
+        if (Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < DRAG_TOL) return;
+        drag.moved = true;
+        suppressClick = true;
+        phase = 'drag';
+        root.classList.add('spinning');
+      }
+      const a = angleAt(e.clientX, e.clientY);
+      let d = a - drag.prevA;
+      if (d > 180) d -= 360; else if (d < -180) d += 360;   // ±180°の境目をまたいでも途切れない
+      drag.prevA = a;
+      theta += d;
+      const now = performance.now();
+      drag.samples.push({ t: now, th: theta });
+      while (drag.samples.length > 2 && now - drag.samples[0].t > 90) drag.samples.shift();
+      place();
     });
-    const end = function () {
+    const end = function (e) {
+      if (!drag || drag.btn !== b || (e && e.pointerId !== undefined && e.pointerId !== drag.id)) return;
       b.classList.remove('press');
-      cancelHold();
-      if (holdBtn === b) { holdBtn = null; releaseSpin(); }
+      const d = drag;
+      drag = null;
+      if (phase !== 'drag') return;            // ふつうのタップ（click で処理）
+      // 離す直前 0.09秒ぶんの動きから、はじいた速さを出す
+      const sm = d.samples, now = performance.now();
+      omega = 0;
+      if (sm.length >= 2 && now - sm[sm.length - 1].t < 80) {
+        const f = sm[0], l = sm[sm.length - 1];
+        const span = (l.t - f.t) / 1000;
+        if (span > 0.008) omega = (l.th - f.th) / span;
+      }
+      omega = Math.max(-OMEGA_LIMIT, Math.min(OMEGA_LIMIT, omega));
+      if (reduceMotion) omega = 0;
+      if (Math.abs(omega) >= 140) phase = 'coast'; else toSettle();
+      kick();
     };
     b.addEventListener('pointerup', end);
     b.addEventListener('pointercancel', end);
