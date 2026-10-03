@@ -56,10 +56,11 @@
     // 2列（左=戻るの上、右=もう一度挑戦の上）。下の .pllt-result-actions と同じ列幅・すき間
     '.pls-top{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;align-items:stretch}',
     '.pls-top+.pllt-result-actions{margin-top:8px}',
-    '.pls-top .pllt-ticket-row{margin:0;min-width:0;flex-wrap:nowrap}',
-    // 半分の幅に収まるよう、ここでだけ木札を少し詰める（寿司屋へ飛ぶ「›」が付いても収まるように）
-    '.pls-top .pllt-ticket-row .pllt-kan-fuda{max-width:100%;min-width:0;white-space:nowrap;gap:5px;padding:6px 9px 7px}',
-    // 幅の狭い端末では「ためた貫」の文字を省き、「貫 +10」だけにする
+    '.pls-top .pllt-ticket-row{margin:0;min-width:0;flex-wrap:nowrap;display:flex;align-items:stretch}',
+    // 木札は、隣の「Xでシェア」や下の「戻る／もう一度挑戦」と同じ大きさ（列いっぱい・同じ高さ・同じ角丸）にする
+    '#pllt-overlay .pls-top .pllt-ticket-row .pllt-kan-fuda{box-sizing:border-box;width:100%;max-width:none;min-width:0;',
+    '  min-height:46px;justify-content:center;white-space:nowrap;gap:6px;padding:10px 10px;border-radius:10px;font-size:13px}',
+    '#pllt-overlay .pls-top .pllt-ticket-row .pllt-kan-fuda b{font-size:16px}',
     '@media (max-width:400px){.pls-top .pllt-ticket-row .pllt-kan-label{display:none}}',
     '.pls-share{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:0;min-width:0;',
     '  padding:12px 14px;border-radius:10px;background:#000;color:#fff;border:1px solid #3a3a46;',
@@ -480,11 +481,10 @@
         openX(cur.caption);
       }
     });
-    // 下のボタン：X を開いてコピー済みの画像を貼り付ける（コピーできていなければ画像を保存）
+    // 下のボタン（PC のみ）：画像を保存
     dlg.querySelector('.pls-sub').addEventListener('click', function () {
       if (!cur) return;
-      if (canShareFile(cur.file) && cur.copied) openX(cur.caption);
-      else saveImage(cur.file);
+      saveImage(cur.file);
     });
     return dlg;
   }
@@ -502,8 +502,8 @@
       // スマホ：共有シートで X を選ぶのが本命。貼り付けは予備
       go.textContent = tx('shareViaSheet');
       h1.textContent = tx('shareSheetHint');
-      sub.textContent = copied ? tx('sharePasteBtn') : tx('shareSaveImg');
-      h2.textContent = copied ? tx('sharePasteHint') : '';
+      sub.textContent = '';
+      h2.textContent = '';
     } else {
       // PC など：X を開いて貼り付け。予備は画像の保存
       go.textContent = tx('sharePasteBtn');
@@ -512,8 +512,11 @@
       h2.textContent = '';
     }
     h2.hidden = !h2.textContent;
+    sub.hidden = !sub.textContent;
     stt.classList.toggle('ng', !copied);
-    stt.textContent = copied ? '✓ ' + tx('shareCopied') : '';
+    // コピーの知らせは「貼り付けて使う」PC のときだけ
+    stt.textContent = copied && !sheet ? '✓ ' + tx('shareCopied') : '';
+    stt.hidden = !stt.textContent;
   }
   // 画像だけを共有シートへ（写真に保存・X アプリへ直接 など）。無理なら保存
   function saveImage(file) {
@@ -545,7 +548,9 @@
     const url = cv.toDataURL('image/png');
     const file = dataUrlToFile(url, 'vcc-result.png');
     cur = { file: file, url: url, caption: caption, copied: false };
-    const copying = copyImage(Promise.resolve(file));
+    // スマホ（共有シートで渡せる）ではコピーは要らない。PC は貼り付け用に先にコピーしておく
+    const copying = canShareFile(file) ? Promise.reject(new Error('sheet')) : copyImage(Promise.resolve(file));
+    copying.catch(function () {});
     buildDlg();
     dlg.querySelector('.pls-img').src = url;
     paintDlg(false);
