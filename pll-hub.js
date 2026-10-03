@@ -256,11 +256,26 @@
     '  -webkit-mask-image:radial-gradient(circle,transparent 6%,#000 24%,rgba(0,0,0,.6) 46%,transparent 70%);',
     '  mask-image:radial-gradient(circle,transparent 6%,#000 24%,rgba(0,0,0,.6) 46%,transparent 70%);',
     '  filter:blur(8px);will-change:transform,opacity}',
+    // 中心の光：白い芯（.pllh-white）と、その外側のプリズム（.pllh-prism）の2層。
+    // チャージが上がるほど大きく広がり、白 → 淡い虹色 → 鮮やかなプリズムへ変わる。
+    // 大きさ・濃さ・回転は JS が毎フレーム transform / opacity だけで動かす。
     '.pllh-light{position:absolute;left:50%;top:50%;width:calc(var(--S)*.62);height:calc(var(--S)*.62);',
     '  margin:calc(var(--S)*-.31) 0 0 calc(var(--S)*-.31);border-radius:50%;pointer-events:none;opacity:0;z-index:3;',
-    '  transform:scale(.15);will-change:transform,opacity;',
-    '  background:radial-gradient(circle,#fff 0,#fff 9%,rgba(246,244,255,.92) 17%,rgba(214,200,255,.55) 30%,',
-    '    rgba(170,226,255,.26) 46%,rgba(255,190,235,.10) 58%,transparent 70%)}',
+    '  transform:scale(.15);will-change:transform,opacity}',
+    '.pllh-light i{position:absolute;inset:0;border-radius:50%}',
+    '.pllh-prism{opacity:0;will-change:transform,opacity;',
+    '  background:conic-gradient(#ff3d6e,#ff8a3d,#ffe23d,#7dff4d,#3dffb4,#3dd8ff,#3d7bff,#9b5cff,#ff4dd8,#ff3d6e);',
+    '  -webkit-mask-image:radial-gradient(circle,rgba(0,0,0,.35) 0,#000 22%,#000 40%,rgba(0,0,0,.55) 54%,transparent 70%);',
+    '  mask-image:radial-gradient(circle,rgba(0,0,0,.35) 0,#000 22%,#000 40%,rgba(0,0,0,.55) 54%,transparent 70%);',
+    '  filter:blur(9px)}',
+    // プリズムの上にもう1枚、逆回りのにじんだ虹を重ねて色を混ぜ、色が移ろって見えるようにする
+    '.pllh-prism2{opacity:0;mix-blend-mode:screen;will-change:transform,opacity;',
+    '  background:conic-gradient(from 90deg,#3dd8ff,#ff4dd8,#ffe23d,#3dffb4,#9b5cff,#ff8a3d,#3dd8ff);',
+    '  -webkit-mask-image:radial-gradient(circle,transparent 10%,#000 30%,rgba(0,0,0,.5) 50%,transparent 66%);',
+    '  mask-image:radial-gradient(circle,transparent 10%,#000 30%,rgba(0,0,0,.5) 50%,transparent 66%);',
+    '  filter:blur(14px)}',
+    '.pllh-white{background:radial-gradient(circle,#fff 0,#fff 9%,rgba(255,255,255,.9) 16%,rgba(250,248,255,.5) 28%,',
+    '  rgba(240,236,255,.16) 42%,transparent 58%)}',
     // 縮むほど丸が白く光る（--cw は JS が 0〜1 で入れる）
     '.pllh-ring::after{content:"";position:absolute;inset:-4px;border-radius:50%;pointer-events:none;opacity:var(--cw,0);',
     '  background:radial-gradient(circle,#fff 0,rgba(255,255,255,.9) 38%,rgba(225,232,255,.35) 60%,transparent 74%)}',
@@ -410,7 +425,7 @@
         '<span class="pllh-vortex" aria-hidden="true"></span>' +
         '<span class="pllh-core" aria-hidden="true"></span>' +
         nodes +
-        '<span class="pllh-light" aria-hidden="true"></span>' +
+        '<span class="pllh-light" aria-hidden="true"><i class="pllh-prism"></i><i class="pllh-prism2"></i><i class="pllh-white"></i></span>' +
         '<span class="pllh-wave" aria-hidden="true"></span>' +
         '<span class="pllh-wave w2" aria-hidden="true"></span>' +
         '<span class="pllh-flash" aria-hidden="true"></span>' +
@@ -423,6 +438,9 @@
     nodeEls = Array.prototype.slice.call(root.querySelectorAll('.pllh-node'));
     lineEls = Array.prototype.slice.call(root.querySelectorAll('.pllh-net line'));
     lightEl = root.querySelector('.pllh-light');
+    prismEl = root.querySelector('.pllh-prism');
+    prism2El = root.querySelector('.pllh-prism2');
+    whiteEl = root.querySelector('.pllh-white');
     vortexEl = root.querySelector('.pllh-vortex');
     netEl = root.querySelector('.pllh-net');
     fxCanvas = root.querySelector('.pllh-fx');
@@ -475,6 +493,7 @@
   const CHARGE_LEAK = 0.45;    // ゆるめたときに抜ける速さ
   const BURST_MIN = 0.28;      // これ以上たまっていたら、離した瞬間に弾ける
   let nodeEls = [], lineEls = [], lightEl = null, vortexEl = null, netEl = null;
+  let prismEl = null, prism2El = null, whiteEl = null;
   let theta = 0;               // 全体の回転角(度)。0 = 初期の並び
   let omega = 0;               // 回転の速さ(度/秒)
   let phase = 'idle';          // idle | drag | coast(惰性) | settle(収まり中)
@@ -487,6 +506,7 @@
   let dragOmega = 0, lastMoveT = 0;
 
   function eased(c) { return 1 - (1 - c) * (1 - c); }
+  function smooth(a, b, x) { const u = Math.max(0, Math.min(1, (x - a) / (b - a))); return u * u * (3 - 2 * u); }
 
   function place() {
     const c = charge;
@@ -515,8 +535,24 @@
     // 線は登場・吸い込みの演出でも opacity を使うので、縮んでいる間だけ上書きする
     if (netEl) netEl.style.opacity = k > 0 ? (1 - k).toFixed(3) : '';
     if (lightEl) {
-      lightEl.style.opacity = Math.min(1, light * 1.25).toFixed(3);
-      lightEl.style.transform = 'scale(' + (0.15 + 1.15 * light).toFixed(3) + ')';
+      const L = light;
+      // 回すほど大きく：はじめはゆっくり、たまるほど一気に画面いっぱいへ広がる
+      const sc = 0.15 + 0.9 * L + 2.5 * Math.pow(L, 2.2);
+      lightEl.style.opacity = Math.min(1, L * 1.4).toFixed(3);
+      lightEl.style.transform = 'scale(' + sc.toFixed(3) + ')';
+      // 色：白 →（0.12〜）淡い虹 →（〜0.8）鮮やかなプリズム。回す角度と時間で色が流れる
+      const pr = smooth(0.1, 0.8, L);
+      const now = performance.now() / 1000;
+      if (prismEl) {
+        prismEl.style.opacity = pr.toFixed(3);
+        prismEl.style.transform = 'rotate(' + (theta * 1.4 + now * 50).toFixed(1) + 'deg)';
+      }
+      if (prism2El) {
+        prism2El.style.opacity = (smooth(0.35, 0.95, L) * 0.85).toFixed(3);
+        prism2El.style.transform = 'rotate(' + (-theta * 0.9 - now * 35).toFixed(1) + 'deg)';
+      }
+      // 白い芯はたまるほど少し控えめにして、まわりの色を立たせる
+      if (whiteEl) whiteEl.style.opacity = (1 - 0.45 * smooth(0.45, 1, L)).toFixed(3);
     }
     if (vortexEl) {
       vortexEl.style.opacity = (light * 0.75).toFixed(3);
@@ -685,6 +721,8 @@
      描くものが無くなったらループを止める。色は淡いパステル（水色・藤色・
      桜色・薄緑・淡い金・白）を「足し算」で重ねて、にじむように光らせる。 */
   const PALETTE = [[150, 232, 255], [196, 172, 255], [255, 176, 228], [168, 255, 222], [255, 234, 168], [255, 255, 255]];
+  // たくさんためて弾けたときに混ざる、鮮やかなプリズムの色
+  const VIVID = [[255, 61, 110], [255, 138, 61], [255, 226, 61], [125, 255, 77], [61, 255, 180], [61, 216, 255], [61, 123, 255], [155, 92, 255], [255, 77, 216]];
   let fxCanvas = null, fxCtx = null, fxRaf = 0, fxLast = 0, fxW = 0, fxH = 0;
   const sparks = [], rings = [];
   function pick(a) { return a[(Math.random() * a.length) | 0]; }
@@ -711,7 +749,7 @@
       const sp = (220 + Math.random() * Math.random() * 980) * boost;
       sparks.push({ x: x, y: y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp,
         life: 0.9 + Math.random() * 1.2, age: 0, size: 1 + Math.random() * 2.2 * boost,
-        col: pick(PALETTE), crackle: Math.random() < 0.22 * I, kind: 0, tw: Math.random() * 6 });
+        col: Math.random() < I * 0.75 ? pick(VIVID) : pick(PALETTE), crackle: Math.random() < 0.22 * I, kind: 0, tw: Math.random() * 6 });
     }
     // ふわっと漂う光の玉
     const m = Math.round(8 + 14 * I);
