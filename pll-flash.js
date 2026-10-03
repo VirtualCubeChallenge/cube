@@ -313,6 +313,12 @@
     '.plf-setup,.plf-result{position:absolute;inset:0;align-items:center;justify-content:center;padding:12px}',
     '.plf-flash,.plf-answer{position:absolute;inset:0;flex-direction:column;gap:8px;',
     '  padding:calc(8px + env(safe-area-inset-top,0px)) 8px calc(8px + env(safe-area-inset-bottom,0px))}',
+    /* それでも画面に収まらない端末（小さい画面・ブラウザのバーが重なる等）では、
+       回答画面ごと縦にスクロールできるようにして、確定ボタンまで必ず届くようにする */
+    '.plf-answer{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;',
+    '  padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}',
+    '.plf-answer>*{flex-shrink:0}',
+    '.plf-answer>.plf-spacer{flex:1 1 auto}',
     '@media (min-width:640px){.plf-flash>*,.plf-answer>*{width:100%;max-width:660px;margin-left:auto;margin-right:auto}}',
 
     /* ---- 設定：難易度カード（2×2） ---- */
@@ -463,7 +469,22 @@
     '.plv-board.on .plv-bar i{animation:plvBar var(--plv-ms,3000ms) linear both}',
     '@keyframes plvBar{from{transform:scaleX(1)}to{transform:scaleX(0)}}',
     /* 回答スロットを3×3に。出題のマスと同じ並び */
-    '#plf-overlay[data-mode="vision"] .plf-slot{height:40px}',
+    /* 縦に収まるよう、ビジョンでは「3×3のスロット」の右横に「入力数・1つ戻る・全リセット」を
+       縦に並べて、上の部分を低くする（スロットは3段あるぶん、横に並べると画面からあふれる） */
+    '#plf-overlay[data-mode="vision"] .plf-ans-top{display:grid;grid-template-columns:minmax(0,1fr) auto;',
+    '  grid-template-areas:"lead lead" "slots tools";column-gap:8px;row-gap:6px;align-items:center}',
+    '#plf-overlay[data-mode="vision"] .plf-lead{grid-area:lead}',
+    '#plf-overlay[data-mode="vision"] .plf-slots{grid-area:slots;gap:5px;max-width:300px;margin:0 0 0 auto}',
+    '#plf-overlay[data-mode="vision"] .plf-tools{grid-area:tools;flex-direction:column;align-items:stretch;gap:6px}',
+    '#plf-overlay[data-mode="vision"] .plf-tools .plf-count{margin:0;text-align:center}',
+    '#plf-overlay[data-mode="vision"] .plf-tool{justify-content:center;padding:8px 10px}',
+    '#plf-overlay[data-mode="vision"] .plf-slot{height:34px}',
+    '#plf-overlay[data-mode="vision"] .plf-slot b{font-size:15px}',
+    '#plf-overlay[data-mode="vision"] .plf-answer .pllt-group-row{grid-auto-rows:minmax(44px,auto)}',
+    /* 説明文は縦に余裕のある端末でだけ出す */
+    '@media (max-height:820px){#plf-overlay[data-mode="vision"] .plf-lead{display:none}}',
+    /* iPhone の Safari では下のツールバーが画面の上に重なることがあるので、確定ボタンを少し持ち上げる */
+    '#plf-overlay[data-mode="vision"] .plf-answer{padding-bottom:calc(40px + env(safe-area-inset-bottom,0px))}',
     /* リザルトのふりかえりも3×3 */
     '.plf-rev.plv-rev{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}',
     '.plv-rev-cell{position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;padding:16px 4px 7px;',
