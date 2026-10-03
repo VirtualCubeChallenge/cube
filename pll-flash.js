@@ -37,8 +37,8 @@
      崩さないため。増やすなら finishAnswer() で GachaTicket.grant() を呼ぶ。
    - 動かすのは transform と opacity だけ。「動きを減らす」設定では
      ポップの演出を止める（表示そのものが本題なので画像は出す）。
-   - アプリを離れたら止める: 表示中なら中断して設定へ、回答中ならタイマーを
-     一時停止（戻ってきたら続きから）。
+   - アプリを離れたら: 表示中なら中断して設定へ。回答中はタイマーを止めない
+     （ホーム画面に逃げて考える時間を稼げないように）。
    ============================================================ */
 (function (global) {
   'use strict';
@@ -786,14 +786,14 @@
       }
     }, true);
 
-    // アプリを離れたら止める（表示中は中断、回答中は一時停止）。
+    // アプリを離れたとき:
+    //  - 表示中は中断して設定へ（離れているあいだに表示が流れてしまうため）
+    //  - 回答中は止めない。止めるとホーム画面に逃げて考える時間を稼げて
+    //    しまうので、離れていた時間もそのまま回答タイムに入れる。
     document.addEventListener('visibilitychange', function () {
       if (!root || !root.classList.contains('show')) return;
-      if (document.visibilityState === 'hidden') {
-        if (state.view === 'flash') { abortFlash(); paintSetup(); setView('setup'); }
-        else if (state.view === 'answer') pauseClock();
-      } else if (state.view === 'answer' && state.paused) {
-        resumeClock();
+      if (document.visibilityState === 'hidden' && state.view === 'flash') {
+        abortFlash(); paintSetup(); setView('setup');
       }
     });
 
@@ -1220,11 +1220,13 @@
   function resumeClock() {
     if (state.view !== 'answer') return;
     state.paused = false;
-    state.ansStart = performance.now();
+    // 端末によってはバックグラウンド中に performance.now() が進まないので、
+    // 回答タイムは実時間（Date.now）で測る。離れていた時間も必ず入る。
+    state.ansStart = Date.now();
     const elT = $('plf-hud-t');
     const loop = function () {
       if (state.view !== 'answer' || state.paused) return;
-      elT.textContent = fmtSec(state.ansAccum + performance.now() - state.ansStart);
+      elT.textContent = fmtSec(state.ansAccum + Date.now() - state.ansStart);
       rafId = requestAnimationFrame(loop);
     };
     stopRaf();
@@ -1232,7 +1234,7 @@
   }
   function pauseClock() {
     if (state.paused) return;
-    state.ansAccum += performance.now() - state.ansStart;
+    state.ansAccum += Date.now() - state.ansStart;
     state.paused = true;
     stopRaf();
   }
