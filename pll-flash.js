@@ -305,16 +305,14 @@
     '.plf-dots i.done{background:rgba(var(--tc-rgb),.45)}',
     '.plf-dots i.now{background:var(--tc);box-shadow:0 0 8px rgba(var(--tc-rgb),.7)}',
 
-    /* ---- PLLの図（上から見た図＋側面の12マス）。
-           外周の帯は細く、上面は大きく。PLL一覧の図と同じ読み方。 ---- */
-    '.plf-dia{display:grid;grid-template-columns:.42fr 1fr 1fr 1fr .42fr;grid-template-rows:.42fr 1fr 1fr 1fr .42fr;',
-    '  gap:var(--plf-gap,4px);width:var(--plf-s,200px);height:var(--plf-s,200px)}',
-    '.plf-dia i{display:block;border-radius:var(--plf-r,5px)}',
-    '.plf-dia i.x{background:transparent}',
-    '.plf-card .plf-dia{--plf-s:clamp(170px,min(72vw,46vh),330px);--plf-gap:5px;--plf-r:7px;',
-    '  padding:12px;border-radius:18px;background:#121218;border:1px solid #2c2c38;',
-    '  box-shadow:0 0 0 1px rgba(var(--tc-rgb),.08),0 18px 40px rgba(0,0,0,.45);box-sizing:content-box}',
-    '.plf-card.on .plf-dia{animation:plfPop .16s cubic-bezier(.2,.9,.3,1)}',
+    /* ---- 3Dキューブ。中身は style.css の .pllt-stage / .pllt-cube / .pllt-face を
+           そのまま使い、PLL検定と同じ見え方（仰角30°・方位±19°）にする。
+           見える2面の出し分けだけは PLL検定が #pllt-overlay[data-angle] で
+           やっているので、こちらは1台ずつの data-angle で同じことをする。 ---- */
+    '.plf-cube3d[data-angle="FR"] .pllt-face-l,.plf-cube3d[data-angle="FL"] .pllt-face-r{visibility:hidden}',
+    '.plf-card .pllt-stage{--pllt-s:clamp(120px,min(52vw,30vh),240px)}',
+    '.plf-card.on .pllt-stage{animation:plfPop .16s cubic-bezier(.2,.9,.3,1)}',
+    '.plf-rev-row .pllt-stage{--pllt-s:36px;perspective:400px;transition:none}',
     '@keyframes plfPop{from{transform:scale(.96)}to{transform:none}}',
 
     /* ---- 回答画面 ---- */
@@ -378,12 +376,12 @@
     '  color:#ffd54a;border:1px solid rgba(255,213,74,.55);background:rgba(255,213,74,.1)}',
     '.plf-newbest[hidden]{display:none}',
     '.plf-rev{display:flex;flex-direction:column;gap:6px;text-align:left}',
-    '.plf-rev-row{display:grid;grid-template-columns:22px auto 1fr 26px;align-items:center;gap:10px;padding:7px 9px;',
+    '.plf-rev-row{display:grid;grid-template-columns:22px 56px 1fr 26px;align-items:center;gap:10px;padding:7px 9px;',
     '  border-radius:10px;background:#15151b;border:1px solid #2c2c38}',
     '.plf-rev-row.ok{border-color:rgba(79,224,168,.35)}',
     '.plf-rev-row.ng{border-color:rgba(255,106,122,.45);background:rgba(255,106,122,.06)}',
     '.plf-rev-no{font-size:13px;font-weight:900;color:#ff4d6a;text-align:center}',
-    '.plf-rev-row .plf-dia{--plf-s:44px;--plf-gap:1.5px;--plf-r:1.5px}',
+    '.plf-rev-row .pllt-sticker{box-shadow:inset 0 0 0 .6px rgba(255,255,255,.62)}',
     '.plf-rev-txt{display:flex;flex-direction:column;gap:2px;font-size:12px;font-variant-numeric:tabular-nums;min-width:0}',
     '.plf-rev-txt span{color:#8b8b9c}',
     '.plf-rev-txt b{color:#e6e6ee;font-weight:900;margin-left:4px}',
@@ -404,7 +402,7 @@
     '}',
     '@media (prefers-reduced-motion: reduce){',
     '  #plf-overlay{transition-duration:.01ms}',
-    '  .plf-card.on .plf-dia,.plf-submit.nudge,.plf-slot.cur::after{animation:none}',
+    '  .plf-card.on .pllt-stage,.plf-submit.nudge,.plf-slot.cur::after{animation:none}',
     '  .plf-ans-name{transition:none}',
     '}'
   ].join('');
@@ -486,35 +484,45 @@
         name: name,
         auf: auf,
         ring: turnRing(toRing(entry[1]), auf),
-        up: ups[(Math.random() * ups.length) | 0]
+        up: ups[(Math.random() * ups.length) | 0],
+        // 見える2面は FR / FL を1問ごとにランダム（PLL検定と同じ2アングル）
+        angle: Math.random() < 0.5 ? 'FR' : 'FL'
       });
     }
     return list;
   }
 
-  /* 図を1枚つくる。リングの位置 → 5×5 のマス目 */
-  const RING_CELL = [
-    [0, 1], [0, 2], [0, 3],      // 後
-    [1, 4], [2, 4], [3, 4],      // 右（後→前）
-    [4, 3], [4, 2], [4, 1],      // 前（右→左）
-    [3, 0], [2, 0], [1, 0]       // 左（前→後）
-  ];
-  function makeDiagram(item) {
+  /* 3Dキューブを1台つくる（PLL検定の buildCube + showQuestion と同じ塗り方）。
+     各面の上段3マスがリングのどこか: その面を正面から見て左→右の順。 */
+  const FACE_RING = { R: [5, 4, 3], F: [8, 7, 6], L: [11, 10, 9] };
+  const ANGLES = { FR: -19, FL: 19 };       // PLL検定の ANGLES[*].spin と同じ
+  function makeCube(item) {
     const sc = SCHEMES[item.up] || SCHEMES.y;
-    const colorOf = function (letter) { return COLOR_HEX[sc[letter]] || '#33333f'; };
-    const cells = [];
-    for (let i = 0; i < 25; i++) cells.push(null);
-    for (let r = 1; r <= 3; r++) for (let c = 1; c <= 3; c++) cells[r * 5 + c] = COLOR_HEX[sc.U];
-    RING_CELL.forEach(function (rc, i) { cells[rc[0] * 5 + rc[1]] = colorOf(item.ring[i]); });
-    const wrap = document.createElement('div');
-    wrap.className = 'plf-dia';
-    wrap.setAttribute('aria-hidden', 'true');
-    cells.forEach(function (col) {
-      const c = document.createElement('i');
-      if (col) c.style.background = col; else c.className = 'x';
-      wrap.appendChild(c);
+    const stage = document.createElement('div');
+    stage.className = 'pllt-stage plf-cube3d';
+    stage.dataset.angle = item.angle;
+    stage.setAttribute('aria-hidden', 'true');
+    const cube = document.createElement('div');
+    cube.className = 'pllt-cube';
+    cube.style.setProperty('--pllt-spin', ANGLES[item.angle] + 'deg');
+    ['u', 'f', 'r', 'l'].forEach(function (face) {
+      const f = document.createElement('div');
+      f.className = 'pllt-face pllt-face-' + face;
+      const key = face.toUpperCase();
+      for (let i = 0; i < 9; i++) {
+        const c = document.createElement('i');
+        c.className = 'pllt-sticker';
+        let col;
+        if (face === 'u') col = sc.U;
+        else if (i < 3) col = sc[item.ring[FACE_RING[key][i]]];
+        else col = sc[key];
+        c.style.background = COLOR_HEX[col] || '#33333f';
+        f.appendChild(c);
+      }
+      cube.appendChild(f);
     });
-    return wrap;
+    stage.appendChild(cube);
+    return stage;
   }
 
   /* ============================================================
@@ -855,7 +863,7 @@
       const card = document.createElement('div');
       card.className = 'plf-card';
       card.dataset.i = String(i);
-      card.appendChild(makeDiagram(item));
+      card.appendChild(makeCube(item));
       stage.appendChild(card);
     });
     const dots = $('plf-dots');
@@ -1153,13 +1161,11 @@
       const asked = document.createElement('span');
       asked.innerHTML = tx('plfAsked') + '<b></b>';
       asked.querySelector('b').textContent = it.name;
-      if (it.auf) {
-        const a = document.createElement('i');
-        a.className = 'plf-rev-auf';
-        a.style.fontStyle = 'normal';
-        a.textContent = AUF_LABEL[it.auf];
-        asked.appendChild(a);
-      }
+      const a = document.createElement('i');
+      a.className = 'plf-rev-auf';
+      a.style.fontStyle = 'normal';
+      a.textContent = it.angle + (it.auf ? ' · ' + AUF_LABEL[it.auf] : '');
+      asked.appendChild(a);
       const you = document.createElement('span');
       you.className = 'you';
       you.innerHTML = tx('plfYours') + '<b></b>';
@@ -1170,7 +1176,7 @@
       mark.className = 'plf-rev-mark';
       mark.textContent = ok ? '○' : '✕';
       row.appendChild(no);
-      row.appendChild(makeDiagram(it));
+      row.appendChild(makeCube(it));
       row.appendChild(txt);
       row.appendChild(mark);
       rev.appendChild(row);
