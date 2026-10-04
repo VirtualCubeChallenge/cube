@@ -910,7 +910,7 @@
     setText('plf-res-score-label', tx('plfScore'));
     setText('plf-res-time-label', tx('plfTime'));
     setText('plf-res-lv-label', tx('plfHudLevel'));
-    setText('plf-rev-title', tx('plfReview'));
+    setText('plf-rev-title', tx('plltResultTitle'));   // 見出しは「リザルト」（シェア画像と同じ）
     setText('plf-back', tx('plltBack'));
     setText('plf-retry', tx('plltRetry'));
     document.querySelectorAll('#plf-answers .pllt-group-label').forEach(function (e) {
@@ -1470,6 +1470,23 @@
         targetPLLs: state.targetPLLs.map(function (x) { return x.name; }),
         userAnswers: state.userAnswers.slice(), cursor: state.cursor
       };
+    },
+    // シェア画像（pll-share.js）用：各問題のキューブの色。画面の3Dキューブと同じ塗り方。
+    // { angle:'FR'|'FL', U:'#hex', F:[9], R:[9], L:[9] } の配列
+    getCubes: function () {
+      return state.targetPLLs.map(function (item) {
+        const sc = SCHEMES[item.up] || SCHEMES.y;
+        const out = { angle: item.angle, U: COLOR_HEX[sc.U] };
+        ['F', 'R', 'L'].forEach(function (key) {
+          const arr = [];
+          for (let i = 0; i < 9; i++) {
+            const col = i < 3 ? sc[item.ring[FACE_RING[key][i]]] : sc[key];
+            arr.push(COLOR_HEX[col] || '#33333f');
+          }
+          out[key] = arr;
+        });
+        return out;
+      });
     }
   };
 })(window);
