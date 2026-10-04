@@ -127,16 +127,9 @@
     '  background-size:260px 260px;animation:pllh-drift 60s linear infinite}',
     '@keyframes pllh-drift{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,260px,0)}}',
 
-    '.pllh-floor{position:absolute;left:-30%;right:-30%;bottom:0;height:46%;pointer-events:none;',
-    '  perspective:340px;perspective-origin:50% 0;overflow:hidden;',
-    '  -webkit-mask-image:linear-gradient(transparent,#000 40%);mask-image:linear-gradient(transparent,#000 40%)}',
-    '.pllh-plane{position:absolute;left:0;right:0;top:0;height:220%;transform-origin:50% 0;transform:rotateX(66deg)}',
-    '.pllh-lines{position:absolute;left:0;right:0;top:-48px;bottom:0;',
-    '  background-image:',
-    '    linear-gradient(rgba(110,120,255,.42) 1.5px,transparent 1.5px),',
-    '    linear-gradient(90deg,rgba(110,120,255,.42) 1.5px,transparent 1.5px);',
-    '  background-size:48px 48px;animation:pllh-flow 2.6s linear infinite}',
-    '@keyframes pllh-flow{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,48px,0)}}',
+    // 床のグリッドは canvas に遠近法で描く（CSS の 3D 変形＋ループするアニメだと、
+    // iPhone の Safari でループの継ぎ目に線が一瞬ピカッと出ることがあったため）
+    '.pllh-floor{position:absolute;left:0;right:0;bottom:0;height:46%;width:100%;pointer-events:none;display:block}',
     // 地平線のにじみ
     '.pllh-horizon{position:absolute;left:0;right:0;bottom:44%;height:2px;pointer-events:none;',
     '  background:linear-gradient(90deg,transparent,rgba(var(--b),.55),rgba(var(--a),.7),rgba(var(--b),.55),transparent);',
@@ -200,10 +193,11 @@
     '    inset 0 0 18px 2px rgba(var(--h),.45),inset 0 0 2px 1px rgba(255,255,255,.35)}',
     // 走査線（ホログラムの質感）
     '.pllh-scan{position:absolute;inset:6%;border-radius:50%;overflow:hidden;opacity:.5;pointer-events:none}',
-    '.pllh-scan::before{content:"";position:absolute;left:0;right:0;top:-100%;height:200%;',
+    // 4px 周期の縞を 48px（12周期ぶん）だけ動かしてループさせる＝継ぎ目で縞が跳ばない
+    '.pllh-scan::before{content:"";position:absolute;left:0;right:0;top:-48px;bottom:0;',
     '  background:repeating-linear-gradient(rgba(var(--h),.0) 0 3px,rgba(var(--h),.16) 3px 4px);',
     '  animation:pllh-scan 3.6s linear infinite}',
-    '@keyframes pllh-scan{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,50%,0)}}',
+    '@keyframes pllh-scan{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,48px,0)}}',
     // ゆっくり回る外側の破線リング
     '.pllh-orbit{position:absolute;inset:-8%;border-radius:50%;pointer-events:none;',
     '  border:1.5px dashed rgba(var(--h),.45);animation:pllh-spin 18s linear infinite}',
@@ -355,7 +349,7 @@
 
     /* ---- 動きを減らす設定 ---- */
     '@media (prefers-reduced-motion:reduce){',
-    '  .pllh-stars,.pllh-lines,.pllh-float,.pllh-orbit,.pllh-scan::before,.pllh-core,.pllh-net line{animation:none!important}',
+    '  .pllh-stars,.pllh-float,.pllh-orbit,.pllh-scan::before,.pllh-core,.pllh-net line{animation:none!important}',
     '  #pllh-overlay.enter .pllh-node{animation:pllh-fade .2s both}',
     '  .pllh-node.chosen{animation:pllh-fade .2s reverse forwards!important}',
     '  .pllh-node.chosen *{animation:none!important}',
@@ -419,7 +413,7 @@
       '<div class="pllh-bg" aria-hidden="true"></div>' +
       '<div class="pllh-stars" aria-hidden="true"></div>' +
       '<div class="pllh-horizon" aria-hidden="true"></div>' +
-      '<div class="pllh-floor" aria-hidden="true"><div class="pllh-plane"><div class="pllh-lines"></div></div></div>' +
+      '<canvas class="pllh-floor" aria-hidden="true"></canvas>' +
       '<div class="pllh-dim" aria-hidden="true"></div>' +
       '<button type="button" class="pllh-close" id="pllh-close">' +
         '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5 15 15M15 5 5 15"/></svg>' +
@@ -922,6 +916,72 @@
     if (root) root.classList.remove('pllh-shake');
   }
 
+  /* ------------------------------------------------------- 床のグリッド --
+     地平線（canvas の上端）に向かって線が集まる床を、canvas に描く。
+     奥から手前へゆっくり流れ続けるが、位置は時間から計算するだけなので
+     ループの継ぎ目が無い。画面が見えていないとき（閉じた・モードが上に
+     乗っている）は描くのをやめる。 */
+  let floorCv = null, floorCtx = null, floorRaf = 0, floorW = 0, floorH = 0, floorT0 = 0;
+  function floorSize() {
+    const dpr = Math.min(2, global.devicePixelRatio || 1);
+    const w = floorCv.clientWidth, h = floorCv.clientHeight;
+    if (!w || !h) return false;
+    if (w !== floorW || h !== floorH || floorCv.width !== Math.round(w * dpr)) {
+      floorW = w; floorH = h;
+      floorCv.width = Math.round(w * dpr); floorCv.height = Math.round(h * dpr);
+      floorCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    return true;
+  }
+  function floorDraw(t) {
+    if (!floorCtx || !floorSize()) return;
+    const W = floorW, H = floorH, ctx = floorCtx;
+    ctx.clearRect(0, 0, W, H);
+    // 地平線の近くは薄く、手前ほど濃く（元の見た目と同じ色）
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, 'rgba(110,120,255,0)');
+    g.addColorStop(0.4, 'rgba(110,120,255,.42)');
+    g.addColorStop(1, 'rgba(110,120,255,.42)');
+    ctx.strokeStyle = g;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    // 横の線：奥行き z の位置にある線は、画面では y = H*Z0/z。時間とともに手前へ流れる
+    const Z0 = 0.5, SPEED = 0.38;            // SPEED = 1秒に進むマス数
+    const off = reduceMotion ? 0 : ((t - floorT0) / 1000 * SPEED) % 1;
+    for (let i = 0; i < 60; i++) {
+      const z = Z0 + i + 1 - off;
+      const y = H * Z0 / z;
+      if (y < 1.5) break;
+      ctx.moveTo(0, y); ctx.lineTo(W, y);
+    }
+    // 縦の線：地平線の一点に向かって集まる
+    // （手前の端＝画面の下端で、隣り合う線が画面幅の 0.3 ずつ離れる）
+    const vx = W / 2;
+    for (let j = -8; j <= 8; j++) {
+      ctx.moveTo(vx, 0);
+      ctx.lineTo(vx + j * W * 0.3, H);
+    }
+    ctx.stroke();
+  }
+  function floorLoop(t) {
+    floorRaf = 0;
+    if (!root || !root.classList.contains('show') || root.classList.contains('covered')) return;
+    floorDraw(t);
+    if (!reduceMotion) floorRaf = requestAnimationFrame(floorLoop);
+  }
+  function floorStart() {
+    if (!floorCv) {
+      floorCv = root && root.querySelector('.pllh-floor');
+      if (!floorCv) return;
+      floorCtx = floorCv.getContext('2d');
+      floorT0 = performance.now();
+    }
+    if (!floorRaf) floorRaf = requestAnimationFrame(floorLoop);
+  }
+  function floorStop() {
+    if (floorRaf) { cancelAnimationFrame(floorRaf); floorRaf = 0; }
+  }
+
   /* ------------------------------------------------- モードとの行き来 -- */
   function modeEls() {
     return [document.getElementById('pllt-overlay'), document.getElementById('plf-overlay')];
@@ -944,6 +1004,7 @@
     const covered = modeOpen();
     if (covered === root.classList.contains('covered')) return;
     root.classList.toggle('covered', covered);
+    if (covered) floorStop(); else floorStart();
     if (!covered) {
       // モードから戻ってきた：もう一度広がって登場
       resetGoing();
@@ -1042,12 +1103,14 @@
     void root.offsetWidth;
     root.classList.add('in');
     replayEnter();
+    floorStart();
     return true;
   }
   function close() {
     if (!root) return;
     resetGoing();
     resetCharge();
+    floorStop();
     root.classList.remove('in', 'enter');
     setTimeout(function () {
       if (!root.classList.contains('in')) root.classList.remove('show', 'covered');
