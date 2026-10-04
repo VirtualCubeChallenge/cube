@@ -7,7 +7,7 @@
 
    サーバー: ranking-server（Cloudflare Workers + D1）
      出題はサーバーが出し、回した手順をサーバーで再生して確かめる。
-     時間はサーバーの時計で上限を押さえる（観察15秒＋通信の余裕3秒）。
+     時間はサーバーの時計で上限を押さえる（インスペクション15秒＋通信の余裕3秒）。
 
    index.html 側の入口（読み込みをやめれば全部なくなる＝元どおり）
      ・window.__rankedBridge.scramble(cfgs) … サーバーの出題を流し込む
@@ -17,7 +17,7 @@
      ・RankedHook.onAbort()           … resetTimer()（シャッフル・リセット・言語切替）
 
    ランク戦のルール
-     ・観察は15秒。15秒以内に1手目を回さなければ、その回は練習あつかい
+     ・インスペクションは15秒。15秒以内に1手目を回さなければ、その回は練習あつかい
      ・💡ヘルプ・OLL・PLL・ZBLL は使えない（ボタンを隠す。使えば練習あつかい）
      ・一時停止（タイムのタップ・ドロワー・アプリを離れる）をしたら練習あつかい
      ・練習あつかいになっても、ふだんのソルブとしては最後まで遊べる
@@ -154,7 +154,7 @@
     '  font-family:inherit;padding:8px 2px}',
     '.rk-sec{font-size:13px;font-weight:800;color:#9a9aac;margin:0 0 6px;display:flex;justify-content:space-between}',
 
-    /* 観察のカウントダウンと、計測中の小さな印（キューブの操作は邪魔しない） */
+    /* インスペクションのカウントダウンと、計測中の小さな印（キューブの操作は邪魔しない） */
     '#rk-hud{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 76px);z-index:30;pointer-events:none;',
     '  transform:translateX(-50%);display:none;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;',
     '  background:rgba(18,18,24,.82);border:1px solid #3a3a48;color:#f0f0f6;font-size:13px;font-weight:800;',
@@ -162,7 +162,10 @@
     '#rk-hud.on{display:flex}',
     '#rk-hud b{font-size:20px;font-variant-numeric:tabular-nums;min-width:1.4em;text-align:center;color:var(--tc,#2ef2c0)}',
     '#rk-hud.warn b{color:#ff6a7a}',
-    '#rk-hud small{font-size:11px;font-weight:600;color:#9a9aac}',
+    /* 「1手目でスタート」は2行目へ。札の幅を細くして、右のシャッフルのつまみに掛からないようにする */
+    '#rk-hud{flex-wrap:wrap;justify-content:center;row-gap:0;max-width:calc(100vw - 150px);text-align:center}',
+    '#rk-hud small{font-size:11px;font-weight:600;color:#9a9aac;flex-basis:100%}',
+    '#rk-hud.solo small{flex-basis:auto}',
     /* ランク戦の最中はガイド系のボタンを隠す（場所は空けたまま） */
     'body.rk-on #help-btn,body.rk-on #oll-btn,body.rk-on #pll-btn,body.rk-on #zbll-btn{visibility:hidden;pointer-events:none}',
 
@@ -228,6 +231,7 @@
     }
     el.classList.toggle('on', !!on);
     el.classList.toggle('warn', !!warn);
+    if (!on) el.classList.remove('solo');
     if (html !== undefined) el.innerHTML = html;
   }
 
@@ -323,6 +327,7 @@
         clearInterval(inspectTimer);
         inspectTimer = null;
         hud(true, false, '🌍 <small>RANKED</small>');
+        const h = $('rk-hud'); if (h) h.classList.add('solo');
       }
       const axis = AXES.indexOf(cfg.axis);
       let mask = 0;
