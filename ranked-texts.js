@@ -5,12 +5,11 @@
    作りは sushi-arm.js / pll-share.js と同じで、I18N に無いキーだけ足す
    （既存のキーは上書きしない）。ja だけは必ずある。
 
-   参加時の説明（rkJoinBody）で伝えていること:
-     ・「サーバーなし」と告知しているが、ランキングだけは例外
-     ・送るのはニックネームと記録（タイム・手数・回した手順）だけ
-     ・送らないもの（名前・メール・写真・ほかの記録や持ち物）
-     ・本物か確かめる仕組み（出題はサーバー、手順をサーバーで再生）
+   参加時の説明（rkJoinBody）は3行だけ（2026-10-04 に短くした）:
+     ・登録されるのはニックネームとランク戦の記録
+     ・それ以外のデータは送らない
      ・いつでもやめられ、やめると記録はすべて消える
+     サーバーの仕組み（出題・手順の再生など）はここには書かない方針
    ============================================================ */
 (function (global) {
   'use strict';
@@ -20,12 +19,9 @@
       rkTitle: '世界ランキング',
       rkJoinTitle: '世界ランキングに参加する',
       rkJoinBody:
-        'このアプリはサーバーを使わず、データはすべてこの端末の中だけに保存しています。ただし世界ランキングだけは例外で、参加するとランキング用のサーバー（Cloudflare）に次のものを送ります。\n' +
-        '・ニックネーム\n' +
-        '・ランク戦の記録（タイム・手数・回した手順）\n' +
-        '名前・メールアドレス・写真や、ほかの記録・持ち物は送りません。\n' +
-        '記録が本物か確かめるため、出題はサーバーが出し、回した手順をサーバーで再生して確かめます。\n' +
-        '参加はいつでもやめられます。やめると、送った記録はすべて消えます。',
+        'ニックネームとランク戦の記録が、世界ランキングに登録されます。\n' +
+        'それ以外のデータが送られることはありません。\n' +
+        '参加はいつでもやめられ、やめると記録はすべて消えます。',
       rkRules: 'ランク戦のルール：観察は15秒まで／💡ヘルプ・OLL・PLL・ZBLLは使えません／一時停止はできません',
       rkNickLabel: 'ニックネーム（12文字まで・ランキングに表示されます）',
       rkNickBad: 'このニックネームは使えません（1〜12文字、URLは不可）',
@@ -65,12 +61,9 @@
       rkTitle: 'World Ranking',
       rkJoinTitle: 'Join the World Ranking',
       rkJoinBody:
-        "This app doesn't use a server — all your data stays on this device. The World Ranking is the one exception: if you join, the following is sent to the ranking server (Cloudflare):\n" +
-        '• Your nickname\n' +
-        '• Your ranked-solve records (time, move count and the moves you made)\n' +
-        'Your name, email address, photos and any other records or items are never sent.\n' +
-        'To make sure records are real, the server picks the scramble and replays your moves to check the solve.\n' +
-        'You can leave at any time. Leaving deletes everything you sent.',
+        'Your nickname and ranked-solve records will be added to the World Ranking.\n' +
+        'No other data is ever sent.\n' +
+        'You can leave at any time, and leaving deletes all your records.',
       rkRules: 'Ranked rules: 15 s inspection / no 💡 Help, OLL, PLL or ZBLL / no pausing',
       rkNickLabel: 'Nickname (up to 12 characters, shown on the ranking)',
       rkNickBad: "This nickname can't be used (1–12 characters, no URLs)",
@@ -110,12 +103,9 @@
       rkTitle: '世界排行榜',
       rkJoinTitle: '加入世界排行榜',
       rkJoinBody:
-        '本应用不使用服务器，所有数据都只保存在这台设备上。唯一的例外是世界排行榜：加入后，会把以下内容发送到排行榜服务器（Cloudflare）：\n' +
-        '・昵称\n' +
-        '・排位赛记录（时间、步数和转动步骤）\n' +
-        '不会发送姓名、邮箱、照片或其他记录和物品。\n' +
-        '为了确认记录真实，题目由服务器出题，并在服务器上重放你的转动步骤进行核对。\n' +
-        '可以随时退出。退出后，已发送的记录会全部删除。',
+        '你的昵称和排位赛记录会登记到世界排行榜。\n' +
+        '不会发送任何其他数据。\n' +
+        '可以随时退出，退出后记录会全部删除。',
       rkRules: '排位赛规则：观察最多15秒／不能使用💡提示、OLL、PLL、ZBLL／不能暂停',
       rkNickLabel: '昵称（最多12个字，会显示在排行榜上）',
       rkNickBad: '无法使用此昵称（1〜12个字，不能包含网址）',
@@ -155,12 +145,9 @@
       rkTitle: '世界排行榜',
       rkJoinTitle: '加入世界排行榜',
       rkJoinBody:
-        '本應用程式不使用伺服器，所有資料都只儲存在這台裝置上。唯一的例外是世界排行榜：加入後，會把以下內容傳送到排行榜伺服器（Cloudflare）：\n' +
-        '・暱稱\n' +
-        '・排位賽紀錄（時間、步數和轉動步驟）\n' +
-        '不會傳送姓名、電子郵件、照片或其他紀錄和物品。\n' +
-        '為了確認紀錄真實，題目由伺服器出題，並在伺服器上重播你的轉動步驟進行核對。\n' +
-        '可以隨時退出。退出後，已傳送的紀錄會全部刪除。',
+        '你的暱稱和排位賽紀錄會登記到世界排行榜。\n' +
+        '不會傳送任何其他資料。\n' +
+        '可以隨時退出，退出後紀錄會全部刪除。',
       rkRules: '排位賽規則：觀察最多15秒／不能使用💡提示、OLL、PLL、ZBLL／不能暫停',
       rkNickLabel: '暱稱（最多12個字，會顯示在排行榜上）',
       rkNickBad: '無法使用此暱稱（1〜12個字，不能包含網址）',
@@ -200,12 +187,9 @@
       rkTitle: '세계 랭킹',
       rkJoinTitle: '세계 랭킹에 참가하기',
       rkJoinBody:
-        '이 앱은 서버를 쓰지 않으며, 모든 데이터는 이 기기 안에만 저장됩니다. 단, 세계 랭킹만은 예외로, 참가하면 랭킹 서버(Cloudflare)에 다음 내용을 보냅니다.\n' +
-        '・닉네임\n' +
-        '・랭크전 기록(시간, 수 횟수, 돌린 순서)\n' +
-        '이름, 이메일 주소, 사진, 그 밖의 기록이나 소지품은 보내지 않습니다.\n' +
-        '기록이 진짜인지 확인하기 위해 문제는 서버가 내고, 돌린 순서를 서버에서 재생해 확인합니다.\n' +
-        '참가는 언제든지 그만둘 수 있습니다. 그만두면 보낸 기록은 모두 삭제됩니다.',
+        '닉네임과 랭크전 기록이 세계 랭킹에 등록됩니다.\n' +
+        '그 밖의 데이터는 보내지 않습니다.\n' +
+        '참가는 언제든지 그만둘 수 있으며, 그만두면 기록은 모두 삭제됩니다.',
       rkRules: '랭크전 규칙: 관찰은 15초까지 / 💡도움말·OLL·PLL·ZBLL 사용 불가 / 일시정지 불가',
       rkNickLabel: '닉네임(최대 12자, 랭킹에 표시됩니다)',
       rkNickBad: '이 닉네임은 쓸 수 없습니다(1~12자, URL 불가)',
@@ -245,12 +229,9 @@
       rkTitle: 'Ranking mundial',
       rkJoinTitle: 'Unirse al ranking mundial',
       rkJoinBody:
-        'Esta app no usa servidores: todos tus datos se guardan solo en este dispositivo. La única excepción es el ranking mundial: si te unes, se envía lo siguiente al servidor del ranking (Cloudflare):\n' +
-        '• Tu apodo\n' +
-        '• Tus récords de partidas clasificatorias (tiempo, número de giros y los giros que hiciste)\n' +
-        'Nunca se envían tu nombre, correo, fotos ni otros récords u objetos.\n' +
-        'Para comprobar que los récords son reales, el servidor elige la mezcla y reproduce tus giros para verificar la resolución.\n' +
-        'Puedes salir cuando quieras. Al salir, se borra todo lo que enviaste.',
+        'Tu apodo y tus récords clasificatorios se registrarán en el ranking mundial.\n' +
+        'No se envía ningún otro dato.\n' +
+        'Puedes salir cuando quieras; al salir se borran todos tus récords.',
       rkRules: 'Reglas: inspección de 15 s / sin 💡 Ayuda, OLL, PLL ni ZBLL / sin pausas',
       rkNickLabel: 'Apodo (hasta 12 caracteres; se muestra en el ranking)',
       rkNickBad: 'No se puede usar este apodo (1–12 caracteres, sin URL)',
@@ -290,12 +271,9 @@
       rkTitle: 'Peringkat Dunia',
       rkJoinTitle: 'Ikut Peringkat Dunia',
       rkJoinBody:
-        'Aplikasi ini tidak memakai server — semua datamu hanya tersimpan di perangkat ini. Satu-satunya pengecualian adalah Peringkat Dunia: jika kamu ikut, data berikut dikirim ke server peringkat (Cloudflare):\n' +
-        '• Nama panggilan\n' +
-        '• Catatan solve peringkat (waktu, jumlah langkah, dan langkah yang kamu putar)\n' +
-        'Nama asli, alamat email, foto, serta catatan atau barang lain tidak pernah dikirim.\n' +
-        'Agar catatan terjamin asli, server yang memberikan acakan dan memutar ulang langkahmu untuk memeriksanya.\n' +
-        'Kamu bisa berhenti kapan saja. Jika berhenti, semua catatan yang dikirim akan dihapus.',
+        'Nama panggilan dan catatan solve peringkatmu akan didaftarkan ke Peringkat Dunia.\n' +
+        'Tidak ada data lain yang dikirim.\n' +
+        'Kamu bisa berhenti kapan saja, dan semua catatanmu akan dihapus.',
       rkRules: 'Aturan: inspeksi 15 detik / tanpa 💡 Bantuan, OLL, PLL, ZBLL / tidak bisa dijeda',
       rkNickLabel: 'Nama panggilan (maks. 12 karakter, tampil di peringkat)',
       rkNickBad: 'Nama panggilan ini tidak bisa dipakai (1–12 karakter, tanpa URL)',
@@ -335,12 +313,9 @@
       rkTitle: 'Мировой рейтинг',
       rkJoinTitle: 'Участвовать в мировом рейтинге',
       rkJoinBody:
-        'Это приложение не использует сервер — все данные хранятся только на этом устройстве. Единственное исключение — мировой рейтинг: если вы участвуете, на сервер рейтинга (Cloudflare) отправляется следующее:\n' +
-        '• Никнейм\n' +
-        '• Записи рейтинговых сборок (время, число ходов и сами ходы)\n' +
-        'Имя, адрес почты, фото и другие записи или предметы никогда не отправляются.\n' +
-        'Чтобы убедиться в честности записей, скрамбл выдаёт сервер, и он же воспроизводит ваши ходы для проверки.\n' +
-        'Выйти можно в любой момент. При выходе всё, что вы отправили, удаляется.',
+        'Ваш никнейм и записи рейтинговых сборок попадут в мировой рейтинг.\n' +
+        'Никакие другие данные не отправляются.\n' +
+        'Выйти можно в любой момент — при выходе все записи удаляются.',
       rkRules: 'Правила: осмотр до 15 с / без 💡 Подсказки, OLL, PLL и ZBLL / без пауз',
       rkNickLabel: 'Никнейм (до 12 символов, виден в рейтинге)',
       rkNickBad: 'Этот никнейм нельзя использовать (1–12 символов, без ссылок)',
@@ -380,12 +355,9 @@
       rkTitle: 'Ranking Mundial',
       rkJoinTitle: 'Participar do Ranking Mundial',
       rkJoinBody:
-        'Este app não usa servidor — todos os seus dados ficam só neste aparelho. A única exceção é o Ranking Mundial: se você participar, o seguinte é enviado ao servidor do ranking (Cloudflare):\n' +
-        '• Seu apelido\n' +
-        '• Seus registros de partidas ranqueadas (tempo, número de movimentos e os movimentos feitos)\n' +
-        'Seu nome, e-mail, fotos e outros registros ou itens nunca são enviados.\n' +
-        'Para garantir que os registros são reais, o servidor escolhe o embaralhamento e reproduz seus movimentos para conferir.\n' +
-        'Você pode sair quando quiser. Ao sair, tudo o que você enviou é apagado.',
+        'Seu apelido e seus registros ranqueados entram no Ranking Mundial.\n' +
+        'Nenhum outro dado é enviado.\n' +
+        'Você pode sair quando quiser, e ao sair todos os registros são apagados.',
       rkRules: 'Regras: inspeção de 15 s / sem 💡 Ajuda, OLL, PLL ou ZBLL / sem pausa',
       rkNickLabel: 'Apelido (até 12 caracteres, aparece no ranking)',
       rkNickBad: 'Este apelido não pode ser usado (1–12 caracteres, sem URL)',
