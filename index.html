@@ -1562,6 +1562,10 @@
   <script src="pll-hub.js?v=20261004c"></script>
   <!-- PLL検定・フラッシュ・ビジョンのリザルトに「Xでシェア」を足す。 -->
   <script src="pll-share.js?v=20261003i"></script>
+  <!-- 世界ランキング（ランク戦）。文言(9言語)と本体。ドロワーに入口を足す。
+       この2行を消せば、入口ごと消えて今までどおりに戻る。 -->
+  <script src="ranked-texts.js?v=20261004a"></script>
+  <script src="ranked.js?v=20261004a"></script>
   <script>
     /* ============================================================
        お問い合わせフォーム（Googleフォーム）のURL
@@ -5966,6 +5970,11 @@
       if (!scrambleActive && recordEligible && gameState === 'solving') {
         solveMoveCount++;
       }
+      // 世界ランキング（ranked.js）。計測中の本人の1手だけを、キューブ自身の
+      // 座標の形（cfg）と計測開始からの時刻で渡す。お手本の再生は渡さない。
+      if (!scrambleActive && !algRunInProgress && gameState === 'solving' && window.RankedHook) {
+        window.RankedHook.onTurn(cfg, Date.now() - startTime);
+      }
 
       const layerCubies = cubies.filter(c => {
         const p = c.position;
@@ -6235,7 +6244,7 @@
       '#records-overlay', '#stats-overlay', '#shop-overlay', '#gacha-overlay',
       '#sg-overlay', '#notice-overlay', '#homescreen-guide-overlay',
       '#oll-overlay', '#pll-overlay', '#zbll-overlay', '#pllt-overlay',
-      '#pllh-overlay', '#plf-overlay',
+      '#pllh-overlay', '#plf-overlay', '#rk-overlay',
       '#confirm-overlay', '#lang-overlay', '#welcome-overlay', '#intro-overlay'
     ];
     // 横向き案内(#orientation-overlay)は z-index が桁違いに大きく、
@@ -6296,6 +6305,8 @@
       if (timerPaused || gameState !== 'solving') return;
       timerPaused = true;
       pausedAt = Date.now();
+      // ランク戦は一時停止したら記録しない（ranked.js が練習あつかいに落とす）
+      if (window.RankedHook) window.RankedHook.onPause();
       clearInterval(timerInterval);
       timerInterval = null;
       const shown = formatTime(pausedAt - startTime);
@@ -6397,6 +6408,11 @@
       const finalMs = (timerPaused ? pausedAt : Date.now()) - startTime;
       clearPauseState();
       timerEl.textContent = formatTime(finalMs);
+      // ランク戦なら、このタイムを提出する（ガイドを使った回は ranked.js が弾く）
+      if (window.RankedHook) {
+        window.RankedHook.onSolved(finalMs,
+          usedOllThisSolve || usedPllThisSolve || usedZbllThisSolve || usedHelpThisSolve);
+      }
 
       // Only a solve that started from a full scramble counts. Finishing a
       // two-second OLL/PLL drill is not a personal best.
@@ -6414,6 +6430,8 @@
     function resetTimer() {
       solveInProgress = false;
       clearInterval(timerInterval);
+      // シャッフル・リセット・言語切替でランク戦は打ち切り
+      if (window.RankedHook) window.RankedHook.onAbort();
       timerEl.textContent = '00:00.00';
       // シャッフル / リセット / 言語切り替えでの中断は、いずれもここを
       // 通る。止めていた計測ごと無くなるので、幕も一緒に畳んでおく。
@@ -7878,7 +7896,9 @@ const PLL_DATA = {
       });
     }
 
-    function scrambleCube() {
+    // customTurns … 世界ランキングでサーバーが出した出題（キューブ自身の座標の
+    // { axis, layers, dir } の並び）。無ければ従来どおりランダムに22手。
+    function scrambleCube(customTurns) {
       // Neutralize gameState before scrambling: makeTurn() starts the timer
       // whenever gameState is 'scrambled', and it would still be 'scrambled'
       // here if Scramble is pressed twice in a row (or after any earlier
@@ -7892,9 +7912,13 @@ const PLL_DATA = {
       hideSolvedMsg();
       const moves = ['U', "U'", 'D', "D'", 'L', "L'", 'R', "R'", 'F', "F'", 'B', "B'"];
       scrambleActive = true;
-      for (let i = 0; i < 22; i++) {
-        const randMove = moves[Math.floor(Math.random() * moves.length)];
-        makeTurn(randMove, true);
+      if (Array.isArray(customTurns)) {
+        customTurns.forEach((cfg) => makeTurn(cfg, true));
+      } else {
+        for (let i = 0; i < 22; i++) {
+          const randMove = moves[Math.floor(Math.random() * moves.length)];
+          makeTurn(randMove, true);
+        }
       }
       scrambleActive = false;
       // Scramble moves are now applied silently (see scrambleActive above),
@@ -8616,7 +8640,7 @@ const PLL_DATA = {
       '#welcome-overlay', '#intro-overlay', '#settings-overlay', '#layout-overlay', '#transfer-overlay', '#records-overlay',
       '#stats-overlay', '#shop-overlay', '#gacha-overlay',
       '#oll-overlay', '#pll-overlay', '#zbll-overlay', '#pllt-overlay',
-      '#pllh-overlay', '#plf-overlay',
+      '#pllh-overlay', '#plf-overlay', '#rk-overlay',
       '#confirm-overlay', '#pause-overlay', '#lang-overlay', '#orientation-overlay',
       '#photo-skin-overlay'
     ];
@@ -8689,6 +8713,10 @@ const PLL_DATA = {
     }
     requestScramble = scrambleCube;
     requestReset = resetCube;
+    // 世界ランキング（ranked.js）がサーバーの出題を流し込む入口
+    window.__rankedBridge = {
+      scramble: function (turns) { scrambleCube(turns); }
+    };
     if (scrambleWhenReady) {
       scrambleWhenReady = false;
       scrambleCube();
@@ -10167,6 +10195,7 @@ const PLL_DATA = {
        消しておく（空の div でも「開いている」と数えられてしまうので）。 -->
   <div id="pllh-overlay" hidden></div>
   <div id="plf-overlay" hidden></div>
+  <div id="rk-overlay" hidden></div>
 
 
   <script>
@@ -13676,7 +13705,9 @@ const BackupTransfer = (function () {
     // 2026-08-23 追加（回転を高速にする）。並びは末尾に足すだけ。
     'rubiks-cube-fast-turns',
     // 2026-10-03 追加（PLLフラッシュの自己ベスト・難易度）。並びは末尾に足すだけ。
-    'rubiks-cube-pll-flash'
+    'rubiks-cube-pll-flash',
+    // 2026-10-04 追加（世界ランキングの参加者ID・合言葉・ニックネーム）。並びは末尾に足すだけ。
+    'rubiks-cube-ranked'
   ];
 
   function supported() {
