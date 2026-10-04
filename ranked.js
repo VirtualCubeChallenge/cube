@@ -480,7 +480,7 @@
   function submitNickname() {
     const input = $('rk-nick'), err = $('rk-err'), btn = $('rk-join');
     const v = nickOk(input && input.value);
-    if (!v) { if (err) err.textContent = tx('rkNickBad'); return; }
+    if (!v) { if (err) err.textContent = tx('rkNickLength'); return; }
     if (btn) btn.disabled = true;
     const renaming = view === 'rename' && me;
     const req = renaming
