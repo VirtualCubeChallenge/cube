@@ -473,7 +473,7 @@
   function nickOk(s) {
     const v = String(s || '').replace(/\s+/g, ' ').trim();
     const n = Array.from(v).length;
-    if (n < 1 || n > 12) return null;
+    if (n < 1 || n > 7) return null;
     return v;
   }
 
