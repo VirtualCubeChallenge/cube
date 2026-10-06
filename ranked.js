@@ -410,8 +410,7 @@
       html += '<h2 class="rk-h">🌍 ' + esc(tx(renaming ? 'rkRename' : 'rkJoinTitle')) + '</h2>';
       if (!renaming) {
         html += '<div class="rk-card"><p class="rk-body">' + esc(tx('rkJoinBody')) + '</p>' +
-          '<p class="rk-rules">' + esc(tx('rkRules')) + '</p>' +
-          '<p class="rk-note">' + esc(tx('rkReview')) + '</p></div>';
+          '<p class="rk-rules">' + esc(tx('rkRules')) + '</p></div>';
       }
       html += '<div class="rk-card"><label class="rk-label" for="rk-nick">' + esc(tx('rkNickLabel')) + '</label>' +
         '<input class="rk-input" id="rk-nick" maxlength="24" autocomplete="off" autocapitalize="off" spellcheck="false" value="' +
@@ -447,7 +446,7 @@
             '<span class="rk-mv">' + esc(tx('rkMoves', { n: e.moveCount })) + '</span></li>';
         }).join('') + '</ol>';
       }
-      html += '<p class="rk-note">' + esc(tx('rkReview')) + '</p></div>';
+      html += '</div>';
       html += '<div class="rk-links"><button type="button" class="rk-link" id="rk-rename">' + esc(tx('rkRename')) + '</button>' +
         '<button type="button" class="rk-link" id="rk-leave">' + esc(tx('rkLeave')) + '</button></div>';
     }
