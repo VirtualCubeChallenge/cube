@@ -110,16 +110,23 @@
     /* 全画面の画面。z-index はハブ(41)やPLL検定(42)より上、確認ダイアログ(80)より下 */
     '#rk-overlay{display:none;position:fixed;inset:0;z-index:46;overflow-y:auto;-webkit-overflow-scrolling:touch;',
     '  background:#121214;color:#e8e8ee;',
-    '  padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 24px)}',
+    '  padding:calc(env(safe-area-inset-top,0px) + 22px) calc(env(safe-area-inset-right,0px) + 16px) calc(env(safe-area-inset-bottom,0px) + 24px) calc(env(safe-area-inset-left,0px) + 16px)}',
     '#rk-overlay.show{display:block}',
     '.rk-wrap{max-width:460px;margin:0 auto;position:relative}',
     '.rk-close{position:absolute;top:0;right:0;width:40px;height:40px;border-radius:50%;border:1px solid #3a3a48;',
     '  background:#1c1c22;color:#c8c8d4;font-size:17px;cursor:pointer;font-family:inherit}',
     '.rk-close::after{content:"";position:absolute;inset:-6px}',
-    '.rk-h{margin:4px 48px 14px 0;font-size:22px;font-weight:900;letter-spacing:.02em;display:flex;align-items:center;gap:8px}',
+    '.rk-h{margin:6px 52px 16px 0;min-height:40px;font-size:22px;font-weight:900;letter-spacing:.02em;display:flex;align-items:center;gap:8px}',
     '.rk-card{background:#1c1c22;border:1px solid #2c2c38;border-radius:16px;padding:16px;margin-bottom:12px}',
     '.rk-body{white-space:pre-line;font-size:13.5px;line-height:1.75;color:#d4d4de;margin:0}',
-    '.rk-rules{font-size:12px;line-height:1.6;color:#9a9aac;margin:10px 0 0}',
+    '.rk-rules{margin:14px 0 0;padding:10px 12px;border-radius:12px;background:#15151b;border:1px solid #2a2a35}',
+    '.rk-rules-t{margin:0 0 6px;font-size:11.5px;font-weight:800;letter-spacing:.06em;color:#8f8fa6}',
+    '.rk-rule-list{list-style:none;margin:0;padding:0;display:grid;gap:5px}',
+    '.rk-rule-list li{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12.5px;line-height:1.4;color:#c8c8d4}',
+    '.rk-rule-list li span{min-width:0}',
+    '.rk-rule-list li b{flex:none;font-size:11.5px;font-weight:800;padding:3px 9px;border-radius:999px;white-space:nowrap;',
+    '  background:rgba(255,106,122,.12);color:#ff8a96;border:1px solid rgba(255,106,122,.35)}',
+    '.rk-rule-list li b.ok{background:rgba(var(--tc-rgb,46,242,192),.12);color:var(--tc,#2ef2c0);border-color:rgba(var(--tc-rgb,46,242,192),.4)}',
     '.rk-note{font-size:11.5px;line-height:1.6;color:#7c7c8e;margin:8px 0 0}',
     '.rk-label{display:block;font-size:12.5px;font-weight:700;color:#b8b8c6;margin:2px 0 8px}',
     '.rk-input{width:100%;box-sizing:border-box;padding:12px 14px;border-radius:12px;border:1.4px solid #3a3a48;',
@@ -138,20 +145,50 @@
     '.rk-me-best b{display:block;font-size:22px;font-weight:900;color:var(--tc,#2ef2c0);font-variant-numeric:tabular-nums}',
     '.rk-me-best span{font-size:12px;color:#9a9aac}',
     '.rk-list{list-style:none;margin:0;padding:0}',
-    '.rk-row{display:grid;grid-template-columns:42px 1fr auto auto;align-items:center;gap:8px;padding:10px 4px;',
-    '  border-bottom:1px solid #26262f;font-size:14px}',
+    '.rk-row{display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 8px;',
+    '  border-bottom:1px solid #26262f;font-size:14px;position:relative}',
     '.rk-row:last-child{border-bottom:none}',
-    '.rk-row.mine{background:rgba(var(--tc-rgb,46,242,192),.10);border-radius:10px}',
+    /* 自分の行: ほんのりネオンパープル */
+    '.rk-row.mine{background:linear-gradient(90deg,rgba(176,92,255,.22),rgba(176,92,255,.08));border-radius:12px;',
+    '  border-bottom-color:transparent;box-shadow:0 0 0 1px rgba(196,132,255,.7),0 0 16px rgba(176,92,255,.35)}',
+    '.rk-row.mine .rk-nick{color:#e6ccff}',
+    '.rk-you{flex:none;margin-left:6px;padding:1px 6px;border-radius:999px;font-size:10px;font-weight:800;',
+    '  background:#b05cff;color:#fff;white-space:nowrap}',
+    /* 確定演出のあと: ゴールドの炎とネオンで包む */
+    '.rk-row.mine.hot,.rk-card.hot{animation:rkHot 1.1s ease-in-out infinite;',
+    '  background:linear-gradient(90deg,rgba(255,176,40,.28),rgba(176,92,255,.18))}',
+    '.rk-row.mine.hot::before{content:"";position:absolute;left:6%;right:6%;bottom:60%;height:120%;pointer-events:none;z-index:-1;',
+    '  background:radial-gradient(ellipse at 50% 100%,rgba(255,200,60,.55),rgba(255,90,20,.25) 45%,transparent 70%);',
+    '  filter:blur(6px);animation:rkFlame .5s ease-in-out infinite alternate;transform-origin:50% 100%}',
+    '@keyframes rkHot{0%,100%{box-shadow:0 0 0 1.5px #ffd36a,0 0 18px rgba(255,190,60,.55),0 0 36px rgba(176,92,255,.35)}',
+    '  50%{box-shadow:0 0 0 1.5px #fff1b8,0 0 30px rgba(255,200,80,.9),0 0 60px rgba(176,92,255,.55)}}',
+    '@keyframes rkFlame{from{transform:scaleY(.85) scaleX(1);opacity:.75}to{transform:scaleY(1.15) scaleX(.94);opacity:1}}',
+    '.rk-list{isolation:isolate}',
     '.rk-row.flag{opacity:.55}',
-    '.rk-pos{font-weight:900;text-align:center;color:#9a9aac;font-variant-numeric:tabular-nums}',
-    '.rk-row:nth-child(1) .rk-pos{color:#ffd36a}.rk-row:nth-child(2) .rk-pos{color:#d6dbe4}.rk-row:nth-child(3) .rk-pos{color:#e0a46a}',
-    '.rk-nick{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}',
-    '.rk-time{font-weight:900;font-variant-numeric:tabular-nums}',
-    '.rk-mv{font-size:11.5px;color:#7c7c8e;min-width:34px;text-align:right}',
+    '.rk-pos{font-weight:900;text-align:center;color:#9a9aac;font-variant-numeric:tabular-nums;justify-self:center}',
+    /* 1〜3位: 金・銀・銅のメダル */
+    '.rk-pos.m1,.rk-pos.m2,.rk-pos.m3{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:14px;position:relative}',
+    '.rk-pos.m1{background:radial-gradient(circle at 32% 28%,#fff8d2,#ffd36a 42%,#c98a12 100%);color:#3d2700;',
+    '  box-shadow:0 0 0 2px rgba(255,211,106,.35),0 0 14px rgba(255,200,70,.65)}',
+    '.rk-pos.m2{background:radial-gradient(circle at 32% 28%,#ffffff,#d6dbe4 45%,#8b93a3 100%);color:#262a33;',
+    '  box-shadow:0 0 0 2px rgba(214,219,228,.3),0 0 12px rgba(214,219,228,.45)}',
+    '.rk-pos.m3{background:radial-gradient(circle at 32% 28%,#ffe2c4,#e0a46a 45%,#9a5a24 100%);color:#2e1604;',
+    '  box-shadow:0 0 0 2px rgba(224,164,106,.3),0 0 12px rgba(224,164,106,.45)}',
+    '.rk-row.top1{background:linear-gradient(90deg,rgba(255,211,106,.10),transparent 70%)}',
+    '.rk-row.top2{background:linear-gradient(90deg,rgba(214,219,228,.07),transparent 70%)}',
+    '.rk-row.top3{background:linear-gradient(90deg,rgba(224,164,106,.08),transparent 70%)}',
+    '.rk-row.top1 .rk-time{color:#ffd36a}',
+    '.rk-nick{min-width:0;display:flex;align-items:center;font-weight:700}',
+    '.rk-nick-t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+    '.rk-tm{display:flex;align-items:baseline;gap:5px;white-space:nowrap;justify-self:end}',
+    '.rk-time{font-weight:900;font-size:15.5px;font-variant-numeric:tabular-nums;color:#f0f0f6}',
+    '.rk-mv{font-size:11.5px;color:#8a8a9c;font-variant-numeric:tabular-nums}',
     '.rk-empty{color:#7c7c8e;font-size:13px;text-align:center;padding:18px 0}',
     '.rk-links{display:flex;justify-content:center;gap:18px;margin-top:6px;flex-wrap:wrap}',
     '.rk-link{background:none;border:none;color:#8f8fa6;font-size:12.5px;text-decoration:underline;cursor:pointer;',
     '  font-family:inherit;padding:8px 2px}',
+    '#confirm-ok.rk-danger{background:#ff4d63!important;border-color:#ff4d63!important;color:#fff!important}',
+    '.rk-link.danger{color:#ff5a6e;text-decoration-color:rgba(255,90,110,.6);font-weight:700}',
     '.rk-sec{font-size:13px;font-weight:800;color:#9a9aac;margin:0 0 6px;display:flex;justify-content:space-between}',
 
     /* インスペクションのカウントダウンと、計測中の小さな印（キューブの操作は邪魔しない） */
@@ -189,6 +226,15 @@
     st.textContent = CSS;
     document.head.appendChild(st);
   }
+
+  function rulesHtml() {
+    const row = function (l, v) { return '<li><span>' + esc(tx(l)) + '</span><b>' + esc(tx(v)) + '</b></li>'; };
+    return '<div class="rk-rules"><p class="rk-rules-t">' + esc(tx('rkRulesTitle')) + '</p><ul class="rk-rule-list">' +
+      '<li><span>' + esc(tx('rkRuleInspL')) + '</span><b class="ok">' + esc(tx('rkRuleInspV')) + '</b></li>' +
+      row('rkRuleGuideL', 'rkRuleGuideV') + row('rkRulePauseL', 'rkRulePauseV') + '</ul></div>';
+  }
+  // 一覧のタイム（1分未満は「23.46s」）
+  function listTime(ms) { const t = fmtTime(ms); return t.indexOf(':') < 0 ? t + 's' : t; }
 
   /* ------------------------------------------------------------ 知らせ -- */
   let toastTimer = null;
@@ -311,10 +357,21 @@
       state = 'idle';
       moves = [];
       if (!r.ok) { toast(esc(errText(r.error)), 6000); return; }
+      if (r.isNewBest && global.RankedFx) { celebrate(r); return; }
       const lines = '<span class="rk-t-big">🌍 ' + esc(tx('rkRank', { n: r.rank })) + '</span>' +
         esc(fmtTime(r.timeMs)) + (r.isNewBest ? ' · ' + esc(tx('rkNewBest')) : '') +
         '<br><button type="button" class="rk-t-btn">' + esc(tx('rkViewRanking')) + '</button>';
       toast(lines, 9000, openOverlay);
+    });
+  }
+
+  // 確定演出: 1位 → tier 1、2〜3位 → tier 2、それ以外の自己ベスト → tier 3。終わったら自分の行を燃やしてランキングを開く
+  function celebrate(r) {
+    hideToast();
+    const tier = r.rank === 1 ? 1 : r.rank <= 3 ? 2 : 3;
+    global.RankedFx.play({ tier: tier, rank: r.rank, timeMs: r.timeMs, tx: tx, fmt: fmtTime }, function () {
+      hot = true;
+      openOverlay();
     });
   }
 
@@ -386,10 +443,18 @@
   }
   function closeOverlay() {
     const el = $('rk-overlay');
+    hot = false;
     if (!el) return;
     el.classList.remove('show');
     el.hidden = true;
   }
+
+  let hot = false;        // 確定演出のすぐあと（自分の行を燃やす）
+  function isMineEntry(e) {
+    const mine = board && board.me;
+    return !!(mine && me && e.rank === mine.rank && e.nickname === me.nickname);
+  }
+  function mineInList() { return board.entries.some(isMineEntry); }
 
   function loadBoard() {
     loading = true;
@@ -398,6 +463,10 @@
       loading = false;
       board = r.ok ? r : { error: r.error };
       render();
+      if (hot) {
+        const row = $('rk-mine-row');
+        if (row && row.scrollIntoView) { try { row.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) { row.scrollIntoView(); } }
+      }
     });
   }
 
@@ -410,7 +479,7 @@
       html += '<h2 class="rk-h">🌍 ' + esc(tx(renaming ? 'rkRename' : 'rkJoinTitle')) + '</h2>';
       if (!renaming) {
         html += '<div class="rk-card"><p class="rk-body">' + esc(tx('rkJoinBody')) + '</p>' +
-          '<p class="rk-rules">' + esc(tx('rkRules')) + '</p></div>';
+          rulesHtml() + '</div>';
       }
       html += '<div class="rk-card"><label class="rk-label" for="rk-nick">' + esc(tx('rkNickLabel')) + '</label>' +
         '<input class="rk-input" id="rk-nick" maxlength="24" autocomplete="off" autocapitalize="off" spellcheck="false" value="' +
@@ -421,12 +490,12 @@
     } else {
       html += '<h2 class="rk-h">🌍 ' + esc(tx('rkTitle')) + '</h2>';
       const mine = board && board.me;
-      html += '<div class="rk-card"><div class="rk-me"><div class="rk-me-name">' + esc(me ? me.nickname : '') + '</div>' +
+      html += '<div class="rk-card' + (hot && !(board && board.entries && mineInList()) ? ' hot' : '') + '"><div class="rk-me"><div class="rk-me-name">' + esc(me ? me.nickname : '') + '</div>' +
         '<div class="rk-me-best">' + (mine
           ? '<b>' + esc(fmtTime(mine.timeMs)) + '</b><span>' + esc(tx('rkMyBest')) + ' · ' + esc(tx('rkRank', { n: mine.rank })) + '</span>'
           : '<span>' + esc(tx('rkNoRecordYet')) + '</span>') + '</div></div>' +
         '<button type="button" class="rk-btn go" id="rk-start"' + (state !== 'idle' ? ' disabled' : '') + '>' + esc(tx('rkStart')) + '</button>' +
-        '<p class="rk-rules">' + esc(tx('rkRules')) + '</p></div>';
+        rulesHtml() + '</div>';
 
       html += '<div class="rk-card"><p class="rk-sec"><span>TOP 50</span><span>' +
         (board && board.total ? esc(tx('rkPlayers', { n: board.total })) : '') + '</span></p>';
@@ -438,17 +507,19 @@
         html += '<div class="rk-empty">' + esc(tx('rkEmpty')) + '</div>';
       } else {
         html += '<ol class="rk-list">' + board.entries.map(function (e) {
-          const isMine = mine && e.rank === mine.rank && me && e.nickname === me.nickname;
-          return '<li class="rk-row' + (isMine ? ' mine' : '') + (e.flagged ? ' flag' : '') + '">' +
-            '<span class="rk-pos">' + e.rank + '</span>' +
-            '<span class="rk-nick">' + esc(e.nickname) + '</span>' +
-            '<span class="rk-time">' + esc(fmtTime(e.timeMs)) + '</span>' +
-            '<span class="rk-mv">' + esc(tx('rkMoves', { n: e.moveCount })) + '</span></li>';
+          const isMine = isMineEntry(e);
+          const medal = e.rank <= 3 ? ' m' + e.rank : '';
+          return '<li class="rk-row' + (e.rank <= 3 ? ' top' + e.rank : '') + (isMine ? ' mine' + (hot ? ' hot' : '') : '') +
+            (e.flagged ? ' flag' : '') + '"' + (isMine ? ' id="rk-mine-row"' : '') + '>' +
+            '<span class="rk-pos' + medal + '">' + e.rank + '</span>' +
+            '<span class="rk-nick"><span class="rk-nick-t">' + esc(e.nickname) + '</span>' + (isMine ? '<span class="rk-you">' + esc(tx('rkYou')) + '</span>' : '') + '</span>' +
+            '<span class="rk-tm"><span class="rk-time">' + esc(listTime(e.timeMs)) + '</span>' +
+            '<span class="rk-mv">/ ' + esc(tx('rkMoves', { n: e.moveCount })) + '</span></span></li>';
         }).join('') + '</ol>';
       }
       html += '</div>';
       html += '<div class="rk-links"><button type="button" class="rk-link" id="rk-rename">' + esc(tx('rkRename')) + '</button>' +
-        '<button type="button" class="rk-link" id="rk-leave">' + esc(tx('rkLeave')) + '</button></div>';
+        '<button type="button" class="rk-link danger" id="rk-leave">' + esc(tx('rkLeave')) + '</button></div>';
     }
     html += '</div>';
     el.innerHTML = html;
@@ -511,6 +582,15 @@
     };
     if (typeof global.askConfirm === 'function') {
       global.askConfirm({ title: tx('rkLeave'), body: tx('rkLeaveConfirm'), ok: tx('rkLeaveOk'), cancel: tx('rkCancelBtn'), onOk: run });
+      // この確認だけ「削除する」を赤にする（ダイアログが閉じたら元に戻す）
+      const okb = $('confirm-ok'), ov = $('confirm-overlay');
+      if (okb && ov && global.MutationObserver) {
+        okb.classList.add('rk-danger');
+        const mo = new MutationObserver(function () {
+          if (!ov.classList.contains('show')) { okb.classList.remove('rk-danger'); mo.disconnect(); }
+        });
+        mo.observe(ov, { attributes: true, attributeFilter: ['class'] });
+      }
     } else if (global.confirm(tx('rkLeaveConfirm'))) {
       run();
     }
@@ -550,5 +630,5 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 
-  global.Ranked = { open: openOverlay, close: closeOverlay, start: startRanked, state: function () { return state; } };
+  global.Ranked = { open: openOverlay, close: closeOverlay, start: startRanked, state: function () { return state; }, celebrate: celebrate };
 })(window);
