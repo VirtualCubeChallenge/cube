@@ -70,7 +70,7 @@
       rkReplayOpen: "{n}位の解き方を見る",
       rkReplayScramble: "スクランブル",
       rkReplayStartPos: "スクランブル直後",
-      rkReplayDrag: "ドラッグで360°どの向きにも回せます",
+      rkReplayDrag: "なぞると縦・横に90°ずつ回ります",
       rkReplayTitle: "解き方"
     },
     en: {
@@ -128,7 +128,7 @@
       rkReplayOpen: "See how #{n} solved it",
       rkReplayScramble: "Scramble",
       rkReplayStartPos: "Scrambled",
-      rkReplayDrag: "Drag to rotate the cube any way",
+      rkReplayDrag: "Swipe to turn the cube 90° at a time",
       rkReplayTitle: "Solve replay"
     },
     'zh-CN': {
@@ -186,7 +186,7 @@
       rkReplayOpen: "查看第{n}名的解法",
       rkReplayScramble: "打乱",
       rkReplayStartPos: "打乱后",
-      rkReplayDrag: "拖动可360°任意旋转",
+      rkReplayDrag: "滑动可上下左右各转90°",
       rkReplayTitle: "解法回放"
     },
     'zh-TW': {
@@ -244,7 +244,7 @@
       rkReplayOpen: "查看第{n}名的解法",
       rkReplayScramble: "打亂",
       rkReplayStartPos: "打亂後",
-      rkReplayDrag: "拖曳可360°任意旋轉",
+      rkReplayDrag: "滑動可上下左右各轉90°",
       rkReplayTitle: "解法重播"
     },
     ko: {
@@ -302,7 +302,7 @@
       rkReplayOpen: "{n}위의 풀이 보기",
       rkReplayScramble: "스크램블",
       rkReplayStartPos: "스크램블 직후",
-      rkReplayDrag: "드래그로 360° 자유롭게 돌릴 수 있어요",
+      rkReplayDrag: "밀면 가로·세로로 90°씩 돌아가요",
       rkReplayTitle: "풀이 다시 보기"
     },
     es: {
@@ -360,7 +360,7 @@
       rkReplayOpen: "Ver cómo resolvió el n.º {n}",
       rkReplayScramble: "Mezcla",
       rkReplayStartPos: "Recién mezclado",
-      rkReplayDrag: "Arrastra para girarlo en cualquier dirección",
+      rkReplayDrag: "Desliza para girarlo 90° cada vez",
       rkReplayTitle: "Repetición"
     },
     id: {
@@ -418,7 +418,7 @@
       rkReplayOpen: "Lihat cara peringkat {n} menyelesaikan",
       rkReplayScramble: "Acakan",
       rkReplayStartPos: "Setelah diacak",
-      rkReplayDrag: "Seret untuk memutar ke segala arah",
+      rkReplayDrag: "Geser untuk memutar 90° tiap kali",
       rkReplayTitle: "Tayangan ulang"
     },
     ru: {
@@ -476,7 +476,7 @@
       rkReplayOpen: "Как собирал №{n}",
       rkReplayScramble: "Скрамбл",
       rkReplayStartPos: "После скрамбла",
-      rkReplayDrag: "Потяните, чтобы вращать в любую сторону",
+      rkReplayDrag: "Проведите, чтобы повернуть на 90°",
       rkReplayTitle: "Повтор сборки"
     },
     'pt-BR': {
@@ -534,7 +534,7 @@
       rkReplayOpen: "Ver como o nº {n} resolveu",
       rkReplayScramble: "Embaralhamento",
       rkReplayStartPos: "Recém-embaralhado",
-      rkReplayDrag: "Arraste para girar em qualquer direção",
+      rkReplayDrag: "Deslize para girar 90° de cada vez",
       rkReplayTitle: "Replay"
     }
   };

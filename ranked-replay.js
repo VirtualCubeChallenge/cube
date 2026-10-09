@@ -241,26 +241,43 @@
         dirty = true;
         if (k >= 1) finishAnim();
       }
+      spinTick();
       if (dirty) { renderer.render(scene, camera); dirty = false; }
     }
 
     // ドラッグで向きを変える
     let drag = null;
     const el = renderer.domElement;
-    // 360°どの向きにも回せる（トラックボール式）。指を動かした向きと直角の軸のまわりに、画面基準で回す
-    const qStep = new THREE.Quaternion(), axisV = new THREE.Vector3();
-    const HOME = root.quaternion.clone();
-    el.addEventListener('pointerdown', function (e) { drag = { x: e.clientX, y: e.clientY }; try { el.setPointerCapture(e.pointerId); } catch (er) {} if (view.onDrag) view.onDrag(); });
+    // なぞると、キューブ全体が縦・横に90°ずつ回る（持ち替え x / y と同じ）。何度でも回せるので360°どこからでも見られる。
+    // 見る角度（斜め上から）は固定のまま、その中でキューブの向き ori だけを90°単位で変える
+    const VIEW = root.quaternion.clone();
+    const ori = new THREE.Quaternion(), oriFrom = new THREE.Quaternion(), oriTo = new THREE.Quaternion();
+    const qStep = new THREE.Quaternion(), AX = new THREE.Vector3(1, 0, 0), AY = new THREE.Vector3(0, 1, 0);
+    let spin = null;   // { t0, ms }
+    function applyOri() { root.quaternion.copy(VIEW).multiply(ori); dirty = true; }
+    function spinBy(axis, sign) {
+      if (spin) { ori.copy(oriTo); spin = null; }
+      oriFrom.copy(ori);
+      qStep.setFromAxisAngle(axis, sign * Math.PI / 2);
+      oriTo.copy(qStep).multiply(ori);
+      spin = { t0: performance.now(), ms: 230 };
+    }
+    function spinTick() {
+      if (!spin) return;
+      const k = Math.min(1, (performance.now() - spin.t0) / spin.ms);
+      const e = 1 - Math.pow(1 - k, 3);
+      ori.copy(oriFrom).slerp(oriTo, e);
+      applyOri();
+      if (k >= 1) { ori.copy(oriTo); spin = null; applyOri(); }
+    }
+    el.addEventListener('pointerdown', function (e) { drag = { x: e.clientX, y: e.clientY, used: false }; try { el.setPointerCapture(e.pointerId); } catch (er) {} if (view.onDrag) view.onDrag(); });
     el.addEventListener('pointermove', function (e) {
-      if (!drag) return;
+      if (!drag || drag.used) return;
       const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-      drag.x = e.clientX; drag.y = e.clientY;
-      const len = Math.sqrt(dx * dx + dy * dy);
-      if (!len) return;
-      axisV.set(dy / len, dx / len, 0);
-      qStep.setFromAxisAngle(axisV, len * 0.011);
-      root.quaternion.premultiply(qStep);
-      dirty = true;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 26) return;
+      drag.used = true;                                   // 1回なぞるごとに90°だけ
+      if (Math.abs(dx) >= Math.abs(dy)) spinBy(AY, dx > 0 ? 1 : -1);   // 右へ → 前の面が右へ
+      else spinBy(AX, dy > 0 ? 1 : -1);                                 // 下へ → 上の面が手前へ
     });
     const up = function () { drag = null; };
     el.addEventListener('pointerup', up);
@@ -270,7 +287,7 @@
     place();
     loop();
     const view = {
-      resetView: function () { root.quaternion.copy(HOME); dirty = true; },
+      resetView: function () { spin = null; ori.identity(); applyOri(); },
       setModel: setModel, turn: turn, finishAnim: finishAnim, resize: resize, busy: function () { return !!anim; },
       dispose: function () {
         alive = false;
