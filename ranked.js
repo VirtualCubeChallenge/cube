@@ -352,6 +352,7 @@
       attemptId: attempt.id, timeMs: Math.round(ms), moves: moves
     };
     attempt = null;
+    solvedAt = Date.now();
     toast(esc(tx('rkSending')), 15000);
     api('/api/finish', payload).then(function (r) {
       state = 'idle';
@@ -366,8 +367,27 @@
   }
 
   // 確定演出: 1位 → tier 1、2〜3位 → tier 2、それ以外の自己ベスト → tier 3。終わったら自分の行を燃やしてランキングを開く
+  // 大当たり（1%の虹色シャード）が当たった回は、その演出が終わるまで待つ。
+  // 報酬の抽選は完成の約0.6秒後なので、それまでは結果が出るのを待つ（出なければ待たない）
+  let solvedAt = 0;
+  function afterJackpot(cb) {
+    const t0 = solvedAt || Date.now();
+    const tick = function () {
+      const r = global.__clearReward, now = Date.now();
+      if (r && r.at >= t0 - 50) {
+        if (r.done) { setTimeout(cb, r.jackpot ? 450 : 0); return; }
+      } else if (now - t0 > 2500 || typeof global.handleClearReward !== 'function') { cb(); return; }
+      if (now - t0 > 90000) { cb(); return; }      // 念のため（演出が止まってしまったとき）
+      setTimeout(tick, 150);
+    };
+    tick();
+  }
+
   function celebrate(r) {
     hideToast();
+    afterJackpot(function () { playCelebration(r); });
+  }
+  function playCelebration(r) {
     const tier = r.rank === 1 ? 1 : r.rank <= 3 ? 2 : 3;
     global.RankedFx.play({ tier: tier, rank: r.rank, timeMs: r.timeMs, tx: tx, fmt: fmtTime }, function () {
       hot = true;
