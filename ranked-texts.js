@@ -66,7 +66,12 @@
       rkFxTop: "{n}位",
       rkFxPb: "自己ベスト更新",
       rkFxTap: "タップで閉じる",
-      rkYou: "あなた"
+      rkYou: "あなた",
+      rkReplayOpen: "{n}位の解き方を見る",
+      rkReplayScramble: "スクランブル",
+      rkReplayStartPos: "スクランブル直後",
+      rkReplayDrag: "ドラッグで向きを変えられます",
+      rkReplayTitle: "解き方"
     },
     en: {
       rkTitle: 'World Ranking',
@@ -119,7 +124,12 @@
       rkFxTop: "WORLD No.{n}",
       rkFxPb: "NEW PERSONAL BEST",
       rkFxTap: "Tap to continue",
-      rkYou: "You"
+      rkYou: "You",
+      rkReplayOpen: "See how #{n} solved it",
+      rkReplayScramble: "Scramble",
+      rkReplayStartPos: "Scrambled",
+      rkReplayDrag: "Drag to turn the view",
+      rkReplayTitle: "Solve replay"
     },
     'zh-CN': {
       rkTitle: '世界排行榜',
@@ -172,7 +182,12 @@
       rkFxTop: "世界第{n}名",
       rkFxPb: "刷新个人最佳",
       rkFxTap: "点击继续",
-      rkYou: "你"
+      rkYou: "你",
+      rkReplayOpen: "查看第{n}名的解法",
+      rkReplayScramble: "打乱",
+      rkReplayStartPos: "打乱后",
+      rkReplayDrag: "拖动可旋转视角",
+      rkReplayTitle: "解法回放"
     },
     'zh-TW': {
       rkTitle: '世界排行榜',
@@ -225,7 +240,12 @@
       rkFxTop: "世界第{n}名",
       rkFxPb: "刷新個人最佳",
       rkFxTap: "點擊繼續",
-      rkYou: "你"
+      rkYou: "你",
+      rkReplayOpen: "查看第{n}名的解法",
+      rkReplayScramble: "打亂",
+      rkReplayStartPos: "打亂後",
+      rkReplayDrag: "拖曳可旋轉視角",
+      rkReplayTitle: "解法重播"
     },
     ko: {
       rkTitle: '세계 랭킹',
@@ -278,7 +298,12 @@
       rkFxTop: "세계 {n}위",
       rkFxPb: "자기 최고 기록 경신",
       rkFxTap: "탭하여 계속",
-      rkYou: "나"
+      rkYou: "나",
+      rkReplayOpen: "{n}위의 풀이 보기",
+      rkReplayScramble: "스크램블",
+      rkReplayStartPos: "스크램블 직후",
+      rkReplayDrag: "드래그해서 방향을 바꿀 수 있어요",
+      rkReplayTitle: "풀이 다시 보기"
     },
     es: {
       rkTitle: 'Ranking mundial',
@@ -331,7 +356,12 @@
       rkFxTop: "¡Nº {n} DEL MUNDO!",
       rkFxPb: "¡NUEVO RÉCORD PERSONAL!",
       rkFxTap: "Toca para continuar",
-      rkYou: "Tú"
+      rkYou: "Tú",
+      rkReplayOpen: "Ver cómo resolvió el n.º {n}",
+      rkReplayScramble: "Mezcla",
+      rkReplayStartPos: "Recién mezclado",
+      rkReplayDrag: "Arrastra para girar la vista",
+      rkReplayTitle: "Repetición"
     },
     id: {
       rkTitle: 'Peringkat Dunia',
@@ -384,7 +414,12 @@
       rkFxTop: "PERINGKAT {n} DUNIA!",
       rkFxPb: "REKOR PRIBADI BARU!",
       rkFxTap: "Ketuk untuk lanjut",
-      rkYou: "Kamu"
+      rkYou: "Kamu",
+      rkReplayOpen: "Lihat cara peringkat {n} menyelesaikan",
+      rkReplayScramble: "Acakan",
+      rkReplayStartPos: "Setelah diacak",
+      rkReplayDrag: "Seret untuk memutar tampilan",
+      rkReplayTitle: "Tayangan ulang"
     },
     ru: {
       rkTitle: 'Мировой рейтинг',
@@ -437,7 +472,12 @@
       rkFxTop: "№{n} В МИРЕ!",
       rkFxPb: "НОВЫЙ ЛИЧНЫЙ РЕКОРД!",
       rkFxTap: "Нажмите, чтобы продолжить",
-      rkYou: "Вы"
+      rkYou: "Вы",
+      rkReplayOpen: "Как собирал №{n}",
+      rkReplayScramble: "Скрамбл",
+      rkReplayStartPos: "После скрамбла",
+      rkReplayDrag: "Потяните, чтобы повернуть",
+      rkReplayTitle: "Повтор сборки"
     },
     'pt-BR': {
       rkTitle: 'Ranking Mundial',
@@ -490,7 +530,12 @@
       rkFxTop: "Nº {n} DO MUNDO!",
       rkFxPb: "NOVO RECORDE PESSOAL!",
       rkFxTap: "Toque para continuar",
-      rkYou: "Você"
+      rkYou: "Você",
+      rkReplayOpen: "Ver como o nº {n} resolveu",
+      rkReplayScramble: "Embaralhamento",
+      rkReplayStartPos: "Recém-embaralhado",
+      rkReplayDrag: "Arraste para girar a visão",
+      rkReplayTitle: "Replay"
     }
   };
 

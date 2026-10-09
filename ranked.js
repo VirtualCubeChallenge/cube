@@ -145,7 +145,7 @@
     '.rk-me-best b{display:block;font-size:22px;font-weight:900;color:var(--tc,#2ef2c0);font-variant-numeric:tabular-nums}',
     '.rk-me-best span{font-size:12px;color:#9a9aac}',
     '.rk-list{list-style:none;margin:0;padding:0}',
-    '.rk-row{display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 8px;',
+    '.rk-row{display:grid;grid-template-columns:40px minmax(0,1fr) auto 30px;align-items:center;gap:10px;padding:10px 8px;',
     '  border-bottom:1px solid #26262f;font-size:14px;position:relative}',
     '.rk-row:last-child{border-bottom:none}',
     /* 自分の行: ほんのりネオンパープル */
@@ -183,6 +183,8 @@
     '.rk-tm{display:flex;align-items:baseline;gap:5px;white-space:nowrap;justify-self:end}',
     '.rk-time{font-weight:900;font-size:15.5px;font-variant-numeric:tabular-nums;color:#f0f0f6}',
     '.rk-mv{font-size:11.5px;color:#8a8a9c;font-variant-numeric:tabular-nums}',
+    /* 狭い画面では手数をタイムの下へ回し、名前の幅を空ける */
+    '@media (max-width:380px){.rk-tm{flex-direction:column;align-items:flex-end;gap:0}.rk-mv{font-size:10.5px}.rk-row{gap:8px;padding:8px 6px}}',
     '.rk-empty{color:#7c7c8e;font-size:13px;text-align:center;padding:18px 0}',
     '.rk-links{display:flex;justify-content:center;gap:18px;margin-top:6px;flex-wrap:wrap}',
     '.rk-link{background:none;border:none;color:#8f8fa6;font-size:12.5px;text-decoration:underline;cursor:pointer;',
@@ -219,7 +221,9 @@
     '@media (prefers-reduced-motion: reduce){#rk-toast{transition:none}.rk-btn{transition:none}}'
   ].join('\n');
 
+  const REPLAY_MAX_RANK = 5;   // サーバーの REPLAY_MAX_RANK と同じ
   function injectCSS() {
+    if (global.RankedReplay) global.RankedReplay.injectCSS();
     if ($('rk-style')) return;
     const st = document.createElement('style');
     st.id = 'rk-style';
@@ -462,6 +466,7 @@
     if (me) loadBoard();
   }
   function closeOverlay() {
+    if (global.RankedReplay) global.RankedReplay.close();
     const el = $('rk-overlay');
     hot = false;
     if (!el) return;
@@ -534,7 +539,12 @@
             '<span class="rk-pos' + medal + '">' + e.rank + '</span>' +
             '<span class="rk-nick"><span class="rk-nick-t">' + esc(e.nickname) + '</span>' + (isMine ? '<span class="rk-you">' + esc(tx('rkYou')) + '</span>' : '') + '</span>' +
             '<span class="rk-tm"><span class="rk-time">' + esc(listTime(e.timeMs)) + '</span>' +
-            '<span class="rk-mv">/ ' + esc(tx('rkMoves', { n: e.moveCount })) + '</span></span></li>';
+            '<span class="rk-mv">/ ' + esc(tx('rkMoves', { n: e.moveCount })) + '</span></span>' +
+            // 1〜5位は立体キューブのマークから解き方を1手ずつ見られる
+            (e.rank <= REPLAY_MAX_RANK && global.RankedReplay
+              ? '<button type="button" class="rk-rp-btn" data-rank="' + e.rank + '" aria-label="' + esc(tx('rkReplayOpen', { n: e.rank })) +
+                '" title="' + esc(tx('rkReplayOpen', { n: e.rank })) + '">' + global.RankedReplay.icon + '</button>'
+              : '<span></span>') + '</li>';
         }).join('') + '</ol>';
       }
       html += '</div>';
@@ -558,6 +568,12 @@
     on('rk-start', startRanked);
     on('rk-rename', function () { view = 'rename'; render(); });
     on('rk-leave', leave);
+    const list = document.querySelector('#rk-overlay .rk-list');
+    if (list) list.addEventListener('click', function (e) {
+      const b = e.target.closest('.rk-rp-btn');
+      if (!b || !global.RankedReplay) return;
+      global.RankedReplay.open({ rank: parseInt(b.getAttribute('data-rank'), 10), api: api, tx: tx, fmt: listTime });
+    });
   }
 
   function nickOk(s) {
