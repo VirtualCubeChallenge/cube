@@ -93,6 +93,8 @@
     '#rk-rp .rp-stage{position:relative;width:100%;aspect-ratio:1/1;max-height:52vh;margin:0 auto;border-radius:18px;overflow:hidden;',
     '  background:radial-gradient(circle at 50% 42%,#262633 0%,#15151c 70%);border:1px solid #2a2a35;touch-action:none;cursor:grab}',
     '#rk-rp .rp-stage canvas{display:block;width:100%!important;height:100%!important}',
+    '#rk-rp .rp-home{position:absolute;right:10px;top:10px;width:38px;height:38px;border-radius:50%;border:1px solid #3a3a48;',
+    '  background:rgba(20,20,26,.8);color:#c8c8d4;font-size:19px;line-height:1;cursor:pointer;z-index:2;font-family:inherit}',
     '#rk-rp .rp-hint{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:11px;color:#7c7c8e;pointer-events:none;transition:opacity .4s}',
     '#rk-rp .rp-now{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:12px 2px 4px}',
     '#rk-rp .rp-move{font-size:34px;font-weight:900;color:var(--tc,#2ef2c0);min-width:2.4em;letter-spacing:.02em}',
@@ -172,7 +174,7 @@
     root.rotation.y = -0.68;
     scene.add(root);
 
-    const coreGeo = new THREE.BoxGeometry(0.97, 0.97, 0.97);
+    const coreGeo = new THREE.BoxGeometry(0.98, 0.98, 0.98);
     const coreMat = new THREE.MeshLambertMaterial({ color: COL[6] });
     const cores = [];
     for (let x = -1; x <= 1; x++) for (let y = -1; y <= 1; y++) for (let z = -1; z <= 1; z++) {
@@ -182,7 +184,7 @@
       root.add(m);
       cores.push(m);
     }
-    const stGeo = new THREE.PlaneGeometry(0.84, 0.84);
+    const stGeo = new THREE.PlaneGeometry(0.93, 0.93);   // 黒い縁が細く見える大きさ
     const mats = COL.slice(0, 6).map(function (c) { return new THREE.MeshLambertMaterial({ color: c, side: THREE.DoubleSide }); });
     let model = solvedStickers();
     const stickers = model.map(function (s) { const m = new THREE.Mesh(stGeo, mats[s.c]); root.add(m); return m; });
@@ -190,7 +192,7 @@
     function place() {
       for (let i = 0; i < model.length; i++) {
         const s = model[i], m = stickers[i];
-        m.position.set(s.p[0] + s.n[0] * 0.49, s.p[1] + s.n[1] * 0.49, s.p[2] + s.n[2] * 0.49);
+        m.position.set(s.p[0] + s.n[0] * 0.495, s.p[1] + s.n[1] * 0.495, s.p[2] + s.n[2] * 0.495);
         m.quaternion.setFromUnitVectors(Z, tmp.set(s.n[0], s.n[1], s.n[2]));
       }
       cores.forEach(function (c) { c.position.set(c.userData.p[0], c.userData.p[1], c.userData.p[2]); c.rotation.set(0, 0, 0); });
@@ -245,11 +247,19 @@
     // ドラッグで向きを変える
     let drag = null;
     const el = renderer.domElement;
-    el.addEventListener('pointerdown', function (e) { drag = { x: e.clientX, y: e.clientY, rx: root.rotation.x, ry: root.rotation.y }; try { el.setPointerCapture(e.pointerId); } catch (er) {} if (view.onDrag) view.onDrag(); });
+    // 360°どの向きにも回せる（トラックボール式）。指を動かした向きと直角の軸のまわりに、画面基準で回す
+    const qStep = new THREE.Quaternion(), axisV = new THREE.Vector3();
+    const HOME = root.quaternion.clone();
+    el.addEventListener('pointerdown', function (e) { drag = { x: e.clientX, y: e.clientY }; try { el.setPointerCapture(e.pointerId); } catch (er) {} if (view.onDrag) view.onDrag(); });
     el.addEventListener('pointermove', function (e) {
       if (!drag) return;
-      root.rotation.y = drag.ry + (e.clientX - drag.x) * 0.012;
-      root.rotation.x = Math.max(-1.45, Math.min(1.45, drag.rx + (e.clientY - drag.y) * 0.012));
+      const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      drag.x = e.clientX; drag.y = e.clientY;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      if (!len) return;
+      axisV.set(dy / len, dx / len, 0);
+      qStep.setFromAxisAngle(axisV, len * 0.011);
+      root.quaternion.premultiply(qStep);
       dirty = true;
     });
     const up = function () { drag = null; };
@@ -260,6 +270,7 @@
     place();
     loop();
     const view = {
+      resetView: function () { root.quaternion.copy(HOME); dirty = true; },
       setModel: setModel, turn: turn, finishAnim: finishAnim, resize: resize, busy: function () { return !!anim; },
       dispose: function () {
         alive = false;
@@ -340,7 +351,8 @@
         '<div class="rp-head"><span class="rk-pos' + medal + '">' + r.rank + '</span><div style="min-width:0">' +
           '<div class="rp-name">' + esc(r.nickname) + '</div>' +
           '<div class="rp-stats"><b>' + esc(fmt(r.timeMs)) + '</b> · ' + esc(tx('rkMoves', { n: n })) + ' · ' + tps + ' TPS</div></div></div>' +
-        '<div class="rp-stage"><div class="rp-hint">' + esc(tx('rkReplayDrag')) + '</div></div>' +
+        '<div class="rp-stage"><div class="rp-hint">' + esc(tx('rkReplayDrag')) + '</div>' +
+          '<button type="button" class="rp-home" aria-label="⟲">⟲</button></div>' +
         '<div class="rp-now"><span class="rp-move"></span><span class="rp-count"></span></div>' +
         '<input class="rp-range" type="range" min="0" max="' + n + '" step="1" value="0" aria-label="' + esc(tx('rkReplayTitle')) + '">' +
         '<div class="rp-ctl">' +
@@ -361,6 +373,8 @@
       c.view = makeView(wrap.querySelector('.rp-stage'), r.colors);
       if (!c.view) { wrap.querySelector('.rp-stage').innerHTML = '<div class="rp-msg">3D ×</div>'; }
       else c.view.onDrag = function () { const h = wrap.querySelector('.rp-hint'); if (h) h.style.opacity = '0'; };
+      const home = wrap.querySelector('.rp-home');
+      if (home) home.addEventListener('click', function () { if (c.view) c.view.resetView(); });
       c.range = wrap.querySelector('.rp-range');
       c.chips = Array.prototype.slice.call(wrap.querySelectorAll('.rp-chip'));
       c.playBtn = wrap.querySelector('[data-a="play"]');
