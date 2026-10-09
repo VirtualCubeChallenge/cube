@@ -63,13 +63,7 @@
     '  animation:fxRaysIn .4s ease-out var(--hit) forwards}',
     /* 文字 */
     '#rk-fx .fx-text{position:absolute;left:0;right:0;top:44%;transform:translateY(-50%);text-align:center;padding:0 12px;pointer-events:none}',
-    '#rk-fx .fx-sfx{display:inline-block;font-size:clamp(20px,6.4vw,34px);font-weight:900;font-style:italic;letter-spacing:.04em;',
-    '  color:#fff;text-shadow:0 0 6px #fff,0 0 16px var(--c2),0 0 32px var(--c2);opacity:0;',
-    '  animation:fxSfx 1.1s cubic-bezier(.2,1.6,.4,1) calc(var(--hit) + .05s) both,fxWob .22s linear calc(var(--hit) + .3s) 6}',
-    '@keyframes fxSfx{0%{opacity:0;transform:scale(3) rotate(-24deg)}40%{opacity:1;transform:scale(.9) rotate(-8deg)}',
-    '  100%{opacity:1;transform:scale(1) rotate(-6deg)}}',
-    '@keyframes fxWob{0%,100%{translate:0 0}25%{translate:-3px 1px}75%{translate:3px -1px}}',
-    '#rk-fx .fx-main{display:block;margin:6px 0 4px;font-size:var(--main);font-weight:900;line-height:1.02;letter-spacing:.02em;',
+    '#rk-fx .fx-main{display:block;margin:0 0 4px;font-size:var(--main);font-weight:900;line-height:1.02;letter-spacing:.02em;',
     '  background:linear-gradient(100deg,#fff6c8 0%,#ffd36a 18%,#ff9d2e 32%,#fff 44%,#ffd36a 56%,#c98a12 72%,#fff6c8 100%);',
     '  background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;',
     '  -webkit-text-stroke:1.2px rgba(255,255,255,.7);',
@@ -121,7 +115,7 @@
     '@media (prefers-reduced-motion: reduce){',
     '  #rk-fx .fx-stage,#rk-fx .fx-rays,#rk-fx .fx-flash,#rk-fx .fx-bolt,#rk-fx .fx-ring{animation:none!important;opacity:0!important}',
     '  #rk-fx .fx-frame{animation:fxFrameIn .3s ease-out var(--hit) forwards!important}',
-    '  #rk-fx .fx-main,#rk-fx .fx-sfx{animation:fxUp .5s ease-out var(--hit) both!important}',
+    '  #rk-fx .fx-main{animation:fxUp .5s ease-out var(--hit) both!important}',
     '}'
   ].join('\n');
 
@@ -217,7 +211,6 @@
         particles(cfg, hit, reduced) +
         '<div class="fx-plate"></div>' +
         '<div class="fx-text">' +
-          (opts.tier !== 3 ? '<span class="fx-sfx">' + esc(tx('rkFxSfx')) + '</span>' : '') +
           '<span class="fx-main">' + esc(main) + '</span>' +
           '<span class="fx-sub">' + esc(sub) + '</span>' +
         '</div>' +

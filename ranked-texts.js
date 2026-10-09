@@ -62,10 +62,9 @@
       rkRuleGuideV: "使用不可",
       rkRulePauseL: "一時停止",
       rkRulePauseV: "不可",
-      rkFxFirst: "1位確定",
-      rkFxTop: "{n}位確定",
+      rkFxFirst: "1位",
+      rkFxTop: "{n}位",
       rkFxPb: "自己ベスト更新",
-      rkFxSfx: "キュイィィン!!",
       rkFxTap: "タップで閉じる",
       rkYou: "あなた"
     },
@@ -119,7 +118,6 @@
       rkFxFirst: "WORLD No.1",
       rkFxTop: "WORLD No.{n}",
       rkFxPb: "NEW PERSONAL BEST",
-      rkFxSfx: "LEGENDARY!!",
       rkFxTap: "Tap to continue",
       rkYou: "You"
     },
@@ -173,7 +171,6 @@
       rkFxFirst: "世界第1名",
       rkFxTop: "世界第{n}名",
       rkFxPb: "刷新个人最佳",
-      rkFxSfx: "太强了!!",
       rkFxTap: "点击继续",
       rkYou: "你"
     },
@@ -227,7 +224,6 @@
       rkFxFirst: "世界第1名",
       rkFxTop: "世界第{n}名",
       rkFxPb: "刷新個人最佳",
-      rkFxSfx: "太強了!!",
       rkFxTap: "點擊繼續",
       rkYou: "你"
     },
@@ -278,10 +274,9 @@
       rkRuleGuideV: "사용 불가",
       rkRulePauseL: "일시정지",
       rkRulePauseV: "불가",
-      rkFxFirst: "세계 1위 확정",
-      rkFxTop: "세계 {n}위 확정",
+      rkFxFirst: "세계 1위",
+      rkFxTop: "세계 {n}위",
       rkFxPb: "자기 최고 기록 경신",
-      rkFxSfx: "대박!!",
       rkFxTap: "탭하여 계속",
       rkYou: "나"
     },
@@ -335,7 +330,6 @@
       rkFxFirst: "¡Nº 1 DEL MUNDO!",
       rkFxTop: "¡Nº {n} DEL MUNDO!",
       rkFxPb: "¡NUEVO RÉCORD PERSONAL!",
-      rkFxSfx: "¡¡LEGENDARIO!!",
       rkFxTap: "Toca para continuar",
       rkYou: "Tú"
     },
@@ -389,7 +383,6 @@
       rkFxFirst: "PERINGKAT 1 DUNIA!",
       rkFxTop: "PERINGKAT {n} DUNIA!",
       rkFxPb: "REKOR PRIBADI BARU!",
-      rkFxSfx: "LEGENDARIS!!",
       rkFxTap: "Ketuk untuk lanjut",
       rkYou: "Kamu"
     },
@@ -443,7 +436,6 @@
       rkFxFirst: "№1 В МИРЕ!",
       rkFxTop: "№{n} В МИРЕ!",
       rkFxPb: "НОВЫЙ ЛИЧНЫЙ РЕКОРД!",
-      rkFxSfx: "ЛЕГЕНДА!!",
       rkFxTap: "Нажмите, чтобы продолжить",
       rkYou: "Вы"
     },
@@ -497,7 +489,6 @@
       rkFxFirst: "Nº 1 DO MUNDO!",
       rkFxTop: "Nº {n} DO MUNDO!",
       rkFxPb: "NOVO RECORDE PESSOAL!",
-      rkFxSfx: "LENDÁRIO!!",
       rkFxTap: "Toque para continuar",
       rkYou: "Você"
     }
