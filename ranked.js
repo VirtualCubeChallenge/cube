@@ -266,12 +266,17 @@
       '<p class="rk-mode-n">' + esc(tx(mi.name)) + '</p>' +
       '<p class="rk-mode-d">' + esc(tx(mi.desc)) + '</p></div></div>';
   }
+  // ランダムサイズ: 1〜5% の極小は「たまに出る」くらい（5%）、ふだんは 6〜160% から
+  function randomSize() {
+    if (Math.random() < 0.05) return 1 + Math.floor(Math.random() * 5);
+    return 6 + Math.floor(Math.random() * 155);
+  }
   // 遊んでいる最中の仕掛け（1手ごとに呼ばれる）
   let playMode = 'normal';
   function applyModeOnTurn() {
     if (playMode === 'random-size') {
       const b = global.__rankedBridge;
-      if (b && typeof b.setZoom === 'function') b.setZoom(1 + Math.floor(Math.random() * 160));   // 1〜160%
+      if (b && typeof b.setZoom === 'function') b.setZoom(randomSize());
     }
   }
   function resetModeEffects() {

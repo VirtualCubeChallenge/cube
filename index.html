@@ -1567,7 +1567,7 @@
   <script src="ranked-texts.js?v=20261009d"></script>
   <script src="ranked-fx.js?v=20261006b"></script>
   <script src="ranked-replay.js?v=20261009e"></script>
-  <script src="ranked.js?v=20261009c"></script>
+  <script src="ranked.js?v=20261009d"></script>
   <script>
     /* ============================================================
        お問い合わせフォーム（Googleフォーム）のURL
@@ -5170,9 +5170,10 @@
     // もの。斜め視点(2.32,3.91,5.31)で約 2.30、正面視点でも約 1.94 なので、
     // 大きい方を安全側の見積もりとして使う。
     const CUBE_HALF_H = 2.3;
-    applyCubeZoom = function() {
+    // cam を、大きさ zoom(%) で見たときの位置に置く
+    function placeCameraFor(cam, zoom) {
       const modeBaseScale = tapCubeEnabled ? TAP_MODE_BASE_SCALE : NORMAL_MODE_BASE_SCALE;
-      let scale = modeBaseScale * (100 / (zoomOverride || cubeZoom));
+      let scale = modeBaseScale * (100 / zoom);
       let dropPx = 0;
 
       // ヘルプ中の考え方: 画角は横幅基準(vFovForAspect)なので、縦には
@@ -5187,7 +5188,7 @@
       if (helpViewActive && H > 0 && W > 0 && helpPanelPx > 0) {
         const panel = Math.min(helpPanelPx, H * 0.62);
         const avail = Math.max(60, H - panel - 10);
-        const halfV = (camera.fov * Math.PI / 180) / 2;
+        const halfV = (cam.fov * Math.PI / 180) / 2;
         let worldPerPx = (2 * (FRONT_CAMERA_DIST * scale) * Math.tan(halfV)) / H;
         const cubePx = (CUBE_HALF_H * 2) / worldPerPx;
         if (cubePx > avail) scale *= (cubePx / avail);   // 入らない分だけ縮める
@@ -5197,15 +5198,27 @@
       const basePos = (typeof frontViewEnabled !== 'undefined' && frontViewEnabled)
         ? FRONT_CAMERA_POS
         : BASE_CAMERA_POS;
-      camera.position.set(
+      cam.position.set(
         basePos.x * scale,
         basePos.y * scale,
         basePos.z * scale
       );
-      camera.lookAt(CAMERA_LOOK_AT.x, CAMERA_LOOK_AT.y, CAMERA_LOOK_AT.z);
-      if (dropPx > 0) camera.setViewOffset(W, H, 0, -dropPx, W, H);
-      else camera.clearViewOffset();
+      cam.lookAt(CAMERA_LOOK_AT.x, CAMERA_LOOK_AT.y, CAMERA_LOOK_AT.z);
+      if (dropPx > 0) cam.setViewOffset(W, H, 0, -dropPx, W, H);
+      else cam.clearViewOffset();
     }
+    applyCubeZoom = function() { placeCameraFor(camera, zoomOverride || cubeZoom); };
+    // タップキューブの当たり判定用のカメラ。ランダムサイズモードで見た目が小さく(大きく)なっていても、
+    // 指で触れる範囲は「自分で決めた大きさ(cubeZoom)」のときのままにする
+    const pickCam = camera.clone();
+    function pickCamera() {
+      if (!zoomOverride) return camera;
+      pickCam.copy(camera);
+      placeCameraFor(pickCam, cubeZoom);
+      pickCam.updateMatrixWorld(true);
+      return pickCam;
+    }
+    let grabCam = camera;   // つかんだ瞬間に使ったカメラ（なぞる向きの判定も同じカメラで）
     applyCubeZoom();
 
     // 【注意】ここに preserveDrawingBuffer: true を付けてはいけない。
@@ -5276,8 +5289,8 @@
     const _projA = new THREE.Vector3();
     const _projB = new THREE.Vector3();
     function screenDirectionOf(worldDir, atPoint) {
-      _projA.copy(atPoint).project(camera);
-      _projB.copy(atPoint).addScaledVector(worldDir, 0.35).project(camera);
+      _projA.copy(atPoint).project(grabCam);
+      _projB.copy(atPoint).addScaledVector(worldDir, 0.35).project(grabCam);
       // NDC y runs up the screen while pointer y runs down it, hence the flip.
       const sx = (_projB.x - _projA.x) * 0.5;
       const sy = -(_projB.y - _projA.y) * 0.5;
@@ -5335,7 +5348,8 @@
       if (!tapCubeEnabled || isAnimating || isSnapping) return false;
       if (!toNDC(x, y)) return false;
 
-      raycaster.setFromCamera(pointerNDC, camera);
+      grabCam = pickCamera();
+      raycaster.setFromCamera(pointerNDC, grabCam);
       const hits = raycaster.intersectObjects(cubies, false);
       if (!hits.length || !hits[0].face) return false;   // background: not our gesture
 
