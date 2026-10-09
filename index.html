@@ -1564,10 +1564,10 @@
   <script src="pll-share.js?v=20261003i"></script>
   <!-- 世界ランキング（ランク戦）。文言(9言語)と本体。ドロワーに入口を足す。
        この2行を消せば、入口ごと消えて今までどおりに戻る。 -->
-  <script src="ranked-texts.js?v=20261009c"></script>
+  <script src="ranked-texts.js?v=20261009d"></script>
   <script src="ranked-fx.js?v=20261006b"></script>
-  <script src="ranked-replay.js?v=20261009d"></script>
-  <script src="ranked.js?v=20261009b"></script>
+  <script src="ranked-replay.js?v=20261009e"></script>
+  <script src="ranked.js?v=20261009c"></script>
   <script>
     /* ============================================================
        お問い合わせフォーム（Googleフォーム）のURL
@@ -3313,6 +3313,8 @@
     const sizeValue = document.getElementById('size-value');
     const sizeHint = document.getElementById('size-hint');
     let cubeZoom = 100;
+    // 世界ランキングのモード（ランダムサイズなど）が一時的に使う大きさ。保存はしない。null なら cubeZoom のまま
+    let zoomOverride = null;
     try {
       const saved = parseInt(localStorage.getItem(SIZE_KEY), 10);
       if (Number.isFinite(saved) && saved >= 1 && saved <= 160) cubeZoom = saved;
@@ -5170,7 +5172,7 @@
     const CUBE_HALF_H = 2.3;
     applyCubeZoom = function() {
       const modeBaseScale = tapCubeEnabled ? TAP_MODE_BASE_SCALE : NORMAL_MODE_BASE_SCALE;
-      let scale = modeBaseScale * (100 / cubeZoom);
+      let scale = modeBaseScale * (100 / (zoomOverride || cubeZoom));
       let dropPx = 0;
 
       // ヘルプ中の考え方: 画角は横幅基準(vFovForAspect)なので、縦には
@@ -8723,7 +8725,12 @@ const PLL_DATA = {
     requestReset = resetCube;
     // 世界ランキング（ranked.js）がサーバーの出題を流し込む入口
     window.__rankedBridge = {
-      scramble: function (turns) { scrambleCube(turns); }
+      scramble: function (turns) { scrambleCube(turns); },
+      // ランダムサイズモード: 1手ごとに大きさ(%)を変える。null で元の大きさへ戻す（保存はしない）
+      setZoom: function (pct) {
+        zoomOverride = (typeof pct === 'number' && pct >= 1 && pct <= 160) ? pct : null;
+        if (typeof applyCubeZoom === 'function') applyCubeZoom();
+      }
     };
     if (scrambleWhenReady) {
       scrambleWhenReady = false;

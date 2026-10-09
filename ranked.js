@@ -190,6 +190,19 @@
     '.rk-link{background:none;border:none;color:#8f8fa6;font-size:12.5px;text-decoration:underline;cursor:pointer;',
     '  font-family:inherit;padding:8px 2px}',
     '#confirm-ok.rk-danger{background:#ff4d63!important;border-color:#ff4d63!important;color:#fff!important}',
+    '.rk-seasons{display:flex;gap:6px;overflow-x:auto;margin:0 0 10px;padding-bottom:2px;scrollbar-width:none}',
+    '.rk-seasons::-webkit-scrollbar{display:none}',
+    '.rk-sz{flex:none;padding:7px 12px;border-radius:999px;border:1px solid #3a3a48;background:#15151b;color:#b8b8c6;',
+    '  font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;white-space:nowrap}',
+    '.rk-sz.on{background:var(--tc,#2ef2c0);color:#101014;border-color:transparent}',
+    '.rk-mode{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;margin-bottom:12px;border-radius:16px;',
+    '  background:linear-gradient(135deg,rgba(176,92,255,.20),rgba(46,242,192,.10));border:1px solid rgba(196,132,255,.45)}',
+    '.rk-mode-i{font-size:30px;line-height:1}',
+    '.rk-mode-t{min-width:0}',
+    '.rk-mode-k{margin:0;font-size:11.5px;font-weight:800;color:#c9a8ff;letter-spacing:.04em}',
+    '.rk-mode-n{margin:2px 0 3px;font-size:17px;font-weight:900;color:#f4ecff}',
+    '.rk-mode-d{margin:0;font-size:12.5px;line-height:1.55;color:#cfc6dc}',
+    '.rk-ended{font-size:12.5px;color:#9a9aac;text-align:center;margin:10px 0 0}',
     '.rk-link.danger{color:#ff5a6e;text-decoration-color:rgba(255,90,110,.6);font-weight:700}',
     '.rk-sec{font-size:13px;font-weight:800;color:#9a9aac;margin:0 0 6px;display:flex;justify-content:space-between}',
 
@@ -229,6 +242,42 @@
     st.id = 'rk-style';
     st.textContent = CSS;
     document.head.appendChild(st);
+  }
+
+  /* ---------------------------------------------- 月ごとのモード -- */
+  // サーバーの SEASON_MODES と同じ名前。表示の文言と、遊んでいる最中の仕掛けをここに持つ
+  const MODES = {
+    'random-size': { icon: '🎲', name: 'rkModeRandomSize', desc: 'rkModeRandomSizeDesc' },
+    normal: { icon: '🧊', name: 'rkModeNormal', desc: 'rkModeNormalDesc' }
+  };
+  function modeInfo(id) { return MODES[id] || MODES.normal; }
+  function monthLabel(season) {
+    const m = /^(\d{4})-(\d{2})$/.exec(season || '');
+    if (!m) return season || '';
+    try {
+      const lang = document.documentElement.lang || 'ja';
+      return new Intl.DateTimeFormat(lang, { year: 'numeric', month: 'long', timeZone: 'UTC' }).format(Date.UTC(+m[1], +m[2] - 1, 15));
+    } catch (e) { return m[1] + '/' + m[2]; }
+  }
+  function modeHtml(modeId, season, ended) {
+    const mi = modeInfo(modeId);
+    return '<div class="rk-mode"><span class="rk-mode-i">' + mi.icon + '</span><div class="rk-mode-t">' +
+      '<p class="rk-mode-k">' + esc(monthLabel(season)) + (ended ? ' · ' + esc(tx('rkSeasonEnded')) : '') + '</p>' +
+      '<p class="rk-mode-n">' + esc(tx(mi.name)) + '</p>' +
+      '<p class="rk-mode-d">' + esc(tx(mi.desc)) + '</p></div></div>';
+  }
+  // 遊んでいる最中の仕掛け（1手ごとに呼ばれる）
+  let playMode = 'normal';
+  function applyModeOnTurn() {
+    if (playMode === 'random-size') {
+      const b = global.__rankedBridge;
+      if (b && typeof b.setZoom === 'function') b.setZoom(1 + Math.floor(Math.random() * 160));   // 1〜160%
+    }
+  }
+  function resetModeEffects() {
+    const b = global.__rankedBridge;
+    if (b && typeof b.setZoom === 'function') b.setZoom(null);
+    playMode = 'normal';
   }
 
   function rulesHtml() {
@@ -286,6 +335,7 @@
   }
 
   function endRanked() {
+    resetModeEffects();
     clearInterval(inspectTimer);
     inspectTimer = null;
     state = 'idle';
@@ -305,7 +355,9 @@
   function tickInspection() {
     const left = Math.max(0, inspectEnd - Date.now());
     const sec = Math.ceil(left / 1000);
-    hud(true, sec <= 3, '🌍 ' + esc(tx('rkInspection')) + ' <b>' + sec + '</b><small>' + esc(tx('rkFirstMoveHint')) + '</small>');
+    const mi = modeInfo(playMode);
+    hud(true, sec <= 3, '🌍 ' + esc(tx('rkInspection')) + ' <b>' + sec + '</b><small>' +
+      (playMode !== 'normal' ? mi.icon + ' ' + esc(tx(mi.name)) + ' · ' : '') + esc(tx('rkFirstMoveHint')) + '</small>');
     if (left <= 0) invalidate('rkErrInspection');
   }
 
@@ -338,6 +390,7 @@
       attempt = { id: r.attemptId };
       moves = [];
       lastT = 0;
+      playMode = MODES[r.mode] ? r.mode : 'normal';
       state = 'inspecting';
       document.body.classList.add('rk-on');
       inspectEnd = Date.now() + (r.inspectionMs || INSPECTION_MS);
@@ -348,6 +401,7 @@
   }
 
   function submit(ms) {
+    resetModeEffects();
     state = 'submitting';
     hud(false);
     document.body.classList.remove('rk-on');
@@ -409,7 +463,7 @@
         state = 'solving';
         clearInterval(inspectTimer);
         inspectTimer = null;
-        hud(true, false, '🌍 <small>RANKED</small>');
+        hud(true, false, '🌍 ' + (playMode !== 'normal' ? modeInfo(playMode).icon + ' ' : '') + '<small>RANKED</small>');
         const h = $('rk-hud'); if (h) h.classList.add('solo');
       }
       const axis = AXES.indexOf(cfg.axis);
@@ -420,7 +474,8 @@
       if (ms < lastT) ms = lastT;
       lastT = ms;
       moves.push([axis, mask, cfg.dir, ms]);
-      if (moves.length > 2000) invalidate('rkErrTime');
+      if (moves.length > 2000) { invalidate('rkErrTime'); return; }
+      applyModeOnTurn();
     },
     onSolved: function (ms, usedAssist) {
       if (state !== 'solving') return;
@@ -465,6 +520,9 @@
     render();
     el.classList.add('show');
     el.scrollTop = 0;
+    viewSeason = null;
+    board = null;
+    loadSeasons();
     if (me) loadBoard();
   }
   function closeOverlay() {
@@ -477,6 +535,21 @@
   }
 
   let hot = false;        // 確定演出のすぐあと（自分の行を燃やす）
+  let seasonList = null;  // [{id, mode, players}]（新しい順）
+  let currentSeason = null, currentMode = 'normal';
+  let viewSeason = null;  // 見ている月（null = 今月）
+  function loadSeasons() {
+    api('/api/seasons').then(function (r) {
+      if (!r.ok) return;
+      seasonList = r.seasons || [];
+      currentSeason = r.current; currentMode = r.currentMode || 'normal';
+      render();
+    });
+  }
+  function modeOfList(id) {
+    const f = (seasonList || []).filter(function (x) { return x.id === id; })[0];
+    return f ? f.mode : 'normal';
+  }
   function isMineEntry(e) {
     const mine = board && board.me;
     return !!(mine && me && e.rank === mine.rank && e.nickname === me.nickname);
@@ -486,9 +559,13 @@
   function loadBoard() {
     loading = true;
     render();
-    api('/api/ranking?limit=50' + (me ? '&player=' + encodeURIComponent(me.playerId) : '')).then(function (r) {
+    const want = viewSeason;
+    api('/api/ranking?limit=50' + (me ? '&player=' + encodeURIComponent(me.playerId) : '') +
+        (want ? '&season=' + encodeURIComponent(want) : '')).then(function (r) {
+      if (want !== viewSeason) return;      // 途中で別の月に切り替えた
       loading = false;
       board = r.ok ? r : { error: r.error };
+      if (r.ok) { currentSeason = r.current || currentSeason; currentMode = r.currentMode || currentMode; }
       render();
       if (hot) {
         const row = $('rk-mine-row');
@@ -505,6 +582,7 @@
       const renaming = view === 'rename';
       html += '<h2 class="rk-h">🌍 ' + esc(tx(renaming ? 'rkRename' : 'rkJoinTitle')) + '</h2>';
       if (!renaming) {
+        if (currentSeason) html += modeHtml(currentMode, currentSeason, false);
         html += '<div class="rk-card"><p class="rk-body">' + esc(tx('rkJoinBody')) + '</p>' +
           rulesHtml() + '</div>';
       }
@@ -516,13 +594,25 @@
         '<button type="button" class="rk-btn sub" id="rk-back">' + esc(tx(renaming ? 'rkCancelBtn' : 'rkNotNow')) + '</button></div>';
     } else {
       html += '<h2 class="rk-h">🌍 ' + esc(tx('rkTitle')) + '</h2>';
+      const shownSeason = viewSeason || (board && board.season) || currentSeason;
+      const isPast = !!(viewSeason && currentSeason && viewSeason !== currentSeason);
+      if (seasonList && seasonList.length > 1) {
+        html += '<div class="rk-seasons" role="tablist">' + seasonList.map(function (x) {
+          const on = x.id === shownSeason;
+          return '<button type="button" class="rk-sz' + (on ? ' on' : '') + '" role="tab" aria-selected="' + on + '" data-season="' + esc(x.id) + '">' +
+            esc(x.id === currentSeason ? tx('rkSeasonNow') : monthLabel(x.id)) + '</button>';
+        }).join('') + '</div>';
+      }
+      if (shownSeason) html += modeHtml(isPast ? (board && board.mode) || modeOfList(shownSeason) : currentMode, shownSeason, isPast);
       const mine = board && board.me;
       html += '<div class="rk-card' + (hot && !(board && board.entries && mineInList()) ? ' hot' : '') + '"><div class="rk-me"><div class="rk-me-name">' + esc(me ? me.nickname : '') + '</div>' +
         '<div class="rk-me-best">' + (mine
           ? '<b>' + esc(fmtTime(mine.timeMs)) + '</b><span>' + esc(tx('rkMyBest')) + ' · ' + esc(tx('rkRank', { n: mine.rank })) + '</span>'
           : '<span>' + esc(tx('rkNoRecordYet')) + '</span>') + '</div></div>' +
-        '<button type="button" class="rk-btn go" id="rk-start"' + (state !== 'idle' ? ' disabled' : '') + '>' + esc(tx('rkStart')) + '</button>' +
-        rulesHtml() + '</div>';
+        (isPast
+          ? '<p class="rk-ended">' + esc(tx('rkSeasonEndedNote')) + '</p>'
+          : '<button type="button" class="rk-btn go" id="rk-start"' + (state !== 'idle' ? ' disabled' : '') + '>' + esc(tx('rkStart')) + '</button>' +
+            rulesHtml()) + '</div>';
 
       html += '<div class="rk-card"><p class="rk-sec"><span>TOP 50</span><span>' +
         (board && board.total ? esc(tx('rkPlayers', { n: board.total })) : '') + '</span></p>';
@@ -570,11 +660,21 @@
     on('rk-start', startRanked);
     on('rk-rename', function () { view = 'rename'; render(); });
     on('rk-leave', leave);
+    const sz = document.querySelector('#rk-overlay .rk-seasons');
+    if (sz) sz.addEventListener('click', function (e) {
+      const b = e.target.closest('.rk-sz');
+      if (!b) return;
+      const id = b.getAttribute('data-season');
+      viewSeason = id === currentSeason ? null : id;
+      board = null;
+      hot = false;
+      loadBoard();
+    });
     const list = document.querySelector('#rk-overlay .rk-list');
     if (list) list.addEventListener('click', function (e) {
       const b = e.target.closest('.rk-rp-btn');
       if (!b || !global.RankedReplay) return;
-      global.RankedReplay.open({ rank: parseInt(b.getAttribute('data-rank'), 10), api: api, tx: tx, fmt: listTime });
+      global.RankedReplay.open({ rank: parseInt(b.getAttribute('data-rank'), 10), season: (board && board.season) || viewSeason, api: api, tx: tx, fmt: listTime });
     });
   }
 

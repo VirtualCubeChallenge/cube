@@ -71,7 +71,14 @@
       rkReplayScramble: "スクランブル",
       rkReplayStartPos: "スクランブル直後",
       rkReplayDrag: "なぞると縦・横に90°ずつ回ります",
-      rkReplayTitle: "解き方"
+      rkReplayTitle: "解き方",
+      rkModeRandomSize: "ランダムサイズモード",
+      rkModeRandomSizeDesc: "1手回すたびに、キューブの大きさが1%〜160%のどれかにランダムで変わります",
+      rkModeNormal: "通常モード",
+      rkModeNormalDesc: "いつものキューブで、速さを競います",
+      rkSeasonNow: "今月",
+      rkSeasonEnded: "終了",
+      rkSeasonEndedNote: "この月は終わりました。今月のランキングで挑戦しよう"
     },
     en: {
       rkTitle: 'World Ranking',
@@ -129,7 +136,14 @@
       rkReplayScramble: "Scramble",
       rkReplayStartPos: "Scrambled",
       rkReplayDrag: "Swipe to turn the cube 90° at a time",
-      rkReplayTitle: "Solve replay"
+      rkReplayTitle: "Solve replay",
+      rkModeRandomSize: "Random Size Mode",
+      rkModeRandomSizeDesc: "Every turn changes the cube to a random size between 1% and 160%",
+      rkModeNormal: "Normal Mode",
+      rkModeNormalDesc: "A regular cube — just be fast",
+      rkSeasonNow: "This month",
+      rkSeasonEnded: "Ended",
+      rkSeasonEndedNote: "This month has ended. Take on this month's ranking!"
     },
     'zh-CN': {
       rkTitle: '世界排行榜',
@@ -187,7 +201,14 @@
       rkReplayScramble: "打乱",
       rkReplayStartPos: "打乱后",
       rkReplayDrag: "滑动可上下左右各转90°",
-      rkReplayTitle: "解法回放"
+      rkReplayTitle: "解法回放",
+      rkModeRandomSize: "随机大小模式",
+      rkModeRandomSizeDesc: "每转一步，魔方的大小都会随机变成1%～160%之间的某个值",
+      rkModeNormal: "普通模式",
+      rkModeNormalDesc: "用普通的魔方比速度",
+      rkSeasonNow: "本月",
+      rkSeasonEnded: "已结束",
+      rkSeasonEndedNote: "这个月已经结束了，来挑战本月的排行榜吧"
     },
     'zh-TW': {
       rkTitle: '世界排行榜',
@@ -245,7 +266,14 @@
       rkReplayScramble: "打亂",
       rkReplayStartPos: "打亂後",
       rkReplayDrag: "滑動可上下左右各轉90°",
-      rkReplayTitle: "解法重播"
+      rkReplayTitle: "解法重播",
+      rkModeRandomSize: "隨機大小模式",
+      rkModeRandomSizeDesc: "每轉一步，方塊的大小都會隨機變成1%～160%之間的某個值",
+      rkModeNormal: "普通模式",
+      rkModeNormalDesc: "用一般的方塊比速度",
+      rkSeasonNow: "本月",
+      rkSeasonEnded: "已結束",
+      rkSeasonEndedNote: "這個月已經結束了，來挑戰本月的排行榜吧"
     },
     ko: {
       rkTitle: '세계 랭킹',
@@ -303,7 +331,14 @@
       rkReplayScramble: "스크램블",
       rkReplayStartPos: "스크램블 직후",
       rkReplayDrag: "밀면 가로·세로로 90°씩 돌아가요",
-      rkReplayTitle: "풀이 다시 보기"
+      rkReplayTitle: "풀이 다시 보기",
+      rkModeRandomSize: "랜덤 사이즈 모드",
+      rkModeRandomSizeDesc: "한 번 돌릴 때마다 큐브 크기가 1%~160% 사이에서 무작위로 바뀝니다",
+      rkModeNormal: "일반 모드",
+      rkModeNormalDesc: "평소 큐브로 속도를 겨룹니다",
+      rkSeasonNow: "이번 달",
+      rkSeasonEnded: "종료",
+      rkSeasonEndedNote: "이 달은 끝났어요. 이번 달 랭킹에 도전해 보세요"
     },
     es: {
       rkTitle: 'Ranking mundial',
@@ -361,7 +396,14 @@
       rkReplayScramble: "Mezcla",
       rkReplayStartPos: "Recién mezclado",
       rkReplayDrag: "Desliza para girarlo 90° cada vez",
-      rkReplayTitle: "Repetición"
+      rkReplayTitle: "Repetición",
+      rkModeRandomSize: "Modo tamaño aleatorio",
+      rkModeRandomSizeDesc: "Cada giro cambia el cubo a un tamaño aleatorio entre el 1 % y el 160 %",
+      rkModeNormal: "Modo normal",
+      rkModeNormalDesc: "Un cubo normal: solo sé rápido",
+      rkSeasonNow: "Este mes",
+      rkSeasonEnded: "Terminado",
+      rkSeasonEndedNote: "Este mes ya terminó. ¡Prueba el ranking de este mes!"
     },
     id: {
       rkTitle: 'Peringkat Dunia',
@@ -419,7 +461,14 @@
       rkReplayScramble: "Acakan",
       rkReplayStartPos: "Setelah diacak",
       rkReplayDrag: "Geser untuk memutar 90° tiap kali",
-      rkReplayTitle: "Tayangan ulang"
+      rkReplayTitle: "Tayangan ulang",
+      rkModeRandomSize: "Mode Ukuran Acak",
+      rkModeRandomSizeDesc: "Setiap putaran mengubah ukuran kubus secara acak antara 1% dan 160%",
+      rkModeNormal: "Mode Normal",
+      rkModeNormalDesc: "Kubus biasa — adu cepat saja",
+      rkSeasonNow: "Bulan ini",
+      rkSeasonEnded: "Selesai",
+      rkSeasonEndedNote: "Bulan ini sudah selesai. Ayo tantang peringkat bulan ini!"
     },
     ru: {
       rkTitle: 'Мировой рейтинг',
@@ -477,7 +526,14 @@
       rkReplayScramble: "Скрамбл",
       rkReplayStartPos: "После скрамбла",
       rkReplayDrag: "Проведите, чтобы повернуть на 90°",
-      rkReplayTitle: "Повтор сборки"
+      rkReplayTitle: "Повтор сборки",
+      rkModeRandomSize: "Режим случайного размера",
+      rkModeRandomSizeDesc: "После каждого хода размер кубика случайно меняется от 1% до 160%",
+      rkModeNormal: "Обычный режим",
+      rkModeNormalDesc: "Обычный кубик — соревнуйтесь в скорости",
+      rkSeasonNow: "Этот месяц",
+      rkSeasonEnded: "Завершён",
+      rkSeasonEndedNote: "Этот месяц завершён. Попробуйте рейтинг текущего месяца!"
     },
     'pt-BR': {
       rkTitle: 'Ranking Mundial',
@@ -535,7 +591,14 @@
       rkReplayScramble: "Embaralhamento",
       rkReplayStartPos: "Recém-embaralhado",
       rkReplayDrag: "Deslize para girar 90° de cada vez",
-      rkReplayTitle: "Replay"
+      rkReplayTitle: "Replay",
+      rkModeRandomSize: "Modo tamanho aleatório",
+      rkModeRandomSizeDesc: "A cada giro, o cubo muda para um tamanho aleatório entre 1% e 160%",
+      rkModeNormal: "Modo normal",
+      rkModeNormalDesc: "Um cubo normal — é só ser rápido",
+      rkSeasonNow: "Este mês",
+      rkSeasonEnded: "Encerrado",
+      rkSeasonEndedNote: "Este mês já terminou. Tente o ranking deste mês!"
     }
   };
 

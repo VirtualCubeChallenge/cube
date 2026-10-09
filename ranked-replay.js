@@ -342,7 +342,7 @@
     document.addEventListener('keydown', c.onKey, true);
     el.querySelector('.rp-close').addEventListener('click', close);
 
-    opts.api('/api/replay?rank=' + encodeURIComponent(opts.rank)).then(function (r) {
+    opts.api('/api/replay?rank=' + encodeURIComponent(opts.rank) + (opts.season ? '&season=' + encodeURIComponent(opts.season) : '')).then(function (r) {
       if (cur !== c) return;
       if (!r || !r.ok || !Array.isArray(r.moves)) {
         el.querySelector('.rp-msg').textContent = tx('rkErrOffline');
