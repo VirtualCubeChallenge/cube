@@ -355,6 +355,8 @@
       playerId: me.playerId, secret: me.secret,
       attemptId: attempt.id, timeMs: Math.round(ms), moves: moves
     };
+    // 解いたときのキューブの色（上位の解き方の再生で同じ色にする）
+    try { if (typeof global.__getCubeColors === 'function') payload.colors = global.__getCubeColors(); } catch (e) { /* 無くても記録はできる */ }
     attempt = null;
     solvedAt = Date.now();
     toast(esc(tx('rkSending')), 15000);

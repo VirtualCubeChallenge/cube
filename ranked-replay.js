@@ -18,8 +18,13 @@
 
   /* ------------------------------------------------ キューブの模型 -- */
   const FACE_NORMALS = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
-  // +x 赤(R) / -x オレンジ(L) / +y 白(U) / -y 黄(D) / +z 緑(F) / -z 青(B)
-  const FACE_COLORS = [0xe8263a, 0xff8a1c, 0xf4f4f6, 0xffd60a, 0x14a85a, 0x1f66ff];
+  // 色の並びは R(+x) L(-x) U(+y) D(-y) F(+z) B(-z) 内側。記録に色が無い（2026-10-09 より前の）
+  // ときはアプリの最初の配色で出す
+  const DEFAULT_COLORS = ['#b71234', '#ff5800', '#ffffff', '#ffd500', '#009e60', '#0051ba', '#18181c'];
+  function pickColors(list) {
+    const ok = Array.isArray(list) && list.length === 7 && list.every(function (c) { return /^#[0-9a-f]{6}$/i.test(c); });
+    return (ok ? list : DEFAULT_COLORS).map(function (c) { return parseInt(c.slice(1), 16); });
+  }
   const MASK_LAYERS = { 1: [-1], 2: [0], 4: [1], 3: [-1, 0], 6: [0, 1], 7: [-1, 0, 1] };
   const FACE_TURN = { R: [0, 4, -1], L: [0, 1, 1], U: [1, 4, -1], D: [1, 1, 1], F: [2, 4, -1], B: [2, 1, 1] };
   // [軸][層] → [記号, 記号どおりの向き]
@@ -147,7 +152,8 @@
   }
 
   /* ------------------------------------------------ 3Dキューブ -- */
-  function makeView(container) {
+  function makeView(container, colorList) {
+    const COL = pickColors(colorList);
     const THREE = global.THREE;
     if (!THREE) return null;
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -167,7 +173,7 @@
     scene.add(root);
 
     const coreGeo = new THREE.BoxGeometry(0.97, 0.97, 0.97);
-    const coreMat = new THREE.MeshLambertMaterial({ color: 0x0c0c10 });
+    const coreMat = new THREE.MeshLambertMaterial({ color: COL[6] });
     const cores = [];
     for (let x = -1; x <= 1; x++) for (let y = -1; y <= 1; y++) for (let z = -1; z <= 1; z++) {
       const m = new THREE.Mesh(coreGeo, coreMat);
@@ -177,7 +183,7 @@
       cores.push(m);
     }
     const stGeo = new THREE.PlaneGeometry(0.84, 0.84);
-    const mats = FACE_COLORS.map(function (c) { return new THREE.MeshLambertMaterial({ color: c, side: THREE.DoubleSide }); });
+    const mats = COL.slice(0, 6).map(function (c) { return new THREE.MeshLambertMaterial({ color: c, side: THREE.DoubleSide }); });
     let model = solvedStickers();
     const stickers = model.map(function (s) { const m = new THREE.Mesh(stGeo, mats[s.c]); root.add(m); return m; });
     const Z = new THREE.Vector3(0, 0, 1), tmp = new THREE.Vector3();
@@ -352,7 +358,7 @@
               '<i>' + ((m[3] - t0) / 1000).toFixed(2) + '</i></button></li>';
           }).join('') + '</ol></div>';
       wrap.querySelector('.rp-close').addEventListener('click', close);
-      c.view = makeView(wrap.querySelector('.rp-stage'));
+      c.view = makeView(wrap.querySelector('.rp-stage'), r.colors);
       if (!c.view) { wrap.querySelector('.rp-stage').innerHTML = '<div class="rp-msg">3D ×</div>'; }
       else c.view.onDrag = function () { const h = wrap.querySelector('.rp-hint'); if (h) h.style.opacity = '0'; };
       c.range = wrap.querySelector('.rp-range');

@@ -1566,8 +1566,8 @@
        この2行を消せば、入口ごと消えて今までどおりに戻る。 -->
   <script src="ranked-texts.js?v=20261009a"></script>
   <script src="ranked-fx.js?v=20261006b"></script>
-  <script src="ranked-replay.js?v=20261009a"></script>
-  <script src="ranked.js?v=20261009a"></script>
+  <script src="ranked-replay.js?v=20261009b"></script>
+  <script src="ranked.js?v=20261009b"></script>
   <script>
     /* ============================================================
        お問い合わせフォーム（Googleフォーム）のURL
@@ -5668,6 +5668,12 @@
       if (payload.bg !== undefined) scene.background = new THREE.Color(payload.bg);
     }
     window.__applyStickerScheme = applyStickerScheme;
+    // 世界ランキング(ranked.js)が、記録といっしょに「解いたときの色」を送るため。
+    // 並びは R L U D F B 内側（キューブ自身の向き）。
+    window.__getCubeColors = function () {
+      const hex = (n) => '#' + (n >>> 0).toString(16).padStart(6, '0').slice(-6);
+      return [colors.R, colors.L, colors.U, colors.D, colors.F, colors.B, colors.I].map(hex);
+    };
     // 起動時点ですでにショップ側が読み込んでいる「今つけている配色」を
     // 取りに行く（Shop.init() のほうが先に終わっているのでここで拾える）。
     if (window.Shop && typeof window.Shop.getEquippedSchemeColors === 'function') {
