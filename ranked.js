@@ -152,7 +152,7 @@
     '.rk-row.mine{background:linear-gradient(90deg,rgba(176,92,255,.22),rgba(176,92,255,.08));border-radius:12px;',
     '  border-bottom-color:transparent;box-shadow:0 0 0 1px rgba(196,132,255,.7),0 0 16px rgba(176,92,255,.35)}',
     '.rk-row.mine .rk-nick{color:#e6ccff}',
-    '.rk-you{flex:none;margin-left:6px;padding:1px 6px;border-radius:999px;font-size:10px;font-weight:800;',
+    '.rk-you{flex:none;padding:1px 6px;border-radius:999px;font-size:9.5px;font-weight:800;line-height:1.4;',
     '  background:#b05cff;color:#fff;white-space:nowrap}',
     /* 確定演出のあと: ゴールドの炎とネオンで包む */
     '.rk-row.mine.hot,.rk-card.hot{animation:rkHot 1.1s ease-in-out infinite;',
@@ -178,13 +178,16 @@
     '.rk-row.top2{background:linear-gradient(90deg,rgba(214,219,228,.07),transparent 70%)}',
     '.rk-row.top3{background:linear-gradient(90deg,rgba(224,164,106,.08),transparent 70%)}',
     '.rk-row.top1 .rk-time{color:#ffd36a}',
-    '.rk-nick{min-width:0;display:flex;align-items:center;font-weight:700}',
-    '.rk-nick-t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
-    '.rk-tm{display:flex;align-items:baseline;gap:5px;white-space:nowrap;justify-self:end}',
+    /* 名前と「あなた」は縦に積む（名前の幅をできるだけ空ける） */
+    '.rk-nick{min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;font-weight:700}',
+    '.rk-nick-t{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+    /* タイムの下に手数（いつも縦に積む） */
+    '.rk-tm{display:flex;flex-direction:column;align-items:flex-end;gap:0;white-space:nowrap;justify-self:end;line-height:1.2}',
     '.rk-time{font-weight:900;font-size:15.5px;font-variant-numeric:tabular-nums;color:#f0f0f6}',
     '.rk-mv{font-size:11.5px;color:#8a8a9c;font-variant-numeric:tabular-nums}',
     /* 狭い画面では手数をタイムの下へ回し、名前の幅を空ける */
-    '@media (max-width:380px){.rk-tm{flex-direction:column;align-items:flex-end;gap:0}.rk-mv{font-size:10.5px}.rk-row{gap:8px;padding:8px 6px}}',
+    '@media (max-width:380px){.rk-mv{font-size:10.5px}.rk-row{gap:7px;padding:8px 4px;grid-template-columns:34px minmax(0,1fr) auto 30px}',
+    '  .rk-nick-t{font-size:13px}.rk-time{font-size:14.5px}.rk-pos.m1,.rk-pos.m2,.rk-pos.m3{width:27px;height:27px;font-size:13px}}',
     '.rk-empty{color:#7c7c8e;font-size:13px;text-align:center;padding:18px 0}',
     '.rk-links{display:flex;justify-content:center;gap:18px;margin-top:6px;flex-wrap:wrap}',
     '.rk-link{background:none;border:none;color:#8f8fa6;font-size:12.5px;text-decoration:underline;cursor:pointer;',
@@ -261,8 +264,9 @@
   }
   function modeHtml(modeId, season, ended) {
     const mi = modeInfo(modeId);
+    // 期間は決めていないので、月や期間は出さない（終わったシーズンだけ「終了」と付ける）
     return '<div class="rk-mode"><span class="rk-mode-i">' + mi.icon + '</span><div class="rk-mode-t">' +
-      '<p class="rk-mode-k">' + esc(monthLabel(season)) + (ended ? ' · ' + esc(tx('rkSeasonEnded')) : '') + '</p>' +
+      (ended ? '<p class="rk-mode-k">' + esc(tx('rkSeasonEnded')) + '</p>' : '') +
       '<p class="rk-mode-n">' + esc(tx(mi.name)) + '</p>' +
       '<p class="rk-mode-d">' + esc(tx(mi.desc)) + '</p></div></div>';
   }
@@ -605,7 +609,7 @@
         html += '<div class="rk-seasons" role="tablist">' + seasonList.map(function (x) {
           const on = x.id === shownSeason;
           return '<button type="button" class="rk-sz' + (on ? ' on' : '') + '" role="tab" aria-selected="' + on + '" data-season="' + esc(x.id) + '">' +
-            esc(x.id === currentSeason ? tx('rkSeasonNow') : monthLabel(x.id)) + '</button>';
+            modeInfo(x.mode).icon + ' ' + esc(tx(modeInfo(x.mode).name)) + '</button>';
         }).join('') + '</div>';
       }
       if (shownSeason) html += modeHtml(isPast ? (board && board.mode) || modeOfList(shownSeason) : currentMode, shownSeason, isPast);
@@ -636,7 +640,7 @@
             '<span class="rk-pos' + medal + '">' + e.rank + '</span>' +
             '<span class="rk-nick"><span class="rk-nick-t">' + esc(e.nickname) + '</span>' + (isMine ? '<span class="rk-you">' + esc(tx('rkYou')) + '</span>' : '') + '</span>' +
             '<span class="rk-tm"><span class="rk-time">' + esc(listTime(e.timeMs)) + '</span>' +
-            '<span class="rk-mv">/ ' + esc(tx('rkMoves', { n: e.moveCount })) + '</span></span>' +
+            '<span class="rk-mv">' + esc(tx('rkMoves', { n: e.moveCount })) + '</span></span>' +
             // 1〜5位は立体キューブのマークから解き方を1手ずつ見られる
             (e.rank <= REPLAY_MAX_RANK && global.RankedReplay
               ? '<button type="button" class="rk-rp-btn" data-rank="' + e.rank + '" aria-label="' + esc(tx('rkReplayOpen', { n: e.rank })) +

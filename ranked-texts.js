@@ -78,7 +78,7 @@
       rkModeNormalDesc: "いつものキューブで、速さを競います",
       rkSeasonNow: "今月",
       rkSeasonEnded: "終了",
-      rkSeasonEndedNote: "この月は終わりました。今月のランキングで挑戦しよう"
+      rkSeasonEndedNote: "このシーズンは終わりました。開催中のランキングで挑戦しよう"
     },
     en: {
       rkTitle: 'World Ranking',
@@ -143,7 +143,7 @@
       rkModeNormalDesc: "A regular cube — just be fast",
       rkSeasonNow: "This month",
       rkSeasonEnded: "Ended",
-      rkSeasonEndedNote: "This month has ended. Take on this month's ranking!"
+      rkSeasonEndedNote: "This season has ended. Take on the current ranking!"
     },
     'zh-CN': {
       rkTitle: '世界排行榜',
@@ -208,7 +208,7 @@
       rkModeNormalDesc: "用普通的魔方比速度",
       rkSeasonNow: "本月",
       rkSeasonEnded: "已结束",
-      rkSeasonEndedNote: "这个月已经结束了，来挑战本月的排行榜吧"
+      rkSeasonEndedNote: "这个赛季已经结束了，来挑战正在进行的排行榜吧"
     },
     'zh-TW': {
       rkTitle: '世界排行榜',
@@ -273,7 +273,7 @@
       rkModeNormalDesc: "用一般的方塊比速度",
       rkSeasonNow: "本月",
       rkSeasonEnded: "已結束",
-      rkSeasonEndedNote: "這個月已經結束了，來挑戰本月的排行榜吧"
+      rkSeasonEndedNote: "這個賽季已經結束了，來挑戰正在進行的排行榜吧"
     },
     ko: {
       rkTitle: '세계 랭킹',
@@ -338,7 +338,7 @@
       rkModeNormalDesc: "평소 큐브로 속도를 겨룹니다",
       rkSeasonNow: "이번 달",
       rkSeasonEnded: "종료",
-      rkSeasonEndedNote: "이 달은 끝났어요. 이번 달 랭킹에 도전해 보세요"
+      rkSeasonEndedNote: "이 시즌은 끝났어요. 진행 중인 랭킹에 도전해 보세요"
     },
     es: {
       rkTitle: 'Ranking mundial',
@@ -403,7 +403,7 @@
       rkModeNormalDesc: "Un cubo normal: solo sé rápido",
       rkSeasonNow: "Este mes",
       rkSeasonEnded: "Terminado",
-      rkSeasonEndedNote: "Este mes ya terminó. ¡Prueba el ranking de este mes!"
+      rkSeasonEndedNote: "Esta temporada terminó. ¡Prueba el ranking actual!"
     },
     id: {
       rkTitle: 'Peringkat Dunia',
@@ -468,7 +468,7 @@
       rkModeNormalDesc: "Kubus biasa — adu cepat saja",
       rkSeasonNow: "Bulan ini",
       rkSeasonEnded: "Selesai",
-      rkSeasonEndedNote: "Bulan ini sudah selesai. Ayo tantang peringkat bulan ini!"
+      rkSeasonEndedNote: "Musim ini sudah selesai. Ayo tantang peringkat yang sedang berjalan!"
     },
     ru: {
       rkTitle: 'Мировой рейтинг',
@@ -533,7 +533,7 @@
       rkModeNormalDesc: "Обычный кубик — соревнуйтесь в скорости",
       rkSeasonNow: "Этот месяц",
       rkSeasonEnded: "Завершён",
-      rkSeasonEndedNote: "Этот месяц завершён. Попробуйте рейтинг текущего месяца!"
+      rkSeasonEndedNote: "Этот сезон завершён. Попробуйте текущий рейтинг!"
     },
     'pt-BR': {
       rkTitle: 'Ranking Mundial',
@@ -598,7 +598,7 @@
       rkModeNormalDesc: "Um cubo normal — é só ser rápido",
       rkSeasonNow: "Este mês",
       rkSeasonEnded: "Encerrado",
-      rkSeasonEndedNote: "Este mês já terminou. Tente o ranking deste mês!"
+      rkSeasonEndedNote: "Esta temporada terminou. Tente o ranking atual!"
     }
   };
 
