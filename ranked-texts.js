@@ -82,7 +82,8 @@
       rkShareX: "Xでシェア",
       rkShareText: "🌍 バーチャルキューブチャレンジ 世界ランキング {rank}位！\n{mode}　{time}（{moves}手）",
       rkCardMoves: "手数",
-      rkCardPlayers: "参加者"
+      rkCardPlayers: "参加者",
+      rkShareImgFail: "シェア用の画像を作れませんでした"
     },
     en: {
       rkTitle: 'World Ranking',
@@ -151,7 +152,8 @@
       rkShareX: "Share on X",
       rkShareText: "🌍 #{rank} in the Virtual Cube Challenge world ranking!\n{mode} — {time} ({moves} moves)",
       rkCardMoves: "Moves",
-      rkCardPlayers: "Players"
+      rkCardPlayers: "Players",
+      rkShareImgFail: "Couldn't create the share image"
     },
     'zh-CN': {
       rkTitle: '世界排行榜',
@@ -220,7 +222,8 @@
       rkShareX: "分享到 X",
       rkShareText: "🌍 Virtual Cube Challenge 世界排行榜第{rank}名！\n{mode}　{time}（{moves}步）",
       rkCardMoves: "步数",
-      rkCardPlayers: "参与者"
+      rkCardPlayers: "参与者",
+      rkShareImgFail: "无法生成分享图片"
     },
     'zh-TW': {
       rkTitle: '世界排行榜',
@@ -289,7 +292,8 @@
       rkShareX: "分享到 X",
       rkShareText: "🌍 Virtual Cube Challenge 世界排行榜第{rank}名！\n{mode}　{time}（{moves}步）",
       rkCardMoves: "步數",
-      rkCardPlayers: "參與者"
+      rkCardPlayers: "參與者",
+      rkShareImgFail: "無法產生分享圖片"
     },
     ko: {
       rkTitle: '세계 랭킹',
@@ -358,7 +362,8 @@
       rkShareX: "X에 공유",
       rkShareText: "🌍 버추얼 큐브 챌린지 세계 랭킹 {rank}위!\n{mode} {time} ({moves}수)",
       rkCardMoves: "수",
-      rkCardPlayers: "참가자"
+      rkCardPlayers: "참가자",
+      rkShareImgFail: "공유 이미지를 만들지 못했어요"
     },
     es: {
       rkTitle: 'Ranking mundial',
@@ -427,7 +432,8 @@
       rkShareX: "Compartir en X",
       rkShareText: "🌍 ¡N.º {rank} en el ranking mundial de Virtual Cube Challenge!\n{mode} — {time} ({moves} mov.)",
       rkCardMoves: "Movimientos",
-      rkCardPlayers: "Jugadores"
+      rkCardPlayers: "Jugadores",
+      rkShareImgFail: "No se pudo crear la imagen para compartir"
     },
     id: {
       rkTitle: 'Peringkat Dunia',
@@ -496,7 +502,8 @@
       rkShareX: "Bagikan ke X",
       rkShareText: "🌍 Peringkat {rank} dunia di Virtual Cube Challenge!\n{mode} — {time} ({moves} langkah)",
       rkCardMoves: "Langkah",
-      rkCardPlayers: "Pemain"
+      rkCardPlayers: "Pemain",
+      rkShareImgFail: "Gambar untuk dibagikan tidak bisa dibuat"
     },
     ru: {
       rkTitle: 'Мировой рейтинг',
@@ -565,7 +572,8 @@
       rkShareX: "Поделиться в X",
       rkShareText: "🌍 №{rank} в мировом рейтинге Virtual Cube Challenge!\n{mode} — {time} ({moves} ход.)",
       rkCardMoves: "Ходы",
-      rkCardPlayers: "Игроки"
+      rkCardPlayers: "Игроки",
+      rkShareImgFail: "Не удалось создать изображение"
     },
     'pt-BR': {
       rkTitle: 'Ranking Mundial',
@@ -634,7 +642,8 @@
       rkShareX: "Compartilhar no X",
       rkShareText: "🌍 Nº {rank} no ranking mundial do Virtual Cube Challenge!\n{mode} — {time} ({moves} mov.)",
       rkCardMoves: "Movimentos",
-      rkCardPlayers: "Jogadores"
+      rkCardPlayers: "Jogadores",
+      rkShareImgFail: "Não foi possível criar a imagem"
     }
   };
 

@@ -876,14 +876,19 @@
     if (!mine) return;
     const mi = modeInfo((board && board.mode) || currentMode);
     const caption = shareCaption(mine, mi);
+    // 画像が作れない・小窓が無いときは、黙って文字だけの X を開かずに理由を出す（原因を突き止めるため）
     let cv = null;
-    try { cv = shareCard(mine, mi); } catch (e) { cv = null; }
-    if (global.PllShare && typeof global.PllShare.shareCanvas === 'function') { global.PllShare.shareCanvas(cv, caption); return; }
-    // 画像の小窓が使えないときは、文字だけで X を開く
-    const url = 'https://x.com/intent/post?text=' + encodeURIComponent(caption) + '&url=' + encodeURIComponent(SITE_URL);
-    const a = document.createElement('a');
-    a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
-    document.body.appendChild(a); a.click(); a.remove();
+    try { cv = shareCard(mine, mi); } catch (e) {
+      toast(esc(tx('rkShareImgFail')) + '<br><small>' + esc(String((e && e.message) || e)) + '</small>', 9000);
+      return;
+    }
+    if (!global.PllShare || typeof global.PllShare.shareCanvas !== 'function') {
+      toast(esc(tx('rkShareImgFail')) + '<br><small>PllShare.shareCanvas が読み込まれていません（pll-share.js が古い）</small>', 9000);
+      return;
+    }
+    try { global.PllShare.shareCanvas(cv, caption); } catch (e) {
+      toast(esc(tx('rkShareImgFail')) + '<br><small>' + esc(String((e && e.message) || e)) + '</small>', 9000);
+    }
   }
 
   function leave() {
