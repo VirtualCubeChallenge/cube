@@ -206,6 +206,10 @@
     '.rk-mode-n{margin:2px 0 3px;font-size:17px;font-weight:900;color:#f4ecff}',
     '.rk-mode-d{margin:0;font-size:12.5px;line-height:1.55;color:#cfc6dc}',
     '.rk-ended{font-size:12.5px;color:#9a9aac;text-align:center;margin:10px 0 0}',
+    '.rk-xshare{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:10px;padding:11px;',
+    '  border-radius:12px;border:1px solid #3a3a48;background:#000;color:#fff;font:inherit;font-size:14px;font-weight:800;cursor:pointer}',
+    '.rk-xshare svg{width:16px;height:16px;fill:#fff}',
+    '.rk-xshare:active{transform:scale(.97)}',
     '.rk-link.danger{color:#ff5a6e;text-decoration-color:rgba(255,90,110,.6);font-weight:700}',
     '.rk-sec{font-size:13px;font-weight:800;color:#9a9aac;margin:0 0 6px;display:flex;justify-content:space-between}',
 
@@ -238,6 +242,11 @@
   ].join('\n');
 
   const REPLAY_MAX_RANK = 5;   // サーバーの REPLAY_MAX_RANK と同じ
+  const TOP_N = 10;            // ランキングに並べる人数
+  const SITE_URL = 'https://virtualcubechallenge.github.io/cube/';
+  const HASHTAG = '#VirtualCubeChallenge';
+  const X_LOGO = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+    '<path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.21-6.82-5.97 6.82H1.67l7.73-8.84L1.25 2.25h6.83l4.71 6.23 5.45-6.23Zm-1.16 17.52h1.83L7.08 4.13H5.12l11.96 15.64Z"/></svg>';
   function injectCSS() {
     if (global.RankedReplay) global.RankedReplay.injectCSS();
     if ($('rk-style')) return;
@@ -569,7 +578,7 @@
     loading = true;
     render();
     const want = viewSeason;
-    api('/api/ranking?limit=50' + (me ? '&player=' + encodeURIComponent(me.playerId) : '') +
+    api('/api/ranking?limit=' + TOP_N + (me ? '&player=' + encodeURIComponent(me.playerId) : '') +
         (want ? '&season=' + encodeURIComponent(want) : '')).then(function (r) {
       if (want !== viewSeason) return;      // 途中で別の月に切り替えた
       loading = false;
@@ -618,12 +627,13 @@
         '<div class="rk-me-best">' + (mine
           ? '<b>' + esc(fmtTime(mine.timeMs)) + '</b><span>' + esc(tx('rkMyBest')) + ' · ' + esc(tx('rkRank', { n: mine.rank })) + '</span>'
           : '<span>' + esc(tx('rkNoRecordYet')) + '</span>') + '</div></div>' +
+        (mine ? '<button type="button" class="rk-xshare" id="rk-xshare">' + X_LOGO + '<span>' + esc(tx('rkShareX')) + '</span></button>' : '') +
         (isPast
           ? '<p class="rk-ended">' + esc(tx('rkSeasonEndedNote')) + '</p>'
           : '<button type="button" class="rk-btn go" id="rk-start"' + (state !== 'idle' ? ' disabled' : '') + '>' + esc(tx('rkStart')) + '</button>' +
             rulesHtml()) + '</div>';
 
-      html += '<div class="rk-card"><p class="rk-sec"><span>TOP 50</span><span>' +
+      html += '<div class="rk-card"><p class="rk-sec"><span>TOP ' + TOP_N + '</span><span>' +
         (board && board.total ? esc(tx('rkPlayers', { n: board.total })) : '') + '</span></p>';
       if (loading && !board) {
         html += '<div class="rk-empty">…</div>';
@@ -669,6 +679,7 @@
     on('rk-start', startRanked);
     on('rk-rename', function () { view = 'rename'; render(); });
     on('rk-leave', leave);
+    on('rk-xshare', shareX);
     const sz = document.querySelector('#rk-overlay .rk-seasons');
     if (sz) sz.addEventListener('click', function (e) {
       const b = e.target.closest('.rk-sz');
@@ -713,6 +724,21 @@
       board = null;
       loadBoard();
     });
+  }
+
+  // 自分の順位を X に投稿する（下書きが入るだけ。投稿するかは本人が決める）
+  function shareX() {
+    const mine = board && board.me;
+    if (!mine) return;
+    const mi = modeInfo((board && board.mode) || currentMode);
+    const text = tx('rkShareText', {
+      rank: mine.rank, mode: mi.icon + ' ' + tx(mi.name), time: listTime(mine.timeMs), moves: mine.moveCount
+    }) + '\n' + HASHTAG;
+    const url = 'https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(SITE_URL);
+    // ホーム画面に置いたアプリから開いても、アプリ自体は離れないように新しいタブで開く
+    const a = document.createElement('a');
+    a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+    document.body.appendChild(a); a.click(); a.remove();
   }
 
   function leave() {

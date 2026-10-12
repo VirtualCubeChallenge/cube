@@ -78,7 +78,9 @@
       rkModeNormalDesc: "いつものキューブで、速さを競います",
       rkSeasonNow: "今月",
       rkSeasonEnded: "終了",
-      rkSeasonEndedNote: "このシーズンは終わりました。開催中のランキングで挑戦しよう"
+      rkSeasonEndedNote: "このシーズンは終わりました。開催中のランキングで挑戦しよう",
+      rkShareX: "Xでシェア",
+      rkShareText: "🌍 バーチャルキューブチャレンジ 世界ランキング {rank}位！\n{mode}　{time}（{moves}手）"
     },
     en: {
       rkTitle: 'World Ranking',
@@ -143,7 +145,9 @@
       rkModeNormalDesc: "A regular cube — just be fast",
       rkSeasonNow: "This month",
       rkSeasonEnded: "Ended",
-      rkSeasonEndedNote: "This season has ended. Take on the current ranking!"
+      rkSeasonEndedNote: "This season has ended. Take on the current ranking!",
+      rkShareX: "Share on X",
+      rkShareText: "🌍 #{rank} in the Virtual Cube Challenge world ranking!\n{mode} — {time} ({moves} moves)"
     },
     'zh-CN': {
       rkTitle: '世界排行榜',
@@ -208,7 +212,9 @@
       rkModeNormalDesc: "用普通的魔方比速度",
       rkSeasonNow: "本月",
       rkSeasonEnded: "已结束",
-      rkSeasonEndedNote: "这个赛季已经结束了，来挑战正在进行的排行榜吧"
+      rkSeasonEndedNote: "这个赛季已经结束了，来挑战正在进行的排行榜吧",
+      rkShareX: "分享到 X",
+      rkShareText: "🌍 Virtual Cube Challenge 世界排行榜第{rank}名！\n{mode}　{time}（{moves}步）"
     },
     'zh-TW': {
       rkTitle: '世界排行榜',
@@ -273,7 +279,9 @@
       rkModeNormalDesc: "用一般的方塊比速度",
       rkSeasonNow: "本月",
       rkSeasonEnded: "已結束",
-      rkSeasonEndedNote: "這個賽季已經結束了，來挑戰正在進行的排行榜吧"
+      rkSeasonEndedNote: "這個賽季已經結束了，來挑戰正在進行的排行榜吧",
+      rkShareX: "分享到 X",
+      rkShareText: "🌍 Virtual Cube Challenge 世界排行榜第{rank}名！\n{mode}　{time}（{moves}步）"
     },
     ko: {
       rkTitle: '세계 랭킹',
@@ -338,7 +346,9 @@
       rkModeNormalDesc: "평소 큐브로 속도를 겨룹니다",
       rkSeasonNow: "이번 달",
       rkSeasonEnded: "종료",
-      rkSeasonEndedNote: "이 시즌은 끝났어요. 진행 중인 랭킹에 도전해 보세요"
+      rkSeasonEndedNote: "이 시즌은 끝났어요. 진행 중인 랭킹에 도전해 보세요",
+      rkShareX: "X에 공유",
+      rkShareText: "🌍 버추얼 큐브 챌린지 세계 랭킹 {rank}위!\n{mode} {time} ({moves}수)"
     },
     es: {
       rkTitle: 'Ranking mundial',
@@ -403,7 +413,9 @@
       rkModeNormalDesc: "Un cubo normal: solo sé rápido",
       rkSeasonNow: "Este mes",
       rkSeasonEnded: "Terminado",
-      rkSeasonEndedNote: "Esta temporada terminó. ¡Prueba el ranking actual!"
+      rkSeasonEndedNote: "Esta temporada terminó. ¡Prueba el ranking actual!",
+      rkShareX: "Compartir en X",
+      rkShareText: "🌍 ¡N.º {rank} en el ranking mundial de Virtual Cube Challenge!\n{mode} — {time} ({moves} mov.)"
     },
     id: {
       rkTitle: 'Peringkat Dunia',
@@ -468,7 +480,9 @@
       rkModeNormalDesc: "Kubus biasa — adu cepat saja",
       rkSeasonNow: "Bulan ini",
       rkSeasonEnded: "Selesai",
-      rkSeasonEndedNote: "Musim ini sudah selesai. Ayo tantang peringkat yang sedang berjalan!"
+      rkSeasonEndedNote: "Musim ini sudah selesai. Ayo tantang peringkat yang sedang berjalan!",
+      rkShareX: "Bagikan ke X",
+      rkShareText: "🌍 Peringkat {rank} dunia di Virtual Cube Challenge!\n{mode} — {time} ({moves} langkah)"
     },
     ru: {
       rkTitle: 'Мировой рейтинг',
@@ -533,7 +547,9 @@
       rkModeNormalDesc: "Обычный кубик — соревнуйтесь в скорости",
       rkSeasonNow: "Этот месяц",
       rkSeasonEnded: "Завершён",
-      rkSeasonEndedNote: "Этот сезон завершён. Попробуйте текущий рейтинг!"
+      rkSeasonEndedNote: "Этот сезон завершён. Попробуйте текущий рейтинг!",
+      rkShareX: "Поделиться в X",
+      rkShareText: "🌍 №{rank} в мировом рейтинге Virtual Cube Challenge!\n{mode} — {time} ({moves} ход.)"
     },
     'pt-BR': {
       rkTitle: 'Ranking Mundial',
@@ -598,7 +614,9 @@
       rkModeNormalDesc: "Um cubo normal — é só ser rápido",
       rkSeasonNow: "Este mês",
       rkSeasonEnded: "Encerrado",
-      rkSeasonEndedNote: "Esta temporada terminou. Tente o ranking atual!"
+      rkSeasonEndedNote: "Esta temporada terminou. Tente o ranking atual!",
+      rkShareX: "Compartilhar no X",
+      rkShareText: "🌍 Nº {rank} no ranking mundial do Virtual Cube Challenge!\n{mode} — {time} ({moves} mov.)"
     }
   };
 
