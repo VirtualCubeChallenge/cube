@@ -726,16 +726,161 @@
     });
   }
 
-  // 自分の順位を X に投稿する（下書きが入るだけ。投稿するかは本人が決める）
+  // 自分の順位を X に投稿する。結果を1枚の画像（1080×1350）に描いて、PLL検定と同じ
+  // 確認の小窓（pll-share.js の PllShare.shareCanvas）から渡す。投稿するかは本人が決める
+  function shareCaption(mine, mi) {
+    return tx('rkShareText', {
+      rank: mine.rank, mode: mi.icon + ' ' + tx(mi.name), time: listTime(mine.timeMs), moves: mine.moveCount
+    }) + '\n' + HASHTAG;
+  }
+  function rrect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+  function fitFont(ctx, s, weight, size, minSize, maxW, F) {
+    ctx.font = weight + ' ' + size + 'px ' + F;
+    while (size > minSize && ctx.measureText(s).width > maxW) { size -= 2; ctx.font = weight + ' ' + size + 'px ' + F; }
+    return size;
+  }
+  function shareCard(mine, mi) {
+    const W = 1080, H = 1350;
+    const cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    const ctx = cv.getContext('2d');
+    let F = 'sans-serif';
+    try { F = getComputedStyle(document.body).fontFamily || F; } catch (e) { /* そのまま */ }
+    let tc = '#2ef2c0', tcRgb = '46,242,192';
+    try {
+      const cs = getComputedStyle(document.documentElement);
+      tc = cs.getPropertyValue('--tc').trim() || tc;
+      tcRgb = cs.getPropertyValue('--tc-rgb').trim() || tcRgb;
+    } catch (e) { /* そのまま */ }
+    const MEDAL = { 1: ['#fff8d2', '#ffd36a', '#c98a12', '#3d2700'], 2: ['#ffffff', '#d6dbe4', '#8b93a3', '#262a33'], 3: ['#ffe2c4', '#e0a46a', '#9a5a24', '#2e1604'] };
+    const medal = MEDAL[mine.rank];
+
+    // 背景（PLL検定の画像と同じ色合い）＋ 紫の光
+    ctx.fillStyle = '#06060a'; ctx.fillRect(0, 0, W, H);
+    let g = ctx.createRadialGradient(W * 0.5, 0, 0, W * 0.5, 0, W * 0.95);
+    g.addColorStop(0, 'rgba(' + tcRgb + ',.20)'); g.addColorStop(1, 'rgba(' + tcRgb + ',0)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    g = ctx.createRadialGradient(W, H, 0, W, H, W);
+    g.addColorStop(0, 'rgba(176,92,255,.26)'); g.addColorStop(1, 'rgba(176,92,255,0)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+    const PX = 48, PY = 48, PW = W - 96, PH = H - 96;
+    rrect(ctx, PX, PY, PW, PH, 36);
+    ctx.fillStyle = '#121218'; ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = '#2c2c38'; ctx.stroke();
+    const L = PX + 48, R = PX + PW - 48, CW = R - L, CX = W / 2;
+    ctx.textBaseline = 'alphabetic';
+
+    // アプリ名と見出し
+    ctx.textAlign = 'left';
+    ctx.font = '800 26px ' + F; ctx.fillStyle = tc;
+    ctx.fillText('VIRTUAL CUBE CHALLENGE', L, PY + 74);
+    ctx.font = '900 58px ' + F; ctx.fillStyle = '#f2f2f8';
+    ctx.fillText('🌍 ' + tx('rkTitle'), L, PY + 152);
+
+    // モードの札
+    let y = PY + 186;
+    const modeText = mi.icon + ' ' + tx(mi.name);
+    ctx.font = '900 32px ' + F;
+    const mw = Math.min(CW, ctx.measureText(modeText).width + 56);
+    rrect(ctx, L, y, mw, 64, 32);
+    ctx.fillStyle = 'rgba(176,92,255,.18)'; ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(196,132,255,.75)'; ctx.stroke();
+    ctx.fillStyle = '#efe4ff'; ctx.fillText(modeText, L + 28, y + 44);
+
+    // 順位（1〜3位はメダル）
+    y += 140;
+    const rankText = tx('rkRank', { n: mine.rank });
+    const cy = y + 150;
+    if (medal) {
+      const rg = ctx.createRadialGradient(CX - 50, cy - 60, 10, CX, cy, 160);
+      rg.addColorStop(0, medal[0]); rg.addColorStop(0.45, medal[1]); rg.addColorStop(1, medal[2]);
+      ctx.save();
+      ctx.shadowColor = medal[1]; ctx.shadowBlur = 60;
+      ctx.beginPath(); ctx.arc(CX, cy, 150, 0, Math.PI * 2); ctx.fillStyle = rg; ctx.fill();
+      ctx.restore();
+      ctx.lineWidth = 8; ctx.strokeStyle = 'rgba(255,255,255,.35)';
+      ctx.beginPath(); ctx.arc(CX, cy, 150, 0, Math.PI * 2); ctx.stroke();
+      ctx.textAlign = 'center'; ctx.fillStyle = medal[3];
+      fitFont(ctx, rankText, '900', 120, 60, 250, F);
+      ctx.fillText(rankText, CX, cy + 42);
+    } else {
+      ctx.textAlign = 'center';
+      ctx.save();
+      ctx.shadowColor = 'rgba(' + tcRgb + ',.6)'; ctx.shadowBlur = 40;
+      ctx.fillStyle = tc;
+      fitFont(ctx, rankText, '900', 170, 80, CW, F);
+      ctx.fillText(rankText, CX, cy + 60);
+      ctx.restore();
+    }
+
+    // 名前
+    y = cy + 150 + 100;
+    ctx.textAlign = 'center'; ctx.fillStyle = '#f2f2f8';
+    fitFont(ctx, me ? me.nickname : '', '900', 64, 36, CW, F);
+    ctx.fillText(me ? me.nickname : '', CX, y);
+
+    // タイム（いちばん大きく）
+    y += 170;
+    ctx.save();
+    ctx.shadowColor = 'rgba(' + tcRgb + ',.55)'; ctx.shadowBlur = 36;
+    ctx.fillStyle = tc;
+    const t = listTime(mine.timeMs);
+    fitFont(ctx, t, '900', 150, 80, CW, F);
+    ctx.fillText(t, CX, y);
+    ctx.restore();
+
+    // 数字3つ: 手数・TPS・参加者
+    y += 80;
+    const tps = mine.timeMs > 0 ? (mine.moveCount / (mine.timeMs / 1000)).toFixed(2) : '–';
+    const stats = [
+      [tx('rkCardMoves'), String(mine.moveCount)],
+      ['TPS', tps],
+      [tx('rkCardPlayers'), String((board && board.total) || 1)]
+    ];
+    const gap = 20, bw = (CW - gap * 2) / 3, bh = 160;
+    stats.forEach(function (st, i) {
+      const x = L + i * (bw + gap);
+      rrect(ctx, x, y, bw, bh, 22);
+      ctx.fillStyle = '#17171e'; ctx.fill();
+      ctx.lineWidth = 2; ctx.strokeStyle = '#2a2a36'; ctx.stroke();
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#8b8b9c';
+      fitFont(ctx, st[0], '700', 28, 18, bw - 24, F);
+      ctx.fillText(st[0], x + bw / 2, y + 50);
+      ctx.fillStyle = '#f2f2f8';
+      fitFont(ctx, st[1], '900', 60, 30, bw - 24, F);
+      ctx.fillText(st[1], x + bw / 2, y + 128);
+    });
+
+    // 足もと: 日時とサイトの URL
+    const footY = PY + PH - 40;
+    ctx.strokeStyle = '#26262f'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(L, footY - 34); ctx.lineTo(R, footY - 34); ctx.stroke();
+    const d = new Date(), z = function (n) { return (n < 10 ? '0' : '') + n; };
+    ctx.font = '700 24px ' + F; ctx.fillStyle = '#6e6e80';
+    ctx.textAlign = 'left';
+    ctx.fillText(d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + ' ' + z(d.getHours()) + ':' + z(d.getMinutes()), L, footY);
+    ctx.textAlign = 'right';
+    ctx.fillText(SITE_URL.replace(/^https:\/\//, ''), R, footY);
+    return cv;
+  }
   function shareX() {
     const mine = board && board.me;
     if (!mine) return;
     const mi = modeInfo((board && board.mode) || currentMode);
-    const text = tx('rkShareText', {
-      rank: mine.rank, mode: mi.icon + ' ' + tx(mi.name), time: listTime(mine.timeMs), moves: mine.moveCount
-    }) + '\n' + HASHTAG;
-    const url = 'https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(SITE_URL);
-    // ホーム画面に置いたアプリから開いても、アプリ自体は離れないように新しいタブで開く
+    const caption = shareCaption(mine, mi);
+    let cv = null;
+    try { cv = shareCard(mine, mi); } catch (e) { cv = null; }
+    if (global.PllShare && typeof global.PllShare.shareCanvas === 'function') { global.PllShare.shareCanvas(cv, caption); return; }
+    // 画像の小窓が使えないときは、文字だけで X を開く
+    const url = 'https://x.com/intent/post?text=' + encodeURIComponent(caption) + '&url=' + encodeURIComponent(SITE_URL);
     const a = document.createElement('a');
     a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
     document.body.appendChild(a); a.click(); a.remove();
@@ -803,5 +948,5 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 
-  global.Ranked = { open: openOverlay, close: closeOverlay, start: startRanked, state: function () { return state; }, celebrate: celebrate };
+  global.Ranked = { shareCard: function () { return board && board.me ? shareCard(board.me, modeInfo(board.mode || currentMode)) : null; }, open: openOverlay, close: closeOverlay, start: startRanked, state: function () { return state; }, celebrate: celebrate };
 })(window);

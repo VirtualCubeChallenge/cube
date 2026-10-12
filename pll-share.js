@@ -547,7 +547,10 @@
   function shareResult(kind) {
     let cv;
     try { cv = kind === 'pllt' ? cardPllt() : cardPlf(); } catch (e) { cv = null; }
-    const caption = (kind === 'pllt' ? textPllt() : textPlf());
+    shareCanvas(cv, kind === 'pllt' ? textPllt() : textPlf());
+  }
+  // 画像（canvas）と文面を受け取って、確認の小窓から X へ。世界ランキング(ranked.js)からも使う
+  function shareCanvas(cv, caption) {
     if (!cv) { openX(caption); return; }
     const url = cv.toDataURL('image/png');
     const file = dataUrlToFile(url, 'vcc-result.png');
@@ -608,6 +611,7 @@
 
   global.PllShare = {
     textPllt: textPllt, textPlf: textPlf, share: shareResult,
+    shareCanvas: shareCanvas,
     // 確認用：シェア画像を data URL で返す（'pllt' | 'plf'）
     image: function (kind) { return (kind === 'pllt' ? cardPllt() : cardPlf()).toDataURL('image/png'); }
   };

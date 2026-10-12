@@ -80,7 +80,9 @@
       rkSeasonEnded: "終了",
       rkSeasonEndedNote: "このシーズンは終わりました。開催中のランキングで挑戦しよう",
       rkShareX: "Xでシェア",
-      rkShareText: "🌍 バーチャルキューブチャレンジ 世界ランキング {rank}位！\n{mode}　{time}（{moves}手）"
+      rkShareText: "🌍 バーチャルキューブチャレンジ 世界ランキング {rank}位！\n{mode}　{time}（{moves}手）",
+      rkCardMoves: "手数",
+      rkCardPlayers: "参加者"
     },
     en: {
       rkTitle: 'World Ranking',
@@ -147,7 +149,9 @@
       rkSeasonEnded: "Ended",
       rkSeasonEndedNote: "This season has ended. Take on the current ranking!",
       rkShareX: "Share on X",
-      rkShareText: "🌍 #{rank} in the Virtual Cube Challenge world ranking!\n{mode} — {time} ({moves} moves)"
+      rkShareText: "🌍 #{rank} in the Virtual Cube Challenge world ranking!\n{mode} — {time} ({moves} moves)",
+      rkCardMoves: "Moves",
+      rkCardPlayers: "Players"
     },
     'zh-CN': {
       rkTitle: '世界排行榜',
@@ -214,7 +218,9 @@
       rkSeasonEnded: "已结束",
       rkSeasonEndedNote: "这个赛季已经结束了，来挑战正在进行的排行榜吧",
       rkShareX: "分享到 X",
-      rkShareText: "🌍 Virtual Cube Challenge 世界排行榜第{rank}名！\n{mode}　{time}（{moves}步）"
+      rkShareText: "🌍 Virtual Cube Challenge 世界排行榜第{rank}名！\n{mode}　{time}（{moves}步）",
+      rkCardMoves: "步数",
+      rkCardPlayers: "参与者"
     },
     'zh-TW': {
       rkTitle: '世界排行榜',
@@ -281,7 +287,9 @@
       rkSeasonEnded: "已結束",
       rkSeasonEndedNote: "這個賽季已經結束了，來挑戰正在進行的排行榜吧",
       rkShareX: "分享到 X",
-      rkShareText: "🌍 Virtual Cube Challenge 世界排行榜第{rank}名！\n{mode}　{time}（{moves}步）"
+      rkShareText: "🌍 Virtual Cube Challenge 世界排行榜第{rank}名！\n{mode}　{time}（{moves}步）",
+      rkCardMoves: "步數",
+      rkCardPlayers: "參與者"
     },
     ko: {
       rkTitle: '세계 랭킹',
@@ -348,7 +356,9 @@
       rkSeasonEnded: "종료",
       rkSeasonEndedNote: "이 시즌은 끝났어요. 진행 중인 랭킹에 도전해 보세요",
       rkShareX: "X에 공유",
-      rkShareText: "🌍 버추얼 큐브 챌린지 세계 랭킹 {rank}위!\n{mode} {time} ({moves}수)"
+      rkShareText: "🌍 버추얼 큐브 챌린지 세계 랭킹 {rank}위!\n{mode} {time} ({moves}수)",
+      rkCardMoves: "수",
+      rkCardPlayers: "참가자"
     },
     es: {
       rkTitle: 'Ranking mundial',
@@ -415,7 +425,9 @@
       rkSeasonEnded: "Terminado",
       rkSeasonEndedNote: "Esta temporada terminó. ¡Prueba el ranking actual!",
       rkShareX: "Compartir en X",
-      rkShareText: "🌍 ¡N.º {rank} en el ranking mundial de Virtual Cube Challenge!\n{mode} — {time} ({moves} mov.)"
+      rkShareText: "🌍 ¡N.º {rank} en el ranking mundial de Virtual Cube Challenge!\n{mode} — {time} ({moves} mov.)",
+      rkCardMoves: "Movimientos",
+      rkCardPlayers: "Jugadores"
     },
     id: {
       rkTitle: 'Peringkat Dunia',
@@ -482,7 +494,9 @@
       rkSeasonEnded: "Selesai",
       rkSeasonEndedNote: "Musim ini sudah selesai. Ayo tantang peringkat yang sedang berjalan!",
       rkShareX: "Bagikan ke X",
-      rkShareText: "🌍 Peringkat {rank} dunia di Virtual Cube Challenge!\n{mode} — {time} ({moves} langkah)"
+      rkShareText: "🌍 Peringkat {rank} dunia di Virtual Cube Challenge!\n{mode} — {time} ({moves} langkah)",
+      rkCardMoves: "Langkah",
+      rkCardPlayers: "Pemain"
     },
     ru: {
       rkTitle: 'Мировой рейтинг',
@@ -549,7 +563,9 @@
       rkSeasonEnded: "Завершён",
       rkSeasonEndedNote: "Этот сезон завершён. Попробуйте текущий рейтинг!",
       rkShareX: "Поделиться в X",
-      rkShareText: "🌍 №{rank} в мировом рейтинге Virtual Cube Challenge!\n{mode} — {time} ({moves} ход.)"
+      rkShareText: "🌍 №{rank} в мировом рейтинге Virtual Cube Challenge!\n{mode} — {time} ({moves} ход.)",
+      rkCardMoves: "Ходы",
+      rkCardPlayers: "Игроки"
     },
     'pt-BR': {
       rkTitle: 'Ranking Mundial',
@@ -616,7 +632,9 @@
       rkSeasonEnded: "Encerrado",
       rkSeasonEndedNote: "Esta temporada terminou. Tente o ranking atual!",
       rkShareX: "Compartilhar no X",
-      rkShareText: "🌍 Nº {rank} no ranking mundial do Virtual Cube Challenge!\n{mode} — {time} ({moves} mov.)"
+      rkShareText: "🌍 Nº {rank} no ranking mundial do Virtual Cube Challenge!\n{mode} — {time} ({moves} mov.)",
+      rkCardMoves: "Movimentos",
+      rkCardPlayers: "Jogadores"
     }
   };
 
