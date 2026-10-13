@@ -1564,7 +1564,7 @@
   <script src="pll-share.js?v=20261013b"></script>
   <!-- 世界ランキング（ランク戦）。文言(9言語)と本体。ドロワーに入口を足す。
        この2行を消せば、入口ごと消えて今までどおりに戻る。 -->
-  <script src="ranked-texts.js?v=20261013b"></script>
+  <script src="ranked-texts.js?v=20261013c"></script>
   <script src="ranked-fx.js?v=20261006b"></script>
   <script src="ranked-replay.js?v=20261009e"></script>
   <script src="ranked.js?v=20261013c"></script>
@@ -4316,6 +4316,9 @@
         titleKey: 'tutMenuTitle', bodyKey: 'tutMenuBody' },
       { id: 'menuOpen', phase: 2, mode: 'card', target: '#menu-actions', holdMenu: true,
         titleKey: 'tutMenuOpenTitle', bodyKey: 'tutMenuOpenBody' },
+      // 世界ランキングの入口（ドロワーの中の「🌍 世界ランキング」）。ドロワーは開けたまま
+      { id: 'ranked', phase: 2, mode: 'card', target: '#ranked-btn', holdMenu: true,
+        titleKey: 'tutRankedTitle', bodyKey: 'tutRankedBody' },
 
       { id: 'shuffle', phase: 3, mode: 'shuffle', target: '#shuffle-slider',
         titleKey: 'tutShuffleTitle', bodyKey: 'tutShuffleBody' },
@@ -4349,6 +4352,9 @@
         titleKey: 'tutMenuTitle', bodyKey: 'tutMenuBody' },
       { id: 'menuOpen', phase: 2, mode: 'card', target: '#menu-actions', holdMenu: true,
         titleKey: 'tutMenuOpenTitle', bodyKey: 'tutMenuOpenBody' },
+      // 世界ランキングの入口（ドロワーの中の「🌍 世界ランキング」）。ドロワーは開けたまま
+      { id: 'ranked', phase: 2, mode: 'card', target: '#ranked-btn', holdMenu: true,
+        titleKey: 'tutRankedTitle', bodyKey: 'tutRankedBody' },
 
       { id: 'alg', phase: 3, mode: 'card', target: '.alg-row',
         titleKey: 'tutAlgTitle', bodyKey: 'tutAlgBody' },
@@ -4725,7 +4731,7 @@
       // ボタンにも触れさせない。ここで触れて局面やオーバーレイの状態が
       // 変わってしまうと、保持中のドロワーや後続ステップと噛み合わなく
       // なるため。
-      const explainLocked = st.id === 'menuOpen';
+      const explainLocked = st.id === 'menuOpen' || st.id === 'ranked';
       if (tutCanvasContainer) tutCanvasContainer.classList.toggle('tut-locked', explainLocked);
       menuActions.classList.toggle('tut-explain-lock', explainLocked);
 
@@ -4767,6 +4773,10 @@
         return;
       }
 
+      // 世界ランキングのボタンが無い（ranked.js が読めなかった）ときは、リングを出さず文面だけ
+      if (st.id === 'ranked' && !document.getElementById('ranked-btn')) {
+        tutRoot.classList.remove('spotlight', 'has-hole');
+      }
       tutSetCard(st.titleKey, st.bodyKey, {
         nextKey: st.nextKey || (st.mode === 'card' ? 'tutNext' : null)
       });
@@ -4795,7 +4805,7 @@
         });
         tutArmObserver.observe(ss, { attributes: true, attributeFilter: ['class'] });
       }
-      if (st.id === 'menuOpen') {
+      if (st.id === 'menuOpen' || st.id === 'ranked') {
         // 説明する対象が閉じていては話にならないので開けておく。
         if (typeof setMenuOpen === 'function') setMenuOpen(true);
       }

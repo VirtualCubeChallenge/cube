@@ -83,7 +83,9 @@
       rkShareText: "🌍 バーチャルキューブチャレンジ 世界ランキング {rank}位！\n{mode}　{time}（{moves}手）",
       rkCardMoves: "手数",
       rkCardPlayers: "参加者",
-      rkShareImgFail: "シェア用の画像を作れませんでした"
+      rkShareImgFail: "シェア用の画像を作れませんでした",
+      tutRankedTitle: "🌍 世界ランキング",
+      tutRankedBody: "メニューの「🌍 世界ランキング」から、ニックネームを決めて参加できます。サーバーが出すスクランブルを解いて、世界中のプレイヤーとタイムを競おう！"
     },
     en: {
       rkTitle: 'World Ranking',
@@ -153,7 +155,9 @@
       rkShareText: "🌍 #{rank} in the Virtual Cube Challenge world ranking!\n{mode} — {time} ({moves} moves)",
       rkCardMoves: "Moves",
       rkCardPlayers: "Players",
-      rkShareImgFail: "Couldn't create the share image"
+      rkShareImgFail: "Couldn't create the share image",
+      tutRankedTitle: "🌍 World Ranking",
+      tutRankedBody: "Join from “🌍 World Ranking” in the menu by choosing a nickname. Solve scrambles from the server and race players around the world!"
     },
     'zh-CN': {
       rkTitle: '世界排行榜',
@@ -223,7 +227,9 @@
       rkShareText: "🌍 Virtual Cube Challenge 世界排行榜第{rank}名！\n{mode}　{time}（{moves}步）",
       rkCardMoves: "步数",
       rkCardPlayers: "参与者",
-      rkShareImgFail: "无法生成分享图片"
+      rkShareImgFail: "无法生成分享图片",
+      tutRankedTitle: "🌍 世界排行榜",
+      tutRankedBody: "在菜单的「🌍 世界排行榜」中设定昵称即可参加。还原服务器给出的打乱，和全世界的玩家比速度吧！"
     },
     'zh-TW': {
       rkTitle: '世界排行榜',
@@ -293,7 +299,9 @@
       rkShareText: "🌍 Virtual Cube Challenge 世界排行榜第{rank}名！\n{mode}　{time}（{moves}步）",
       rkCardMoves: "步數",
       rkCardPlayers: "參與者",
-      rkShareImgFail: "無法產生分享圖片"
+      rkShareImgFail: "無法產生分享圖片",
+      tutRankedTitle: "🌍 世界排行榜",
+      tutRankedBody: "在選單的「🌍 世界排行榜」設定暱稱即可參加。還原伺服器給出的打亂，和全世界的玩家比速度吧！"
     },
     ko: {
       rkTitle: '세계 랭킹',
@@ -363,7 +371,9 @@
       rkShareText: "🌍 버추얼 큐브 챌린지 세계 랭킹 {rank}위!\n{mode} {time} ({moves}수)",
       rkCardMoves: "수",
       rkCardPlayers: "참가자",
-      rkShareImgFail: "공유 이미지를 만들지 못했어요"
+      rkShareImgFail: "공유 이미지를 만들지 못했어요",
+      tutRankedTitle: "🌍 세계 랭킹",
+      tutRankedBody: "메뉴의 ‘🌍 세계 랭킹’에서 닉네임을 정하고 참가할 수 있어요. 서버가 내는 스크램블을 풀어 전 세계 플레이어와 기록을 겨뤄 보세요!"
     },
     es: {
       rkTitle: 'Ranking mundial',
@@ -433,7 +443,9 @@
       rkShareText: "🌍 ¡N.º {rank} en el ranking mundial de Virtual Cube Challenge!\n{mode} — {time} ({moves} mov.)",
       rkCardMoves: "Movimientos",
       rkCardPlayers: "Jugadores",
-      rkShareImgFail: "No se pudo crear la imagen para compartir"
+      rkShareImgFail: "No se pudo crear la imagen para compartir",
+      tutRankedTitle: "🌍 Ranking mundial",
+      tutRankedBody: "Únete desde «🌍 Ranking mundial» en el menú eligiendo un apodo. Resuelve las mezclas del servidor y ¡compite con jugadores de todo el mundo!"
     },
     id: {
       rkTitle: 'Peringkat Dunia',
@@ -503,7 +515,9 @@
       rkShareText: "🌍 Peringkat {rank} dunia di Virtual Cube Challenge!\n{mode} — {time} ({moves} langkah)",
       rkCardMoves: "Langkah",
       rkCardPlayers: "Pemain",
-      rkShareImgFail: "Gambar untuk dibagikan tidak bisa dibuat"
+      rkShareImgFail: "Gambar untuk dibagikan tidak bisa dibuat",
+      tutRankedTitle: "🌍 Peringkat Dunia",
+      tutRankedBody: "Ikut dari “🌍 Peringkat Dunia” di menu dengan memilih nama panggilan. Selesaikan acakan dari server dan adu cepat dengan pemain di seluruh dunia!"
     },
     ru: {
       rkTitle: 'Мировой рейтинг',
@@ -573,7 +587,9 @@
       rkShareText: "🌍 №{rank} в мировом рейтинге Virtual Cube Challenge!\n{mode} — {time} ({moves} ход.)",
       rkCardMoves: "Ходы",
       rkCardPlayers: "Игроки",
-      rkShareImgFail: "Не удалось создать изображение"
+      rkShareImgFail: "Не удалось создать изображение",
+      tutRankedTitle: "🌍 Мировой рейтинг",
+      tutRankedBody: "Присоединяйтесь через «🌍 Мировой рейтинг» в меню, выбрав никнейм. Собирайте скрамблы от сервера и соревнуйтесь с игроками со всего мира!"
     },
     'pt-BR': {
       rkTitle: 'Ranking Mundial',
@@ -643,7 +659,9 @@
       rkShareText: "🌍 Nº {rank} no ranking mundial do Virtual Cube Challenge!\n{mode} — {time} ({moves} mov.)",
       rkCardMoves: "Movimentos",
       rkCardPlayers: "Jogadores",
-      rkShareImgFail: "Não foi possível criar a imagem"
+      rkShareImgFail: "Não foi possível criar a imagem",
+      tutRankedTitle: "🌍 Ranking mundial",
+      tutRankedBody: "Participe pelo “🌍 Ranking mundial” no menu escolhendo um apelido. Resolva os embaralhamentos do servidor e dispute com jogadores do mundo todo!"
     }
   };
 
