@@ -27,10 +27,32 @@
   // 三角形の頂点（ステージ = 正方形の % 座標）。BとCの間隔 .58、
   // 高さ .58×√3/2 ≒ .502。重心がステージの中心(50,50)に来るように置く。
   const NODES = [
-    { id: 'pllt', x: 50, y: 16.5, hue: 'a', label: 'plltTitle', icon: 'cube' },
-    { id: 'plf',  x: 21, y: 66.7, hue: 'b', label: 'plfTitle',  icon: 'bolt' },
-    { id: 'plv',  x: 79, y: 66.7, hue: 'c', label: 'plvTitle',  icon: 'eye'  }
+    { id: 'pllt', x: 50, y: 16.5, hue: 'a', label: 'plltTitle', icon: 'cube', plate: 'PLL KENTEI', main: 'pllhMainKentei', sub: 'pllhSubKentei' },
+    { id: 'plf',  x: 21, y: 66.7, hue: 'b', label: 'plfTitle',  icon: 'bolt', plate: 'PLL FLASH',  sub: 'pllhSubFlash' },
+    { id: 'plv',  x: 79, y: 66.7, hue: 'c', label: 'plvTitle',  icon: 'eye',  plate: 'PLL VISION', sub: 'pllhSubVision' }
   ];
+
+  // 丸の下の名札の文字（9言語）。上の英字は FLASH / VISION は全言語共通、検定だけ日本語は KENTEI・海外は TEST。
+  // ranked-texts.js と同じく、I18N に無いキーだけ足す。
+  const PLATE_SUB = {
+    ja:      { pllhMainKentei: 'PLL KENTEI', pllhSubKentei: '検定モード',  pllhSubFlash: '連続記憶',        pllhSubVision: '一括判断' },
+    en:      { pllhMainKentei: 'PLL TEST', pllhSubKentei: 'Exam Mode',   pllhSubFlash: 'Sequence Recall', pllhSubVision: 'At a Glance' },
+    'zh-CN': { pllhMainKentei: 'PLL TEST', pllhSubKentei: '检定模式',    pllhSubFlash: '连续记忆',        pllhSubVision: '一次判断' },
+    'zh-TW': { pllhMainKentei: 'PLL TEST', pllhSubKentei: '檢定模式',    pllhSubFlash: '連續記憶',        pllhSubVision: '一次判斷' },
+    ko:      { pllhMainKentei: 'PLL TEST', pllhSubKentei: '검정 모드',   pllhSubFlash: '연속 기억',       pllhSubVision: '일괄 판단' },
+    es:      { pllhMainKentei: 'PLL TEST', pllhSubKentei: 'Modo examen', pllhSubFlash: 'Memoria en serie', pllhSubVision: 'De un vistazo' },
+    id:      { pllhMainKentei: 'PLL TEST', pllhSubKentei: 'Mode ujian',  pllhSubFlash: 'Ingat beruntun',  pllhSubVision: 'Sekali lihat' },
+    ru:      { pllhMainKentei: 'PLL TEST', pllhSubKentei: 'Экзамен',     pllhSubFlash: 'Память подряд',   pllhSubVision: 'Всё сразу' },
+    'pt-BR': { pllhMainKentei: 'PLL TEST', pllhSubKentei: 'Modo exame',  pllhSubFlash: 'Memória em série', pllhSubVision: 'Num relance' }
+  };
+  if (typeof I18N !== 'undefined' && I18N) {
+    Object.keys(PLATE_SUB).forEach(function (lang) {
+      if (!I18N[lang]) I18N[lang] = {};
+      Object.keys(PLATE_SUB[lang]).forEach(function (k) {
+        if (I18N[lang][k] === undefined) I18N[lang][k] = PLATE_SUB[lang][k];
+      });
+    });
+  }
 
   function tx(key, fallback) {
     try {
@@ -237,6 +259,37 @@
     '  box-shadow:0 0 0 2px rgba(255,255,255,.18),0 0 22px 6px rgba(var(--h),.9),0 0 64px 16px rgba(var(--h),.45),',
     '    inset 0 0 30px 6px rgba(var(--h),.7),inset 0 0 3px 1px rgba(255,255,255,.6)}',
     '.pllh-btn:active .pllh-ico,.pllh-btn.press .pllh-ico{transform:scale(1.06)}',
+    /* ---- 丸の下の名札（ホログラム風ガラスのネオンプレート） ----
+       ボタンの中に置くので、丸と一緒に浮遊し、押す・なぞるも丸と同じに効く。 */
+    '.pllh-node{--pc:0,243,255;--pm:#00f3ff}',
+    '.pllh-node[data-hue="b"]{--pc:212,0,255;--pm:#e879f9}',
+    '.pllh-node[data-hue="c"]{--pc:96,165,250;--pm:#60a5fa}',
+    '.pllh-plate{position:absolute;left:50%;top:calc(100% + clamp(6px,calc(var(--S)*.022),14px));',
+    '  transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:1px;',
+    '  max-width:calc(var(--S)*.44);box-sizing:border-box;overflow:hidden;white-space:nowrap;',
+    '  padding:clamp(4px,calc(var(--S)*.012),8px) clamp(12px,calc(var(--S)*.04),24px);border-radius:999px;',
+    '  background:rgba(10,15,30,.75);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);',
+    '  border:1px solid rgba(var(--pc),.9);',
+    '  box-shadow:0 0 8px rgba(var(--pc),.45),0 0 18px rgba(var(--pc),.18),inset 0 0 10px rgba(var(--pc),.16);',
+    '  font-family:system-ui,-apple-system,"Segoe UI","Hiragino Sans","Noto Sans JP",sans-serif;line-height:1.15;',
+    '  pointer-events:auto;transition:box-shadow .2s ease,filter .2s ease,opacity .3s ease}',
+    // ホログラムの光沢がゆっくり横切る
+    '.pllh-plate::before{content:"";position:absolute;top:0;bottom:0;left:-60%;width:45%;pointer-events:none;',
+    '  background:linear-gradient(100deg,transparent,rgba(255,255,255,.10) 45%,rgba(var(--pc),.16) 55%,transparent);',
+    '  animation:pllh-sheen 5.5s ease-in-out var(--fdl,0s) infinite}',
+    '@keyframes pllh-sheen{0%,55%{transform:translateX(0)}100%{transform:translateX(420%)}}',
+    '.pllh-plate b{position:relative;display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;',
+    '  font-size:clamp(11px,calc(var(--S)*.036),18px);font-weight:800;letter-spacing:.12em;color:var(--pm);',
+    '  text-shadow:0 0 6px rgba(var(--pc),.75),0 0 14px rgba(var(--pc),.35)}',
+    '.pllh-plate small{position:relative;display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;',
+    '  font-size:clamp(9px,calc(var(--S)*.026),13px);font-weight:600;letter-spacing:.06em;color:#a0aec0}',
+    '.pllh-btn:active .pllh-plate,.pllh-btn.press .pllh-plate,.pllh-btn:focus-visible .pllh-plate{filter:brightness(1.3);',
+    '  box-shadow:0 0 12px rgba(var(--pc),.85),0 0 30px rgba(var(--pc),.4),inset 0 0 14px rgba(var(--pc),.3)}',
+    '@media (hover:hover){.pllh-btn:hover .pllh-plate{filter:brightness(1.25);',
+    '  box-shadow:0 0 12px rgba(var(--pc),.8),0 0 28px rgba(var(--pc),.35),inset 0 0 14px rgba(var(--pc),.26)}}',
+    // 回している間・選んだ後は名札をそっと消す（丸の演出を邪魔しない）
+    '#pllh-overlay.spinning .pllh-plate,.pllh-node.chosen .pllh-plate{opacity:0}',
+
     '@media (hover:hover){.pllh-btn:hover{transform:scale(1.05)}',
     '  .pllh-btn:hover .pllh-ring{box-shadow:0 0 0 2px rgba(255,255,255,.14),0 0 20px 5px rgba(var(--h),.8),',
     '    0 0 52px 12px rgba(var(--h),.38),inset 0 0 26px 4px rgba(var(--h),.6),inset 0 0 3px 1px rgba(255,255,255,.5)}}',
@@ -349,7 +402,7 @@
 
     /* ---- 動きを減らす設定 ---- */
     '@media (prefers-reduced-motion:reduce){',
-    '  .pllh-stars,.pllh-float,.pllh-orbit,.pllh-scan::before,.pllh-core,.pllh-net line{animation:none!important}',
+    '  .pllh-stars,.pllh-float,.pllh-orbit,.pllh-scan::before,.pllh-core,.pllh-net line,.pllh-plate::before{animation:none!important}',
     '  #pllh-overlay.enter .pllh-node{animation:pllh-fade .2s both}',
     '  .pllh-node.chosen{animation:pllh-fade .2s reverse forwards!important}',
     '  .pllh-node.chosen *{animation:none!important}',
@@ -402,6 +455,7 @@
               '<span class="pllh-scan" aria-hidden="true"></span>' +
               '<span class="pllh-ico">' + ICONS[n.icon] + '</span>' +
               '<span class="pllh-pulse" aria-hidden="true"></span>' +
+              '<span class="pllh-plate" aria-hidden="true"><b>' + n.plate + '</b><small data-sub="' + n.sub + '"></small></span>' +
             '</button>' +
           '</div>' +
         '</div>';
@@ -461,6 +515,10 @@
       const s = tx(n.label, n.id);
       b.setAttribute('aria-label', s);
       b.title = s;
+      const sm = b.querySelector('.pllh-plate small');
+      if (sm) sm.textContent = tx(n.sub, PLATE_SUB.ja[n.sub]);
+      const mb = b.querySelector('.pllh-plate b');
+      if (mb && n.main) mb.textContent = tx(n.main, n.plate);
     });
   }
 

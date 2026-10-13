@@ -66,7 +66,7 @@
     '  min-height:46px;justify-content:center;white-space:nowrap;gap:6px;padding:10px 10px;border-radius:10px;font-size:13px}',
     '#pllt-overlay .pls-top .pllt-ticket-row .pllt-kan-fuda b{font-size:16px}',
     '@media (max-width:400px){.pls-top .pllt-ticket-row .pllt-kan-label{display:none}}',
-    '.pls-share{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:0;min-width:0;',
+    '.pls-share{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;margin:0;min-width:0;',
     '  padding:12px 14px;border-radius:10px;background:#000;color:#fff;border:1px solid #3a3a46;',
     '  font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;touch-action:manipulation;',
     '  -webkit-tap-highlight-color:transparent;transition:transform .12s ease,border-color .12s ease}',
@@ -84,19 +84,29 @@
   const X_LOGO = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
     '<path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.21-6.82-5.97 6.82H1.67l7.73-8.84L1.25 2.25h6.83l4.71 6.23 5.45-6.23Zm-1.16 17.52h1.83L7.08 4.13H5.12l11.96 15.64Z"/></svg>';
 
+  // 文言の中の「X」（ブランド名の1文字）を X のマークに置き換える。
+  // 「Xでシェア」のようにマークと文字で X が2つ並んで「XXでシェア」に見えるのを防ぐ
+  function escH(t) { return String(t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function xLabel(text) {
+    const t = String(text || '');
+    const re = /(^|[^A-Za-z])X(?![A-Za-z])/;
+    if (!re.test(t)) return X_LOGO + '<span>' + escH(t) + '</span>';
+    const parts = t.replace(re, '$1\u0000').split('\u0000');   // X の前と後ろ
+    return parts.map(function (part) { return part.trim() ? '<span>' + escH(part.trim()) + '</span>' : ''; }).join(X_LOGO);
+  }
   function makeButton(id, onClick) {
     const b = document.createElement('button');
     b.type = 'button';
     b.id = id;
     b.className = 'pls-share';
-    b.innerHTML = X_LOGO + '<span></span>';
+    b.innerHTML = xLabel(tx('shareX'));
     b.addEventListener('click', onClick);
     return b;
   }
   function paintButtons() {
     ['pls-share-pllt', 'pls-share-plf'].forEach(function (id) {
       const b = $(id);
-      if (b) b.querySelector('span').textContent = tx('shareX');
+      if (b) b.innerHTML = xLabel(tx('shareX'));
     });
   }
 
@@ -438,17 +448,17 @@
     '  padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));',
     '  background:rgba(4,4,8,.78);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}',
     '#pls-dlg.show{display:flex}',
-    '.pls-box{position:relative;width:100%;max-width:420px;max-height:100%;overflow-y:auto;display:flex;flex-direction:column;',
+    '.pls-box{position:relative;width:100%;max-width:min(420px,calc(min(46vh,420px) * 0.8 + 32px));max-height:100%;overflow-y:auto;display:flex;flex-direction:column;',
     '  gap:10px;padding:16px;border-radius:18px;background:#14141a;border:1px solid #2c2c38;color:#e6e6ee;',
     '  box-shadow:0 18px 50px rgba(0,0,0,.6)}',
     '.pls-close{position:absolute;top:8px;right:8px;width:36px;height:36px;border-radius:50%;border:1px solid #3a3a48;',
     '  background:#1c1c24;color:#c8c8d4;font-size:16px;cursor:pointer}',
-    '.pls-img{display:block;width:auto;max-width:100%;max-height:min(46vh,420px);margin:34px auto 0;border-radius:12px;',
+    '.pls-img{display:block;width:100%;height:auto;margin:34px 0 0;border-radius:12px;',
     '  border:1px solid #2c2c38;-webkit-touch-callout:default}',
     '.pls-status{font-size:12px;font-weight:800;text-align:center;color:#4fe0a8;min-height:1em}',
     '.pls-status.ng{color:#ffb86a}',
     '.pls-hint{margin:-2px 0 4px;font-size:11.5px;line-height:1.55;text-align:center;color:#9a9aac}',
-    '.pls-go{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border-radius:12px;',
+    '.pls-go{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;padding:14px;border-radius:12px;',
     '  background:#000;color:#fff;border:1px solid #4a4a58;font-family:inherit;font-size:15px;font-weight:900;cursor:pointer}',
     '.pls-go svg{width:16px;height:16px;fill:currentColor}',
     '.pls-sub{width:100%;padding:11px;border-radius:12px;background:#1c1c24;color:#c8c8d4;border:1px solid #3a3a48;',
@@ -466,7 +476,7 @@
       '<div class="pls-box">' +
         '<button type="button" class="pls-close" aria-label="✕">✕</button>' +
         '<img class="pls-img" alt="">' +
-        '<button type="button" class="pls-go">' + X_LOGO + '<span></span></button>' +
+        '<button type="button" class="pls-go"></button>' +
         '<p class="pls-hint pls-hint1"></p>' +
         '<button type="button" class="pls-sub"></button>' +
         '<p class="pls-hint pls-hint2"></p>' +
@@ -499,7 +509,8 @@
   function paintDlg(copied) {
     if (cur) cur.copied = copied;
     const sheet = cur && canShareFile(cur.file);
-    const go = dlg.querySelector('.pls-go span'), sub = dlg.querySelector('.pls-sub');
+    const goBtn = dlg.querySelector('.pls-go'), sub = dlg.querySelector('.pls-sub');
+    const go = { set textContent(v) { goBtn.innerHTML = xLabel(v); } };
     const h1 = dlg.querySelector('.pls-hint1'), h2 = dlg.querySelector('.pls-hint2');
     const stt = dlg.querySelector('.pls-status');
     if (sheet) {
@@ -547,7 +558,10 @@
   function shareResult(kind) {
     let cv;
     try { cv = kind === 'pllt' ? cardPllt() : cardPlf(); } catch (e) { cv = null; }
-    const caption = (kind === 'pllt' ? textPllt() : textPlf());
+    shareCanvas(cv, kind === 'pllt' ? textPllt() : textPlf());
+  }
+  // 画像（canvas）と文面を受け取って、確認の小窓から X へ。世界ランキング(ranked.js)からも使う
+  function shareCanvas(cv, caption) {
     if (!cv) { openX(caption); return; }
     const url = cv.toDataURL('image/png');
     const file = dataUrlToFile(url, 'vcc-result.png');
@@ -608,6 +622,8 @@
 
   global.PllShare = {
     textPllt: textPllt, textPlf: textPlf, share: shareResult,
+    shareCanvas: shareCanvas,
+    xLabel: xLabel,
     // 確認用：シェア画像を data URL で返す（'pllt' | 'plf'）
     image: function (kind) { return (kind === 'pllt' ? cardPllt() : cardPlf()).toDataURL('image/png'); }
   };
