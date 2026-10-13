@@ -745,6 +745,34 @@
     while (size > minSize && ctx.measureText(s).width > maxW) { size -= 2; ctx.font = weight + ' ' + size + 'px ' + F; }
     return size;
   }
+  // ネオンの文字（外側に何層も光をにじませてから、白っぽい芯を重ねる）
+  function neonText(ctx, text, x, y, color, glow, layers) {
+    ctx.save();
+    ctx.fillStyle = color;
+    (layers || [80, 40, 18]).forEach(function (b) { ctx.shadowColor = glow; ctx.shadowBlur = b; ctx.fillText(text, x, y); });
+    ctx.restore();
+  }
+  // 斜め上から見たキューブの線画（3面×3×3）。背景にうっすら置く
+  function wireCube(ctx, cx, cy, a, lw) {
+    const c30 = Math.cos(Math.PI / 6);
+    const T = [cx, cy - a], Rt = [cx + a * c30, cy - a / 2], C = [cx, cy], Lt = [cx - a * c30, cy - a / 2];
+    const Rb = [Rt[0], Rt[1] + a], Cb = [C[0], C[1] + a], Lb = [Lt[0], Lt[1] + a];
+    const seg = function (p, q) { ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); };
+    const lerp = function (p, q, t) { return [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t]; };
+    ctx.beginPath();
+    // 外形
+    seg(T, Rt); seg(Rt, Rb); seg(Rb, Cb); seg(Cb, Lb); seg(Lb, Lt); seg(Lt, T); seg(Lt, C); seg(C, Rt); seg(C, Cb);
+    for (let i = 1; i < 3; i++) {
+      const t = i / 3;
+      // 上面
+      seg(lerp(Lt, T, t), lerp(C, Rt, t)); seg(lerp(Lt, C, t), lerp(T, Rt, t));
+      // 左の面
+      seg(lerp(Lt, C, t), lerp(Lb, Cb, t)); seg(lerp(Lt, Lb, t), lerp(C, Cb, t));
+      // 右の面
+      seg(lerp(C, Rt, t), lerp(Cb, Rb, t)); seg(lerp(C, Cb, t), lerp(Rt, Rb, t));
+    }
+    ctx.lineWidth = lw; ctx.stroke();
+  }
   function shareCard(mine, mi) {
     const W = 1080, H = 1350;
     const cv = document.createElement('canvas');
@@ -752,122 +780,167 @@
     const ctx = cv.getContext('2d');
     let F = 'sans-serif';
     try { F = getComputedStyle(document.body).fontFamily || F; } catch (e) { /* そのまま */ }
-    let tc = '#2ef2c0', tcRgb = '46,242,192';
-    try {
-      const cs = getComputedStyle(document.documentElement);
-      tc = cs.getPropertyValue('--tc').trim() || tc;
-      tcRgb = cs.getPropertyValue('--tc-rgb').trim() || tcRgb;
-    } catch (e) { /* そのまま */ }
-    const MEDAL = { 1: ['#fff8d2', '#ffd36a', '#c98a12', '#3d2700'], 2: ['#ffffff', '#d6dbe4', '#8b93a3', '#262a33'], 3: ['#ffe2c4', '#e0a46a', '#9a5a24', '#2e1604'] };
+    const CYAN = '#2ef2ff', PURPLE = '#b05cff', MINT = '#2ef2c0';
+    const MEDAL = { 1: ['#fffbe0', '#ffd36a', '#c98a12', '#3d2700', 'rgba(255,200,60,'], 2: ['#ffffff', '#dfe4ec', '#8b93a3', '#262a33', 'rgba(220,230,255,'], 3: ['#ffe8d0', '#e8aa70', '#9a5a24', '#2e1604', 'rgba(255,160,90,'] };
     const medal = MEDAL[mine.rank];
+    const CX = W / 2;
 
-    // 背景（PLL検定の画像と同じ色合い）＋ 紫の光
-    ctx.fillStyle = '#06060a'; ctx.fillRect(0, 0, W, H);
-    let g = ctx.createRadialGradient(W * 0.5, 0, 0, W * 0.5, 0, W * 0.95);
-    g.addColorStop(0, 'rgba(' + tcRgb + ',.20)'); g.addColorStop(1, 'rgba(' + tcRgb + ',0)');
+    // ---- 背景: 真っ暗 ＋ 左上シアン・右下パープルの光 ＋ 床のサイバーグリッド
+    ctx.fillStyle = '#04040a'; ctx.fillRect(0, 0, W, H);
+    let g = ctx.createRadialGradient(140, 120, 0, 140, 120, 900);
+    g.addColorStop(0, 'rgba(46,242,255,.30)'); g.addColorStop(1, 'rgba(46,242,255,0)');
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    g = ctx.createRadialGradient(W, H, 0, W, H, W);
-    g.addColorStop(0, 'rgba(176,92,255,.26)'); g.addColorStop(1, 'rgba(176,92,255,0)');
+    g = ctx.createRadialGradient(W - 100, H - 120, 0, W - 100, H - 120, 1000);
+    g.addColorStop(0, 'rgba(176,92,255,.36)'); g.addColorStop(1, 'rgba(176,92,255,0)');
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    ctx.save();
+    ctx.globalAlpha = 0.22; ctx.strokeStyle = PURPLE; ctx.lineWidth = 2;
+    const hz = 960;   // 地平線
+    for (let i = -12; i <= 12; i++) { ctx.beginPath(); ctx.moveTo(CX + i * 18, hz); ctx.lineTo(CX + i * 160, H); ctx.stroke(); }
+    for (let k = 0; k < 9; k++) { const yy = hz + Math.pow(k / 8, 1.8) * (H - hz); ctx.globalAlpha = 0.06 + 0.2 * (k / 8); ctx.beginPath(); ctx.moveTo(0, yy); ctx.lineTo(W, yy); ctx.stroke(); }
+    ctx.restore();
 
-    const PX = 48, PY = 48, PW = W - 96, PH = H - 96;
-    rrect(ctx, PX, PY, PW, PH, 36);
-    ctx.fillStyle = '#121218'; ctx.fill();
-    ctx.lineWidth = 2; ctx.strokeStyle = '#2c2c38'; ctx.stroke();
-    const L = PX + 48, R = PX + PW - 48, CW = R - L, CX = W / 2;
+    // ---- 背景の大きなネオンキューブ（線画）
+    ctx.save();
+    const cg = ctx.createLinearGradient(CX - 420, 200, CX + 420, 1100);
+    cg.addColorStop(0, CYAN); cg.addColorStop(1, PURPLE);
+    ctx.strokeStyle = cg;
+    ctx.globalAlpha = 0.30; ctx.shadowColor = CYAN; ctx.shadowBlur = 40;
+    wireCube(ctx, CX, 640, 430, 5);
+    ctx.globalAlpha = 0.42; ctx.shadowBlur = 0;
+    wireCube(ctx, CX, 640, 430, 2);
+    ctx.restore();
+
+    // ---- 外枠: シアン→パープルの発光ライン
+    const PX = 36, PY = 36, PW = W - 72, PH = H - 72;
+    const fg = ctx.createLinearGradient(PX, PY, PX + PW, PY + PH);
+    fg.addColorStop(0, CYAN); fg.addColorStop(0.5, '#6f8bff'); fg.addColorStop(1, PURPLE);
+    ctx.save();
+    rrect(ctx, PX, PY, PW, PH, 44);
+    ctx.fillStyle = 'rgba(10,10,18,.55)'; ctx.fill();
+    ctx.strokeStyle = fg;
+    [[60, 6], [24, 5], [0, 4]].forEach(function (p) { ctx.shadowColor = p[0] ? (p[0] > 30 ? PURPLE : CYAN) : 'transparent'; ctx.shadowBlur = p[0]; ctx.lineWidth = p[1]; ctx.stroke(); });
+    ctx.restore();
+
+    const L = PX + 56, R = PX + PW - 56, CW = R - L;
     ctx.textBaseline = 'alphabetic';
 
-    // アプリ名と見出し
+    // ---- ヘッダー: アプリ名・右上に GLOBAL LEADERBOARD の札
     ctx.textAlign = 'left';
-    ctx.font = '800 26px ' + F; ctx.fillStyle = tc;
-    ctx.fillText('VIRTUAL CUBE CHALLENGE', L, PY + 74);
-    ctx.font = '900 58px ' + F; ctx.fillStyle = '#f2f2f8';
-    ctx.fillText('🌍 ' + tx('rkTitle'), L, PY + 152);
+    ctx.font = '900 30px ' + F;
+    neonText(ctx, 'VIRTUAL CUBE CHALLENGE', L, PY + 92, '#d8fbff', CYAN, [30, 10]);
+    ctx.save();
+    ctx.font = '900 24px ' + F;
+    const badge = 'GLOBAL LEADERBOARD';
+    const bw = ctx.measureText(badge).width + 40;
+    ctx.translate(R - bw / 2, PY + 82); ctx.rotate(-0.05);
+    rrect(ctx, -bw / 2, -28, bw, 52, 8);
+    ctx.fillStyle = 'rgba(176,92,255,.20)'; ctx.fill();
+    ctx.shadowColor = PURPLE; ctx.shadowBlur = 24; ctx.lineWidth = 3; ctx.strokeStyle = '#d6a8ff'; ctx.stroke();
+    ctx.shadowBlur = 0; ctx.fillStyle = '#f1e2ff'; ctx.textAlign = 'center'; ctx.fillText(badge, 0, 8);
+    ctx.restore();
 
-    // モードの札
-    let y = PY + 186;
+    // 見出しとモード
+    ctx.textAlign = 'left'; ctx.fillStyle = '#ffffff';
+    ctx.font = '900 64px ' + F;
+    ctx.fillText('🌍 ' + tx('rkTitle'), L, PY + 182);
     const modeText = mi.icon + ' ' + tx(mi.name);
     ctx.font = '900 32px ' + F;
     const mw = Math.min(CW, ctx.measureText(modeText).width + 56);
-    rrect(ctx, L, y, mw, 64, 32);
-    ctx.fillStyle = 'rgba(176,92,255,.18)'; ctx.fill();
-    ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(196,132,255,.75)'; ctx.stroke();
-    ctx.fillStyle = '#efe4ff'; ctx.fillText(modeText, L + 28, y + 44);
+    ctx.save();
+    rrect(ctx, L, PY + 210, mw, 62, 31);
+    ctx.fillStyle = 'rgba(46,242,255,.10)'; ctx.fill();
+    ctx.shadowColor = CYAN; ctx.shadowBlur = 20; ctx.lineWidth = 2.5; ctx.strokeStyle = 'rgba(120,240,255,.9)'; ctx.stroke();
+    ctx.restore();
+    ctx.fillStyle = '#e6fdff'; ctx.fillText(modeText, L + 28, PY + 252);
 
-    // 順位（1〜3位はメダル）
-    y += 140;
+    // ---- 順位: メダル（1〜3位）は放射する光の中で輝く
     const rankText = tx('rkRank', { n: mine.rank });
-    const cy = y + 150;
+    const cy = 560;
     if (medal) {
-      const rg = ctx.createRadialGradient(CX - 50, cy - 60, 10, CX, cy, 160);
-      rg.addColorStop(0, medal[0]); rg.addColorStop(0.45, medal[1]); rg.addColorStop(1, medal[2]);
       ctx.save();
-      ctx.shadowColor = medal[1]; ctx.shadowBlur = 60;
-      ctx.beginPath(); ctx.arc(CX, cy, 150, 0, Math.PI * 2); ctx.fillStyle = rg; ctx.fill();
+      ctx.translate(CX, cy);
+      for (let i = 0; i < 24; i++) {
+        ctx.rotate(Math.PI / 12);
+        const rg = ctx.createLinearGradient(0, 0, 0, -330);
+        rg.addColorStop(0, medal[4] + '.55)'); rg.addColorStop(1, medal[4] + '0)');
+        ctx.fillStyle = rg;
+        ctx.beginPath(); ctx.moveTo(-16, 0); ctx.lineTo(16, 0); ctx.lineTo(0, -330); ctx.closePath(); ctx.fill();
+      }
       ctx.restore();
-      ctx.lineWidth = 8; ctx.strokeStyle = 'rgba(255,255,255,.35)';
-      ctx.beginPath(); ctx.arc(CX, cy, 150, 0, Math.PI * 2); ctx.stroke();
+      const glow = ctx.createRadialGradient(CX, cy, 100, CX, cy, 280);
+      glow.addColorStop(0, medal[4] + '.55)'); glow.addColorStop(1, medal[4] + '0)');
+      ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(CX, cy, 280, 0, Math.PI * 2); ctx.fill();
+      const mg = ctx.createRadialGradient(CX - 55, cy - 65, 10, CX, cy, 165);
+      mg.addColorStop(0, medal[0]); mg.addColorStop(0.45, medal[1]); mg.addColorStop(1, medal[2]);
+      ctx.save();
+      [90, 50, 20].forEach(function (b) { ctx.shadowColor = medal[1]; ctx.shadowBlur = b; ctx.beginPath(); ctx.arc(CX, cy, 160, 0, Math.PI * 2); ctx.fillStyle = mg; ctx.fill(); });
+      ctx.restore();
+      ctx.lineWidth = 10; ctx.strokeStyle = 'rgba(255,255,255,.55)';
+      ctx.beginPath(); ctx.arc(CX, cy, 160, 0, Math.PI * 2); ctx.stroke();
+      ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.25)';
+      ctx.beginPath(); ctx.arc(CX, cy, 132, 0, Math.PI * 2); ctx.stroke();
       ctx.textAlign = 'center'; ctx.fillStyle = medal[3];
-      fitFont(ctx, rankText, '900', 120, 60, 250, F);
-      ctx.fillText(rankText, CX, cy + 42);
+      fitFont(ctx, rankText, '900', 128, 60, 250, F);
+      ctx.fillText(rankText, CX, cy + 45);
     } else {
       ctx.textAlign = 'center';
-      ctx.save();
-      ctx.shadowColor = 'rgba(' + tcRgb + ',.6)'; ctx.shadowBlur = 40;
-      ctx.fillStyle = tc;
-      fitFont(ctx, rankText, '900', 170, 80, CW, F);
-      ctx.fillText(rankText, CX, cy + 60);
-      ctx.restore();
+      fitFont(ctx, rankText, '900', 200, 80, CW, F);
+      neonText(ctx, rankText, CX, cy + 70, '#eafffb', MINT, [110, 60, 24]);
     }
 
-    // 名前
-    y = cy + 150 + 100;
-    ctx.textAlign = 'center'; ctx.fillStyle = '#f2f2f8';
-    fitFont(ctx, me ? me.nickname : '', '900', 64, 36, CW, F);
-    ctx.fillText(me ? me.nickname : '', CX, y);
+    // ---- 名前
+    ctx.textAlign = 'center'; ctx.fillStyle = '#ffffff';
+    const nick = me ? me.nickname : '';
+    fitFont(ctx, nick, '900', 66, 36, CW, F);
+    ctx.save(); ctx.shadowColor = 'rgba(255,255,255,.35)'; ctx.shadowBlur = 20; ctx.fillText(nick, CX, 820); ctx.restore();
 
-    // タイム（いちばん大きく）
-    y += 170;
-    ctx.save();
-    ctx.shadowColor = 'rgba(' + tcRgb + ',.55)'; ctx.shadowBlur = 36;
-    ctx.fillStyle = tc;
+    // ---- タイム: いちばん強く光らせる
     const t = listTime(mine.timeMs);
-    fitFont(ctx, t, '900', 150, 80, CW, F);
-    ctx.fillText(t, CX, y);
+    fitFont(ctx, t, '900', 180, 90, CW, F);
+    neonText(ctx, t, CX, 990, '#f0fffb', MINT, [140, 80, 36, 12]);
+
+    // ---- CAN YOU BEAT THIS?（斜めのスタンプ）
+    ctx.save();
+    ctx.translate(CX, 1062); ctx.rotate(-0.035);
+    ctx.font = 'italic 900 40px ' + F;
+    const cta = 'CAN YOU BEAT THIS?';
+    const cw2 = ctx.measureText(cta).width + 60;
+    const sg = ctx.createLinearGradient(-cw2 / 2, 0, cw2 / 2, 0);
+    sg.addColorStop(0, CYAN); sg.addColorStop(1, PURPLE);
+    rrect(ctx, -cw2 / 2, -38, cw2, 64, 10);
+    ctx.fillStyle = sg; ctx.shadowColor = PURPLE; ctx.shadowBlur = 40; ctx.fill();
+    ctx.shadowBlur = 0; ctx.fillStyle = '#07070d'; ctx.textAlign = 'center';
+    ctx.fillText(cta, 0, 8);
     ctx.restore();
 
-    // 数字3つ: 手数・TPS・参加者
-    y += 80;
+    // ---- 数字3つ（ガラスの箱）
     const tps = mine.timeMs > 0 ? (mine.moveCount / (mine.timeMs / 1000)).toFixed(2) : '–';
-    const stats = [
-      [tx('rkCardMoves'), String(mine.moveCount)],
-      ['TPS', tps],
-      [tx('rkCardPlayers'), String((board && board.total) || 1)]
-    ];
-    const gap = 20, bw = (CW - gap * 2) / 3, bh = 160;
+    const stats = [[tx('rkCardMoves'), String(mine.moveCount)], ['TPS', tps], [tx('rkCardPlayers'), String((board && board.total) || 1)]];
+    const gap = 22, bw3 = (CW - gap * 2) / 3, bh = 132, by = 1116;
     stats.forEach(function (st, i) {
-      const x = L + i * (bw + gap);
-      rrect(ctx, x, y, bw, bh, 22);
-      ctx.fillStyle = '#17171e'; ctx.fill();
-      ctx.lineWidth = 2; ctx.strokeStyle = '#2a2a36'; ctx.stroke();
-      ctx.textAlign = 'center';
-      ctx.fillStyle = '#8b8b9c';
-      fitFont(ctx, st[0], '700', 28, 18, bw - 24, F);
-      ctx.fillText(st[0], x + bw / 2, y + 50);
-      ctx.fillStyle = '#f2f2f8';
-      fitFont(ctx, st[1], '900', 60, 30, bw - 24, F);
-      ctx.fillText(st[1], x + bw / 2, y + 128);
+      const x = L + i * (bw3 + gap);
+      ctx.save();
+      rrect(ctx, x, by, bw3, bh, 22);
+      ctx.fillStyle = 'rgba(20,20,34,.82)'; ctx.fill();
+      ctx.lineWidth = 2; ctx.strokeStyle = i === 1 ? 'rgba(46,242,255,.6)' : 'rgba(176,92,255,.55)';
+      ctx.shadowColor = i === 1 ? CYAN : PURPLE; ctx.shadowBlur = 16; ctx.stroke();
+      ctx.restore();
+      ctx.textAlign = 'center'; ctx.fillStyle = '#9fa3c4';
+      fitFont(ctx, st[0], '800', 26, 18, bw3 - 24, F);
+      ctx.fillText(st[0], x + bw3 / 2, by + 44);
+      ctx.fillStyle = '#ffffff';
+      fitFont(ctx, st[1], '900', 56, 30, bw3 - 24, F);
+      ctx.fillText(st[1], x + bw3 / 2, by + 108);
     });
 
-    // 足もと: 日時とサイトの URL
-    const footY = PY + PH - 40;
-    ctx.strokeStyle = '#26262f'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(L, footY - 34); ctx.lineTo(R, footY - 34); ctx.stroke();
+    // ---- 足もと: 日時とサイトの URL
+    const footY = PY + PH - 26;
     const d = new Date(), z = function (n) { return (n < 10 ? '0' : '') + n; };
-    ctx.font = '700 24px ' + F; ctx.fillStyle = '#6e6e80';
+    ctx.font = '700 24px ' + F; ctx.fillStyle = '#7d80a0';
     ctx.textAlign = 'left';
     ctx.fillText(d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + ' ' + z(d.getHours()) + ':' + z(d.getMinutes()), L, footY);
-    ctx.textAlign = 'right';
+    ctx.textAlign = 'right'; ctx.fillStyle = '#a9f6ff';
     ctx.fillText(SITE_URL.replace(/^https:\/\//, ''), R, footY);
     return cv;
   }
