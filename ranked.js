@@ -206,7 +206,7 @@
     '.rk-mode-n{margin:2px 0 3px;font-size:17px;font-weight:900;color:#f4ecff}',
     '.rk-mode-d{margin:0;font-size:12.5px;line-height:1.55;color:#cfc6dc}',
     '.rk-ended{font-size:12.5px;color:#9a9aac;text-align:center;margin:10px 0 0}',
-    '.rk-xshare{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:10px;padding:11px;',
+    '.rk-xshare{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;margin-top:10px;padding:11px;',
     '  border-radius:12px;border:1px solid #3a3a48;background:#000;color:#fff;font:inherit;font-size:14px;font-weight:800;cursor:pointer}',
     '.rk-xshare svg{width:16px;height:16px;fill:#fff}',
     '.rk-xshare:active{transform:scale(.97)}',
@@ -245,6 +245,11 @@
   const TOP_N = 10;            // ランキングに並べる人数
   const SITE_URL = 'https://virtualcubechallenge.github.io/cube/';
   const HASHTAG = '#VirtualCubeChallenge';
+  // 文言の中の「X」を X のマークに置き換える（「X Xでシェア」と2つ並ばないように）
+  function xLabel(text) {
+    if (global.PllShare && typeof global.PllShare.xLabel === 'function') return global.PllShare.xLabel(text);
+    return X_LOGO + '<span>' + esc(text) + '</span>';
+  }
   const X_LOGO = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
     '<path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.21-6.82-5.97 6.82H1.67l7.73-8.84L1.25 2.25h6.83l4.71 6.23 5.45-6.23Zm-1.16 17.52h1.83L7.08 4.13H5.12l11.96 15.64Z"/></svg>';
   function injectCSS() {
@@ -627,7 +632,7 @@
         '<div class="rk-me-best">' + (mine
           ? '<b>' + esc(fmtTime(mine.timeMs)) + '</b><span>' + esc(tx('rkMyBest')) + ' · ' + esc(tx('rkRank', { n: mine.rank })) + '</span>'
           : '<span>' + esc(tx('rkNoRecordYet')) + '</span>') + '</div></div>' +
-        (mine ? '<button type="button" class="rk-xshare" id="rk-xshare">' + X_LOGO + '<span>' + esc(tx('rkShareX')) + '</span></button>' : '') +
+        (mine ? '<button type="button" class="rk-xshare" id="rk-xshare">' + xLabel(tx('rkShareX')) + '</button>' : '') +
         (isPast
           ? '<p class="rk-ended">' + esc(tx('rkSeasonEndedNote')) + '</p>'
           : '<button type="button" class="rk-btn go" id="rk-start"' + (state !== 'idle' ? ' disabled' : '') + '>' + esc(tx('rkStart')) + '</button>' +
