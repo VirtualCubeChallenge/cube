@@ -2,6 +2,18 @@
   "_note": "items は新しい順。新機能を足したら先頭に1件追加する。言語キーは ja/en/zh-CN/zh-TW/ko/es/id/ru/pt-BR の9つで、LANGS の code とそのまま一致する。無い言語は ja に落ちる（= ja だけは必ず書く）。guide は任意で、付けた項目にだけ「詳細→」ボタンが出る。",
   "items": [
     {
+      "date": "2026-10-14",
+      "ja": "【アプデ情報】世界ランキングが登場！🌍\n世界中のプレイヤーとタイムを競おう！今回は1手ごとにキューブの大きさが変わる「ランダムサイズモード」🎲\nメニューの「🌍 世界ランキング」から参加できます。",
+      "en": "[Update] World Ranking is here! 🌍\nRace players around the world! This time it's Random Size Mode, where the cube changes size with every move 🎲\nJoin from “🌍 World Ranking” in the menu.",
+      "zh-CN": "【更新情报】世界排行榜登场！🌍\n和全世界的玩家比速度吧！这次是每转一步方块大小都会变化的「随机大小模式」🎲\n从菜单的「🌍 世界排行榜」即可参加。",
+      "zh-TW": "【更新情報】世界排行榜登場！🌍\n和全世界的玩家比速度吧！這次是每轉一步方塊大小都會變化的「隨機大小模式」🎲\n從選單的「🌍 世界排行榜」即可參加。",
+      "ko": "【업데이트】세계 랭킹 등장! 🌍\n전 세계 플레이어와 기록을 겨뤄 보세요! 이번에는 한 수마다 큐브 크기가 바뀌는 ‘랜덤 사이즈 모드’ 🎲\n메뉴의 ‘🌍 세계 랭킹’에서 참가할 수 있어요.",
+      "es": "[Novedades] ¡Llega el Ranking mundial! 🌍\n¡Compite con jugadores de todo el mundo! Esta vez toca el Modo tamaño aleatorio: el cubo cambia de tamaño con cada giro 🎲\nÚnete desde «🌍 Ranking mundial» en el menú.",
+      "id": "[Pembaruan] Peringkat Dunia hadir! 🌍\nAdu cepat dengan pemain di seluruh dunia! Kali ini Mode Ukuran Acak, ukuran kubus berubah setiap gerakan 🎲\nIkut dari “🌍 Peringkat Dunia” di menu.",
+      "ru": "[Обновление] Появился мировой рейтинг! 🌍\nСоревнуйтесь с игроками со всего мира! В этот раз — «Режим случайного размера»: кубик меняет размер с каждым ходом 🎲\nПрисоединяйтесь через «🌍 Мировой рейтинг» в меню.",
+      "pt-BR": "[Novidades] Chegou o Ranking mundial! 🌍\nDispute com jogadores do mundo todo! Desta vez é o Modo tamanho aleatório: o cubo muda de tamanho a cada giro 🎲\nParticipe pelo “🌍 Ranking mundial” no menu."
+    },
+    {
       "date": "2026-10-03",
       "ja": "【アプデ情報】新モードのPLLフラッシュとPLLビジョンが登場！⚡👁\nフラッシュは一瞬ずつ出るPLLを覚えて、ビジョンは3×3に並んだ9個を一度に見て、最後にまとめて答えよう。どちらも初級〜鬼の4段階です。トレーニングを開くと、3つのモードから選べます！",
       "en": "[Update] Two new modes: PLL Flash and PLL Vision! ⚡👁\nFlash shows PLLs one at a time; Vision shows nine at once in a 3×3 grid — remember them and answer at the end. Four levels each, from Easy to Pro. Open Training and pick from the three modes!",
