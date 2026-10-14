@@ -5,7 +5,9 @@
    作りは sushi-arm.js / pll-share.js と同じで、I18N に無いキーだけ足す
    （既存のキーは上書きしない）。ja だけは必ずある。
 
-   参加時の説明（rkJoinBody）は3行だけ（2026-10-04 に短くした）:
+   ※ rkJoinBody は 2026-10-14 から画面に出していない（ユーザーの判断で削除）。
+   ※ rkLeave / rkLeaveConfirm / rkLeaveOk も 2026-10-14 から未使用（「参加をやめる」を廃止。参加したら記録は残る）。
+   以前の参加時の説明（rkJoinBody）は3行だけ（2026-10-04 に短くした）:
      ・登録されるのはニックネームとランク戦の記録
      ・それ以外のデータは送らない
      ・いつでもやめられ、やめると記録はすべて消える
@@ -48,6 +50,7 @@
       rkPaused: '一時停止したため、今回は記録されません（練習として続けられます）',
       rkCancelled: 'ランク戦を中止しました',
       rkViewRanking: 'ランキングを見る',
+      rkResThis: '今回のタイム', rkResDiff: 'ベストとの差', rkResWorld: '世界ランク', rkRetry: 'リトライ',
       rkSave: '保存する',
       rkCancelBtn: 'キャンセル',
       rkMyBest: '自己ベスト',
@@ -120,6 +123,7 @@
       rkPaused: "The timer was paused, so this won't be recorded (you can keep practicing)",
       rkCancelled: 'Ranked solve cancelled',
       rkViewRanking: 'View ranking',
+      rkResThis: 'This solve', rkResDiff: 'Off your best', rkResWorld: 'World rank', rkRetry: 'Retry',
       rkSave: 'Save',
       rkCancelBtn: 'Cancel',
       rkMyBest: 'Personal best',
@@ -192,6 +196,7 @@
       rkPaused: '暂停过计时，本次不计入记录（可以继续练习）',
       rkCancelled: '已取消排位赛',
       rkViewRanking: '查看排行榜',
+      rkResThis: '本次成绩', rkResDiff: '与最佳的差距', rkResWorld: '世界排名', rkRetry: '再来一次',
       rkSave: '保存',
       rkCancelBtn: '取消',
       rkMyBest: '个人最佳',
@@ -264,6 +269,7 @@
       rkPaused: '暫停過計時，本次不計入紀錄（可以繼續練習）',
       rkCancelled: '已取消排位賽',
       rkViewRanking: '查看排行榜',
+      rkResThis: '本次成績', rkResDiff: '與最佳的差距', rkResWorld: '世界排名', rkRetry: '再來一次',
       rkSave: '儲存',
       rkCancelBtn: '取消',
       rkMyBest: '個人最佳',
@@ -336,6 +342,7 @@
       rkPaused: '일시정지해서 이번 기록은 남지 않습니다(연습으로 계속할 수 있어요)',
       rkCancelled: '랭크전을 중단했습니다',
       rkViewRanking: '랭킹 보기',
+      rkResThis: '이번 기록', rkResDiff: '최고 기록과 차이', rkResWorld: '세계 순위', rkRetry: '다시 도전',
       rkSave: '저장',
       rkCancelBtn: '취소',
       rkMyBest: '개인 최고',
@@ -408,6 +415,7 @@
       rkPaused: 'Pausaste el cronómetro, así que no se registrará (puedes seguir practicando)',
       rkCancelled: 'Partida clasificatoria cancelada',
       rkViewRanking: 'Ver ranking',
+      rkResThis: 'Esta vez', rkResDiff: 'Diferencia con tu mejor', rkResWorld: 'Ranking mundial', rkRetry: 'Reintentar',
       rkSave: 'Guardar',
       rkCancelBtn: 'Cancelar',
       rkMyBest: 'Mejor marca',
@@ -480,6 +488,7 @@
       rkPaused: 'Timer dijeda, jadi tidak tercatat (kamu bisa lanjut berlatih)',
       rkCancelled: 'Solve peringkat dibatalkan',
       rkViewRanking: 'Lihat peringkat',
+      rkResThis: 'Waktu kali ini', rkResDiff: 'Selisih dari rekor', rkResWorld: 'Peringkat dunia', rkRetry: 'Coba lagi',
       rkSave: 'Simpan',
       rkCancelBtn: 'Batal',
       rkMyBest: 'Rekor pribadi',
@@ -552,6 +561,7 @@
       rkPaused: 'Таймер ставили на паузу, поэтому запись не сохранится (можно продолжать тренировку)',
       rkCancelled: 'Рейтинговая сборка отменена',
       rkViewRanking: 'Открыть рейтинг',
+      rkResThis: 'Эта сборка', rkResDiff: 'До рекорда', rkResWorld: 'Место в мире', rkRetry: 'Ещё раз',
       rkSave: 'Сохранить',
       rkCancelBtn: 'Отмена',
       rkMyBest: 'Личный рекорд',
@@ -624,6 +634,7 @@
       rkPaused: 'O cronômetro foi pausado, então não será registrado (pode continuar praticando)',
       rkCancelled: 'Partida ranqueada cancelada',
       rkViewRanking: 'Ver ranking',
+      rkResThis: 'Desta vez', rkResDiff: 'Diferença do recorde', rkResWorld: 'Ranking mundial', rkRetry: 'Tentar de novo',
       rkSave: 'Salvar',
       rkCancelBtn: 'Cancelar',
       rkMyBest: 'Recorde pessoal',
