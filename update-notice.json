@@ -1,9 +1,9 @@
 {
-  "_note": "items は新しい順。新機能を足したら先頭に1件追加する。言語キーは ja/en/zh-CN/zh-TW/ko/es/id/ru/pt-BR の9つで、LANGS の code とそのまま一致する。無い言語は ja に落ちる（= ja だけは必ず書く）。guide は任意で、付けた項目にだけ「詳細→」ボタンが出る。 icon は任意で、お知らせ一覧のカードに出る絵文字（無ければ見出し末尾の絵文字、それも無ければ ✨）。",
+  "_note": "items は新しい順。新機能を足したら先頭に1件追加する。言語キーは ja/en/zh-CN/zh-TW/ko/es/id/ru/pt-BR の9つで、LANGS の code とそのまま一致する。無い言語は ja に落ちる（= ja だけは必ず書く）。guide は任意で、付けた項目にだけ「詳細→」ボタンが出る。 icon は任意で、お知らせ一覧のカードに出すネオン線画アイコンの名前（globe / bolt / cube / camera / pause / plane / undo / spark。無い・不明なら spark）。中身は notice-cards.js の ICONS。",
   "items": [
     {
       "date": "2026-10-14",
-      "icon": "🌍",
+      "icon": "globe",
       "ja": "【アプデ情報】世界ランキングが登場！🌍\n世界中のプレイヤーとタイムを競おう！今回は1手ごとにキューブの大きさが変わる「ランダムサイズモード」🎲\nメニューの「🌍 世界ランキング」から参加できます。",
       "en": "[Update] World Ranking is here! 🌍\nRace players around the world! This time it's Random Size Mode, where the cube changes size with every move 🎲\nJoin from “🌍 World Ranking” in the menu.",
       "zh-CN": "【更新情报】世界排行榜登场！🌍\n和全世界的玩家比速度吧！这次是每转一步方块大小都会变化的「随机大小模式」🎲\n从菜单的「🌍 世界排行榜」即可参加。",
@@ -16,7 +16,7 @@
     },
     {
       "date": "2026-10-03",
-      "icon": "⚡",
+      "icon": "bolt",
       "ja": "【アプデ情報】新モードのPLLフラッシュとPLLビジョンが登場！⚡👁\nフラッシュは一瞬ずつ出るPLLを覚えて、ビジョンは3×3に並んだ9個を一度に見て、最後にまとめて答えよう。どちらも初級〜鬼の4段階です。トレーニングを開くと、3つのモードから選べます！",
       "en": "[Update] Two new modes: PLL Flash and PLL Vision! ⚡👁\nFlash shows PLLs one at a time; Vision shows nine at once in a 3×3 grid — remember them and answer at the end. Four levels each, from Easy to Pro. Open Training and pick from the three modes!",
       "zh-CN": "【更新情报】新模式PLL闪现和PLL视野登场！⚡👁\n闪现会逐个快速显示PLL，视野会一次显示3×3排列的9个PLL，记住后最后一起作答。两种模式都有初级到魔鬼4档。打开「训练」，即可从3种模式中选择！",
@@ -29,7 +29,7 @@
     },
     {
       "date": "2026-08-30",
-      "icon": "🎨",
+      "icon": "cube",
       "ja": "【アプデ情報】キューブカラーが5色追加！🎨\n和・パステル・ジュエル・ネオンポップ・モノクロームを実装しました✨\nショップの「キューブカラー」から、好きなデザインを選んで遊んでみてね！",
       "en": "[Update] 5 new cube colors! 🎨\nJapanese, Pastel, Jewel, Neon Pop and Monochrome are here ✨\nPick your favorite from Cube Colors in the shop!",
       "zh-CN": "【更新情报】方块颜色新增5种！🎨\n和风、粉彩、宝石、霓虹波普、单色已上线✨\n快去商店的「方块颜色」里挑一个喜欢的吧！",
@@ -42,7 +42,7 @@
     },
     {
       "date": "2026-08-24",
-      "icon": "📷",
+      "icon": "camera",
       "ja": "【アプデ情報】自分の写真でキューブを作れるようになりました！ショップのキューブスキンに「オリジナル」が新登場。1枚を6面に貼るか、6枚を1面ずつ貼り分けるか選べます。写真はこの端末の中のみ保存されます。",
       "en": "[Update] Make a cube from your own photos! The new Original skins are in the shop: one photo across all six faces, or six photos with one per face. Photos are stored on this device only.",
       "zh-CN": "【更新情报】现在可以用自己的照片做方块了！商店的方块皮肤新增「原创」：一张照片贴满六面，或六张照片每面一张。照片仅保存在这台设备上。",
@@ -56,7 +56,7 @@
     },
     {
       "date": "2026-08-23",
-      "icon": "⏸️",
+      "icon": "pause",
       "ja": "計測を一時停止できるようになりました！左上のタイムをタップ、☰メニューを開く、アプリを閉じる——どれでも自動でストップします。",
       "en": "You can now pause the timer! Tap the time in the top left, open the ☰ menu, or leave the app — any of these stops the clock.",
       "zh-CN": "现在可以暂停计时了！点击左上角的时间、打开 ☰ 菜单，或离开应用，都会自动停止计时。",
@@ -69,7 +69,7 @@
     },
     {
       "date": "2026-08-22",
-      "icon": "✈️",
+      "icon": "plane",
       "ja": "【アプデ情報】機内モード・オフラインに対応しました！電波の届かない場所や飛行機の中、地下鉄でもスムーズに遊べるようになりました。",
       "en": "[Update] Offline and airplane mode are now supported! Play smoothly with no signal — on a plane, on the subway, anywhere.",
       "zh-CN": "【更新情报】已支持离线与飞行模式！在没有信号的地方、飞机上或地铁里也能流畅游玩。",
@@ -83,7 +83,7 @@
     },
     {
       "date": "2026-08-22",
-      "icon": "↩️",
+      "icon": "undo",
       "ja": "タップキューブモードに一手戻るボタンが新登場！間違えても指1本で巻き戻せる。",
       "en": "A new undo button in tap-cube mode! One tap takes back your last move.",
       "zh-CN": "点击方块模式新增「撤销一步」按钮！走错了也能一键回退。",
