@@ -259,7 +259,6 @@
     '.rk-links{display:flex;justify-content:center;gap:18px;margin-top:6px;flex-wrap:wrap}',
     '.rk-link{background:none;border:none;color:#8f8fa6;font-size:12.5px;text-decoration:underline;cursor:pointer;',
     '  font-family:inherit;padding:8px 2px}',
-    '#confirm-ok.rk-danger{background:#ff4d63!important;border-color:#ff4d63!important;color:#fff!important}',
     '.rk-seasons{display:flex;gap:6px;overflow-x:auto;margin:0 0 10px;padding-bottom:2px;scrollbar-width:none}',
     '.rk-seasons::-webkit-scrollbar{display:none}',
     '.rk-sz{flex:none;padding:7px 12px;border-radius:999px;border:1px solid #3a3a48;background:#15151b;color:#b8b8c6;',
@@ -277,7 +276,6 @@
     '  border-radius:12px;border:1px solid #3a3a48;background:#000;color:#fff;font:inherit;font-size:14px;font-weight:800;cursor:pointer}',
     '.rk-xshare svg{width:16px;height:16px;fill:#fff}',
     '.rk-xshare:active{transform:scale(.97)}',
-    '.rk-link.danger{color:#ff5a6e;text-decoration-color:rgba(255,90,110,.6);font-weight:700}',
     '.rk-sec{font-size:13px;font-weight:800;color:#9a9aac;margin:0 0 6px;display:flex;justify-content:space-between}',
 
     /* インスペクションのカウントダウンと、計測中の小さな印（キューブの操作は邪魔しない）
@@ -886,8 +884,8 @@
         }).join('') + '</ol>';
       }
       html += '</div>';
-      html += '<div class="rk-links"><button type="button" class="rk-link" id="rk-rename">' + esc(tx('rkRename')) + '</button>' +
-        '<button type="button" class="rk-link danger" id="rk-leave">' + esc(tx('rkLeave')) + '</button></div>';
+      // 「ランキングへの参加をやめる」は 2026-10-14 に廃止（参加したら記録は残る方式）。ニックネームの変更だけ残す
+      html += '<div class="rk-links"><button type="button" class="rk-link" id="rk-rename">' + esc(tx('rkRename')) + '</button></div>';
     }
     html += '</div>';
     el.innerHTML = html;
@@ -905,7 +903,6 @@
     if (input) input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); submitNickname(); } });
     on('rk-start', startRanked);
     on('rk-rename', function () { view = 'rename'; render(); });
-    on('rk-leave', leave);
     on('rk-xshare', shareX);
     const sz = document.querySelector('#rk-overlay .rk-seasons');
     if (sz) sz.addEventListener('click', function (e) {
@@ -1188,34 +1185,6 @@
     }
     try { global.PllShare.shareCanvas(cv, caption); } catch (e) {
       toast(esc(tx('rkShareImgFail')) + '<br><small>' + esc(String((e && e.message) || e)) + '</small>', 9000);
-    }
-  }
-
-  function leave() {
-    if (!me) return;
-    const run = function () {
-      api('/api/delete-me', { playerId: me.playerId, secret: me.secret }).then(function (r) {
-        if (!r.ok && r.__status !== 401) { toast(esc(errText(r.error))); return; }
-        saveMe(null);
-        me = null;
-        board = null;
-        endRanked();
-        closeOverlay();
-      });
-    };
-    if (typeof global.askConfirm === 'function') {
-      global.askConfirm({ title: tx('rkLeave'), body: tx('rkLeaveConfirm'), ok: tx('rkLeaveOk'), cancel: tx('rkCancelBtn'), onOk: run });
-      // この確認だけ「削除する」を赤にする（ダイアログが閉じたら元に戻す）
-      const okb = $('confirm-ok'), ov = $('confirm-overlay');
-      if (okb && ov && global.MutationObserver) {
-        okb.classList.add('rk-danger');
-        const mo = new MutationObserver(function () {
-          if (!ov.classList.contains('show')) { okb.classList.remove('rk-danger'); mo.disconnect(); }
-        });
-        mo.observe(ov, { attributes: true, attributeFilter: ['class'] });
-      }
-    } else if (global.confirm(tx('rkLeaveConfirm'))) {
-      run();
     }
   }
 
