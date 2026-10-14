@@ -264,7 +264,31 @@
     '#rk-toast .rk-t-big{display:block;font-size:20px;font-weight:900;color:var(--tc,#2ef2c0);margin-bottom:2px}',
     '#rk-toast .rk-t-btn{display:inline-block;margin-top:8px;padding:7px 14px;border-radius:999px;border:1px solid #4a4a58;',
     '  background:#121218;color:#e6e6ee;font:inherit;font-size:12.5px;cursor:pointer}',
-    '@media (prefers-reduced-motion: reduce){#rk-toast{transition:none}.rk-btn{transition:none}}'
+    '@media (prefers-reduced-motion: reduce){#rk-toast{transition:none}.rk-btn{transition:none}}',
+
+    /* ---- ランク戦の結果カード（自己ベストでないとき）：タイム・自己ベストと順位・ボタン2つだけ ---- */
+    '#rk-res{position:fixed;left:50%;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:10401;',
+    '  width:min(calc(100vw - 32px),340px);box-sizing:border-box;padding:18px 16px 16px;border-radius:20px;',
+    '  background:#15161d;border:1px solid #2c2e3a;color:#eef0f6;text-align:center;',
+    '  box-shadow:0 16px 40px rgba(0,0,0,.6);',
+    '  opacity:0;transform:translate(-50%,16px);pointer-events:none;transition:opacity .2s ease,transform .3s ease}',
+    '#rk-res.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}',
+    '.rk-res-x{position:absolute;top:6px;right:6px;width:36px;height:36px;border-radius:50%;border:none;padding:0;',
+    '  display:grid;place-items:center;background:none;color:#7c8094;cursor:pointer}',
+    '.rk-res-x svg{width:13px;height:13px;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}',
+    '.rk-res-time{font-family:Orbitron,ui-monospace,monospace;font-size:40px;line-height:1.1;font-weight:800;',
+    '  font-variant-numeric:tabular-nums;color:var(--tc,#2ef2c0)}',
+    '.rk-res-sub{margin:6px 0 16px;font-size:13px;font-weight:700;color:#9ea3b8}',
+    '.rk-res-sub b{color:#eef0f6;font-variant-numeric:tabular-nums}',
+    '.rk-res-sub.pb{color:#ffc24a}',
+    '.rk-res-btn{display:block;width:100%;box-sizing:border-box;min-height:48px;border-radius:14px;font-family:inherit;',
+    '  font-size:15px;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;',
+    '  transition:transform .1s ease}',
+    '.rk-res-btn:active{transform:scale(.97)}',
+    '.rk-res-btn:focus{outline:none}.rk-res-btn:focus-visible{outline:2px solid #fff;outline-offset:2px}',
+    '.rk-res-btn.view{color:#e8eaf2;background:none;border:1px solid #3a3d4c}',
+    '.rk-res-btn.retry{margin-top:8px;min-height:52px;font-size:16px;color:#04161a;border:none;background:var(--tc,#2ef2c0)}',
+    '@media (prefers-reduced-motion: reduce){#rk-res{transition:opacity .2s}}'
   ].join('\n');
 
   const REPLAY_MAX_RANK = 5;   // サーバーの REPLAY_MAX_RANK と同じ
@@ -359,6 +383,45 @@
     if (el) el.classList.remove('on');
   }
 
+  /* 結果カード：タイムを大きく、その下に「自己ベスト ○○ · ○位」、
+     ボタンは「ランキングを見る」と、その下に「リトライ」（すぐ次のランク戦へ）だけ */
+  function showResult(r) {
+    hideToast();
+    let el = $('rk-res');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'rk-res';
+      el.setAttribute('role', 'dialog');
+      el.setAttribute('aria-live', 'polite');
+      document.body.appendChild(el);
+      el.addEventListener('click', function (e) {
+        const b = e.target.closest('button');
+        if (!b) return;
+        if (b.dataset.act === 'view') { hideResult(); openOverlay(); }
+        else if (b.dataset.act === 'retry') { hideResult(); startRanked(); }
+        else if (b.dataset.act === 'close') hideResult();
+      });
+    }
+    const rank = r.rank ? ' · ' + esc(tx('rkRank', { n: r.rank })) : '';
+    const sub = r.isNewBest
+      ? '<p class="rk-res-sub pb">' + esc(tx('rkNewBest')) + rank + '</p>'
+      : '<p class="rk-res-sub">' + esc(tx('rkMyBest')) + ' <b>' + esc(fmtTime(r.bestMs != null ? r.bestMs : r.timeMs)) + '</b>' + rank + '</p>';
+    el.setAttribute('aria-label', tx('rkTitle'));
+    el.innerHTML =
+      '<button type="button" class="rk-res-x" data-act="close" aria-label="' + esc(tx('close') || '✕') + '">' +
+        '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2 2 12"/></svg></button>' +
+      '<div class="rk-res-time">' + esc(fmtTime(r.timeMs)) + '</div>' + sub +
+      '<button type="button" class="rk-res-btn view" data-act="view">' + esc(tx('rkViewRanking')) + '</button>' +
+      '<button type="button" class="rk-res-btn retry" data-act="retry">' + esc(tx('rkRetry')) + '</button>';
+    el.classList.remove('on');
+    void el.offsetWidth;
+    el.classList.add('on');
+  }
+  function hideResult() {
+    const el = $('rk-res');
+    if (el) el.classList.remove('on');
+  }
+
   /* ------------------------------------------------- ランク戦の進行 -- */
   // state: 'idle' | 'starting' | 'inspecting' | 'solving' | 'submitting'
   let state = 'idle';
@@ -446,6 +509,7 @@
 
   function startRanked() {
     if (state !== 'idle' || !me) return;
+    hideResult();
     const bridge = global.__rankedBridge;
     if (!bridge || typeof bridge.scramble !== 'function') { toast(esc(tx('rkErrOffline'))); return; }
     state = 'starting';
@@ -502,10 +566,7 @@
       moves = [];
       if (!r.ok) { toast(esc(errText(r.error)), 6000); return; }
       if (r.isNewBest && global.RankedFx) { celebrate(r); return; }
-      const lines = '<span class="rk-t-big">🌍 ' + esc(tx('rkRank', { n: r.rank })) + '</span>' +
-        esc(fmtTime(r.timeMs)) + (r.isNewBest ? ' · ' + esc(tx('rkNewBest')) : '') +
-        '<br><button type="button" class="rk-t-btn">' + esc(tx('rkViewRanking')) + '</button>';
-      toast(lines, 9000, openOverlay);
+      showResult(r);
     });
   }
 
@@ -1090,5 +1151,5 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 
-  global.Ranked = { shareCard: function () { return board && board.me ? shareCard(board.me, modeInfo(board.mode || currentMode)) : null; }, open: openOverlay, close: closeOverlay, start: startRanked, state: function () { return state; }, celebrate: celebrate };
+  global.Ranked = { shareCard: function () { return board && board.me ? shareCard(board.me, modeInfo(board.mode || currentMode)) : null; }, open: openOverlay, close: closeOverlay, start: startRanked, state: function () { return state; }, celebrate: celebrate, showResult: showResult };
 })(window);
