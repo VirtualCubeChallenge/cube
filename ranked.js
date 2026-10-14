@@ -120,6 +120,7 @@
     '.rk-card{background:#1c1c22;border:1px solid #2c2c38;border-radius:16px;padding:16px;margin-bottom:12px}',
     '.rk-body{white-space:pre-line;font-size:13.5px;line-height:1.75;color:#d4d4de;margin:0}',
     '.rk-rules{margin:14px 0 0;padding:10px 12px;border-radius:12px;background:#15151b;border:1px solid #2a2a35}',
+    '.rk-join-rules .rk-rules{margin:0 0 14px;padding:12px 14px}',
     '.rk-rules-t{margin:0 0 6px;font-size:11.5px;font-weight:800;letter-spacing:.06em;color:#8f8fa6}',
     '.rk-rule-list{list-style:none;margin:0;padding:0;display:grid;gap:5px}',
     '.rk-rule-list li{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12.5px;line-height:1.4;color:#c8c8d4}',
@@ -606,8 +607,8 @@
       html += '<h2 class="rk-h">🌍 ' + esc(tx(renaming ? 'rkRename' : 'rkJoinTitle')) + '</h2>';
       if (!renaming) {
         if (currentSeason) html += modeHtml(currentMode, currentSeason, false);
-        html += '<div class="rk-card"><p class="rk-body">' + esc(tx('rkJoinBody')) + '</p>' +
-          rulesHtml() + '</div>';
+        // 参加時の説明文（rkJoinBody）は 2026-10-14 にやめた（ルールだけ見せる）
+        html += '<div class="rk-join-rules">' + rulesHtml() + '</div>';
       }
       html += '<div class="rk-card"><label class="rk-label" for="rk-nick">' + esc(tx('rkNickLabel')) + '</label>' +
         '<input class="rk-input" id="rk-nick" maxlength="24" autocomplete="off" autocapitalize="off" spellcheck="false" value="' +
