@@ -214,18 +214,43 @@
     '.rk-link.danger{color:#ff5a6e;text-decoration-color:rgba(255,90,110,.6);font-weight:700}',
     '.rk-sec{font-size:13px;font-weight:800;color:#9a9aac;margin:0 0 6px;display:flex;justify-content:space-between}',
 
-    /* インスペクションのカウントダウンと、計測中の小さな印（キューブの操作は邪魔しない） */
+    /* インスペクションのカウントダウンと、計測中の小さな印（キューブの操作は邪魔しない）
+       ・指でなぞるモード：画面の上（キューブは下寄りなので重ならない）
+       ・回転記号モード：キューブと記号ボタンのあいだ（ランク戦中は空いている OLL/PLL の段）に置く
+         → placeHud() が .dock を付けて位置を決める */
     '#rk-hud{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 76px);z-index:30;pointer-events:none;',
-    '  transform:translateX(-50%);display:none;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;',
-    '  background:rgba(18,18,24,.82);border:1px solid #3a3a48;color:#f0f0f6;font-size:13px;font-weight:800;',
-    '  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);white-space:nowrap}',
-    '#rk-hud.on{display:flex}',
-    '#rk-hud b{font-size:20px;font-variant-numeric:tabular-nums;min-width:1.4em;text-align:center;color:var(--tc,#2ef2c0)}',
-    '#rk-hud.warn b{color:#ff6a7a}',
-    /* 「1手目でスタート」は2行目へ。札の幅を細くして、右のシャッフルのつまみに掛からないようにする */
-    '#rk-hud{flex-wrap:wrap;justify-content:center;row-gap:0;max-width:calc(100vw - 150px);text-align:center}',
-    '#rk-hud small{font-size:11px;font-weight:600;color:#9a9aac;flex-basis:100%}',
-    '#rk-hud.solo small{flex-basis:auto}',
+    '  transform:translateX(-50%);display:none;box-sizing:border-box;overflow:hidden;',
+    '  width:max-content;max-width:calc(100vw - 150px);padding:8px 14px 10px;border-radius:14px;',
+    '  background:rgba(14,16,24,.86);border:1px solid rgba(46,242,192,.28);color:#f0f0f6;',
+    '  box-shadow:0 6px 20px rgba(0,0,0,.45),0 0 14px rgba(46,242,192,.10);',
+    '  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}',
+    '#rk-hud.on{display:block}',
+    '#rk-hud.dock{max-width:none}',
+    // 上の札：1段目に「インスペクション」と秒数、2段目から下に説明（幅いっぱい）
+    // 下の .dock：秒数を右に大きく、左に2段
+    '.rk-h-row{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"t n" "s s";column-gap:12px;align-items:center}',
+    '#rk-hud.dock .rk-h-row{grid-template-areas:"t n" "s n"}',
+    '.rk-h-t{grid-area:t}.rk-h-s{grid-area:s}#rk-hud .rk-h-row b{grid-area:n}',
+    '.rk-h-t{display:block;font-size:13px;font-weight:800;letter-spacing:.04em;color:#f0f0f6;white-space:nowrap}',
+    '.rk-h-s{display:block;margin-top:1px;font-size:11px;font-weight:600;line-height:1.4;color:#9a9aac}',
+    // 幅の狭い上の札ではモード名とヒントを2行に、広い .dock では「・」でつないで1行に
+    '.rk-h-m,.rk-h-k{display:block}',
+    '.rk-h-m{color:#c9a8ff}',
+    '#rk-hud.dock .rk-h-m,#rk-hud.dock .rk-h-k{display:inline;white-space:normal}',
+    '#rk-hud.dock .rk-h-m::after{content:" · ";color:#6b6b7e}',
+    '#rk-hud b{font-size:26px;line-height:1;font-weight:900;font-variant-numeric:tabular-nums;',
+    '  min-width:1.3em;text-align:right;color:var(--tc,#2ef2c0);text-shadow:0 0 10px rgba(46,242,192,.35)}',
+    // 残り時間のバー（下の縁）
+    '.rk-h-bar{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.06)}',
+    '.rk-h-bar i{display:block;height:100%;transform-origin:left center;background:var(--tc,#2ef2c0);',
+    '  box-shadow:0 0 8px var(--tc,#2ef2c0);transition:transform .2s linear}',
+    '#rk-hud.warn{border-color:rgba(255,106,122,.55);box-shadow:0 6px 20px rgba(0,0,0,.45),0 0 16px rgba(255,106,122,.25)}',
+    '#rk-hud.warn b{color:#ff6a7a;text-shadow:0 0 10px rgba(255,106,122,.5)}',
+    '#rk-hud.warn .rk-h-bar i{background:#ff6a7a;box-shadow:0 0 8px #ff6a7a}',
+    // 計測中は小さな札だけ
+    '#rk-hud.solo{padding:5px 12px;border-radius:999px;font-size:12px;font-weight:800;color:#cfd3e0;white-space:nowrap}',
+    '#rk-hud.solo small{font-size:10.5px;font-weight:800;letter-spacing:.12em;color:#9a9aac}',
+    '@media (prefers-reduced-motion:reduce){.rk-h-bar i{transition:none}}',
     /* ランク戦の最中はガイド系のボタンを隠す（場所は空けたまま） */
     'body.rk-on #help-btn,body.rk-on #oll-btn,body.rk-on #pll-btn,body.rk-on #zbll-btn{visibility:hidden;pointer-events:none}',
 
@@ -344,18 +369,46 @@
   let inspectTimer = null;
   let inspectEnd = 0;
 
-  function hud(on, warn, html) {
+  function hud(on, warn, html, solo) {
     let el = $('rk-hud');
     if (!el) {
       el = document.createElement('div');
       el.id = 'rk-hud';
       el.setAttribute('aria-live', 'polite');
       document.body.appendChild(el);
+      global.addEventListener('resize', function () { if (el.classList.contains('on')) placeHud(el); });
     }
     el.classList.toggle('on', !!on);
     el.classList.toggle('warn', !!warn);
-    if (!on) el.classList.remove('solo');
+    el.classList.toggle('solo', !!(on && solo));
     if (html !== undefined) el.innerHTML = html;
+    if (on) placeHud(el);
+  }
+
+  // 回転記号モードでは、キューブの上に重ねず「キューブと記号ボタンのあいだ」に置く。
+  // ランク戦中は OLL/PLL/ZBLL/ヘルプを隠して場所だけ空けているので、その段（.alg-row）を使う。
+  // その段が無い配置なら、記号ボタンのすぐ上。指でなぞるモードは画面の上のまま（CSS の既定）。
+  function placeHud(el) {
+    let cx = 0, cy = 0, w = 0, bandH = 0;
+    if (!document.body.classList.contains('tap-mode')) {
+      const row = document.querySelector('#controls .alg-row');
+      const r = row ? row.getBoundingClientRect() : null;
+      if (r && r.height > 30 && r.width > 200 && r.top > 0 && r.bottom <= global.innerHeight) {
+        cx = r.left + r.width / 2; cy = r.top + r.height / 2; w = r.width; bandH = r.height;
+      } else {
+        const fg = $('face-grid');
+        const g = fg ? fg.getBoundingClientRect() : null;
+        if (g && g.height > 0 && g.top > 120) { cx = g.left + g.width / 2; cy = g.top - 36; w = g.width; bandH = 56; }
+      }
+    }
+    el.classList.toggle('dock', w > 0);
+    el.style.left = w ? cx.toFixed(1) + 'px' : '';
+    el.style.width = w && !el.classList.contains('solo') ? Math.min(w, 440).toFixed(1) + 'px' : '';
+    if (!w) { el.style.top = ''; return; }
+    // 段の真ん中に。文が長くて段より高くなるときは、下端をそろえて上（キューブの下の空き）へ伸ばす
+    const h = el.offsetHeight;
+    const bottom = cy + bandH / 2;
+    el.style.top = (h > bandH ? bottom - h : cy - h / 2).toFixed(1) + 'px';
   }
 
   function endRanked() {
@@ -380,8 +433,14 @@
     const left = Math.max(0, inspectEnd - Date.now());
     const sec = Math.ceil(left / 1000);
     const mi = modeInfo(playMode);
-    hud(true, sec <= 3, '🌍 ' + esc(tx('rkInspection')) + ' <b>' + sec + '</b><small>' +
-      (playMode !== 'normal' ? mi.icon + ' ' + esc(tx(mi.name)) + ' · ' : '') + esc(tx('rkFirstMoveHint')) + '</small>');
+    const total = (attempt && attempt.inspectMs) || INSPECTION_MS;
+    hud(true, sec <= 3,
+      '<div class="rk-h-row">' +
+        '<span class="rk-h-t">' + esc(tx('rkInspection')) + '</span><b>' + sec + '</b>' +
+        '<span class="rk-h-s">' + (playMode !== 'normal' ? '<span class="rk-h-m">' + mi.icon + ' ' + esc(tx(mi.name)) + '</span>' : '') +
+          '<span class="rk-h-k">' + esc(tx('rkFirstMoveHint')) + '</span></span>' +
+      '</div>' +
+      '<span class="rk-h-bar" aria-hidden="true"><i style="transform:scaleX(' + Math.min(1, left / total).toFixed(3) + ')"></i></span>');
     if (left <= 0) invalidate('rkErrInspection');
   }
 
@@ -411,7 +470,7 @@
       applying = true;
       try { bridge.scramble(cfgs); } finally { applying = false; }
 
-      attempt = { id: r.attemptId };
+      attempt = { id: r.attemptId, inspectMs: r.inspectionMs || INSPECTION_MS };
       moves = [];
       lastT = 0;
       playMode = MODES[r.mode] ? r.mode : 'normal';
@@ -487,8 +546,7 @@
         state = 'solving';
         clearInterval(inspectTimer);
         inspectTimer = null;
-        hud(true, false, '🌍 ' + (playMode !== 'normal' ? modeInfo(playMode).icon + ' ' : '') + '<small>RANKED</small>');
-        const h = $('rk-hud'); if (h) h.classList.add('solo');
+        hud(true, false, '🌍 ' + (playMode !== 'normal' ? modeInfo(playMode).icon + ' ' : '') + '<small>RANKED</small>', true);
       }
       const axis = AXES.indexOf(cfg.axis);
       let mask = 0;
