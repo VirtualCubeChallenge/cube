@@ -106,6 +106,24 @@
   }
 
   /* ------------------------------------------------------------ 見た目 -- */
+  /* 結果カードが左下から波のように広がって出てくるための形。
+     左下を中心に、ふちがゆるく波打つ扇形（1/4の円）。マスクとして大きくしていくと、
+     波の前線が左下から右上へ流れてカードが現れる。同じ線をネオンで描いて前線に重ねる。 */
+  function waveShape(close, inset) {
+    const pts = [];
+    const N = 48;
+    for (let i = 0; i <= N; i++) {
+      const a = (Math.PI / 2) * (i / N);           // 0 = 右, π/2 = 上
+      const r = 90 + 5 * Math.sin(a * 9 + 0.6) - (inset || 0);    // 半径 85〜95 でうねる
+      pts.push((r * Math.cos(a)).toFixed(2) + ' ' + (100 - r * Math.sin(a)).toFixed(2));
+    }
+    return 'M' + (close ? '0 100L' : '') + pts.join('L') + (close ? 'Z' : '');
+  }
+  function svgUrl(svg) { return 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")'; }
+  const WAVE_MASK = svgUrl('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="' + waveShape(true) + '" fill="#000"/></svg>');
+  const WAVE_LINE = svgUrl('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke-linecap="round">' +
+    '<path d="' + waveShape(false, 1.6) + '" stroke="#2ef2c0" stroke-opacity=".35" stroke-width="12" vector-effect="non-scaling-stroke"/>' +
+    '<path d="' + waveShape(false, 1.6) + '" stroke="#d6fff5" stroke-width="3" vector-effect="non-scaling-stroke"/></svg>');
   const CSS = [
     /* 全画面の画面。z-index はハブ(41)やPLL検定(42)より上、確認ダイアログ(80)より下 */
     '#rk-overlay{display:none;position:fixed;inset:0;z-index:46;overflow-y:auto;-webkit-overflow-scrolling:touch;',
@@ -270,9 +288,48 @@
     '#rk-res{position:fixed;left:50%;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:10401;',
     '  width:min(calc(100vw - 32px),340px);box-sizing:border-box;padding:18px 16px 16px;border-radius:20px;',
     '  background:#15161d;border:1px solid #2c2e3a;color:#eef0f6;text-align:center;',
-    '  box-shadow:0 16px 40px rgba(0,0,0,.6);',
-    '  opacity:0;transform:translate(-50%,16px);pointer-events:none;transition:opacity .2s ease,transform .3s ease}',
-    '#rk-res.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}',
+    '  box-shadow:0 16px 40px rgba(0,0,0,.6);transform:translate(-50%,0);transform-origin:0 100%;',
+    '  visibility:hidden;pointer-events:none}',
+    '#rk-res.on{visibility:visible;pointer-events:auto;animation:rk-res-in .72s cubic-bezier(.22,.8,.3,1) both,',
+    '  rk-res-mask .72s cubic-bezier(.3,.6,.25,1) both}',
+    '#rk-res.on.out{pointer-events:none;animation:rk-res-away .34s cubic-bezier(.5,0,.75,.4) forwards,',
+    '  rk-res-unmask .34s cubic-bezier(.5,0,.75,.4) forwards}',
+    // 左下から、少し傾いたところから流れてきて、ふわっと収まる
+    '@keyframes rk-res-in{',
+    '  0%{transform:translate(calc(-50% - 26px),28px) rotate(-5deg) scale(.94)}',
+    '  62%{transform:translate(calc(-50% + 2px),-3px) rotate(.5deg) scale(1.004)}',
+    '  100%{transform:translate(-50%,0) rotate(0) scale(1)}}',
+    '@keyframes rk-res-away{to{transform:translate(calc(-50% - 22px),24px) rotate(-4deg) scale(.95)}}',
+    // 波の前線で切り抜く（終わったらマスクは外れる）
+    '@keyframes rk-res-mask{',
+    '  from{-webkit-mask-image:' + WAVE_MASK + ';mask-image:' + WAVE_MASK + ';-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;',
+    '    -webkit-mask-position:0 100%;mask-position:0 100%;-webkit-mask-size:1px 1px;mask-size:1px 1px}',
+    '  to{-webkit-mask-image:' + WAVE_MASK + ';mask-image:' + WAVE_MASK + ';-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;',
+    '    -webkit-mask-position:0 100%;mask-position:0 100%;-webkit-mask-size:560px 560px;mask-size:560px 560px}}',
+    '@keyframes rk-res-unmask{',
+    '  from{-webkit-mask-image:' + WAVE_MASK + ';mask-image:' + WAVE_MASK + ';-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;',
+    '    -webkit-mask-position:0 100%;mask-position:0 100%;-webkit-mask-size:560px 560px;mask-size:560px 560px}',
+    '  to{-webkit-mask-image:' + WAVE_MASK + ';mask-image:' + WAVE_MASK + ';-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;',
+    '    -webkit-mask-position:0 100%;mask-position:0 100%;-webkit-mask-size:1px 1px;mask-size:1px 1px}}',
+    // 波の前線に光る線
+    '#rk-res::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;',
+    '  background:' + WAVE_LINE + ' no-repeat 0 100%/1px 1px}',
+    '#rk-res.on::after{animation:rk-res-line .72s cubic-bezier(.3,.6,.25,1) both}',
+    '#rk-res.on.out::after{animation:none}',
+    '@keyframes rk-res-line{0%{background-size:1px 1px;opacity:1}55%{opacity:.9}100%{background-size:560px 560px;opacity:0}}',
+    // 中身は波を追いかけて、左下から順に
+    '#rk-res.on .rk-res-time,#rk-res.on .rk-res-sub,#rk-res.on .rk-res-btn{animation:rk-res-item .5s cubic-bezier(.2,.8,.3,1) backwards}',
+    '#rk-res.on .rk-res-time{animation-delay:.12s}',
+    '#rk-res.on .rk-res-sub{animation-delay:.2s}',
+    '#rk-res.on .rk-res-btn.view{animation-delay:.27s}',
+    '#rk-res.on .rk-res-btn.retry{animation-delay:.34s}',
+    '@keyframes rk-res-item{from{opacity:0;transform:translate(-14px,12px)}to{opacity:1;transform:none}}',
+    // リトライに、波の名残りの光が一度だけ流れる
+    '.rk-res-btn.retry{position:relative;overflow:hidden}',
+    '.rk-res-btn.retry::after{content:"";position:absolute;top:-20%;bottom:-20%;left:-40%;width:35%;pointer-events:none;',
+    '  background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(-120%) skewX(-18deg);opacity:0}',
+    '#rk-res.on .rk-res-btn.retry::after{animation:rk-res-sheen .9s .62s cubic-bezier(.3,.6,.3,1) both}',
+    '@keyframes rk-res-sheen{0%{opacity:1;transform:translateX(0) skewX(-18deg)}100%{opacity:1;transform:translateX(480%) skewX(-18deg)}}',
     '.rk-res-x{position:absolute;top:6px;right:6px;width:36px;height:36px;border-radius:50%;border:none;padding:0;',
     '  display:grid;place-items:center;background:none;color:#7c8094;cursor:pointer}',
     '.rk-res-x svg{width:13px;height:13px;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}',
@@ -288,7 +345,9 @@
     '.rk-res-btn:focus{outline:none}.rk-res-btn:focus-visible{outline:2px solid #fff;outline-offset:2px}',
     '.rk-res-btn.view{color:#e8eaf2;background:none;border:1px solid #3a3d4c}',
     '.rk-res-btn.retry{margin-top:8px;min-height:52px;font-size:16px;color:#04161a;border:none;background:var(--tc,#2ef2c0)}',
-    '@media (prefers-reduced-motion: reduce){#rk-res{transition:opacity .2s}}'
+    '@media (prefers-reduced-motion: reduce){#rk-res.on{animation:rk-res-fade .2s both}#rk-res.on.out{animation:rk-res-fade .15s reverse forwards}',
+    '  #rk-res.on::after,#rk-res.on .rk-res-time,#rk-res.on .rk-res-sub,#rk-res.on .rk-res-btn,#rk-res.on .rk-res-btn.retry::after{animation:none}}',
+    '@keyframes rk-res-fade{from{opacity:0}to{opacity:1}}'
   ].join('\n');
 
   const REPLAY_MAX_RANK = 5;   // サーバーの REPLAY_MAX_RANK と同じ
@@ -413,13 +472,25 @@
       '<div class="rk-res-time">' + esc(fmtTime(r.timeMs)) + '</div>' + sub +
       '<button type="button" class="rk-res-btn view" data-act="view">' + esc(tx('rkViewRanking')) + '</button>' +
       '<button type="button" class="rk-res-btn retry" data-act="retry">' + esc(tx('rkRetry')) + '</button>';
-    el.classList.remove('on');
-    void el.offsetWidth;
+    el.classList.remove('on', 'out');
+    void el.offsetWidth;   // 出し直しでも毎回、左下から流れてくるように
     el.classList.add('on');
   }
+  // 閉じるときは、来た左下へ波が引いていく
   function hideResult() {
     const el = $('rk-res');
-    if (el) el.classList.remove('on');
+    if (!el || !el.classList.contains('on') || el.classList.contains('out')) return;
+    el.classList.add('out');
+    let done = false;
+    const finish = function () {
+      if (done) return;
+      done = true;
+      el.removeEventListener('animationend', onEnd);
+      if (el.classList.contains('out')) el.classList.remove('on', 'out');
+    };
+    const onEnd = function (e) { if (e.target === el) finish(); };
+    el.addEventListener('animationend', onEnd);
+    setTimeout(finish, 450);   // animationend が来ない環境でも必ず消す
   }
 
   /* ------------------------------------------------- ランク戦の進行 -- */
