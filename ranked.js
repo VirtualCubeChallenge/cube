@@ -106,24 +106,72 @@
   }
 
   /* ------------------------------------------------------------ 見た目 -- */
-  /* 結果カードが左下から波のように広がって出てくるための形。
-     左下を中心に、ふちがゆるく波打つ扇形（1/4の円）。マスクとして大きくしていくと、
-     波の前線が左下から右上へ流れてカードが現れる。同じ線をネオンで描いて前線に重ねる。 */
-  function waveShape(close, inset) {
+  /* 結果カードが波のように広がって出てくるための形と動き。
+     出てくる場所は 左下・右下・左上・右上・真上・真下 の6通りから毎回ランダム（続けて同じにはしない）。
+     角からは「ふちがゆるく波打つ扇形（1/4の円）」、真上・真下からは「波打つ半円」をマスクにして
+     大きくしていくと、波の前線がその場所から流れてカードが現れる。同じ線をネオンで描いて前線に重ねる。
+     閉じるときは、来た場所へ波が引いていく。 */
+  const RES_FROM = {
+    // c: 波の中心（0〜100の座標）、a: 扇の角度（度。0=右、90=上）、pos: マスクを置く場所、size: 広げきる大きさ
+    // dx/dy/rot: カードが流れてくる向きと傾き
+    bl: { c: [0, 100],  a: [0, 90],    pos: '0 100%',    size: 560, dx: -26, dy: 28,  rot: -5 },
+    br: { c: [100, 100], a: [90, 180],  pos: '100% 100%', size: 560, dx: 26,  dy: 28,  rot: 5 },
+    tl: { c: [0, 0],    a: [270, 360], pos: '0 0',       size: 560, dx: -26, dy: -28, rot: 5 },
+    tr: { c: [100, 0],  a: [180, 270], pos: '100% 0',    size: 560, dx: 26,  dy: -28, rot: -5 },
+    t:  { c: [50, 0],   a: [180, 360], pos: '50% 0',     size: 780, dx: 0,   dy: -34, rot: 0, half: true },
+    b:  { c: [50, 100], a: [0, 180],   pos: '50% 100%',  size: 780, dx: 0,   dy: 34,  rot: 0, half: true }
+  };
+  const RES_FROM_KEYS = Object.keys(RES_FROM);
+  function waveShape(o, close, inset) {
+    const k = o.half ? 0.5 : 1;                  // 半円は半径も半分（箱からはみ出さないように）
+    const a0 = o.a[0] * Math.PI / 180, a1 = o.a[1] * Math.PI / 180;
+    const N = o.half ? 80 : 48;
     const pts = [];
-    const N = 48;
     for (let i = 0; i <= N; i++) {
-      const a = (Math.PI / 2) * (i / N);           // 0 = 右, π/2 = 上
-      const r = 90 + 5 * Math.sin(a * 9 + 0.6) - (inset || 0);    // 半径 85〜95 でうねる
-      pts.push((r * Math.cos(a)).toFixed(2) + ' ' + (100 - r * Math.sin(a)).toFixed(2));
+      const a = a0 + (a1 - a0) * (i / N);
+      const r = k * (90 + 5 * Math.sin((a - a0) * 9 + 0.6)) - (inset || 0) * k;   // ゆるくうねる
+      pts.push((o.c[0] + r * Math.cos(a)).toFixed(2) + ' ' + (o.c[1] - r * Math.sin(a)).toFixed(2));
     }
-    return 'M' + (close ? '0 100L' : '') + pts.join('L') + (close ? 'Z' : '');
+    return 'M' + (close ? o.c[0] + ' ' + o.c[1] + 'L' : '') + pts.join('L') + (close ? 'Z' : '');
   }
   function svgUrl(svg) { return 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")'; }
-  const WAVE_MASK = svgUrl('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="' + waveShape(true) + '" fill="#000"/></svg>');
-  const WAVE_LINE = svgUrl('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke-linecap="round">' +
-    '<path d="' + waveShape(false, 1.6) + '" stroke="#2ef2c0" stroke-opacity=".35" stroke-width="12" vector-effect="non-scaling-stroke"/>' +
-    '<path d="' + waveShape(false, 1.6) + '" stroke="#d6fff5" stroke-width="3" vector-effect="non-scaling-stroke"/></svg>');
+  const RES_FX_CSS = (function () {
+    const out = [];
+    const EASE_IN = 'cubic-bezier(.22,.8,.3,1)', EASE_W = 'cubic-bezier(.3,.6,.25,1)', EASE_OUT = 'cubic-bezier(.5,0,.75,.4)';
+    RES_FROM_KEYS.forEach(function (key) {
+      const o = RES_FROM[key];
+      const mask = svgUrl('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="' + waveShape(o, true) + '" fill="#000"/></svg>');
+      const line = svgUrl('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke-linecap="round">' +
+        '<path d="' + waveShape(o, false, 1.6) + '" stroke="#2ef2c0" stroke-opacity=".35" stroke-width="12" vector-effect="non-scaling-stroke"/>' +
+        '<path d="' + waveShape(o, false, 1.6) + '" stroke="#d6fff5" stroke-width="3" vector-effect="non-scaling-stroke"/></svg>');
+      const S = o.size + 'px ' + o.size + 'px';
+      const m = function (size) {
+        return '-webkit-mask-image:' + mask + ';mask-image:' + mask + ';-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;' +
+          '-webkit-mask-position:' + o.pos + ';mask-position:' + o.pos + ';-webkit-mask-size:' + size + ';mask-size:' + size;
+      };
+      const tr = function (dx, dy, rot, sc) {
+        return 'transform:translate(calc(-50% + ' + dx + 'px),' + dy + 'px) rotate(' + rot + 'deg) scale(' + sc + ')';
+      };
+      const sx = Math.sign(o.dx), sy = Math.sign(o.dy);
+      const sel = '#rk-res.on[data-from="' + key + '"]';
+      out.push(
+        sel + '{transform-origin:' + o.pos + ';animation:rk-res-in-' + key + ' .72s ' + EASE_IN + ' both,rk-res-mask-' + key + ' .72s ' + EASE_W + ' both}',
+        sel + '.out{animation:rk-res-away-' + key + ' .34s ' + EASE_OUT + ' forwards,rk-res-unmask-' + key + ' .34s ' + EASE_OUT + ' forwards}',
+        '@keyframes rk-res-in-' + key + '{0%{' + tr(o.dx, o.dy, o.rot, .94) + '}' +
+          '62%{' + tr(-o.dx * 0.08, -o.dy * 0.1, -o.rot * 0.1, 1.004) + '}100%{' + tr(0, 0, 0, 1) + '}}',
+        '@keyframes rk-res-away-' + key + '{to{' + tr(o.dx * 0.85, o.dy * 0.85, o.rot * 0.8, .95) + '}}',
+        '@keyframes rk-res-mask-' + key + '{from{' + m('1px 1px') + '}to{' + m(S) + '}}',
+        '@keyframes rk-res-unmask-' + key + '{from{' + m(S) + '}to{' + m('1px 1px') + '}}',
+        // 波の前線に光る線
+        sel + '::after{background:' + line + ' no-repeat ' + o.pos + '/1px 1px;animation:rk-res-line-' + key + ' .72s ' + EASE_W + ' both}',
+        '@keyframes rk-res-line-' + key + '{0%{background-size:1px 1px;opacity:1}55%{opacity:.9}100%{background-size:' + S + ';opacity:0}}',
+        // 中身は波を追いかけて、同じ向きから順に
+        sel + ' .rk-res-time,' + sel + ' .rk-res-sub,' + sel + ' .rk-res-btn{animation-name:rk-res-item-' + key + '}',
+        '@keyframes rk-res-item-' + key + '{from{opacity:0;transform:translate(' + (sx * 14) + 'px,' + (sy * 12) + 'px)}to{opacity:1;transform:none}}'
+      );
+    });
+    return out;
+  })();
   const CSS = [
     /* 全画面の画面。z-index はハブ(41)やPLL検定(42)より上、確認ダイアログ(80)より下 */
     '#rk-overlay{display:none;position:fixed;inset:0;z-index:46;overflow-y:auto;-webkit-overflow-scrolling:touch;',
@@ -288,42 +336,18 @@
     '#rk-res{position:fixed;left:50%;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:10401;',
     '  width:min(calc(100vw - 32px),340px);box-sizing:border-box;padding:18px 16px 16px;border-radius:20px;',
     '  background:#15161d;border:1px solid #2c2e3a;color:#eef0f6;text-align:center;',
-    '  box-shadow:0 16px 40px rgba(0,0,0,.6);transform:translate(-50%,0);transform-origin:0 100%;',
+    '  box-shadow:0 16px 40px rgba(0,0,0,.6);transform:translate(-50%,0);',
     '  visibility:hidden;pointer-events:none}',
-    '#rk-res.on{visibility:visible;pointer-events:auto;animation:rk-res-in .72s cubic-bezier(.22,.8,.3,1) both,',
-    '  rk-res-mask .72s cubic-bezier(.3,.6,.25,1) both}',
-    '#rk-res.on.out{pointer-events:none;animation:rk-res-away .34s cubic-bezier(.5,0,.75,.4) forwards,',
-    '  rk-res-unmask .34s cubic-bezier(.5,0,.75,.4) forwards}',
-    // 左下から、少し傾いたところから流れてきて、ふわっと収まる
-    '@keyframes rk-res-in{',
-    '  0%{transform:translate(calc(-50% - 26px),28px) rotate(-5deg) scale(.94)}',
-    '  62%{transform:translate(calc(-50% + 2px),-3px) rotate(.5deg) scale(1.004)}',
-    '  100%{transform:translate(-50%,0) rotate(0) scale(1)}}',
-    '@keyframes rk-res-away{to{transform:translate(calc(-50% - 22px),24px) rotate(-4deg) scale(.95)}}',
-    // 波の前線で切り抜く（終わったらマスクは外れる）
-    '@keyframes rk-res-mask{',
-    '  from{-webkit-mask-image:' + WAVE_MASK + ';mask-image:' + WAVE_MASK + ';-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;',
-    '    -webkit-mask-position:0 100%;mask-position:0 100%;-webkit-mask-size:1px 1px;mask-size:1px 1px}',
-    '  to{-webkit-mask-image:' + WAVE_MASK + ';mask-image:' + WAVE_MASK + ';-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;',
-    '    -webkit-mask-position:0 100%;mask-position:0 100%;-webkit-mask-size:560px 560px;mask-size:560px 560px}}',
-    '@keyframes rk-res-unmask{',
-    '  from{-webkit-mask-image:' + WAVE_MASK + ';mask-image:' + WAVE_MASK + ';-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;',
-    '    -webkit-mask-position:0 100%;mask-position:0 100%;-webkit-mask-size:560px 560px;mask-size:560px 560px}',
-    '  to{-webkit-mask-image:' + WAVE_MASK + ';mask-image:' + WAVE_MASK + ';-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;',
-    '    -webkit-mask-position:0 100%;mask-position:0 100%;-webkit-mask-size:1px 1px;mask-size:1px 1px}}',
-    // 波の前線に光る線
-    '#rk-res::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;',
-    '  background:' + WAVE_LINE + ' no-repeat 0 100%/1px 1px}',
-    '#rk-res.on::after{animation:rk-res-line .72s cubic-bezier(.3,.6,.25,1) both}',
-    '#rk-res.on.out::after{animation:none}',
-    '@keyframes rk-res-line{0%{background-size:1px 1px;opacity:1}55%{opacity:.9}100%{background-size:560px 560px;opacity:0}}',
-    // 中身は波を追いかけて、左下から順に
-    '#rk-res.on .rk-res-time,#rk-res.on .rk-res-sub,#rk-res.on .rk-res-btn{animation:rk-res-item .5s cubic-bezier(.2,.8,.3,1) backwards}',
+    '#rk-res.on{visibility:visible;pointer-events:auto}',
+    '#rk-res.on.out{pointer-events:none}',
+    '#rk-res::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0}',
+    '#rk-res.on.out::after{animation:none!important}',
+    '#rk-res.on .rk-res-time,#rk-res.on .rk-res-sub,#rk-res.on .rk-res-btn{animation:rk-res-item-bl .5s cubic-bezier(.2,.8,.3,1) backwards}',
     '#rk-res.on .rk-res-time{animation-delay:.12s}',
     '#rk-res.on .rk-res-sub{animation-delay:.2s}',
     '#rk-res.on .rk-res-btn.view{animation-delay:.27s}',
     '#rk-res.on .rk-res-btn.retry{animation-delay:.34s}',
-    '@keyframes rk-res-item{from{opacity:0;transform:translate(-14px,12px)}to{opacity:1;transform:none}}',
+  ].concat(RES_FX_CSS, [
     // リトライに、波の名残りの光が一度だけ流れる
     '.rk-res-btn.retry{position:relative;overflow:hidden}',
     '.rk-res-btn.retry::after{content:"";position:absolute;top:-20%;bottom:-20%;left:-40%;width:35%;pointer-events:none;',
@@ -345,10 +369,10 @@
     '.rk-res-btn:focus{outline:none}.rk-res-btn:focus-visible{outline:2px solid #fff;outline-offset:2px}',
     '.rk-res-btn.view{color:#e8eaf2;background:none;border:1px solid #3a3d4c}',
     '.rk-res-btn.retry{margin-top:8px;min-height:52px;font-size:16px;color:#04161a;border:none;background:var(--tc,#2ef2c0)}',
-    '@media (prefers-reduced-motion: reduce){#rk-res.on{animation:rk-res-fade .2s both}#rk-res.on.out{animation:rk-res-fade .15s reverse forwards}',
-    '  #rk-res.on::after,#rk-res.on .rk-res-time,#rk-res.on .rk-res-sub,#rk-res.on .rk-res-btn,#rk-res.on .rk-res-btn.retry::after{animation:none}}',
+    '@media (prefers-reduced-motion: reduce){#rk-res.on[data-from]{animation:rk-res-fade .2s both}#rk-res.on.out[data-from]{animation:rk-res-fade .15s reverse forwards}',
+    '  #rk-res.on[data-from]::after,#rk-res.on[data-from] .rk-res-time,#rk-res.on[data-from] .rk-res-sub,#rk-res.on[data-from] .rk-res-btn,#rk-res.on .rk-res-btn.retry::after{animation:none}}',
     '@keyframes rk-res-fade{from{opacity:0}to{opacity:1}}'
-  ].join('\n');
+  ]).join('\n');
 
   const REPLAY_MAX_RANK = 5;   // サーバーの REPLAY_MAX_RANK と同じ
   const TOP_N = 10;            // ランキングに並べる人数
@@ -444,7 +468,8 @@
 
   /* 結果カード：タイムを大きく、その下に「自己ベスト ○○ · ○位」、
      ボタンは「ランキングを見る」と、その下に「リトライ」（すぐ次のランク戦へ）だけ */
-  function showResult(r) {
+  let lastFrom = '';
+  function showResult(r, fromKey) {
     hideToast();
     let el = $('rk-res');
     if (!el) {
@@ -472,8 +497,14 @@
       '<div class="rk-res-time">' + esc(fmtTime(r.timeMs)) + '</div>' + sub +
       '<button type="button" class="rk-res-btn view" data-act="view">' + esc(tx('rkViewRanking')) + '</button>' +
       '<button type="button" class="rk-res-btn retry" data-act="retry">' + esc(tx('rkRetry')) + '</button>';
+    // 出てくる場所は6通りから毎回ランダム（前回と同じにはしない）
+    let from;
+    if (RES_FROM[fromKey]) from = fromKey;   // 確認用に向きを指定できる
+    else do { from = RES_FROM_KEYS[Math.floor(Math.random() * RES_FROM_KEYS.length)]; } while (from === lastFrom);
+    lastFrom = from;
     el.classList.remove('on', 'out');
-    void el.offsetWidth;   // 出し直しでも毎回、左下から流れてくるように
+    el.dataset.from = from;
+    void el.offsetWidth;   // 出し直しでも毎回、最初から流れてくるように
     el.classList.add('on');
   }
   // 閉じるときは、来た左下へ波が引いていく
