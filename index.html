@@ -1571,6 +1571,9 @@
   <!-- お知らせ一覧をカード型に（最新はハイライト、過去は小さなカード）。
        この1行を消せば、元の文字だけの一覧に戻る。 -->
   <script src="notice-cards.js?v=20261014b"></script>
+  <!-- 自己ベスト画面をダッシュボードに（タブ ALL PB / SIZE / MOVES・ランクの輪・PBの推移）。
+       この1行を消せば、元の自己ベスト画面に戻る。 -->
+  <script src="records-dash.js?v=20261016a"></script>
   <script>
     /* ============================================================
        お問い合わせフォーム（Googleフォーム）のURL
@@ -6765,7 +6768,15 @@
       recordsBestAssistEl.textContent = assist.length ? `PB: ${formatTime(assist[0].ms)}` : 'PB: --:--.--';
       fillRecordsList(recordsListEl, pure, t('noRecords'));
       fillRecordsList(recordsListAssistEl, assist, t('noAssistRecords'));
+      // records-dash.js（自己ベストのダッシュボード）があれば、そちらも描き直す
+      if (window.RecordsDash) window.RecordsDash.render();
     }
+    // records-dash.js が記録を読むための口（読み込んでいなければ使われない）
+    window.__recordsBridge = {
+      data: () => ({ records: records, size: sizeRecords, moves: moveRecords }),
+      formatTime: formatTime,
+      helpMarkSvg: helpMarkSvg
+    };
     // 一覧の中の文言(「まだ記録がありません」など)は言語が変わったら描き直す。
     onI18n(() => { renderRecordsList(); renderStatsList(); renderMoveStatsList(); });
 
@@ -6968,6 +6979,7 @@
     });
 
     menuAction(recordsBtn, () => {
+      if (window.RecordsDash) window.RecordsDash.willOpen();
       renderRecordsList();
       recordsOverlay.classList.add('show');
     });
