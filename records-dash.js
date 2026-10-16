@@ -245,13 +245,14 @@
     '.rd-pct{min-width:58px;text-align:right;font-family:Outfit,system-ui,-apple-system,\"Segoe UI\",sans-serif;font-size:13px;font-weight:800;white-space:nowrap;color:#38c8ff;',
     '  text-shadow:0 0 8px rgba(56,200,255,.35)}',
     '.rd-pct.gold{color:#ffd700;text-shadow:0 0 8px rgba(255,215,0,.45)}',
-    // ガイドのピル：色は1色にしぼる。見出しの一覧（説明）は落ち着いた灰、その記録で使ったものだけネオンで光る
+    // ガイドのピル：色は前の記録画面と同じ（💡 黄・OLL テーマカラー・ZBLL 金・PLL オレンジ）
     '.rd-tag{display:inline-flex;align-items:center;justify-content:center;gap:3px;height:16px;padding:0 6px;border-radius:999px;',
-    '  font-size:9px;font-weight:800;letter-spacing:.06em;line-height:1;color:#8a90a3;',
-    '  border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03)}',
+    '  font-size:9px;font-weight:800;letter-spacing:.06em;line-height:1;border:1px solid;box-sizing:border-box}',
     '.rd-tag svg{display:block}',
-    '.rd-tag.on{color:#d8c9ff;border-color:rgba(176,140,255,.75);background:rgba(150,110,255,.14);',
-    '  box-shadow:0 0 6px rgba(160,120,255,.45),inset 0 0 4px rgba(160,120,255,.25)}',
+    '.rd-tag.help{color:#ffdd57;background:rgba(255,221,87,.15);border-color:rgba(255,221,87,.45)}',
+    '.rd-tag.oll{color:var(--tc,#00ffcc);background:rgba(var(--tc-rgb,0,255,204),.15);border-color:rgba(var(--tc-rgb,0,255,204),.45)}',
+    '.rd-tag.zbll{color:#ffd24a;background:rgba(255,210,74,.15);border-color:rgba(255,210,74,.45)}',
+    '.rd-tag.pll{color:#ff9d6b;background:rgba(255,140,90,.15);border-color:rgba(255,140,90,.45)}',
     '.rd-empty{padding:22px 10px;border-radius:14px;text-align:center;font-size:12.5px;color:#7d8396;',
     '  background:rgba(255,255,255,.025);border:1px dashed rgba(255,255,255,.1)}',
     '.rd-more{display:block;width:100%;margin-top:8px;min-height:40px;border-radius:12px;border:1px solid rgba(0,229,255,.3);',
@@ -327,10 +328,10 @@
     return i < 3 ? medalSvg(i + 1) : '<span class="rd-no">' + (i + 1) + '</span>';
   }
   function tagsHtml(r, helpSvg) {
-    return (r.help ? '<span class="rd-tag on" title="💡">' + helpSvg(10) + '</span>' : '') +
-      (r.oll ? '<span class="rd-tag on">OLL</span>' : '') +
-      (r.zbll ? '<span class="rd-tag on">ZBLL</span>' : '') +
-      (r.pll ? '<span class="rd-tag on">PLL</span>' : '');
+    return (r.help ? '<span class="rd-tag help" title="💡">' + helpSvg(10) + '</span>' : '') +
+      (r.oll ? '<span class="rd-tag oll">OLL</span>' : '') +
+      (r.zbll ? '<span class="rd-tag zbll">ZBLL</span>' : '') +
+      (r.pll ? '<span class="rd-tag pll">PLL</span>' : '');
   }
   function dateLabel(at) {
     const d = new Date(at);
@@ -660,8 +661,8 @@
       const assist = d.records.filter(usedGuide);
       html += '<section class="rd-assist">' +
         '<div class="rd-assist-h"><strong>' + esc(tx('rdAssist')) + '</strong>' +
-          '<span class="rd-tag">' + B.helpMarkSvg(10) + '</span><span class="rd-tag">OLL</span>' +
-          '<span class="rd-tag">ZBLL</span><span class="rd-tag">PLL</span>' +
+          '<span class="rd-tag help">' + B.helpMarkSvg(10) + '</span><span class="rd-tag oll">OLL</span>' +
+          '<span class="rd-tag zbll">ZBLL</span><span class="rd-tag pll">PLL</span>' +
           '<span class="rd-assist-pb">PB: ' + esc(assist.length ? B.formatTime(assist[0].ms) : '--:--.--') + '</span>' +
         '</div>' +
         (assist.length
