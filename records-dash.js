@@ -217,16 +217,24 @@
     '.rd-val{display:block;font-family:Orbitron,ui-monospace,monospace;font-size:17px;font-weight:800;line-height:1.2;',
     '  font-variant-numeric:tabular-nums;color:#eef1f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
     '.rd-val i{font-style:normal;font-family:system-ui,-apple-system,"Segoe UI","Hiragino Sans",sans-serif;font-size:11px;font-weight:800;margin-left:2px;opacity:.85}',
-    '.rd-row.m1 .rd-val{color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,.45)}',
-    '.rd-row.m2 .rd-val{color:#dde5f0;text-shadow:0 0 8px rgba(221,229,240,.35)}',
-    '.rd-row.m3 .rd-val{color:#f0a868;text-shadow:0 0 8px rgba(240,168,104,.35)}',
-    '.rd-val.mv{color:#00e5ff;text-shadow:0 0 10px rgba(0,229,255,.55)}',
-    // サイズの色は今までのランキングと同じ意味（小さいほど派手）
-    '.rd-val.sz-rainbow{background:linear-gradient(90deg,#ff2d2d,#ff9d2d,#f6ff2d,#2dff5c,#2de0ff,#4a5bff,#d92dff,#ff2d2d);',
-    '  background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent!important;',
-    '  text-shadow:none!important;animation:rd-rainbow 2.4s linear infinite}',
-    '@keyframes rd-rainbow{to{background-position:300% 0}}',
-    '.rd-val.sz-gold{color:#ffd700}.rd-val.sz-cyan{color:#8fd9ff}.rd-val.sz-lilac{color:#c8a2ff}.rd-val.sz-gray{color:#c3c8d4}',
+    '.rd-row.m1 .rd-val:not([class*="tr-"]){color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,.45)}',
+    '.rd-row.m2 .rd-val:not([class*="tr-"]){color:#dde5f0;text-shadow:0 0 8px rgba(221,229,240,.35)}',
+    '.rd-row.m3 .rd-val:not([class*="tr-"]){color:#f0a868;text-shadow:0 0 8px rgba(240,168,104,.35)}',
+    // SIZE / MOVES の色は前のランキング画面と同じ（数字もタイムも同じ色・同じ動き）
+    //   サイズ: 1〜3% 虹 / 4〜15% 金 / 16〜20% 水色 / 150〜160% リラ / ほか 灰
+    //   手数  : 〜25手 虹 / 〜45手 金 / 〜70手 水色 / 71手〜 灰
+    '.rd-v1{display:flex;align-items:center;gap:8px;min-width:0}',
+    '.rd-bar{flex:none;width:58px;height:5px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}',
+    '.rd-bar i{display:block;height:100%;border-radius:3px}',
+    '.rd-val.tr-rainbow{font-size:19px}',
+    '.tr-rainbow{background:linear-gradient(90deg,#ff2d2d,#ff9d2d,#f6ff2d,#2dff5c,#2de0ff,#4a5bff,#d92dff,#ff2d2d);',
+    '  background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent!important;font-weight:700;',
+    '  animation:size-rainbow-shift 1.4s linear infinite,size-rainbow-pulse .9s ease-in-out infinite}',
+    '.tr-gold{color:#ffd700!important;font-weight:700;animation:size-gold-shine 1.2s ease-in-out infinite}',
+    '.tr-cyan{color:#8fd9ff!important;font-weight:700;text-shadow:0 0 8px rgba(143,217,255,.55)}',
+    '.tr-lilac{color:#c8a2ff!important;font-weight:700;text-shadow:0 0 8px rgba(200,162,255,.55)}',
+    '.rd-val.tr-gray{color:#666!important}',
+    '.tm.tr-gray{color:#aaa!important}',
     '.rd-meta{display:flex;align-items:center;flex-wrap:wrap;gap:4px 6px;margin-top:3px;font-size:11px;font-weight:600;color:#858b9e}',
     '.rd-meta .tm{font-family:Orbitron,ui-monospace,monospace;font-size:11px;font-weight:700;color:#b9bfcf;font-variant-numeric:tabular-nums}',
     '.rd-pct{font-family:Orbitron,ui-monospace,monospace;font-size:11.5px;font-weight:800;white-space:nowrap;color:#38c8ff;',
@@ -279,7 +287,7 @@
     '  .rd-tabs{margin:2px 30px 0}.rd-tab b{font-size:11.5px}.rd-tab small{font-size:9px}',
     '  .rd-row{grid-template-columns:34px minmax(0,1fr) auto;padding:8px 10px 8px 6px}.rd-medal{width:26px;height:26px}}',
     '@media (prefers-reduced-motion:reduce){.rd-page.in-next,.rd-page.in-prev{animation:none}',
-    '  .rd-ink,.rd-ring .prg,.rd-dots i{transition:none}.rd-val.sz-rainbow{animation:none}}'
+    '  .rd-ink,.rd-ring .prg,.rd-dots i{transition:none}.tr-rainbow,.tr-gold{animation:none}}'
   ].join('\n');
 
   function injectCSS() {
@@ -330,11 +338,27 @@
   function usedGuide(r) { return !!(r.oll || r.pll || r.zbll || r.help); }
   // サイズの色の区切りは今までのランキングと同じ（1〜3%虹 / 〜15%金 / 〜20%水色 / 150%〜リラ / ほか灰）
   function sizeTier(n) {
-    if (n <= 3) return 'sz-rainbow';
-    if (n <= 15) return 'sz-gold';
-    if (n <= 20) return 'sz-cyan';
-    if (n >= 150) return 'sz-lilac';
-    return 'sz-gray';
+    if (n <= 3) return 'tr-rainbow';
+    if (n <= 15) return 'tr-gold';
+    if (n <= 20) return 'tr-cyan';
+    if (n >= 150) return 'tr-lilac';
+    return 'tr-gray';
+  }
+  // 手数の色の区切りも前の最小手数ランキングと同じ（〜25手虹 / 〜45手金 / 〜70手水色 / 71手〜灰）
+  function moveTier(n) {
+    if (n <= 25) return 'tr-rainbow';
+    if (n <= 45) return 'tr-gold';
+    if (n <= 70) return 'tr-cyan';
+    return 'tr-gray';
+  }
+  const BAR_COLOR = {
+    'tr-rainbow': 'linear-gradient(90deg,#ff2d2d,#ff9d2d,#f6ff2d,#2dff5c,#2de0ff,#4a5bff,#d92dff)',
+    'tr-gold': '#ffd700', 'tr-cyan': '#8fd9ff', 'tr-lilac': '#c8a2ff', 'tr-gray': '#666'
+  };
+  // 前のランキングと同じ横棒（サイズは160%、手数は100手で満タン）
+  function barHtml(tier, frac) {
+    const w = Math.min(100, Math.max(3, frac * 100));
+    return '<span class="rd-bar"><i style="width:' + w.toFixed(1) + '%;background:' + BAR_COLOR[tier] + '"></i></span>';
   }
 
   /* ------------------------------------------------------------ 数の準備 -- */
@@ -657,10 +681,12 @@
         const unit = tx('statsMovesUnit') || '';
         html = '<div class="rd-list">' + list.slice(0, n).map(function (r, i) {
           const v = k === 'size' ? r.size : r.moves;
-          const main = k === 'size'
-            ? '<span class="rd-val ' + sizeTier(v) + '">' + v + '%</span>'
-            : '<span class="rd-val mv">' + (v > 99 ? '99+' : v) + '<i>' + esc(unit) + '</i></span>';
-          const meta = '<span class="tm">' + esc(B.formatTime(r.ms)) + '</span><span>' + esc(dateLabel(r.at)) + '</span>' + tagsHtml(r, B.helpMarkSvg);
+          const tier = k === 'size' ? sizeTier(v) : moveTier(v);
+          const main = '<span class="rd-v1">' + (k === 'size'
+            ? '<span class="rd-val ' + tier + '">' + v + '%</span>' + barHtml(tier, v / 160)
+            : '<span class="rd-val ' + tier + '">' + (v > 99 ? '99+' : v) + '<i>' + esc(unit) + '</i></span>' + barHtml(tier, v / 100)) +
+            '</span>';
+          const meta = '<span class="tm ' + tier + '">' + esc(B.formatTime(r.ms)) + '</span><span>' + esc(dateLabel(r.at)) + '</span>' + tagsHtml(r, B.helpMarkSvg);
           return rowHtml(i, main, meta, pctHtml(firstIdx[v], list.length));
         }).join('') + '</div>';
         if (list.length > n) {
