@@ -168,9 +168,10 @@
     '.rd-next b{color:#e8ebf3;font-variant-numeric:tabular-nums}',
     '.rd-pbbox{min-width:0;display:flex;flex-direction:column}',
     '.rd-pbl{font-family:Orbitron,ui-monospace,monospace;font-size:10px;font-weight:800;letter-spacing:.16em;color:#5fd9ee}',
-    '.rd-pb{margin:2px 0 6px;font-family:Orbitron,ui-monospace,monospace;font-weight:800;line-height:1.05;',
-    '  font-size:clamp(22px,7.6vw,32px);color:#00e5ff;white-space:nowrap;',
-    '  text-shadow:0 0 10px rgba(0,229,255,.75),0 0 24px rgba(0,229,255,.35)}',
+    // CURRENT PB はいちばん目立たせる（数字がくっきり読める Outfit の太字＋強めの光）
+    '.rd-pb{margin:0 0 4px;font-family:Outfit,system-ui,-apple-system,\"Segoe UI\",sans-serif;font-weight:800;line-height:1;letter-spacing:.01em;',
+    '  font-size:clamp(32px,10.6vw,44px);color:#eaffff;white-space:nowrap;font-variant-numeric:tabular-nums;',
+    '  text-shadow:0 0 6px #00e5ff,0 0 16px rgba(0,229,255,.85),0 0 34px rgba(0,229,255,.45)}',
     '.rd-pb.none{color:#4d5466;text-shadow:none}',
     // 推移のグラフ（1本の線。速いほど上）
     '.rd-chart{position:relative;height:46px;margin-top:2px;cursor:crosshair;touch-action:pan-y;outline:none}',
@@ -187,13 +188,13 @@
     '.rd-tip{position:absolute;top:calc(100% + 4px);transform:translateX(-50%);padding:5px 8px;border-radius:8px;',
     '  background:rgba(12,14,20,.96);border:1px solid rgba(0,229,255,.35);white-space:nowrap;pointer-events:none;',
     '  opacity:0;transition:opacity .15s;z-index:2;text-align:center}',
-    '.rd-tip b{display:block;font-family:Orbitron,ui-monospace,monospace;font-size:12px;color:#f2f5ff}',
+    '.rd-tip b{display:block;font-family:Outfit,system-ui,-apple-system,\"Segoe UI\",sans-serif;font-size:13px;font-weight:800;color:#f2f5ff}',
     '.rd-tip span{display:block;font-size:10px;color:#9aa1b4}',
     '.rd-hov{opacity:0;background:#fff;box-shadow:0 0 0 2px #14161d,0 0 8px rgba(255,255,255,.8);transition:opacity .15s}',
     '.rd-chart.peek .rd-cross,.rd-chart.peek .rd-tip,.rd-chart.peek .rd-hov{opacity:1}',
-    '.rd-cap{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:6px;font-size:10.5px;font-weight:700;color:#7d8396}',
-    '.rd-delta{font-family:Orbitron,ui-monospace,monospace;font-size:11px;font-weight:800;white-space:nowrap}',
-    '.rd-delta.up{color:#3ef0a0}.rd-delta.down{color:#ffb36b}.rd-delta.flat{color:#7d8396}',
+    '.rd-cap{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:6px;font-size:11px;font-weight:700;color:#aeb4c5}',
+    '.rd-delta{font-family:Outfit,system-ui,-apple-system,\"Segoe UI\",sans-serif;font-size:12px;font-weight:800;white-space:nowrap}',
+    '.rd-delta.up{color:#4dffb0}.rd-delta.down{color:#ffbf80}.rd-delta.flat{color:#aeb4c5}',
     '.rd-empty-chart{display:flex;align-items:center;min-height:46px;font-size:11px;line-height:1.5;color:#7d8396}',
 
     /* ---- 一覧 ---- */
@@ -203,18 +204,19 @@
     '@keyframes rd-in-next{from{opacity:0;transform:translate3d(22px,0,0)}to{opacity:1;transform:none}}',
     '@keyframes rd-in-prev{from{opacity:0;transform:translate3d(-22px,0,0)}to{opacity:1;transform:none}}',
     '.rd-list{display:flex;flex-direction:column;gap:6px}',
-    '.rd-row{display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:center;gap:8px;',
-    '  padding:9px 12px 9px 8px;border-radius:14px;background:rgba(255,255,255,.035);',
+    // 左：順位・タイム・（日付＋ガイド）／右：Top ○%。上下の余白は詰めて揃える
+    '.rd-row{display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;column-gap:10px;',
+    '  padding:7px 12px 7px 8px;min-height:52px;box-sizing:border-box;border-radius:14px;background:rgba(255,255,255,.035);',
     '  border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}',
     '.rd-row.m1{border-color:rgba(255,215,0,.45);background:linear-gradient(90deg,rgba(255,215,0,.10),rgba(255,255,255,.03) 70%);',
     '  box-shadow:0 0 14px rgba(255,215,0,.12),inset 0 1px 0 rgba(255,255,255,.06)}',
     '.rd-row.m2{border-color:rgba(205,216,232,.38);background:linear-gradient(90deg,rgba(205,216,232,.08),rgba(255,255,255,.03) 70%)}',
     '.rd-row.m3{border-color:rgba(227,150,90,.40);background:linear-gradient(90deg,rgba(227,150,90,.09),rgba(255,255,255,.03) 70%)}',
     '.rd-rk{display:flex;justify-content:center;align-items:center}',
-    '.rd-no{display:flex;justify-content:center;font-family:Orbitron,ui-monospace,monospace;font-size:13px;font-weight:800;color:#6c7286}',
-    '.rd-medal{width:30px;height:30px;display:block}',
+    '.rd-no{display:flex;justify-content:center;font-family:Outfit,system-ui,-apple-system,\"Segoe UI\",sans-serif;font-size:15px;font-weight:800;color:#8a90a3}',
+    '.rd-medal{width:28px;height:28px;display:block}',
     '.rd-main{min-width:0}',
-    '.rd-val{display:block;font-family:Orbitron,ui-monospace,monospace;font-size:17px;font-weight:800;line-height:1.2;',
+    '.rd-val{display:block;font-family:Outfit,system-ui,-apple-system,\"Segoe UI\",sans-serif;font-size:20px;font-weight:800;line-height:1.15;letter-spacing:.01em;',
     '  font-variant-numeric:tabular-nums;color:#eef1f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
     '.rd-val i{font-style:normal;font-family:system-ui,-apple-system,"Segoe UI","Hiragino Sans",sans-serif;font-size:11px;font-weight:800;margin-left:2px;opacity:.85}',
     '.rd-row.m1 .rd-val:not([class*="tr-"]){color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,.45)}',
@@ -224,6 +226,8 @@
     //   サイズ: 1〜3% 虹 / 4〜15% 金 / 16〜20% 水色 / 150〜160% リラ / ほか 灰
     //   手数  : 〜25手 虹 / 〜45手 金 / 〜70手 水色 / 71手〜 灰
     '.rd-v1{display:flex;align-items:center;gap:8px;min-width:0}',
+    // 手数の単位は虹色の文字に混ぜると見えにくいので、数字の外に落ち着いた色で
+    '.rd-unit{flex:none;margin-left:-5px;font-size:11px;font-weight:800;color:#aeb4c5}',
     '.rd-bar{flex:none;width:58px;height:5px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}',
     '.rd-bar i{display:block;height:100%;border-radius:3px}',
     '.rd-val.tr-rainbow{font-size:19px}',
@@ -235,20 +239,19 @@
     '.tr-lilac{color:#c8a2ff!important;font-weight:700;text-shadow:0 0 8px rgba(200,162,255,.55)}',
     '.rd-val.tr-gray{color:#666!important}',
     '.tm.tr-gray{color:#aaa!important}',
-    '.rd-meta{display:flex;align-items:center;flex-wrap:wrap;gap:4px 6px;margin-top:3px;font-size:11px;font-weight:600;color:#858b9e}',
-    '.rd-meta .tm{font-family:Orbitron,ui-monospace,monospace;font-size:11px;font-weight:700;color:#b9bfcf;font-variant-numeric:tabular-nums}',
-    '.rd-pct{font-family:Orbitron,ui-monospace,monospace;font-size:11.5px;font-weight:800;white-space:nowrap;color:#38c8ff;',
+    '.rd-meta{display:flex;align-items:center;flex-wrap:wrap;gap:3px 6px;margin-top:2px;font-size:11.5px;font-weight:600;color:#9aa0b2;',
+    '  font-variant-numeric:tabular-nums}',
+    '.rd-meta .tm{font-family:Outfit,system-ui,-apple-system,\"Segoe UI\",sans-serif;font-size:12.5px;font-weight:700;color:#c9cedb}',
+    '.rd-pct{min-width:58px;text-align:right;font-family:Outfit,system-ui,-apple-system,\"Segoe UI\",sans-serif;font-size:13px;font-weight:800;white-space:nowrap;color:#38c8ff;',
     '  text-shadow:0 0 8px rgba(56,200,255,.35)}',
     '.rd-pct.gold{color:#ffd700;text-shadow:0 0 8px rgba(255,215,0,.45)}',
-    // ガイドのピル
-    '.rd-tag{display:inline-flex;align-items:center;justify-content:center;gap:3px;height:17px;padding:0 7px;border-radius:999px;',
-    '  font-size:9.5px;font-weight:900;letter-spacing:.06em;line-height:1;border:1px solid currentColor;',
-    '  background:rgba(255,255,255,.04)}',
+    // ガイドのピル：色は1色にしぼる。見出しの一覧（説明）は落ち着いた灰、その記録で使ったものだけネオンで光る
+    '.rd-tag{display:inline-flex;align-items:center;justify-content:center;gap:3px;height:16px;padding:0 6px;border-radius:999px;',
+    '  font-size:9px;font-weight:800;letter-spacing:.06em;line-height:1;color:#8a90a3;',
+    '  border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03)}',
     '.rd-tag svg{display:block}',
-    '.rd-tag.help{color:#ffd54a;box-shadow:0 0 6px rgba(255,213,74,.35)}',
-    '.rd-tag.oll{color:#3ef0c0;box-shadow:0 0 6px rgba(62,240,192,.35)}',
-    '.rd-tag.zbll{color:#c48bff;box-shadow:0 0 6px rgba(196,139,255,.35)}',
-    '.rd-tag.pll{color:#ff7ab0;box-shadow:0 0 6px rgba(255,122,176,.35)}',
+    '.rd-tag.on{color:#d8c9ff;border-color:rgba(176,140,255,.75);background:rgba(150,110,255,.14);',
+    '  box-shadow:0 0 6px rgba(160,120,255,.45),inset 0 0 4px rgba(160,120,255,.25)}',
     '.rd-empty{padding:22px 10px;border-radius:14px;text-align:center;font-size:12.5px;color:#7d8396;',
     '  background:rgba(255,255,255,.025);border:1px dashed rgba(255,255,255,.1)}',
     '.rd-more{display:block;width:100%;margin-top:8px;min-height:40px;border-radius:12px;border:1px solid rgba(0,229,255,.3);',
@@ -260,7 +263,7 @@
     '  border:1px solid rgba(160,130,255,.18)}',
     '.rd-assist-h{display:flex;align-items:center;flex-wrap:wrap;gap:6px;padding:0 2px 10px}',
     '.rd-assist-h strong{font-size:13px;font-weight:800;color:#e3dcff;margin-right:2px}',
-    '.rd-assist-pb{margin-left:auto;font-family:Orbitron,ui-monospace,monospace;font-size:12px;font-weight:800;color:#c9b8ff;white-space:nowrap}',
+    '.rd-assist-pb{margin-left:auto;font-family:Outfit,system-ui,-apple-system,\"Segoe UI\",sans-serif;font-size:14px;font-weight:800;color:#c9b8ff;white-space:nowrap}',
     '.rd-assist .rd-row.m1 .rd-val{color:#ffd700}',
 
     /* ---- 下：閉じる（中央）とゴミ箱（右下） ---- */
@@ -324,10 +327,10 @@
     return i < 3 ? medalSvg(i + 1) : '<span class="rd-no">' + (i + 1) + '</span>';
   }
   function tagsHtml(r, helpSvg) {
-    return (r.help ? '<span class="rd-tag help" title="💡">' + helpSvg(10) + '</span>' : '') +
-      (r.oll ? '<span class="rd-tag oll">OLL</span>' : '') +
-      (r.zbll ? '<span class="rd-tag zbll">ZBLL</span>' : '') +
-      (r.pll ? '<span class="rd-tag pll">PLL</span>' : '');
+    return (r.help ? '<span class="rd-tag on" title="💡">' + helpSvg(10) + '</span>' : '') +
+      (r.oll ? '<span class="rd-tag on">OLL</span>' : '') +
+      (r.zbll ? '<span class="rd-tag on">ZBLL</span>' : '') +
+      (r.pll ? '<span class="rd-tag on">PLL</span>' : '');
   }
   function dateLabel(at) {
     const d = new Date(at);
@@ -657,8 +660,8 @@
       const assist = d.records.filter(usedGuide);
       html += '<section class="rd-assist">' +
         '<div class="rd-assist-h"><strong>' + esc(tx('rdAssist')) + '</strong>' +
-          '<span class="rd-tag help">' + B.helpMarkSvg(10) + '</span><span class="rd-tag oll">OLL</span>' +
-          '<span class="rd-tag zbll">ZBLL</span><span class="rd-tag pll">PLL</span>' +
+          '<span class="rd-tag">' + B.helpMarkSvg(10) + '</span><span class="rd-tag">OLL</span>' +
+          '<span class="rd-tag">ZBLL</span><span class="rd-tag">PLL</span>' +
           '<span class="rd-assist-pb">PB: ' + esc(assist.length ? B.formatTime(assist[0].ms) : '--:--.--') + '</span>' +
         '</div>' +
         (assist.length
@@ -684,7 +687,7 @@
           const tier = k === 'size' ? sizeTier(v) : moveTier(v);
           const main = '<span class="rd-v1">' + (k === 'size'
             ? '<span class="rd-val ' + tier + '">' + v + '%</span>' + barHtml(tier, v / 160)
-            : '<span class="rd-val ' + tier + '">' + (v > 99 ? '99+' : v) + '<i>' + esc(unit) + '</i></span>' + barHtml(tier, v / 100)) +
+            : '<span class="rd-val ' + tier + '">' + (v > 99 ? '99+' : v) + '</span><span class="rd-unit">' + esc(unit) + '</span>' + barHtml(tier, v / 100)) +
             '</span>';
           const meta = '<span class="tm ' + tier + '">' + esc(B.formatTime(r.ms)) + '</span><span>' + esc(dateLabel(r.at)) + '</span>' + tagsHtml(r, B.helpMarkSvg);
           return rowHtml(i, main, meta, pctHtml(firstIdx[v], list.length));
