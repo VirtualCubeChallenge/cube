@@ -29,55 +29,55 @@
       rdTabAllSub: '全記録', rdTabSizeSub: 'サイズ別', rdTabMovesSub: '最小手数',
       rdRecentN: '直近{n}回', rdTrendTitle: '直近{n}回の平均と、その前の{n}回の平均の差',
       rdTrendEmpty: 'ソルブを重ねると、ここにタイムの推移が出ます',
-      rdAssist: 'ガイドあり', rdMore: 'さらに{n}件を表示'
+      rdAssist: 'ガイドあり', rdMore: 'さらに{n}件を表示', rdLess: '折りたたむ'
     },
     en: {
       rdTabAllSub: 'All records', rdTabSizeSub: 'By size', rdTabMovesSub: 'Fewest moves',
       rdRecentN: 'Last {n} solves', rdTrendTitle: 'Average of the last {n} solves vs the {n} before',
       rdTrendEmpty: 'Keep solving to see your time trend here',
-      rdAssist: 'With guides', rdMore: 'Show {n} more'
+      rdAssist: 'With guides', rdMore: 'Show {n} more', rdLess: 'Show less'
     },
     'zh-CN': {
       rdTabAllSub: '全部记录', rdTabSizeSub: '按尺寸', rdTabMovesSub: '最少步数',
       rdRecentN: '最近{n}次', rdTrendTitle: '最近{n}次的平均与之前{n}次平均的差',
       rdTrendEmpty: '多还原几次，这里就会显示成绩走势',
-      rdAssist: '使用辅助', rdMore: '再显示{n}条'
+      rdAssist: '使用辅助', rdMore: '再显示{n}条', rdLess: '收起'
     },
     'zh-TW': {
       rdTabAllSub: '全部紀錄', rdTabSizeSub: '依尺寸', rdTabMovesSub: '最少步數',
       rdRecentN: '最近{n}次', rdTrendTitle: '最近{n}次的平均與之前{n}次平均的差',
       rdTrendEmpty: '多還原幾次，這裡就會顯示成績走勢',
-      rdAssist: '使用輔助', rdMore: '再顯示{n}筆'
+      rdAssist: '使用輔助', rdMore: '再顯示{n}筆', rdLess: '收合'
     },
     ko: {
       rdTabAllSub: '전체 기록', rdTabSizeSub: '크기별', rdTabMovesSub: '최소 수',
       rdRecentN: '최근 {n}회', rdTrendTitle: '최근 {n}회 평균과 그 전 {n}회 평균의 차이',
       rdTrendEmpty: '솔브를 거듭하면 여기에 기록 추이가 나타납니다',
-      rdAssist: '가이드 사용', rdMore: '{n}개 더 보기'
+      rdAssist: '가이드 사용', rdMore: '{n}개 더 보기', rdLess: '접기'
     },
     es: {
       rdTabAllSub: 'Todos', rdTabSizeSub: 'Por tamaño', rdTabMovesSub: 'Menos mov.',
       rdRecentN: 'Últimas {n}', rdTrendTitle: 'Promedio de las últimas {n} frente a las {n} anteriores',
       rdTrendEmpty: 'Sigue resolviendo para ver aquí la evolución de tus tiempos',
-      rdAssist: 'Con guías', rdMore: 'Ver {n} más'
+      rdAssist: 'Con guías', rdMore: 'Ver {n} más', rdLess: 'Ver menos'
     },
     id: {
       rdTabAllSub: 'Semua', rdTabSizeSub: 'Per ukuran', rdTabMovesSub: 'Langkah min.',
       rdRecentN: '{n} terakhir', rdTrendTitle: 'Rata-rata {n} terakhir dibanding {n} sebelumnya',
       rdTrendEmpty: 'Terus selesaikan untuk melihat tren waktumu di sini',
-      rdAssist: 'Dengan panduan', rdMore: 'Tampilkan {n} lagi'
+      rdAssist: 'Dengan panduan', rdMore: 'Tampilkan {n} lagi', rdLess: 'Tampilkan lebih sedikit'
     },
     ru: {
       rdTabAllSub: 'Все', rdTabSizeSub: 'По размеру', rdTabMovesSub: 'Мин. ходов',
       rdRecentN: 'Последние {n}', rdTrendTitle: 'Среднее за последние {n} сборок против {n} предыдущих',
       rdTrendEmpty: 'Собирайте дальше — здесь появится динамика ваших времён',
-      rdAssist: 'С подсказками', rdMore: 'Ещё {n}'
+      rdAssist: 'С подсказками', rdMore: 'Ещё {n}', rdLess: 'Свернуть'
     },
     'pt-BR': {
       rdTabAllSub: 'Todos', rdTabSizeSub: 'Por tamanho', rdTabMovesSub: 'Menos mov.',
       rdRecentN: 'Últimas {n}', rdTrendTitle: 'Média das últimas {n} comparada às {n} anteriores',
       rdTrendEmpty: 'Continue resolvendo para ver aqui a evolução dos seus tempos',
-      rdAssist: 'Com ajuda', rdMore: 'Ver mais {n}'
+      rdAssist: 'Com ajuda', rdMore: 'Ver mais {n}', rdLess: 'Ver menos'
     }
   };
   if (typeof I18N !== 'undefined' && I18N) {
@@ -258,6 +258,14 @@
     '.rd-more{display:block;width:100%;margin-top:8px;min-height:40px;border-radius:12px;border:1px solid rgba(0,229,255,.3);',
     '  background:rgba(0,229,255,.06);color:#7fefff;font-family:inherit;font-size:12.5px;font-weight:800;cursor:pointer}',
     '.rd-more:active{transform:scale(.98)}',
+    // 折りたたみ：下向きの矢印。開いているときは上向き
+    '.rd-fold{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:6px;min-height:42px;',
+    '  border-radius:12px;border:1px dashed rgba(0,229,255,.32);background:rgba(0,229,255,.05);color:#8ff3ff;',
+    '  font-family:inherit;font-size:12.5px;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent}',
+    '.rd-fold svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;',
+    '  filter:drop-shadow(0 0 4px rgba(0,229,255,.7));transition:transform .25s ease}',
+    '.rd-fold.up svg{transform:rotate(180deg)}',
+    '.rd-fold:active{transform:scale(.98)}',
 
     /* ---- ガイドあり ---- */
     '.rd-assist{margin-top:18px;padding:12px 10px 10px;border-radius:18px;background:rgba(124,92,255,.05);',
@@ -401,6 +409,9 @@
   const CHUNK = 100;           // SIZE / MOVES は記録が多いので、100件ずつ出す
   let tab = 0;
   let shown = { size: CHUNK, moves: CHUNK };
+  // ALL PB は最初の20件だけ出し、残りは ↓ を押して開く（ガイドありの記録まですぐ届くように）
+  const FOLD = 20;
+  let open = { pure: false, assist: false };
   let root = null, scrollEl = null, pageEl = null, heroEl = null;
   let built = false;
 
@@ -438,6 +449,22 @@
       if (b) go(parseInt(b.dataset.i, 10));
     });
     pageEl.addEventListener('click', function (e) {
+      const f = e.target.closest('.rd-fold');
+      if (f) {
+        const k = f.dataset.k;
+        const wasOpen = open[k];
+        open[k] = !open[k];
+        renderPage(0);
+        // 閉じたときは、折りたたんだボタンが画面から消えないよう、その位置まで戻す
+        if (wasOpen) {
+          const b = pageEl.querySelector('.rd-fold[data-k="' + k + '"]');
+          if (b && scrollEl) {
+            const r = b.getBoundingClientRect(), sr = scrollEl.getBoundingClientRect();
+            if (r.top < sr.top || r.bottom > sr.bottom) scrollEl.scrollTop += r.top - sr.top - sr.height / 2;
+          }
+        }
+        return;
+      }
       const m = e.target.closest('.rd-more');
       if (!m) return;
       const k = m.dataset.k;
@@ -633,6 +660,15 @@
   }
 
   /* -------------------------------------------------------------- 一覧 -- */
+  // ↓ 残り○件 ／ ↑ 折りたたむ
+  function foldHtml(k, total) {
+    if (total <= FOLD) return '';
+    const isOpen = open[k];
+    return '<button type="button" class="rd-fold' + (isOpen ? ' up' : '') + '" data-k="' + k + '" aria-expanded="' + isOpen + '">' +
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg>' +
+      '<span>' + esc(isOpen ? tx('rdLess') : tx('rdMore', { n: total - FOLD })) + '</span></button>';
+  }
+
   function rowHtml(i, mainHtml, metaHtml, pct, extraCls) {
     return '<div class="rd-row' + (i < 3 ? ' m' + (i + 1) : '') + (extraCls || '') + '">' +
       '<span class="rd-rk">' + rankCell(i) + '</span>' +
@@ -651,10 +687,10 @@
       const purePool = pool.filter(function (r) { return !usedGuide(r); }).map(function (r) { return r.ms; }).sort(function (a, b) { return a - b; });
       const pure = d.records.filter(function (r) { return !usedGuide(r); });
       html += pure.length
-        ? '<div class="rd-list">' + pure.map(function (r, i) {
+        ? '<div class="rd-list">' + (open.pure ? pure : pure.slice(0, FOLD)).map(function (r, i) {
             return rowHtml(i, '<span class="rd-val">' + esc(B.formatTime(r.ms)) + '</span>',
               '<span>' + esc(dateLabel(r.at)) + '</span>', pctHtml(countFaster(purePool, r.ms), purePool.length));
-          }).join('') + '</div>'
+          }).join('') + '</div>' + foldHtml('pure', pure.length)
         : '<div class="rd-empty">' + esc(tx('noRecords')) + '</div>';
       // ガイドあり
       const asPool = pool.filter(usedGuide).map(function (r) { return r.ms; }).sort(function (a, b) { return a - b; });
@@ -666,10 +702,10 @@
           '<span class="rd-assist-pb">PB: ' + esc(assist.length ? B.formatTime(assist[0].ms) : '--:--.--') + '</span>' +
         '</div>' +
         (assist.length
-          ? '<div class="rd-list">' + assist.map(function (r, i) {
+          ? '<div class="rd-list">' + (open.assist ? assist : assist.slice(0, FOLD)).map(function (r, i) {
               return rowHtml(i, '<span class="rd-val">' + esc(B.formatTime(r.ms)) + '</span>',
                 '<span>' + esc(dateLabel(r.at)) + '</span>' + tagsHtml(r, B.helpMarkSvg), pctHtml(countFaster(asPool, r.ms), asPool.length));
-            }).join('') + '</div>'
+            }).join('') + '</div>' + foldHtml('assist', assist.length)
           : '<div class="rd-empty">' + esc(tx('noAssistRecords')) + '</div>') +
         '</section>';
     } else {
@@ -720,6 +756,7 @@
   let toTop = false;
   function willOpen() {
     shown = { size: CHUNK, moves: CHUNK };
+    open = { pure: false, assist: false };
     toTop = true;
   }
 
