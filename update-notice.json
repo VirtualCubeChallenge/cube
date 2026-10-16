@@ -1,6 +1,19 @@
 {
-  "_note": "items は新しい順。新機能を足したら先頭に1件追加する。言語キーは ja/en/zh-CN/zh-TW/ko/es/id/ru/pt-BR の9つで、LANGS の code とそのまま一致する。無い言語は ja に落ちる（= ja だけは必ず書く）。guide は任意で、付けた項目にだけ「詳細→」ボタンが出る。 icon は任意で、お知らせ一覧のカードに出すネオン線画アイコンの名前（globe / bolt / cube / camera / pause / plane / undo / spark。無い・不明なら spark）。中身は notice-cards.js の ICONS。",
+  "_note": "items は新しい順。新機能を足したら先頭に1件追加する。言語キーは ja/en/zh-CN/zh-TW/ko/es/id/ru/pt-BR の9つで、LANGS の code とそのまま一致する。無い言語は ja に落ちる（= ja だけは必ず書く）。guide は任意で、付けた項目にだけ「詳細→」ボタンが出る。 icon は任意で、お知らせ一覧のカードに出すネオン線画アイコンの名前（globe / bolt / cube / camera / pause / plane / undo / trophy / spark。無い・不明なら spark）。中身は notice-cards.js の ICONS。",
   "items": [
+    {
+      "date": "2026-10-16",
+      "icon": "trophy",
+      "ja": "【アプデ情報】自己ベスト画面が新しくなりました！🏆\nタブで「全記録・サイズ別・最小手数」を切り替えられて、ランクの進み具合や直近20回のタイムの推移もひと目でわかります。\nメニューの「🏆 記録」から見てみてね！",
+      "en": "[Update] The Records screen has a new look! 🏆\nSwitch between All records, By size and Fewest moves with tabs, and see your rank progress and your last 20 times at a glance.\nOpen “🏆 Records” in the menu to check it out!",
+      "zh-CN": "【更新情报】个人最佳页面焕然一新！🏆\n可用标签切换「全部记录・按尺寸・最少步数」，等级进度和最近20次的成绩走势也一目了然。\n快从菜单的「🏆 记录」看看吧！",
+      "zh-TW": "【更新情報】個人最佳頁面煥然一新！🏆\n可用分頁切換「全部紀錄・依尺寸・最少步數」，等級進度和最近20次的成績走勢也一目了然。\n快從選單的「🏆 紀錄」看看吧！",
+      "ko": "【업데이트】개인 최고 기록 화면이 새로워졌어요! 🏆\n탭으로 ‘전체 기록・크기별・최소 수’를 전환할 수 있고, 랭크 진행도와 최근 20회 기록 추이도 한눈에 볼 수 있어요.\n메뉴의 ‘🏆 기록’에서 확인해 보세요!",
+      "es": "[Novedades] ¡La pantalla de récords se renueva! 🏆\nCambia entre Todos, Por tamaño y Menos movimientos con las pestañas, y mira de un vistazo tu progreso de rango y tus últimos 20 tiempos.\n¡Ábrela desde «🏆 Récords» en el menú!",
+      "id": "[Pembaruan] Tampilan layar Rekor kini baru! 🏆\nGanti antara Semua, Per ukuran, dan Langkah tersedikit lewat tab, serta lihat kemajuan peringkat dan 20 waktu terakhirmu sekilas.\nBuka “🏆 Rekor” di menu untuk melihatnya!",
+      "ru": "[Обновление] Экран рекордов обновился! 🏆\nВкладки «Все», «По размеру» и «Меньше ходов», а ещё прогресс ранга и динамика последних 20 сборок — всё сразу на виду.\nОткройте «🏆 Рекорды» в меню!",
+      "pt-BR": "[Novidades] A tela de recordes está de cara nova! 🏆\nAlterne entre Todos, Por tamanho e Menos movimentos nas abas, e veja num relance o progresso do seu rank e os seus últimos 20 tempos.\nAbra “🏆 Recordes” no menu para conferir!"
+    },
     {
       "date": "2026-10-14",
       "icon": "globe",
