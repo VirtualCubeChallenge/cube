@@ -5888,14 +5888,38 @@
 }
 .pllt-inf.grabbing { cursor: grabbing; }
 .pllt-inf:focus-visible .pllt-inf-track { stroke: rgba(255, 255, 255, .35); }
+/* 光は CSS の filter を使わない（iPhone の Safari では filter の範囲が四角く切れて、薄い枠に見える）。
+   ∞ の外の光は丸いグラデーション、線のにじみは SVG の中のぼかしで出す */
+.pllt-inf::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 210px;
+  height: 210px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle closest-side,
+    rgba(205, 140, 255, calc(.20 + var(--c) * .22)) 0%,
+    rgba(130, 190, 255, calc(.09 + var(--c) * .12)) 45%,
+    rgba(130, 190, 255, 0) 100%);
+  pointer-events: none;
+}
+.pllt-inf.pop::before { animation: pllt-inf-halo .8s ease-out both; }
+@keyframes pllt-inf-halo { from { opacity: 0; } to { opacity: 1; } }
 .pllt-inf-svg {
+  position: relative;
   display: block;
   width: 124px;
   height: 124px;
   overflow: visible;
-  filter:
-    drop-shadow(0 0 calc(5px + var(--c) * 8px) rgba(255, 255, 255, calc(.22 + var(--c) * .25)))
-    drop-shadow(0 0 calc(14px + var(--c) * 16px) rgba(200, 130, 255, calc(.4 + var(--c) * .3)));
+}
+.pllt-inf-glow {
+  fill: none;
+  stroke: url(#pllt-inf-g);
+  stroke-width: 10;
+  stroke-linejoin: round;
+  opacity: calc(.5 + var(--c) * .35);
 }
 .pllt-inf-path {
   fill: none;
@@ -5965,7 +5989,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .pllt-tabs.pllt-vanishing .pllt-tab { animation: none; opacity: 0; }
-  .pllt-inf.pop .pllt-inf-svg, .pllt-inf-hint { animation: none; }
+  .pllt-inf.pop .pllt-inf-svg, .pllt-inf.pop::before, .pllt-inf-hint { animation: none; }
 }
 
 .pllt-swatches { display: flex; gap: 8px; }
