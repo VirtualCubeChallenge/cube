@@ -5859,6 +5859,51 @@
 }
 .pllt-mode { font-size: 12px; }
 
+/* ---- 隠しコマンドの無限モード ----------------------------------------
+   問題数を 10→30→50→100→300→500→800→1000 の順に押すと、数字が光って
+   1つずつ消え、そのあとに虹色の ∞ が現れる（index.html の PllTrainer）。 */
+.pllt-tabs[hidden], .pllt-inf[hidden] { display: none; }
+.pllt-tabs.pllt-vanishing .pllt-tab {
+  pointer-events: none;
+  animation: pllt-vanish .5s ease-in both;
+}
+@keyframes pllt-vanish {
+  0%   { opacity: 1; transform: scale(1); filter: none; }
+  40%  { opacity: 1; transform: scale(1.1); filter: brightness(1.9) drop-shadow(0 0 8px #fff); }
+  100% { opacity: 0; transform: translateY(-8px) scale(.5); filter: blur(6px); }
+}
+.pllt-inf {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 86px;
+}
+.pllt-inf-mark {
+  display: block;
+  font-size: 72px;
+  line-height: 1;
+  font-weight: 900;
+  background: linear-gradient(90deg, #ff2d2d, #ff9d2d, #f6ff2d, #2dff5c, #2de0ff, #4a5bff, #d92dff, #ff2d2d);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, .35)) drop-shadow(0 0 22px rgba(190, 120, 255, .45));
+  animation: size-rainbow-shift 2.2s linear infinite;
+}
+.pllt-inf.pop .pllt-inf-mark {
+  animation: pllt-inf-pop .8s cubic-bezier(.2, 1.4, .4, 1) both, size-rainbow-shift 2.2s linear infinite;
+}
+@keyframes pllt-inf-pop {
+  0%   { opacity: 0; transform: scale(.2) rotate(-120deg); }
+  60%  { opacity: 1; }
+  100% { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pllt-tabs.pllt-vanishing .pllt-tab { animation: none; opacity: 0; }
+  .pllt-inf-mark, .pllt-inf.pop .pllt-inf-mark { animation: none; }
+}
+
 .pllt-swatches { display: flex; gap: 8px; }
 .pllt-swatch {
   flex: 1 1 0;
