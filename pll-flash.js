@@ -49,10 +49,10 @@
      見えて区別できない。短い難易度ほど暗転も短くしてテンポを保つ。
      AUF（上面の向き）は難易度で分けず、PLL検定と同じく毎問ランダム。 */
   const LEVELS = [
-    { id: 'easy',   key: 'plfLvEasy',   showMs: 1500, gapMs: 300, count: 3 },
-    { id: 'normal', key: 'plfLvNormal', showMs: 1000, gapMs: 260, count: 5 },
-    { id: 'hard',   key: 'plfLvHard',   showMs: 500,  gapMs: 200, count: 5 },
-    { id: 'pro',    key: 'plfLvPro',    showMs: 250,  gapMs: 140, count: 10 }
+    { id: 'easy',   key: 'plfLvEasy',   showMs: 5000, gapMs: 300, count: 3 },
+    { id: 'normal', key: 'plfLvNormal', showMs: 3000, gapMs: 260, count: 5 },
+    { id: 'hard',   key: 'plfLvHard',   showMs: 2300, gapMs: 200, count: 5 },
+    { id: 'pro',    key: 'plfLvPro',    showMs: 1800, gapMs: 140, count: 10 }
   ];
   /* PLLビジョンの難易度。9問は固定で、変わるのは表示時間だけ。 */
   const VLEVELS = [
@@ -983,7 +983,7 @@
     if (isVision()) store.vplays++; else store.plays++;
     saveStore();
 
-    // 図は先に全部作っておく。0.25秒の鬼でも、表示は class を1つ
+    // 図は先に全部作っておく。1.8秒の鬼でも、表示は class を1つ
     // 付け外しするだけになり、描画の遅れで見える時間が削れない。
     const stage = $('plf-stage');
     stage.querySelectorAll('.plf-card').forEach(function (c) { c.remove(); });
