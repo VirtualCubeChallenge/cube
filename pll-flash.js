@@ -51,7 +51,7 @@
   const LEVELS = [
     { id: 'easy',   key: 'plfLvEasy',   showMs: 5000, gapMs: 300, count: 3 },
     { id: 'normal', key: 'plfLvNormal', showMs: 3000, gapMs: 260, count: 5 },
-    { id: 'hard',   key: 'plfLvHard',   showMs: 2800, gapMs: 200, count: 5 },
+    { id: 'hard',   key: 'plfLvHard',   showMs: 2300, gapMs: 200, count: 5 },
     { id: 'pro',    key: 'plfLvPro',    showMs: 1800, gapMs: 140, count: 10 }
   ];
   /* PLLビジョンの難易度。9問は固定で、変わるのは表示時間だけ。 */
