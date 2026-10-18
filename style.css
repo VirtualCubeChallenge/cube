@@ -5941,21 +5941,6 @@
   opacity: 0;
   transition: opacity .3s;
 }
-/* 回せることを示す小さな光の点（一度回したら消える） */
-.pllt-inf-hint {
-  fill: rgba(255, 255, 255, .7);
-  transform-box: view-box;
-  transform-origin: 50% 50%;
-  animation: pllt-inf-orbit 3.2s cubic-bezier(.45, 0, .55, 1) infinite;
-  transition: opacity .4s;
-}
-.pllt-inf.spun .pllt-inf-hint { opacity: 0; animation-play-state: paused; }
-@keyframes pllt-inf-orbit {
-  0%   { transform: rotate(-90deg); opacity: 0; }
-  15%  { opacity: .9; }
-  70%  { opacity: .9; }
-  100% { transform: rotate(270deg); opacity: 0; }
-}
 .pllt-inf.pop .pllt-inf-svg {
   animation: pllt-inf-pop .8s cubic-bezier(.2, 1.4, .4, 1) both;
 }
@@ -5989,7 +5974,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .pllt-tabs.pllt-vanishing .pllt-tab { animation: none; opacity: 0; }
-  .pllt-inf.pop .pllt-inf-svg, .pllt-inf.pop::before, .pllt-inf-hint { animation: none; }
+  .pllt-inf.pop .pllt-inf-svg, .pllt-inf.pop::before { animation: none; }
 }
 
 .pllt-swatches { display: flex; gap: 8px; }
