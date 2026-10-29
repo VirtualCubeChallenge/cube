@@ -6,11 +6,16 @@
                                   炎のようにゆっくり行き来する（index.html の blend）
      ・キューブカラー「ハロウィン」… 骨の白／キャンディコーンの黄／血の赤／かぼちゃの橙／
                                   スライムの緑／魔女の紫。赤と橙は色相を32°離してある
-     ・キューブスキン3種（スイカと同じ「そろえた瞬間の演出」型。写真は貼らない）
-         かぼちゃポップ … キューブが割れて、小さな可愛いかぼちゃたちがふわふわ浮かぶ
-         キリッとかぼちゃ … カーテンが一瞬閉じて、開くとキリッとした顔のかぼちゃが立っている
-         おどかしかぼちゃ … キューブがかぼちゃの顔になり、体が生えて画面に飛びかかってくる
-       ジャックポット（虹シャード100万）が当たった回は、3種ともかぼちゃが虹色に化ける。
+     ・キューブスキン「ハロウィン」（300。札の絵はオレンジの「？」）
+       スイカと同じ「そろえた瞬間の演出」型（写真は貼らない）。そろえるたびに、次の3つの
+       どれかが出る（3回で3つとも1回ずつ出る順番を、毎回シャッフルして決める）。
+         ポップ   … キューブが割れて、小さな可愛いかぼちゃたちがふわふわ浮かぶ
+         キリッと … カーテンが一瞬閉じて、開くとキリッとした顔のかぼちゃが立っている
+         おどかし … 暗転。キューブが本物のようなかぼちゃの頭になり、首と、あばらの浮いた
+                    やせた体と、長い腕が、コマ送りのようなぎこちない動きで生えてきて、
+                    叫び声とともに画面いっぱいに飛びかかってくる（絵は SVG のフィルタで
+                    質感と光を付け、最初に1回だけ canvas に焼いて使い回す）
+       ジャックポット（虹シャード100万）が当たった回は、3つともかぼちゃが虹色に化ける。
 
    ---------------------------------------------------------------------
    読み込み順（index.html の head）
@@ -47,39 +52,39 @@
   const TEXTS = {
     ja: {
       shopColorHalloween: 'ハロウィン', shopSchemeHalloween: 'ハロウィン',
-      shopMarkPumpkinPop: 'かぼちゃポップ', shopMarkPumpkinCool: 'キリッとかぼちゃ', shopMarkPumpkinBoo: 'おどかしかぼちゃ'
+      shopMarkHalloween: 'ハロウィン'
     },
     en: {
       shopColorHalloween: 'Halloween', shopSchemeHalloween: 'Halloween',
-      shopMarkPumpkinPop: 'Pumpkin Pop', shopMarkPumpkinCool: 'Cool Pumpkin', shopMarkPumpkinBoo: 'Boo Pumpkin'
+      shopMarkHalloween: 'Halloween'
     },
     'zh-CN': {
       shopColorHalloween: '万圣节', shopSchemeHalloween: '万圣节',
-      shopMarkPumpkinPop: '南瓜蹦蹦', shopMarkPumpkinCool: '酷酷南瓜', shopMarkPumpkinBoo: '吓人南瓜'
+      shopMarkHalloween: '万圣节'
     },
     'zh-TW': {
       shopColorHalloween: '萬聖節', shopSchemeHalloween: '萬聖節',
-      shopMarkPumpkinPop: '南瓜蹦蹦', shopMarkPumpkinCool: '酷酷南瓜', shopMarkPumpkinBoo: '嚇人南瓜'
+      shopMarkHalloween: '萬聖節'
     },
     ko: {
       shopColorHalloween: '할로윈', shopSchemeHalloween: '할로윈',
-      shopMarkPumpkinPop: '호박 팝', shopMarkPumpkinCool: '시크한 호박', shopMarkPumpkinBoo: '깜짝 호박'
+      shopMarkHalloween: '할로윈'
     },
     es: {
       shopColorHalloween: 'Halloween', shopSchemeHalloween: 'Halloween',
-      shopMarkPumpkinPop: 'Calabaza pop', shopMarkPumpkinCool: 'Calabaza cool', shopMarkPumpkinBoo: 'Calabaza ¡bu!'
+      shopMarkHalloween: 'Halloween'
     },
     id: {
       shopColorHalloween: 'Halloween', shopSchemeHalloween: 'Halloween',
-      shopMarkPumpkinPop: 'Labu Pop', shopMarkPumpkinCool: 'Labu Keren', shopMarkPumpkinBoo: 'Labu Kejutan'
+      shopMarkHalloween: 'Halloween'
     },
     ru: {
       shopColorHalloween: 'Хэллоуин', shopSchemeHalloween: 'Хэллоуин',
-      shopMarkPumpkinPop: 'Тыквы-прыгуны', shopMarkPumpkinCool: 'Крутая тыква', shopMarkPumpkinBoo: 'Тыква-пугалка'
+      shopMarkHalloween: 'Хэллоуин'
     },
     'pt-BR': {
       shopColorHalloween: 'Halloween', shopSchemeHalloween: 'Halloween',
-      shopMarkPumpkinPop: 'Abóbora pop', shopMarkPumpkinCool: 'Abóbora estilosa', shopMarkPumpkinBoo: 'Abóbora buu'
+      shopMarkHalloween: 'Halloween'
     }
   };
   if (typeof I18N !== 'undefined' && I18N) {
@@ -171,26 +176,6 @@
         '<g class="hw-glowfx"><path d="' + eyes + '" fill="url(#hw-g-gl)"/><path d="' + mouth + '" fill="url(#hw-g-gl)"/></g>' +
         '<g fill="none" stroke="#5a1a04" stroke-width="2.6" stroke-linejoin="round"><path d="' + eyes + '"/><path d="' + mouth + '"/></g>' +
         '<path d="M74 116l8-3" stroke="#fff8d0" stroke-width="2.4" stroke-linecap="round" opacity=".9"/>';
-    },
-    /* ---- おどかし系：最初は灯りの消えた彫り顔。目に1つずつ火がともる ---- */
-    boo: function () {
-      const eL = 'M60 92l36 16-26 12z', eR = 'M140 92l-36 16 26 12z';
-      const mouth = 'M54 128l15 9 9-9 10 10 12-10 12 10 10-10 9 9 15-9q-7 36-45 39-38-3-47-39z';
-      return '<g fill="#240801"><path d="' + eL + '"/><path d="' + eR + '"/><path d="' + mouth + '"/></g>' +
-        '<g class="hw-eL"><path class="hw-lit" d="' + eL + '" fill="url(#hw-g-gr)"/></g>' +
-        '<g class="hw-eR"><path class="hw-lit" d="' + eR + '" fill="url(#hw-g-gr)"/></g>' +
-        '<path class="hw-lit hw-mlit" d="' + mouth + '" fill="url(#hw-g-gr)"/>' +
-        '<g fill="none" stroke="#4a0e02" stroke-width="2.6" stroke-linejoin="round"><path d="' + eL + '"/><path d="' + eR + '"/><path d="' + mouth + '"/></g>';
-    },
-    /* 飛びかかる瞬間の顔：目は細く吊り上がり、口は耳まで裂けて牙が並ぶ */
-    scream: function () {
-      const eL = 'M56 84l42 20-30 16z', eR = 'M144 84l-42 20 30 16z';
-      const mouth = 'M50 120l12 13 9-12 9 14 10-14 10 14 10-14 10 14 9-14 9 12 12-13q2 58-50 64-52-6-50-64z';
-      return '<g fill="url(#hw-g-gr)"><path d="' + eL + '"/><path d="' + eR + '"/></g>' +
-        '<path d="' + mouth + '" fill="url(#hw-g-mo)"/>' +
-        '<path d="M70 178l8-14 8 15 8-16 6 16 6-16 8 16 8-15 8 14q-25 10-60 0z" fill="#ffe9c0" stroke="#4a0e02" stroke-width="2"/>' +
-        '<g fill="none" stroke="#3a0901" stroke-width="2.8" stroke-linejoin="round"><path d="' + eL + '"/><path d="' + eR + '"/><path d="' + mouth + '"/></g>' +
-        '<circle cx="78" cy="106" r="3" fill="#fff6d0"/><circle cx="122" cy="106" r="3" fill="#fff6d0"/>';
     }
   };
 
@@ -209,10 +194,6 @@
       '<linearGradient id="hw-g-st" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9cc246"/><stop offset="1" stop-color="#4e6e1c"/></linearGradient>' +
       '<linearGradient id="hw-g-ht" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a5ae0"/><stop offset="1" stop-color="#341a70"/></linearGradient>' +
       '<radialGradient id="hw-g-gl" cx=".5" cy=".6" r=".7"><stop offset="0" stop-color="#fffbd2"/><stop offset=".45" stop-color="#ffd23a"/><stop offset="1" stop-color="#ff7a00"/></radialGradient>' +
-      '<radialGradient id="hw-g-gr" cx=".5" cy=".55" r=".7"><stop offset="0" stop-color="#fff0b8"/><stop offset=".38" stop-color="#ff6a1a"/><stop offset="1" stop-color="#b3000f"/></radialGradient>' +
-      '<radialGradient id="hw-g-mo" cx=".5" cy=".4" r=".7"><stop offset="0" stop-color="#2a0004"/><stop offset=".55" stop-color="#8a0012"/><stop offset="1" stop-color="#ff5a1a"/></radialGradient>' +
-      '<linearGradient id="hw-g-ck" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2d1d40"/><stop offset="1" stop-color="#0a0510"/></linearGradient>' +
-      '<linearGradient id="hw-g-sk" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b9c9a0"/><stop offset="1" stop-color="#7d8f69"/></linearGradient>' +
     '</defs>';
   }
 
@@ -225,28 +206,6 @@
     return '<svg viewBox="0 0 200 200" aria-hidden="true" focusable="false">' + pumpkinInner(face, opts) + '</svg>';
   }
 
-  /* ---- おばけ（おどかしかぼちゃ）：viewBox 300×360。頭は上の 200×200（x 50〜250）。
-     首の後ろに立った襟、ぼろぼろのマント、骨ばった腕と長い爪。 */
-  const ARM_L =
-    '<g class="hw-marm hw-armL">' +
-      '<path d="M122 196c-34 2-62 18-84 44l14 13c20-22 42-34 74-36z" fill="url(#hw-g-ck)" stroke="#05020a" stroke-width="3.5" stroke-linejoin="round"/>' +
-      '<g fill="none" stroke="url(#hw-g-sk)" stroke-width="6" stroke-linecap="round">' +
-        '<path d="M42 240q-20-8-32-26"/><path d="M40 246q-24 0-38-10"/><path d="M42 252q-22 10-34 14"/><path d="M48 256q-10 16-12 28"/></g>' +
-      '<g fill="#1c0c06"><circle cx="10" cy="214" r="3.4"/><circle cx="2" cy="236" r="3.4"/><circle cx="8" cy="266" r="3.4"/><circle cx="36" cy="284" r="3.4"/></g>' +
-    '</g>';
-  const ARM_R = '<g transform="translate(300 0) scale(-1 1)">' + ARM_L.replace('hw-armL', 'hw-armR') + '</g>';
-  function monsterSvg(face) {
-    return '<svg viewBox="0 0 300 360" aria-hidden="true" focusable="false">' +
-      '<g class="hw-mbody">' +
-        '<path d="M150 172 96 132l18 54zM150 172l54-40-18 54z" fill="#4b1a5e" stroke="#05020a" stroke-width="3.5" stroke-linejoin="round"/>' +
-        '<path d="M108 178q42-14 84 0l30 82q18 56 40 90l-32-8-16 10-18-12-18 12-18-12-18 12-18-12-18 12-16-10-32 8q22-34 40-90z" fill="url(#hw-g-ck)" stroke="#05020a" stroke-width="3.5" stroke-linejoin="round"/>' +
-        '<path d="M150 186v120M128 196q-6 60-20 118M172 196q6 60 20 118" fill="none" stroke="#3d2a55" stroke-width="2.4" opacity=".7"/>' +
-        ARM_L + ARM_R +
-      '</g>' +
-      '<g transform="translate(50 0)">' + STEM + BODY + FACES[face]() + '</g>' +
-    '</svg>';
-  }
-
   const BAT = '<svg viewBox="0 0 100 50" aria-hidden="true" focusable="false"><path class="hw-wing" d="M50 28c-6-8-14-8-20-4-4-8-14-10-24-4 8 2 12 8 12 14 6-4 14-2 18 4 4-4 10-4 14 2 4-6 10-6 14-2 4-6 12-8 18-4 0-6 4-12 12-14-10-6-20-4-24 4-6-4-14-4-20 4z" fill="#140a1c"/><path d="M45 24l2-7 3 5 3-5 2 7z" fill="#140a1c"/><circle cx="47.5" cy="27" r="1.2" fill="#ffcf4a"/><circle cx="52.5" cy="27" r="1.2" fill="#ffcf4a"/></svg>';
 
   /* ---- ショップの札に出す絵（単独で開ける SVG を data URI に） ---- */
@@ -256,20 +215,18 @@
       '<rect width="200" height="200" fill="url(#hw-bg)"/>' + inner + '</svg>';
     return 'data:image/svg+xml;base64,' + global.btoa(svg);
   }
-  const THUMB_POP = thumb(
-    '<g transform="translate(42 -2) scale(.58)">' + pumpkinInner('smile', { hat: true }) + '</g>' +
-    '<g transform="translate(0 92) scale(.46)">' + pumpkinInner('wink', { leaf: true }) + '</g>' +
-    '<g transform="translate(108 92) scale(.46)">' + pumpkinInner('oh') + '</g>' +
-    '<path d="m40 30 3 7 7 3-7 3-3 7-3-7-7-3 7-3zM168 150l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#fff3b0"/>',
-    ['#4a2a6a', '#1a0e28']);
-  const THUMB_COOL = thumb(
-    '<path d="M100 0 40 200h120z" fill="#ffd27a" opacity=".12"/>' +
-    '<g transform="translate(14 18) scale(.86)">' + pumpkinInner('cool') + '</g>' +
-    '<path d="m150 92 3 9 9 3-9 3-3 9-3-9-9-3 9-3z" fill="#fff"/>',
-    ['#5a1240', '#1c0618']);
-  const THUMB_BOO = thumb(
-    '<g transform="translate(6 6) scale(.94)">' + pumpkinInner('scream') + '</g>',
-    ['#5a0c0c', '#120206']);
+  // 何が出るかはそろえてからのお楽しみ、なので札は「？」だけ。オレンジの太い字に、炎のにじみ
+  const THUMB_Q = (function () {
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs>' +
+      '<radialGradient id="b" cx=".5" cy=".5" r=".72"><stop offset="0" stop-color="#3a1630"/><stop offset="1" stop-color="#0e0610"/></radialGradient>' +
+      '<linearGradient id="q" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc35a"/><stop offset=".5" stop-color="#ff8a1a"/><stop offset="1" stop-color="#e84a10"/></linearGradient>' +
+      '<filter id="g" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter></defs>' +
+      '<rect width="200" height="200" fill="url(#b)"/>' +
+      '<text x="100" y="158" text-anchor="middle" font-family="Arial Black,Arial,Helvetica,sans-serif" font-weight="900" font-size="164" fill="#ff7a14" opacity=".75" filter="url(#g)">?</text>' +
+      '<text x="100" y="158" text-anchor="middle" font-family="Arial Black,Arial,Helvetica,sans-serif" font-weight="900" font-size="164" fill="url(#q)" stroke="#5a1a02" stroke-width="3">?</text>' +
+      '</svg>';
+    return 'data:image/svg+xml;base64,' + global.btoa(svg);
+  })();
 
   /* ===================================================== ショップの品揃え == */
   // メインカラー：2色のあいだを行き来する（blend）。hex は起動直後の先出し用の中間色。
@@ -278,11 +235,9 @@
   ]);
   // キューブスキン：img は持たない（写真を貼る仕組みは素通り）。札の絵は thumb。
   global.SHOP_MARKS_EXTRA = (global.SHOP_MARKS_EXTRA || []).concat([
-    { id: 'pumpkinPop',  cost: 100, cur: 'cyan', img: null, thumb: THUMB_POP,  hwKind: 'pop' },
-    { id: 'pumpkinCool', cost: 100, cur: 'cyan', img: null, thumb: THUMB_COOL, hwKind: 'cool' },
-    { id: 'pumpkinBoo',  cost: 100, cur: 'cyan', img: null, thumb: THUMB_BOO,  hwKind: 'boo' }
+    { id: 'halloween', cost: 300, cur: 'cyan', img: null, thumb: THUMB_Q }
   ]);
-  const KIND_OF = { pumpkinPop: 'pop', pumpkinCool: 'cool', pumpkinBoo: 'boo' };
+  const MARK_ID = 'halloween';
 
   /* キューブカラー「ハロウィン」。
        U 骨の白 / D キャンディコーンの黄 / R 血の赤 / L かぼちゃの橙 / F スライムの緑 / B 魔女の紫
@@ -306,6 +261,286 @@
   };
   if (Array.isArray(global.CUBE_SCHEMES_EXTRA)) global.CUBE_SCHEMES_EXTRA.push(SCHEME);
   else global.CUBE_SCHEMES_EXTRA = [SCHEME];
+
+  /* ============================================ おどかし：リアルな絵（SVG） == */
+  /* 皮・肌・果肉・ヘタの質感は、ノイズ（feTurbulence）で凹凸を作って光（feDiffuse /
+     feSpecularLighting）を当てたもの。重いフィルタなので、毎フレーム描かずに、
+     最初に1回だけ canvas に焼いて、あとはその絵を transform で動かすだけにする。 */
+  /* ---- 質感のフィルタ（ノイズで凹凸を作り、光を当てる） ---- */
+  function rFilters() {
+    return '' +
+      // かぼちゃの皮：縦の筋＋細かい毛穴の凹凸に、左上から光。黒ずんだ斑点も少し
+      '<filter id="rpk" x="-3%" y="-3%" width="106%" height="106%" color-interpolation-filters="sRGB">' +
+        '<feTurbulence type="fractalNoise" baseFrequency="0.035 0.003" numOctaves="2" seed="7" result="streak"/>' +
+        '<feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="2" result="pore"/>' +
+        '<feComposite in="streak" in2="pore" operator="arithmetic" k2="0.9" k3="0.1" k4="0" result="h"/>' +
+        '<feColorMatrix in="h" type="luminanceToAlpha" result="hA"/>' +
+        '<feDiffuseLighting in="hA" surfaceScale="1.1" diffuseConstant="1.25" result="dif"><feDistantLight azimuth="235" elevation="55"/></feDiffuseLighting>' +
+        '<feSpecularLighting in="hA" surfaceScale="1.6" specularConstant="1.1" specularExponent="34" lighting-color="#fff0d0" result="spc"><feDistantLight azimuth="235" elevation="50"/></feSpecularLighting>' +
+        '<feComposite in="SourceGraphic" in2="dif" operator="arithmetic" k1="1.22" result="lit"/>' +
+        '<feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" seed="31" result="bl"/>' +
+        '<feColorMatrix in="bl" type="matrix" values="0 0 0 0 .2  0 0 0 0 .08  0 0 0 0 .02  0 0 0 -10 3.7" result="blot"/>' +
+        '<feGaussianBlur in="blot" stdDeviation="2.5" result="blot2"/>' +
+        '<feComposite in="blot2" in2="lit" operator="atop" result="lit2"/>' +
+        '<feComposite in="spc" in2="SourceAlpha" operator="in" result="spc2"/>' +
+        '<feComposite in="lit2" in2="spc2" operator="arithmetic" k2="1" k3=".45" result="o"/>' +
+        '<feComposite in="o" in2="SourceAlpha" operator="in"/>' +
+      '</filter>' +
+      // 肌：しわと細かい凹凸。光は上（頭の灯り）から
+      '<filter id="rfl" x="-3%" y="-3%" width="106%" height="106%" color-interpolation-filters="sRGB">' +
+        '<feTurbulence type="fractalNoise" baseFrequency="0.09 0.025" numOctaves="4" seed="13" result="w"/>' +
+        '<feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" seed="5" result="p"/>' +
+        '<feComposite in="w" in2="p" operator="arithmetic" k2="0.7" k3="0.35" result="h"/>' +
+        '<feColorMatrix in="h" type="luminanceToAlpha" result="hA"/>' +
+        '<feDiffuseLighting in="hA" surfaceScale="2.4" diffuseConstant="1.25" result="dif"><feDistantLight azimuth="260" elevation="52"/></feDiffuseLighting>' +
+        '<feSpecularLighting in="hA" surfaceScale="2.4" specularConstant=".45" specularExponent="14" lighting-color="#ffe2c0" result="spc"><feDistantLight azimuth="260" elevation="52"/></feSpecularLighting>' +
+        '<feComposite in="SourceGraphic" in2="dif" operator="arithmetic" k1="1.15" result="lit0"/>' +
+        '<feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" seed="44" result="bl"/>' +
+        '<feColorMatrix in="bl" type="matrix" values="0 0 0 0 .16  0 0 0 0 .12  0 0 0 0 .12  0 0 0 -5 2.2" result="blot"/>' +
+        '<feGaussianBlur in="blot" stdDeviation="7" result="blot2"/>' +
+        '<feComposite in="blot2" in2="lit0" operator="atop" result="lit"/>' +
+        '<feComposite in="spc" in2="SourceAlpha" operator="in" result="spc2"/>' +
+        '<feComposite in="lit" in2="spc2" operator="arithmetic" k2="1" k3=".4" result="o"/>' +
+        '<feComposite in="o" in2="SourceAlpha" operator="in"/>' +
+      '</filter>' +
+      // 果肉の断面（彫った壁）：繊維の筋
+      '<filter id="rfb" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">' +
+        '<feTurbulence type="fractalNoise" baseFrequency="0.012 0.22" numOctaves="3" seed="9" result="f"/>' +
+        '<feColorMatrix in="f" type="luminanceToAlpha" result="fA"/>' +
+        '<feDiffuseLighting in="fA" surfaceScale="2" diffuseConstant="1.2" result="d"><feDistantLight azimuth="90" elevation="60"/></feDiffuseLighting>' +
+        '<feComposite in="SourceGraphic" in2="d" operator="arithmetic" k1="1.1"/>' +
+        '<feComposite in2="SourceAlpha" operator="in"/>' +
+      '</filter>' +
+      // ヘタ：乾いた木の繊維
+      '<filter id="rwd" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">' +
+        '<feTurbulence type="fractalNoise" baseFrequency="0.3 0.015" numOctaves="3" seed="4" result="f"/>' +
+        '<feColorMatrix in="f" type="luminanceToAlpha" result="fA"/>' +
+        '<feDiffuseLighting in="fA" surfaceScale="3" diffuseConstant="1.3" result="d"><feDistantLight azimuth="200" elevation="40"/></feDiffuseLighting>' +
+        '<feComposite in="SourceGraphic" in2="d" operator="arithmetic" k1="1.2"/>' +
+        '<feComposite in2="SourceAlpha" operator="in"/>' +
+      '</filter>' +
+      '<filter id="rb2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2"/></filter>' +
+      '<filter id="rb4" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="4"/></filter>' +
+      '<filter id="rb10" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="10"/></filter>' +
+      '<filter id="rb18" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="18"/></filter>';
+  }
+
+  /* ---- かぼちゃの頭（viewBox 0 0 400 400） ---- */
+  const R_LOBES = [
+    [62, 230, 58, 110], [338, 230, 58, 110],
+    [104, 224, 64, 126], [296, 224, 64, 126],
+    [150, 220, 62, 136], [250, 220, 62, 136],
+    [200, 218, 58, 142]
+  ];
+  // 房ごとの色 [明るい, 中, 暗い]。虹のときは房ごとに色相を変える
+  const R_ORANGE = [
+    ['#e8781f', '#b8470a', '#4a1602'], ['#e8781f', '#b8470a', '#4a1602'],
+    ['#f2862a', '#c8520c', '#561a02'], ['#f2862a', '#c8520c', '#561a02'],
+    ['#fb9532', '#d75e0f', '#621f03'], ['#fb9532', '#d75e0f', '#621f03'],
+    ['#ffa23c', '#e2680f', '#6e2504']
+  ];
+  const R_RAINBOW = [
+    ['#ff6a7e', '#c8183a', '#4a0614'], ['#e07aff', '#8a22c8', '#2e0848'],
+    ['#ffb04a', '#d8640a', '#561c02'], ['#7aa8ff', '#2252d0', '#0a1a4e'],
+    ['#fff06a', '#c8b012', '#4a3e02'], ['#6ae8ff', '#10a0c8', '#043a4e'],
+    ['#8aff8a', '#24b83a', '#08440e']
+  ];
+  const R_ORDER = [0, 1, 2, 3, 4, 5, 6];
+
+  function rLobes(pal, id) {
+    let defs = '', body = '';
+    pal.forEach(function (c, i) {
+      defs += '<radialGradient id="' + id + i + '" cx=".4" cy=".34" r=".78">' +
+        '<stop offset="0" stop-color="' + c[0] + '"/><stop offset=".55" stop-color="' + c[1] + '"/><stop offset="1" stop-color="' + c[2] + '"/></radialGradient>';
+    });
+    R_ORDER.forEach(function (i) {
+      const l = R_LOBES[i];
+      const e = 'cx="' + l[0] + '" cy="' + l[1] + '" rx="' + l[2] + '" ry="' + l[3] + '"';
+      body += '<ellipse ' + e + ' fill="url(#' + id + i + ')"/>';
+      body += '<ellipse ' + e + ' fill="none" stroke="#1e0700" stroke-width="7" opacity=".7" filter="url(#rb4)"/>';
+    });
+    return { defs: defs, body: body };
+  }
+
+  const R_STEM =
+    '<ellipse cx="201" cy="88" rx="34" ry="11" fill="#1a0600" opacity=".75" filter="url(#rb4)"/>' +
+    '<g filter="url(#rwd)">' +
+      '<path d="M172 96c6-6 10-14 10-26 0-22 6-42 16-58l26-4c-4 18-4 38 0 58 2 14 8 22 16 30-20 8-48 8-68 0z" fill="url(#rstem)"/>' +
+      '<ellipse cx="211" cy="10" rx="14" ry="5" fill="#b49a62"/>' +
+    '</g>' +
+    '<path d="M196 20c-4 20-6 44-2 70M214 16c2 22 2 46 8 72" fill="none" stroke="#1c1a08" stroke-width="2.5" opacity=".55"/>';
+
+  const R_SIL = (function () {
+    return R_LOBES.map(function (l) { return '<ellipse cx="' + l[0] + '" cy="' + l[1] + '" rx="' + l[2] + '" ry="' + l[3] + '"/>'; }).join('');
+  })();
+
+  // 彫った穴（目・口）
+  const R_FACE = {
+    normal: {
+      holes: 'M104 166 150 176 186 196 174 216 160 234 136 228 120 214 112 194z' +
+             'M296 166 250 176 214 196 226 216 240 234 264 228 280 214 288 194z' +
+             'M90 262l20 9 12-9 13 22 16-16 14 18 16-16 19 18 18-18 16 16 14-18 16 16 13-22 12 9 20-9c-4 28-18 50-46 62l-12-18-10 22-26 6-8-20-10 21-28-5-8-22-12 16c-32-10-50-34-54-62z'
+    },
+    scream: {
+      holes: 'M92 146 156 168 192 196 178 224 150 240 122 230 100 206z' +
+             'M308 146 244 168 208 196 222 224 250 240 278 230 300 206z' +
+             'M66 238l24 14 12-12 14 26 16-20 16 26 16-22 18 28 18-26 18 26 16-22 16 26 16-20 14 26 12-12 24-14c4 62-28 110-72 120l-10-26-14 28-24 4-10-28-10 30-28-4-10-26-12 22c-46-12-80-58-76-120z'
+    }
+  };
+
+  function rCuts(kind, lit) {
+    const h = R_FACE[kind].holes;
+    const wall = lit ? '#ffcf72' : '#5e3510';
+    const inner = lit ? 'url(#rin' + (kind === 'scream' ? 'S' : 'L') + ')' : 'url(#rinD)';
+    let s = '';
+    if (lit) {
+      s += '<path d="' + h + '" fill="#ff9a2a" opacity=".55" filter="url(#rb18)"/>';
+      s += '<path d="' + h + '" fill="#ffc45a" opacity=".5" filter="url(#rb4)"/>';
+    }
+    s += '<path d="' + h + '" fill="' + wall + '" filter="url(#rfb)"/>';
+    s += '<g clip-path="url(#rch' + kind + ')"><path transform="translate(0 9)" d="' + h + '" fill="' + inner + '"/>';
+    if (kind === 'scream') s += R_GUTS;
+    s += '</g>';
+    s += '<path d="' + h + '" fill="none" stroke="#1a0500" stroke-width="1.6" opacity=".55"/>';
+    s += '<g clip-path="url(#rch' + kind + ')"><path d="' + h + '" fill="none" stroke="#000" stroke-width="7" opacity=".35" filter="url(#rb2)"/></g>';
+    return s;
+  }
+  // 叫ぶ口の中：わた（筋）と種
+  const R_GUTS =
+    '<g fill="none" stroke="#ffb24a" stroke-linecap="round" opacity=".8">' +
+      '<path d="M118 270c4 30-6 50 2 80" stroke-width="4"/><path d="M160 276c-8 26 6 44-2 72" stroke-width="3"/>' +
+      '<path d="M236 282c6 24-6 40 4 66" stroke-width="3.5"/><path d="M282 268c-6 30 8 48-4 78" stroke-width="4"/>' +
+      '<path d="M196 288c4 18-2 34 2 58" stroke-width="2.4"/>' +
+    '</g>' +
+    '<g fill="#f6e7c4" stroke="#8a6a3a" stroke-width="1">' +
+      '<ellipse cx="121" cy="302" rx="5" ry="9" transform="rotate(12 121 302)"/><ellipse cx="158" cy="320" rx="5" ry="9" transform="rotate(-20 158 320)"/>' +
+      '<ellipse cx="240" cy="310" rx="5" ry="9" transform="rotate(18 240 310)"/><ellipse cx="279" cy="330" rx="5" ry="9" transform="rotate(-10 279 330)"/>' +
+      '<ellipse cx="198" cy="336" rx="4" ry="8"/>' +
+    '</g>';
+
+  const R_CRACKS =
+    '<g fill="none" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M66 238l-14-12-6-22-16-10M334 238l14-12 6-22 16-10M150 240l-8 22M120 150l-10-22-18-8M280 150l10-22 18-8" stroke="#140400" stroke-width="3.4"/>' +
+      '<path d="M67 241l-14-12-6-22-16-10M335 241l14-12 6-22 16-10" stroke="#ffb070" stroke-width="1.2" opacity=".5"/>' +
+      '<path d="M112 152q40 0 76 34M288 152q-40 0-76 34" stroke="#2a0a00" stroke-width="6" opacity=".6" filter="url(#rb2)"/>' +
+    '</g>';
+
+  // kind: 'normal' | 'scream'、lit: 目に火が入っているか、rb: 虹
+  function rHead(kind, lit, rb, px) {
+    const L = rLobes(rb ? R_RAINBOW : R_ORANGE, 'rl');
+    const W = px || 400;
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + W + '" viewBox="0 0 400 400"><defs>' +
+      rFilters() + L.defs +
+      '<linearGradient id="rstem" x1="0" x2="1"><stop offset="0" stop-color="#2e3a12"/><stop offset=".45" stop-color="#6e6a2c"/><stop offset="1" stop-color="#3a2c10"/></linearGradient>' +
+      '<radialGradient id="rinL" cx=".5" cy=".62" r=".7"><stop offset="0" stop-color="#fff8c8"/><stop offset=".28" stop-color="#ffd25a"/><stop offset=".62" stop-color="#ff8410"/><stop offset="1" stop-color="#8a2200"/></radialGradient>' +
+      '<radialGradient id="rinS" cx=".5" cy=".5" r=".7"><stop offset="0" stop-color="#ffe08a"/><stop offset=".22" stop-color="#ff5a12"/><stop offset=".58" stop-color="#8a000e"/><stop offset="1" stop-color="#1a0004"/></radialGradient>' +
+      '<radialGradient id="rinD" cx=".5" cy=".5" r=".7"><stop offset="0" stop-color="#2a0802"/><stop offset="1" stop-color="#0a0200"/></radialGradient>' +
+      '<clipPath id="rch' + kind + '"><path d="' + R_FACE[kind].holes + '"/></clipPath>' +
+      '<clipPath id="rsil">' + R_SIL + '</clipPath>' +
+      '<radialGradient id="rao" cx=".5" cy=".42" r=".6"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></radialGradient>' +
+      '</defs>' +
+      '<g filter="url(#rpk)">' + L.body + '</g>' +
+      '<g clip-path="url(#rsil)"><rect x="0" y="60" width="400" height="320" fill="url(#rao)"/>' +
+        (lit ? '<ellipse cx="200" cy="250" rx="150" ry="110" fill="#ff8a1a" opacity=".22" filter="url(#rb18)"/>' : '') +
+        (kind === 'scream' ? R_CRACKS : '') +
+        rCuts(kind, lit) +
+      '</g>' +
+      R_STEM +
+    '</svg>';
+  }
+
+  /* ---- 体（viewBox 0 0 500 640）：首・浮き出た鎖骨とあばら・こけた腹。下は闇に溶ける ---- */
+  function rBody() {
+    const sil = 'M228 0C230 50 228 90 224 114 200 124 154 150 112 186 84 210 72 244 90 270 102 300 106 340 114 380 126 440 150 520 166 640H334C350 520 374 440 386 380 394 340 398 300 410 270 428 244 416 210 388 186 346 150 300 124 276 114 272 90 270 50 272 0Z';
+    let ribs = '';
+    for (let i = 0; i < 7; i++) {
+      const y = 222 + i * 29, ox = 112 + i * 6, w = 8.5 - i * 0.7;
+      const L = 'M244 ' + y + 'C204 ' + (y - 8) + ' 158 ' + (y + 2) + ' ' + ox + ' ' + (y + 34);
+      const R = 'M256 ' + y + 'C296 ' + (y - 8) + ' 342 ' + (y + 2) + ' ' + (500 - ox) + ' ' + (y + 34);
+      ribs += '<g transform="translate(0 12)" stroke="#120c08" stroke-width="13" opacity=".7" filter="url(#rb4)"><path d="' + L + '"/><path d="' + R + '"/></g>';
+      ribs += '<g stroke="#d4c3a8" stroke-width="' + w.toFixed(1) + '" opacity=".55" filter="url(#rb2)"><path d="' + L + '"/><path d="' + R + '"/></g>';
+    }
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="500" height="640" viewBox="0 0 500 640"><defs>' + rFilters() +
+      '<radialGradient id="rsk" cx=".5" cy=".4" r=".6"><stop offset="0" stop-color="#8f8a78"/><stop offset=".4" stop-color="#5f5b4d"/><stop offset=".78" stop-color="#25221c"/><stop offset="1" stop-color="#0c0a08"/></radialGradient>' +
+      '<linearGradient id="rside" x1="0" x2="1"><stop offset="0" stop-color="#000" stop-opacity=".75"/><stop offset=".3" stop-color="#000" stop-opacity="0"/><stop offset=".7" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".8"/></linearGradient>' +
+      '<radialGradient id="rrim" cx=".5" cy="-.08" r=".55"><stop offset="0" stop-color="#ff8a2a" stop-opacity=".45"/><stop offset="1" stop-color="#ff8a2a" stop-opacity="0"/></radialGradient>' +
+      '<linearGradient id="rfade" x1="0" y1="0" x2="0" y2="1"><stop offset=".36" stop-color="#fff"/><stop offset=".86" stop-color="#000"/></linearGradient>' +
+      '<mask id="rmk"><rect width="500" height="640" fill="url(#rfade)"/></mask>' +
+      '<clipPath id="rbc"><path d="' + sil + '"/></clipPath>' +
+      '</defs>' +
+      '<g mask="url(#rmk)">' +
+        '<path d="' + sil + '" fill="url(#rsk)" filter="url(#rfl)"/>' +
+        '<g clip-path="url(#rbc)" fill="none" stroke-linecap="round">' +
+          // 首の筋
+          '<path d="M234 6c2 40 8 80 14 120M266 6c-2 40-8 80-14 120" stroke="#120c08" stroke-width="10" opacity=".6" filter="url(#rb4)" transform="translate(5 0)"/>' +
+          '<path d="M234 6c2 40 8 80 14 120M266 6c-2 40-8 80-14 120" stroke="#cfc6ad" stroke-width="5" opacity=".5" filter="url(#rb2)"/>' +
+          // 鎖骨
+          '<path d="M100 172c40-22 96-30 140-24M400 172c-40-22-96-30-140-24" stroke="#0e0906" stroke-width="16" opacity=".7" filter="url(#rb4)" transform="translate(0 10)"/>' +
+          '<path d="M100 172c40-22 96-30 140-24M400 172c-40-22-96-30-140-24" stroke="#ddd3b8" stroke-width="9" opacity=".65" filter="url(#rb2)"/>' +
+          // 胸骨・あばら
+          '<path d="M250 160v250" stroke="#0e0906" stroke-width="12" opacity=".55" filter="url(#rb4)"/>' +
+          ribs +
+          // こけた腹
+          '<ellipse cx="250" cy="470" rx="90" ry="60" fill="#0a0604" opacity=".5" filter="url(#rb18)"/>' +
+          // 静脈
+          '<path d="M150 250c12 30-2 56 14 88s-4 52 10 80M352 260c-14 26 4 54-12 84s6 48-8 76M206 420c10 20 30 24 40 46M240 30c-6 30 4 60-4 90" stroke="#2e2234" stroke-width="2.6" opacity=".55"/>' +
+          '<rect width="500" height="640" fill="url(#rside)"/>' +
+          '<path d="M230 0v120M270 0v120" stroke="#0c0806" stroke-width="14" opacity=".7" filter="url(#rb4)"/>' +
+          '<path d="' + sil + '" fill="none" stroke="#000" stroke-width="10" opacity=".55" filter="url(#rb4)"/>' +
+          '<ellipse cx="250" cy="40" rx="120" ry="70" fill="#000" opacity=".55" filter="url(#rb18)"/>' +
+          // 頭の灯りが肩に落ちる
+          '<rect width="500" height="640" fill="url(#rrim)"/>' +
+        '</g>' +
+      '</g>' +
+    '</svg>';
+  }
+
+  /* ---- 腕（viewBox 0 -24 300 500）：右下の肩から、肘を外へ張って、長い指を開いて振り上げる ---- */
+  function rArm() {
+    // 指：付け根から先へ細くなる3つの節。節ごとに少しふくらませる
+    const fingers = [
+      [[84, 112], [66, 92], [56, 74], [48, 58], 9.5],
+      [[94, 86], [87, 58], [83, 32], [80, 8], 9],
+      [[102, 82], [102, 52], [104, 24], [106, 0], 9.5],
+      [[110, 84], [119, 56], [127, 30], [133, 10], 9],
+      [[118, 94], [132, 74], [143, 56], [152, 42], 7.5]
+    ];
+    let f = '', n = '';
+    fingers.forEach(function (x) {
+      const w = x[4];
+      for (let k = 0; k < 3; k++) {
+        const a = x[k], b = x[k + 1], ww = w * (1 - k * 0.2);
+        const d = 'M' + a[0] + ' ' + a[1] + 'L' + b[0] + ' ' + b[1];
+        f += '<path d="' + d + '" stroke="#0a0806" stroke-width="' + (ww + 4).toFixed(1) + '" opacity=".55" filter="url(#rb2)" transform="translate(2 3)"/>';
+        f += '<path d="' + d + '" stroke="#6f6a59" stroke-width="' + ww.toFixed(1) + '"/>';
+        f += '<path d="' + d + '" stroke="#bdb59c" stroke-width="' + (ww * 0.32).toFixed(1) + '" opacity=".55" transform="translate(-1.6 -1)"/>';
+        if (k < 3) f += '<circle cx="' + b[0] + '" cy="' + b[1] + '" r="' + (ww * 0.62).toFixed(1) + '" fill="#7a7462"/>';
+      }
+      const a = x[2], b = x[3];
+      const ang = Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI;
+      n += '<path transform="translate(' + b[0] + ' ' + b[1] + ') rotate(' + ang.toFixed(0) + ')" d="M-4 -3.5C3 -4 11 -2 19 1 11 3 3 4 -4 3.5z" fill="#120c08" stroke="#2e241a" stroke-width="1"/>';
+    });
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="500" viewBox="0 -24 300 500"><defs>' + rFilters() +
+      '<linearGradient id="rag" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#99947f"/><stop offset=".45" stop-color="#5e5a4b"/><stop offset="1" stop-color="#181612"/></linearGradient>' +
+      // 肩のほう（右下）ほど闇に沈める
+      '<linearGradient id="rad" x1=".2" y1=".1" x2=".9" y2="1"><stop offset=".35" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".8"/></linearGradient>' +
+      '<clipPath id="rac"><path d="M246 482 306 424C222 364 142 322 84 298c-26-8-46 12-36 40 62 24 140 76 198 144z"/><path d="M50 332c12-70 24-152 30-212l42-2c-4 62-18 142-34 218z"/><path d="M80 132c-6-26 0-48 18-56 18 2 30 20 28 52-14 8-32 10-46 4z"/></clipPath>' +
+      '</defs>' +
+      '<g filter="url(#rfl)">' +
+        '<path d="M246 482 306 424C222 364 142 322 84 298c-26-8-46 12-36 40 62 24 140 76 198 144z" fill="url(#rag)"/>' +
+        '<path d="M50 332c12-70 24-152 30-212l42-2c-4 62-18 142-34 218z" fill="url(#rag)"/>' +
+        '<path d="M80 132c-6-26 0-48 18-56 18 2 30 20 28 52-14 8-32 10-46 4z" fill="#827c69"/>' +
+      '</g>' +
+      '<g clip-path="url(#rac)" fill="none" stroke-linecap="round" stroke-linejoin="round">' +
+        '<path d="M276 440C210 392 140 350 88 326" stroke="#0a0806" stroke-width="10" opacity=".55" filter="url(#rb4)"/>' +
+        '<path d="M104 302c6-60 12-122 14-172M92 310c4-50 10-110 12-170" stroke="#d2c9ae" stroke-width="2.6" opacity=".45" filter="url(#rb2)"/>' +
+        '<path d="M60 322c8-62 14-132 18-192" stroke="#0a0806" stroke-width="8" opacity=".5" filter="url(#rb4)"/>' +
+        '<path d="M44 330c10 6 26 8 40 2" stroke="#d2c9ae" stroke-width="3" opacity=".4" filter="url(#rb2)"/>' +
+        '<rect x="0" y="-24" width="300" height="500" fill="url(#rad)"/>' +
+      '</g>' +
+      '<g fill="none" stroke-linecap="round" stroke-linejoin="round">' + f + '</g>' + n +
+    '</svg>';
+  }
 
   /* ================================================================ CSS == */
   const STAR = 'polygon(50% 0,58% 40%,100% 50%,58% 60%,50% 100%,42% 60%,0 50%,42% 40%)';
@@ -414,42 +649,76 @@
     '  background:radial-gradient(circle at var(--cxp,50%) var(--cyp,50%),rgba(6,0,10,.25) 0,rgba(6,0,10,.9) 55%,rgba(0,0,0,.96))}',
     '.hw-dark.on{opacity:1}',
     '.hw-dark.off{opacity:0;transition:opacity .7s ease}',
-    '.hw-mon{position:absolute}',
-    '.hw-mon.hid{visibility:hidden}',
-    '.hw-mv,.hw-rise,.hw-sway{width:100%;height:100%}',
-    '.hw-mon .hw-lit{opacity:0;transition:opacity .22s ease-out}',
-    '.hw-mon.eyeL .hw-eL .hw-lit,.hw-mon.eyeR .hw-eR .hw-lit,.hw-mon.mouth .hw-mlit{opacity:1}',
-    '.hw-mon.in .hw-mv{animation:hwMorph .42s cubic-bezier(.2,1.5,.4,1) both}',
-    '@keyframes hwMorph{0%{transform:scale(.55,.4)}45%{transform:scale(1.12,.9)}75%{transform:scale(.96,1.05)}100%{transform:none}}',
-    '.hw-mon.tense .hw-sway{animation:hwTremble .12s linear infinite}',
-    '@keyframes hwTremble{0%,100%{transform:none}25%{transform:translate(-1%,.5%)}50%{transform:translate(.9%,-.7%)}75%{transform:translate(-.5%,-.4%)}}',
-    '.hw-mbody{transform-box:fill-box;transform-origin:50% 0;transform:scaleY(0)}',
-    '.hw-marm{transform-box:fill-box;transform:scale(0)}',
-    '.hw-armL{transform-origin:100% 0}.hw-armR{transform-origin:100% 0}',
-    '.hw-mon.grow .hw-mbody{animation:hwGrow .36s cubic-bezier(.2,1.4,.4,1) both}',
-    '.hw-mon.grow .hw-marm{animation:hwArm .36s .12s cubic-bezier(.2,1.6,.4,1) both}',
-    '.hw-mon.grow .hw-rise{transform:translateY(-8%);transition:transform .36s cubic-bezier(.2,1.4,.4,1)}',
-    '.hw-mon.full .hw-mbody,.hw-mon.full .hw-marm{transform:none;animation:none}',
-    '.hw-mon.full .hw-rise{transform:translateY(-8%)}',
-    '@keyframes hwGrow{from{transform:scaleY(0)}to{transform:none}}',
-    '@keyframes hwArm{from{transform:scale(0) rotate(-25deg)}to{transform:none}}',
-    '.hw-mon.idle .hw-sway{transform-origin:50% 100%;animation:hwSway 3.2s ease-in-out infinite}',
-    '@keyframes hwSway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}',
-    '.hw-mon.idle .hw-marm{animation:hwWave 1.6s ease-in-out infinite alternate}',
-    '@keyframes hwWave{from{transform:rotate(-6deg)}to{transform:rotate(8deg)}}',
-    '.hw-face-scream{display:none}',
-    '.hw-mon.scream .hw-face-boo{display:none}.hw-mon.scream .hw-face-scream{display:block}',
+    /* フィルムのざらつき（暗がりの映像っぽさ）。コマ送りで位置だけ跳ばす */
+    '.hw-grain{position:absolute;inset:-50%;opacity:0;background-size:160px 160px;transition:opacity .5s ease;pointer-events:none}',
+    '.hw-grain.on{opacity:.17;animation:hwGrain .42s steps(1,end) infinite}',
+    '@keyframes hwGrain{0%{transform:translate(0,0)}20%{transform:translate(-7%,4%)}40%{transform:translate(5%,-6%)}60%{transform:translate(-3%,-8%)}80%{transform:translate(8%,3%)}}',
+    /* おばけ本体。R（キューブの見かけの大きさ）を単位に、頭・体・腕を重ねる。
+       動きはわざと steps(1) のコマ送りにして、生き物らしくない「ぎこちなさ」を出す */
+    '.hw-cr{position:absolute;left:0;top:0;width:0;height:0}',
+    '.hw-cr.hid{visibility:hidden}',
+    '.hw-cr canvas{display:block;width:100%;height:100%}',
+    '.hw-cr-body,.hw-cr-arm,.hw-cr-head{position:absolute}',
+    '.hw-cr-body{transform-origin:50% 0;opacity:0}',
+    '.hw-cr-armin{width:100%;height:100%;transform-origin:87.3% 94%;opacity:0}',
+    '.hw-cr-arm.r{transform:scaleX(-1)}',
+    '.hw-cr-head{transform-origin:50% 86%;transform:translateY(calc(var(--R) * .45))}',
+    '.hw-cr-tw{width:100%;height:100%;position:relative;transform-origin:50% 86%}',
+    '.hw-cr-tw canvas{position:absolute;inset:0}',
+    '.hw-cr-lit,.hw-cr-rb{opacity:0}',
+    '.hw-cr-lit.l{clip-path:inset(0 50% 0 0)}.hw-cr-lit.r{clip-path:inset(0 0 0 50%)}',
+    '.hw-cr.in .hw-cr-tw{animation:hwCrIn .34s cubic-bezier(.3,1.3,.5,1) both}',
+    '@keyframes hwCrIn{0%{transform:scale(.86) rotate(-4deg)}60%{transform:scale(1.03) rotate(1deg)}100%{transform:none}}',
+    '.hw-cr.eyeL .hw-cr-lit.l,.hw-cr.eyeR .hw-cr-lit.r{opacity:1;animation:hwCandle 1.9s linear infinite}',
+    '@keyframes hwCandle{0%{opacity:.92}9%{opacity:.76}18%{opacity:1}31%{opacity:.84}44%{opacity:.97}57%{opacity:.72}70%{opacity:1}84%{opacity:.86}100%{opacity:.92}}',
+    // 生えてくる：体は首から下へ、ガクッ、ガクッと伸びる。頭は持ち上がりながら首をかしげる
+    '.hw-cr.grow .hw-cr-body{animation:hwCrBody .52s steps(1,end) both}',
+    '@keyframes hwCrBody{0%{opacity:1;transform:translateY(calc(var(--R) * -.25)) scaleY(.1)}',
+    '  16%{opacity:1;transform:translateY(calc(var(--R) * -.16)) scaleY(.32)}32%{opacity:1;transform:translateY(calc(var(--R) * -.18)) scaleY(.27)}',
+    '  50%{opacity:1;transform:translateY(calc(var(--R) * -.08)) scaleY(.6)}68%{opacity:1;transform:translateY(calc(var(--R) * -.02)) scaleY(.84)}',
+    '  84%{opacity:1;transform:scaleY(1.05)}100%{opacity:1;transform:none}}',
+    '.hw-cr.grow .hw-cr-head{animation:hwCrHead .52s steps(1,end) both}',
+    '@keyframes hwCrHead{0%{transform:translateY(calc(var(--R) * .45))}16%{transform:translateY(calc(var(--R) * .33)) rotate(-9deg)}',
+    '  32%{transform:translateY(calc(var(--R) * .36)) rotate(5deg)}50%{transform:translateY(calc(var(--R) * .2)) rotate(-17deg)}',
+    '  68%{transform:translateY(calc(var(--R) * .06)) rotate(23deg)}84%{transform:translateY(calc(var(--R) * -.03)) rotate(8deg)}100%{transform:rotate(14deg)}}',
+    '.hw-cr.grow .hw-cr-armin{animation:hwCrArm .44s .16s steps(1,end) both}',
+    '.hw-cr.grow .hw-cr-arm.r .hw-cr-armin{animation-delay:.25s}',
+    '@keyframes hwCrArm{0%{opacity:1;transform:rotate(-150deg) scale(.35)}22%{opacity:1;transform:rotate(-96deg) scale(.6)}',
+    '  40%{opacity:1;transform:rotate(-112deg) scale(.57)}60%{opacity:1;transform:rotate(-34deg) scale(.88)}80%{opacity:1;transform:rotate(9deg) scale(1.05)}100%{opacity:1;transform:none}}',
+    // 生え終わった姿（.full）。アニメの最後と同じ形にしてあるので、付け替えても動かない
+    '.hw-cr.full .hw-cr-body,.hw-cr.full .hw-cr-armin{opacity:1;transform:none;animation:none}',
+    '.hw-cr.full .hw-cr-head{transform:rotate(14deg);animation:none}',
+    // 飛びかかる直前の震え
+    '.hw-cr.tense .hw-cr-tw{animation:hwTremble .1s steps(1,end) infinite}',
+    '@keyframes hwTremble{0%{transform:translate(-1.2%,.6%)}33%{transform:translate(1%,-.8%)}66%{transform:translate(-.4%,-1%)}}',
+    // 戻ってからの待機：ゆっくり息をして、ときどき首だけガクッと動く
+    '.hw-cr.idle .hw-cr-body{animation:hwBreathe 3.8s ease-in-out infinite}',
+    '@keyframes hwBreathe{0%,100%{transform:none}50%{transform:scale(1.012,1.022)}}',
+    '.hw-cr.idle .hw-cr-tw{animation:hwTwitch 5.4s steps(1,end) infinite}',
+    '@keyframes hwTwitch{0%{transform:none}86%{transform:rotate(-13deg)}87.5%{transform:rotate(10deg)}89%{transform:rotate(-5deg)}91%{transform:none}}',
+    '.hw-cr.idle .hw-cr-armin{animation:hwClaw 2.9s ease-in-out infinite alternate}',
+    '@keyframes hwClaw{from{transform:rotate(-4deg)}to{transform:rotate(3deg)}}',
+    // 虹（ジャックポット）：頭を虹のかぼちゃに差し替えて、色をゆっくり回す
+    '.hw-cr-rb{transition:opacity .5s ease}',
+    '.hw-rb .hw-cr-rb{opacity:1;animation:hwHue 4s linear infinite}',
+    '@keyframes hwHue{to{filter:hue-rotate(360deg)}}',
     // 画面いっぱいに飛びかかる層（一瞬だけ。指は素通り）
     '.hw-scare{position:fixed;inset:0;z-index:10060;pointer-events:none;overflow:hidden}',
     '.hw-shake{position:absolute;inset:0}',
     '.hw-shake.go{animation:hwShake .5s linear}',
     '@keyframes hwShake{0%,100%{transform:none}10%{transform:translate(-3%,2%) rotate(-1.5deg)}20%{transform:translate(3%,-2.5%) rotate(1.3deg)}',
     '  30%{transform:translate(-2.4%,-1.5%)}40%{transform:translate(2%,2%) rotate(-.8deg)}55%{transform:translate(-1.3%,1%)}70%{transform:translate(1%,-.8%)}85%{transform:translate(-.5%,.4%)}}',
-    '.hw-big{position:absolute;transform-origin:50% 27.8%;will-change:transform}',
-    '.hw-big.lunge{animation:hwLunge .16s cubic-bezier(.55,0,1,.6) both}',
-    '.hw-big.back{animation:hwBack .48s cubic-bezier(.3,0,.25,1) both}',
+    '.hw-big{position:absolute;width:0;height:0;will-change:transform}',
+    '.hw-big.lunge{animation:hwLunge .14s cubic-bezier(.6,0,1,.55) both}',
+    '.hw-big.back{animation:hwBack .5s cubic-bezier(.3,0,.25,1) both}',
     '@keyframes hwLunge{from{transform:none}to{transform:translate(var(--dx),var(--dy)) scale(var(--S))}}',
     '@keyframes hwBack{from{transform:translate(var(--dx),var(--dy)) scale(var(--S))}to{transform:none}}',
+    // 色のずれ（赤と青緑の写しを左右にずらして重ねる）。一瞬だけ
+    '.hw-ab{position:absolute;inset:0;mix-blend-mode:screen;opacity:0}',
+    '.hw-ab.go{animation:hwAb .5s steps(1,end) both}',
+    '@keyframes hwAb{0%{opacity:.75;transform:translateX(calc(var(--ax) * 1))}20%{opacity:.6;transform:translateX(calc(var(--ax) * -.6))}',
+    '  40%{opacity:.7;transform:translate(calc(var(--ax) * .8),1%)}60%{opacity:.4;transform:translateX(calc(var(--ax) * .3))}80%{opacity:.2;transform:none}100%{opacity:0}}',
+    '.hw-scare .hw-grain{opacity:.24;animation:hwGrain .3s steps(1,end) infinite}',
     '.hw-red{position:absolute;inset:0;opacity:0;background:radial-gradient(circle,rgba(255,40,20,.2),rgba(150,0,10,.75))}',
     '.hw-red.go{animation:hwRed .55s ease-out both}',
     '@keyframes hwRed{0%{opacity:0}14%{opacity:1}100%{opacity:0}}',
@@ -460,7 +729,7 @@
     '@keyframes hwFlap{from{transform:scaleY(1)}to{transform:scaleY(.35)}}',
 
     '@media (prefers-reduced-motion: reduce){',
-    '  .hw-blink,.hw-hat,.hw-bob,.hw-breath,.hw-glowfx,.hw-aura,.hw-spk,.hw-mon.idle .hw-sway,.hw-mon.idle .hw-marm{animation:none!important}',
+    '  .hw-blink,.hw-hat,.hw-bob,.hw-breath,.hw-glowfx,.hw-aura,.hw-spk,.hw-cr *,.hw-grain{animation:none!important}',
     '}'
   ].join('\n');
 
@@ -607,41 +876,67 @@
       x.keepAwake(3200);
     },
     boo: function (x) {
-      // 低いうなり → ドクン、ドクン → ボッ（目に火）→ ギギギ（体が生える）
-      // → ギャアアア！（飛びかかる）→ ケケケッ（戻って笑う）
-      x.tone('sawtooth', 55, 52, 0, 0.35, 0.16, 0.9, { f0: 260, f1: 420, q: 1.2 });
-      x.tone('sawtooth', 58.3, 55, 0, 0.35, 0.14, 0.9, { f0: 240, f1: 400, q: 1.2 });
-      x.tone('sine', 120, 44, 0.24, 0.005, 0.4, 0.2);
-      [0.48, 0.66].forEach(function (s) {
-        x.tone('sine', 70, 38, s, 0.005, 0.75, 0.16);
-        x.tone('sine', 70, 38, s + 0.17, 0.005, 0.5, 0.14);
+      // 低いうなり（飛びかかる直前でぷつっと切れる＝一瞬の無音）→ 頭が落ちる鈍い音
+      // → ボッ、ボッ（目に火）→ かすれた吸気 → ゴキッ、メキッ（骨が鳴る）＋湿った音
+      // → ギャアアア（人の声に近い叫び＋耳ざわりな和音＋地鳴り）→ 低いうなり声
+      const L = 1.15;
+      x.tone('sawtooth', 48, 62, 0, 0.4, 0.17, L - 0.42, { f0: 180, f1: 520, q: 1.4 });
+      x.tone('sawtooth', 50.5, 65, 0, 0.4, 0.15, L - 0.42, { f0: 160, f1: 480, q: 1.4 });
+      x.tone('sine', 110, 40, 0.22, 0.004, 0.55, 0.22);
+      x.noise(0.22, 0.004, 0.3, 0.12, 'lowpass', 700, 160, 0.8);
+      [0.44, 0.56].forEach(function (t) {
+        x.noise(t, 0.02, 0.45, 0.22, 'lowpass', 300, 2400, 0.9);
+        for (let i = 0; i < 4; i++) x.noise(t + 0.05 + Math.random() * 0.25, 0.001, 0.12, 0.02, 'highpass', 2500, 0, 0.7);
       });
-      x.noise(0.42, 0.01, 0.35, 0.18, 'lowpass', 1400, 300, 0.8);
-      x.noise(0.58, 0.01, 0.35, 0.18, 'lowpass', 1400, 300, 0.8);
-      x.tone('sawtooth', 180, 90, 0.85, 0.05, 0.16, 0.26, { type: 'bandpass', f0: 900, f1: 500, q: 4 });
-      x.tone('sawtooth', 260, 120, 0.93, 0.03, 0.12, 0.2, { type: 'bandpass', f0: 1200, f1: 600, q: 4 });
-      // 叫び：耳ざわりな不協和音のスタブ＋悲鳴のような高い滑り＋ノイズ＋地鳴り
-      const S = 1.15;
+      x.noise(0.6, 0.35, 0.14, 0.32, 'bandpass', 1300, 1700, 0.9);
+      // 骨：体がガクッと伸びるたびに（0.66 秒から 0.52 秒間に6回）
+      [0, 0.083, 0.166, 0.26, 0.354, 0.437].forEach(function (d, n) {
+        const t = 0.66 + d;
+        for (let i = 0; i < 5; i++) x.noise(t + Math.random() * 0.03, 0.001, 0.35 + Math.random() * 0.3, 0.012 + Math.random() * 0.02, 'highpass', 1600 + Math.random() * 1500, 0, 0.8);
+        x.tone('sine', 140 - n * 8, 60, t, 0.002, 0.35, 0.05);
+      });
+      x.noise(0.7, 0.03, 0.3, 0.3, 'bandpass', 420, 1100, 3);
+      x.noise(0.95, 0.03, 0.25, 0.25, 'bandpass', 500, 900, 3);
+      // 叫び
+      const c = x.c, T = c.currentTime + 0.03 + L;
+      try {
+        const shaper = c.createWaveShaper();
+        const curve = new Float32Array(1024);
+        for (let i = 0; i < 1024; i++) { const v = i / 511.5 - 1; curve[i] = Math.tanh(v * 4); }
+        shaper.curve = curve;
+        const sg = c.createGain();
+        sg.gain.setValueAtTime(0.0001, T);
+        sg.gain.exponentialRampToValueAtTime(0.5, T + 0.03);
+        sg.gain.setValueAtTime(0.5, T + 0.38);
+        sg.gain.exponentialRampToValueAtTime(0.0001, T + 0.95);
+        shaper.connect(sg); sg.connect(x.bus);
+        [[760, 6], [1220, 7], [2650, 9]].forEach(function (fq) {
+          const bp = c.createBiquadFilter();
+          bp.type = 'bandpass'; bp.frequency.value = fq[0]; bp.Q.value = fq[1];
+          bp.connect(shaper);
+          [1, 1.007, 0.993].forEach(function (det) {
+            const o = c.createOscillator();
+            o.type = 'sawtooth';
+            o.frequency.setValueAtTime(300 * det, T);
+            o.frequency.exponentialRampToValueAtTime(560 * det, T + 0.18);
+            o.frequency.exponentialRampToValueAtTime(330 * det, T + 0.95);
+            const lfo = c.createOscillator(), lg = c.createGain();
+            lfo.frequency.value = 7 + Math.random() * 3; lg.gain.value = 22;
+            lfo.connect(lg); lg.connect(o.frequency);
+            o.connect(bp);
+            o.start(T); o.stop(T + 1); lfo.start(T); lfo.stop(T + 1);
+          });
+        });
+      } catch (e) { /* 叫びが作れなくても下の音は鳴らす */ }
       [92.5, 98, 138.6, 196, 277.2].forEach(function (f) {
-        x.tone('sawtooth', f * 1.02, f * 0.92, S, 0.008, 0.2, 0.75, { f0: 5200, f1: 500, q: 0.9 });
+        x.tone('sawtooth', f * 1.02, f * 0.9, L, 0.006, 0.16, 0.7, { f0: 5200, f1: 400, q: 0.9 });
       });
-      [880, 932, 1245].forEach(function (f) {
-        const o = x.tone('sawtooth', f, f * 0.62, S, 0.015, 0.09, 0.6, { type: 'bandpass', f0: 2600, f1: 1100, q: 2.5 });
-        try {
-          const lfo = x.c.createOscillator(), lg = x.c.createGain();
-          lfo.frequency.value = 26; lg.gain.value = f * 0.05;
-          lfo.connect(lg); lg.connect(o.frequency);
-          lfo.start(x.c.currentTime); lfo.stop(x.c.currentTime + S + 1);
-        } catch (e) { /* 揺らせなくても鳴らす */ }
-      });
-      x.noise(S, 0.006, 0.8, 0.5, 'bandpass', 3800, 900, 0.8);
-      x.tone('sine', 90, 28, S, 0.004, 0.95, 0.6);
-      // ケケケッ
-      [0, 0.11, 0.22, 0.36].forEach(function (s, i) {
-        const f = [620, 700, 660, 520][i];
-        x.tone('square', f, f * 0.85, 1.72 + s, 0.004, 0.07, 0.07, { f0: 2400, q: 0.8 });
-      });
-      x.keepAwake(3800);
+      x.noise(L, 0.004, 0.75, 0.5, 'bandpass', 3800, 800, 0.8);
+      x.tone('sine', 85, 26, L, 0.003, 1, 0.7);
+      // 戻ってからの低いうなり声
+      x.tone('sawtooth', 68, 58, L + 0.62, 0.12, 0.13, 0.5, { f0: 380, f1: 220, q: 2 });
+      x.noise(L + 0.62, 0.12, 0.1, 0.45, 'bandpass', 600, 380, 2);
+      x.keepAwake(4200);
     },
     rainbow: function (x) {
       [1046.5, 1318.5, 1568, 2093, 2637].forEach(function (f, i) {
@@ -668,16 +963,40 @@
     _v.a = new THREE.Vector3(); _v.b = new THREE.Vector3(); _v.r = new THREE.Vector3(); _v.ws = new THREE.Vector3();
     ready = true;
     global.addEventListener('resize', function () { if (active) place(); });
+    // 着けていれば、起動が落ち着いたころに、おどかしの絵を焼いておく
+    if (isEquipped()) setTimeout(prepareReal, 1500);
   }
 
   function equippedId() {
     return (global.Shop && typeof global.Shop.getEquippedMark === 'function') ? global.Shop.getEquippedMark() : null;
   }
-  function isEquipped() { return !!KIND_OF[equippedId()]; }
-  function kind() { return KIND_OF[equippedId()] || null; }
-  // おどかしかぼちゃは暗がりから始まるので、完成の白フラッシュ・紙吹雪・
-  // 報酬の結晶は、驚かせ終わってから出したい（index.html がこれを見る）。
-  function quiet() { return isEquipped() && kind() === 'boo' && !reduced(); }
+  function isEquipped() { return equippedId() === MARK_ID; }
+
+  /* どの演出を出すか。3つを1回ずつ入れた袋をシャッフルして順に出す（3回で必ず3つとも見られる）。
+     おどかしの絵がまだ焼けていないときは、その回だけ別のものを出して、おどかしは次へ回す。
+     checkSolved() は quiet() → play() の順に呼ぶので、選んだものは play() まで取っておく。 */
+  let bag = [], picked = null;
+  function pickKind() {
+    if (picked) return picked;
+    if (!bag.length) {
+      bag = ['pop', 'cool', 'boo'];
+      for (let i = bag.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = bag[i]; bag[i] = bag[j]; bag[j] = t; }
+    }
+    let k = bag.shift();
+    if (k === 'boo' && REAL.state !== 'ready') {
+      prepareReal();
+      bag.unshift('boo');
+      k = Math.random() < 0.5 ? 'pop' : 'cool';
+      const i = bag.indexOf(k);
+      if (i >= 0) bag.splice(i, 1);
+    }
+    picked = k;
+    return k;
+  }
+  function kind() { return isEquipped() ? pickKind() : null; }
+  // おどかしは暗がりから始まるので、完成の白フラッシュ・紙吹雪・報酬の結晶は、
+  // 驚かせ終わってから出したい（index.html がこれを見る）。
+  function quiet() { return isEquipped() && !reduced() && pickKind() === 'boo'; }
   const QUIET_MS = 2200;   // 報酬を出すまでの待ち（index.html が読む）
 
   /* キューブの中心が画面のどこにあり、どれくらいの大きさに見えているか。
@@ -965,119 +1284,249 @@
     later(st, function () { if (cur.parentNode) cur.parentNode.removeChild(cur); }, 1500);
   }
 
-  /* ------------------------------------------------ ③ おどかしかぼちゃ -- */
-  function monsterEl() {
-    // 頭の中心（viewBox の y=100）がキューブの中心に来るように置く
-    const W = 2.9, H = W * 1.2;
+  /* ------------------------------------------------ ③ おどかし（リアル） -- */
+  /* 絵を canvas に焼く。SVG を画像として読み込み、1回だけ描く。
+     重いフィルタの計算はここでしか走らないので、動かすときは軽い。 */
+  const REAL = { state: 'none', c: {}, grain: null };
+  function bake(svg, w, h) {
+    return new Promise(function (ok, ng) {
+      const img = new Image();
+      img.onload = function () {
+        try {
+          const c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          ok(c);
+        } catch (e) { ng(e); }
+      };
+      img.onerror = ng;
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    });
+  }
+  // 叫ぶ顔の、赤だけ・青緑だけの写し（色ずれ用）。小さめで十分
+  function tint(src, color) {
+    const c = document.createElement('canvas');
+    c.width = c.height = 512;
+    const g = c.getContext('2d');
+    g.drawImage(src, 0, 0, 512, 512);
+    g.globalCompositeOperation = 'multiply';
+    g.fillStyle = color; g.fillRect(0, 0, 512, 512);
+    g.globalCompositeOperation = 'destination-in';
+    g.drawImage(src, 0, 0, 512, 512);
+    return c;
+  }
+  function makeGrain() {
+    const c = document.createElement('canvas');
+    c.width = c.height = 160;
+    const g = c.getContext('2d');
+    const d = g.createImageData(160, 160);
+    for (let i = 0; i < d.data.length; i += 4) {
+      const v = Math.random() * 255;
+      d.data[i] = d.data[i + 1] = d.data[i + 2] = v;
+      d.data[i + 3] = 90 + Math.random() * 120;
+    }
+    g.putImageData(d, 0, 0);
+    try { return c.toDataURL('image/png'); } catch (e) { return null; }
+  }
+  function prepareReal() {
+    if (REAL.state !== 'none') return;
+    REAL.state = 'loading';
+    const jobs = [
+      ['headD', function () { return bake(rHead('normal', false, false, 512), 512, 512); }],
+      ['headL', function () { return bake(rHead('normal', true, false, 512), 512, 512); }],
+      ['body', function () { return bake(rBody(), 500, 640); }],
+      ['arm', function () { return bake(rArm(), 300, 500); }],
+      ['scream', function () { return bake(rHead('scream', true, false, 1024), 1024, 1024); }],
+      ['headRb', function () { return bake(rHead('normal', true, true, 512), 512, 512); }]
+    ];
+    let k = 0;
+    (function next() {
+      if (k >= jobs.length) {
+        try { REAL.c.abR = tint(REAL.c.scream, '#ff2a2a'); REAL.c.abC = tint(REAL.c.scream, '#20e8ff'); } catch (e) { /* 色ずれなしで続ける */ }
+        REAL.grain = makeGrain();
+        REAL.state = 'ready';
+        return;
+      }
+      const job = jobs[k++];
+      // 1枚ずつ、間をあけて焼く（ゲームの操作を引っかからせない）
+      job[1]().then(function (c) { REAL.c[job[0]] = c; setTimeout(next, 60); },
+                    function () { REAL.state = 'failed'; });
+    })();
+  }
+  function copyOf(name, cls) {
+    const m = REAL.c[name];
+    const c = document.createElement('canvas');
+    if (cls) c.className = cls;
+    if (!m) return c;
+    c.width = m.width; c.height = m.height;
+    c.getContext('2d').drawImage(m, 0, 0);
+    return c;
+  }
+  function grainEl() {
     const d = document.createElement('div');
-    d.className = 'hw-mon';
-    d.style.left = 'calc(var(--R) * ' + (-W / 2).toFixed(3) + ')';
-    d.style.top = 'calc(var(--R) * ' + (-H * 100 / 360).toFixed(3) + ')';
-    d.style.width = 'calc(var(--R) * ' + W + ')';
-    d.style.height = 'calc(var(--R) * ' + H.toFixed(3) + ')';
-    d.innerHTML = '<div class="hw-sway"><div class="hw-rise"><div class="hw-mv"><div class="hw-art">' +
-      '<div class="hw-face-boo" style="width:100%;height:100%">' + monsterSvg('boo') + '</div>' +
-      '<div class="hw-face-scream" style="width:100%;height:100%">' + monsterSvg('scream') + '</div>' +
-      '</div></div></div></div>';
+    d.className = 'hw-grain';
+    if (REAL.grain) d.style.backgroundImage = 'url(' + REAL.grain + ')';
     return d;
   }
 
+  /* おばけの組み立て（単位は R、原点はキューブの中心）。
+       頭：一辺 2.1。最後は中心が (0, -0.45) に来て、首を 14° かしげる
+       体：幅 3.0 × 高さ 3.84。首の付け根が y=0.3
+       腕：幅 1.5 × 高さ 2.5。肩（絵の右下）が体の肩 (±0.9, 1.62) に来る。右腕は左右反転 */
+  const CR = { HEAD: 2.1, HY: -0.45, BW: 3.0, BH: 3.84, BY: 0.3, AW: 1.5, AH: 2.5, AX: 1.46, AY: 0.52 };
+  function creature(scream) {
+    const root = document.createElement('div');
+    root.className = 'hw-cr';
+    const body = el('hw-cr-body', 0, CR.BY + CR.BH / 2, CR.BW, CR.BH);
+    body.appendChild(copyOf('body'));
+    root.appendChild(body);
+    ['l', 'r'].forEach(function (side) {
+      const a = el('hw-cr-arm ' + side, side === 'l' ? -CR.AX : CR.AX, CR.AY, CR.AW, CR.AH);
+      const inner = document.createElement('div');
+      inner.className = 'hw-cr-armin';
+      inner.appendChild(copyOf('arm'));
+      a.appendChild(inner);
+      root.appendChild(a);
+    });
+    const head = el('hw-cr-head', 0, CR.HY, CR.HEAD, CR.HEAD);
+    const tw = document.createElement('div');
+    tw.className = 'hw-cr-tw';
+    if (scream) {
+      tw.appendChild(copyOf('scream'));
+      if (REAL.c.abR) {
+        const r = copyOf('abR', 'hw-ab'); r.style.setProperty('--ax', '4%');
+        const c = copyOf('abC', 'hw-ab'); c.style.setProperty('--ax', '-4%');
+        tw.appendChild(r); tw.appendChild(c);
+      }
+    } else {
+      tw.appendChild(copyOf('headD'));
+      tw.appendChild(copyOf('headL', 'hw-cr-lit l'));
+      tw.appendChild(copyOf('headL', 'hw-cr-lit r'));
+      tw.appendChild(copyOf('headRb', 'hw-cr-rb'));
+    }
+    head.appendChild(tw);
+    root.appendChild(head);
+    return root;
+  }
+
   function playBoo(st, g) {
+    if (REAL.state !== 'ready') { st.kind = 'cool'; playCool(st, g); return; }
     const R = reduced();
     snapshotCube(st);
-    const aura = el('hw-aura', 0, 0.2, 3.4);
-    anchor.appendChild(aura);
-    const mon = monsterEl();
+    st.geo = g;
+    anchor.appendChild(el('hw-aura', 0, CR.HY, 3.2));
+    const cr = creature(false);
 
     if (R) {
       hideCube(st);
-      mon.classList.add('eyeL', 'eyeR', 'mouth', 'full');
-      anchor.appendChild(mon);
+      cr.classList.add('full', 'eyeL', 'eyeR');
+      anchor.appendChild(cr);
       return;
     }
 
     st.busy = true;
     const dark = document.createElement('div');
     dark.className = 'hw-dark';
+    const grain = grainEl();
     layer.insertBefore(dark, anchor);
+    layer.appendChild(grain);
     void dark.offsetWidth;
     dark.classList.add('on');
-    mon.classList.add('hid');
-    anchor.appendChild(mon);
+    grain.classList.add('on');
+    cr.classList.add('hid');
+    anchor.appendChild(cr);
+    st.cr = cr; st.dark = dark; st.grain = grain;
 
-    later(st, function () {           // キューブがかぼちゃの顔に変わる
+    later(st, function () {           // キューブが、本物のようなかぼちゃの頭に変わる
       hideCube(st);
-      mon.classList.remove('hid');
-      mon.classList.add('in');
-    }, 230);
-    later(st, function () { mon.classList.add('tense'); }, 420);
-    later(st, function () { mon.classList.add('eyeL'); vib(20); }, 440);
-    later(st, function () { mon.classList.add('eyeR'); vib(20); }, 600);
-    later(st, function () { mon.classList.add('mouth', 'grow'); vib([0, 15, 20, 15]); }, 840);
-    later(st, function () { lunge(st, mon); }, 1150);
+      cr.classList.remove('hid');
+      cr.classList.add('in');
+    }, 220);
+    later(st, function () { cr.classList.add('eyeL'); vib(18); }, 440);
+    later(st, function () { cr.classList.add('eyeR'); vib(18); }, 560);
+    later(st, function () {           // 首と体と腕が、コマ送りで生えてくる
+      cr.classList.remove('in');
+      cr.classList.add('grow');
+      vib([0, 12, 70, 12, 70, 12, 70, 12, 70, 20]);
+    }, 660);
+    later(st, function () { cr.classList.add('tense'); }, 1000);
+    later(st, function () { lunge(st, cr); }, 1150);
   }
 
-  // 画面いっぱいに飛びかかってくる。キューブの場所にいるおばけと同じ大きさ・同じ位置の
-  // 写しを、全画面の層に置いてから、こちらへ向かって一気に大きくする。
-  function lunge(st, mon) {
-    const r = mon.getBoundingClientRect();
+  // 画面いっぱいに飛びかかってくる。キューブの場所にいるおばけと同じ大きさ・同じ位置に、
+  // 叫ぶ顔の写しを全画面の層に置いてから、こちらへ向かって一気に大きくする。
+  function lunge(st, cr) {
+    const g = place() || st.geo;
+    const rect = container.getBoundingClientRect();
     const vw = global.innerWidth, vh = global.innerHeight;
-    if (!r.width) { finishBoo(st, mon); return; }
+    if (!g || !rect.width) { finishBoo(st); return; }
+    const cx = rect.left + g.cx, cy = rect.top + g.cy, R = g.R;
     scareEl = document.createElement('div');
     scareEl.className = 'hw-scare' + (layer.classList.contains('hw-rb') ? ' hw-rb' : '');
     scareEl.setAttribute('aria-hidden', 'true');
-    const shake = document.createElement('div');
-    shake.className = 'hw-shake';
-    const big = mon.cloneNode(true);
-    big.className = 'hw-mon hw-big eyeL eyeR mouth full scream';
-    big.style.left = r.left + 'px'; big.style.top = r.top + 'px';
-    big.style.width = r.width + 'px'; big.style.height = r.height + 'px';
-    // 頭の中心（transform-origin）を画面の真ん中やや上へ。顔の幅が画面幅の1.3倍になるまで寄る
-    const hx = r.left + r.width / 2, hy = r.top + r.height * 0.278;
-    const S = Math.max(2.2, (vw * 1.3) / (r.width * 200 / 300), (vh * 0.95) / (r.width * 200 / 300));
-    big.style.setProperty('--dx', (vw / 2 - hx).toFixed(0) + 'px');
-    big.style.setProperty('--dy', (vh * 0.44 - hy).toFixed(0) + 'px');
-    big.style.setProperty('--S', S.toFixed(2));
     const red = document.createElement('div');
     red.className = 'hw-red';
+    const shake = document.createElement('div');
+    shake.className = 'hw-shake';
+    const big = document.createElement('div');
+    big.className = 'hw-big';
+    big.style.left = cx + 'px'; big.style.top = cy + 'px';
+    big.style.setProperty('--R', R.toFixed(1) + 'px');
+    const hy = CR.HY * R;                         // 頭の中心（キューブの中心から）
+    big.style.transformOrigin = '0 ' + hy.toFixed(1) + 'px';
+    const S = Math.max(2.4, (vw * 1.3) / (CR.HEAD * R), (vh * 0.8) / (CR.HEAD * R));
+    big.style.setProperty('--dx', (vw / 2 - cx).toFixed(0) + 'px');
+    big.style.setProperty('--dy', (vh * 0.42 - (cy + hy)).toFixed(0) + 'px');
+    big.style.setProperty('--S', S.toFixed(2));
+    const scr = creature(true);
+    scr.classList.add('full');
+    big.appendChild(scr);
     shake.appendChild(big);
-    scareEl.appendChild(red);
     scareEl.appendChild(shake);
-    // コウモリが四方へ散る
-    for (let i = 0; i < 8; i++) {
+    scareEl.appendChild(red);
+    scareEl.appendChild(grainEl());
+    for (let i = 0; i < 6; i++) {             // コウモリが四方へ散る
       const b = document.createElement('div');
       b.className = 'hw-bat';
-      const w = rnd(46, 84);
-      b.style.left = (hx - w / 2) + 'px'; b.style.top = (hy - w / 4) + 'px';
+      const w = rnd(46, 80);
+      b.style.left = (cx - w / 2) + 'px'; b.style.top = (cy + hy - w / 4) + 'px';
       b.style.width = w + 'px'; b.style.height = (w / 2) + 'px';
-      const a = (i / 8) * Math.PI * 2 + rnd(-0.3, 0.3), d = Math.max(vw, vh) * rnd(0.55, 0.8);
+      const a = (i / 6) * Math.PI * 2 + rnd(-0.3, 0.3), d = Math.max(vw, vh) * rnd(0.55, 0.8);
       b.style.setProperty('--bx', (Math.cos(a) * d).toFixed(0) + 'px');
       b.style.setProperty('--by', (Math.sin(a) * d - 40).toFixed(0) + 'px');
-      b.style.setProperty('--t', rnd(0.8, 1.2).toFixed(2) + 's');
-      b.style.setProperty('--dl', rnd(0, 0.12).toFixed(2) + 's');
+      b.style.setProperty('--t', rnd(0.7, 1.1).toFixed(2) + 's');
+      b.style.setProperty('--dl', rnd(0, 0.1).toFixed(2) + 's');
       b.innerHTML = BAT;
       scareEl.appendChild(b);
     }
     document.body.appendChild(scareEl);
-    mon.classList.add('hid');
+    cr.classList.add('hid');
     void big.offsetWidth;
     big.classList.add('lunge');
     kick(red, 'go');
     kick(shake, 'go');
+    scareEl.querySelectorAll('.hw-ab').forEach(function (a) { a.classList.add('go'); });
     scareEl.querySelectorAll('.hw-bat').forEach(function (b) { b.classList.add('go'); });
-    vib([0, 220, 60, 320]);
+    vib([0, 260, 60, 360]);
 
-    later(st, function () { big.classList.remove('lunge'); big.classList.add('back'); }, 620);
-    later(st, function () { finishBoo(st, mon); }, 1100);
+    later(st, function () { big.classList.remove('lunge'); big.classList.add('back'); }, 560);
+    later(st, function () { finishBoo(st); }, 1000);
   }
 
-  function finishBoo(st, mon) {
+  function finishBoo(st) {
     if (scareEl && scareEl.parentNode) scareEl.parentNode.removeChild(scareEl);
     scareEl = null;
-    mon.classList.remove('hid', 'tense', 'grow', 'in');
-    mon.classList.add('full', 'idle', 'eyeL', 'eyeR', 'mouth');
-    const dark = layer && layer.querySelector('.hw-dark');
-    if (dark) { dark.classList.add('off'); dark.classList.remove('on'); }
+    const cr = st.cr;
+    if (cr) {
+      cr.classList.remove('hid', 'tense', 'grow', 'in');
+      cr.classList.add('full', 'idle', 'eyeL', 'eyeR');
+    }
+    if (st.dark) { st.dark.classList.add('off'); st.dark.classList.remove('on'); }
+    if (st.grain) {
+      st.grain.classList.remove('on');
+      const gr = st.grain;
+      later(st, function () { if (gr.parentNode) gr.parentNode.removeChild(gr); }, 700);
+    }
     st.busy = false;
     if (typeof st.onCelebrate === 'function') { try { st.onCelebrate(); } catch (e) { /* 紙吹雪が出なくても続ける */ } }
     if (st.rbPending) { st.rbPending = false; goRainbow(true); }
@@ -1087,8 +1536,9 @@
   function play(opts) {
     opts = opts || {};
     if (!ready) return false;
-    const k = opts.kind || kind();
-    if (!k) return false;
+    if (!opts.kind && !isEquipped()) return false;
+    const k = opts.kind || pickKind();
+    picked = null;
     stop();
     hookReward();
     ensureLayer();
@@ -1118,6 +1568,8 @@
   }
 
   function stop() {
+    // 着けたばかり・1手動かしたところ、などで呼ばれる。おどかしの絵をまだ焼いていなければ焼き始める
+    if (isEquipped()) prepareReal();
     const st = active;
     active = null;
     jackpotOn = false;
@@ -1138,6 +1590,7 @@
     isEquipped: isEquipped, kind: kind, quiet: quiet, QUIET_MS: QUIET_MS,
     isActive: function () { return !!active; },
     // 確認用（ブラウザの開発ツールから HalloweenFX._test('boo', true) などで流せる）
-    _test: function (k, rb) { const ok = play({ kind: k }); if (ok && rb) setTimeout(jackpot, 600); return ok; }
+    _test: function (k, rb) { const ok = play({ kind: k }); if (ok && rb) setTimeout(jackpot, 600); return ok; },
+    _prepare: prepareReal, _real: REAL
   };
 })(window);
