@@ -1527,7 +1527,7 @@
        かぼちゃスキンの完成演出。cube-schemes.js のあと・Shop より先に読ませること
        （品揃えに無い id は loadState() が持ち物から落とすため）。
        この1行を消せば、ハロウィンの品は全部消えて元に戻る。 -->
-  <script src="halloween.js?v=20261030b"></script>
+  <script src="halloween.js?v=20261030c"></script>
 
   <!-- キューブカラーのカードに付く ? （買う前に見え方を確かめる画面）。 -->
   <script src="scheme-peek.js?v=20260830a"></script>
@@ -1573,7 +1573,7 @@
   <script src="ranked-texts.js?v=20261014c"></script>
   <script src="ranked-fx.js?v=20261006b"></script>
   <script src="ranked-replay.js?v=20261009e"></script>
-  <script src="ranked.js?v=20261014g"></script>
+  <script src="ranked.js?v=20261030a"></script>
   <!-- お知らせ一覧をカード型に（最新はハイライト、過去は小さなカード）。
        この1行を消せば、元の文字だけの一覧に戻る。 -->
   <script src="notice-cards.js?v=20261016a"></script>
@@ -8354,6 +8354,8 @@ const PLL_DATA = {
       // おどかしかぼちゃ（halloween.js）は暗がりで驚かせる演出なので、SOLVED! の札も
       // 驚かせ終わってから出す（札が顔に重なって、目に火がともるところが見えなくなるため）。
       const hwQuiet = !!(window.HalloweenFX && HalloweenFX.isEquipped() && HalloweenFX.quiet());
+      // 世界ランキング(ranked.js)は、報酬の抽選を最大この時間だけ待つ（おどかしの回は報酬が遅れるため）
+      window.__rewardWaitMs = hwQuiet ? HalloweenFX.QUIET_MS + 900 : 2500;
       const popSolvedMsg = () => {
         msgEl.style.opacity = '1';
         msgEl.classList.remove('pop');

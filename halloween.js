@@ -719,6 +719,31 @@
     '@keyframes hwAb{0%{opacity:.75;transform:translateX(calc(var(--ax) * 1))}20%{opacity:.6;transform:translateX(calc(var(--ax) * -.6))}',
     '  40%{opacity:.7;transform:translate(calc(var(--ax) * .8),1%)}60%{opacity:.4;transform:translateX(calc(var(--ax) * .3))}80%{opacity:.2;transform:none}100%{opacity:0}}',
     '.hw-scare .hw-grain{opacity:.24;animation:hwGrain .3s steps(1,end) infinite}',
+    /* 食べる：首がのびて、画面のボタンなどにかじりつく層（指は素通り） */
+    '.hw-cr.headout .hw-cr-head{visibility:hidden}',
+    '.hw-eat{position:fixed;inset:0;z-index:10055;pointer-events:none;overflow:hidden}',
+    '.hw-neck{position:absolute;left:0;top:0;height:100px;transform-origin:50% 0;will-change:transform;border-radius:40%/6%;',
+    '  background:linear-gradient(90deg,#0c0a08,#4d493c 22%,#8c8775 46%,#a29d88 52%,#5a5647 76%,#0c0a08)}',
+    '.hw-neck::after{content:"";position:absolute;inset:0 30%;background:repeating-linear-gradient(180deg,rgba(0,0,0,0) 0 7px,rgba(0,0,0,.18) 7px 9px)}',
+    '.hw-bulge{position:absolute;left:-30%;right:-30%;height:9%;border-radius:50%;opacity:0;',
+    '  background:radial-gradient(ellipse,#8c8775 0,#5a5647 55%,rgba(0,0,0,0) 72%)}',
+    '.hw-eat-head{position:absolute;left:0;top:0;will-change:transform}',
+    '.hw-eat-in{position:relative;width:100%;height:100%;transform-origin:50% 70%}',
+    '.hw-eat-in canvas{position:absolute;inset:0;width:100%;height:100%}',
+    '.hw-eat-head .closed{opacity:0}',
+    '.hw-eat-head.bit .closed{opacity:1}.hw-eat-head.bit .open{opacity:0}',
+    '.hw-eat-head.chew .hw-eat-in{animation:hwChew .17s ease-in-out 3}',
+    '@keyframes hwChew{0%,100%{transform:none}50%{transform:scale(1.07,.88)}}',
+    '.hw-eat-head .hw-cr-lit{opacity:1;animation:hwCandle 1.9s linear infinite}',
+    /* しゅ〜ん：食べられたものが戻ってくるときの光 */
+    '.hw-back{position:fixed;left:0;top:0;width:0;height:0;z-index:10050;pointer-events:none}',
+    '.hw-back-ring{position:absolute;border-radius:50%;border:3px solid #ffd27a;opacity:0;',
+    '  box-shadow:0 0 16px rgba(255,160,50,.8),inset 0 0 12px rgba(255,160,50,.6);animation:hwBackRing .75s cubic-bezier(.2,.8,.3,1) both}',
+    '@keyframes hwBackRing{0%{opacity:0;transform:scale(1.8)}30%{opacity:1}100%{opacity:0;transform:scale(.6)}}',
+    '.hw-back-spk{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;background:#fff3c0;clip-path:' + STAR + ';opacity:0;',
+    '  animation:hwBackSpk .62s cubic-bezier(.4,0,.2,1) var(--d,0s) both}',
+    '@keyframes hwBackSpk{0%{opacity:0;transform:translate(var(--sx),var(--sy)) scale(.4) rotate(0)}25%{opacity:1}',
+    '  100%{opacity:0;transform:translate(0,0) scale(1.3) rotate(180deg)}}',
     '.hw-red{position:absolute;inset:0;opacity:0;background:radial-gradient(circle,rgba(255,40,20,.2),rgba(150,0,10,.75))}',
     '.hw-red.go{animation:hwRed .55s ease-out both}',
     '@keyframes hwRed{0%{opacity:0}14%{opacity:1}100%{opacity:0}}',
@@ -875,11 +900,11 @@
       [2349.3, 3136, 4186].forEach(function (f, i) { x.tone('sine', f, f * 1.02, 1.18 + i * 0.03, 0.003, 0.16, 0.5); });
       x.keepAwake(3200);
     },
-    boo: function (x) {
+    boo: function (x, eat) {
       // 低いうなり（飛びかかる直前でぷつっと切れる＝一瞬の無音）→ 頭が落ちる鈍い音
       // → ボッ、ボッ（目に火）→ かすれた吸気 → ゴキッ、メキッ（骨が鳴る）＋湿った音
       // → ギャアアア（人の声に近い叫び＋耳ざわりな和音＋地鳴り）→ 低いうなり声
-      const L = 1.15;
+      const L = BOO_T.LUNGE / 1000;
       x.tone('sawtooth', 48, 62, 0, 0.4, 0.17, L - 0.42, { f0: 180, f1: 520, q: 1.4 });
       x.tone('sawtooth', 50.5, 65, 0, 0.4, 0.15, L - 0.42, { f0: 160, f1: 480, q: 1.4 });
       x.tone('sine', 110, 40, 0.22, 0.004, 0.55, 0.22);
@@ -897,6 +922,23 @@
       });
       x.noise(0.7, 0.03, 0.3, 0.3, 'bandpass', 420, 1100, 3);
       x.noise(0.95, 0.03, 0.25, 0.25, 'bandpass', 500, 900, 3);
+      // 食べる：首がのびる音 → ガブッ → ボリッ、ボリッ、ボリッ → ゴクン → 首が戻る音
+      if (eat) {
+        const E = BOO_T.EAT / 1000;
+        x.noise(E, 0.08, 0.35, 0.22, 'bandpass', 400, 2200, 1.2);
+        x.tone('sawtooth', 160, 90, E, 0.05, 0.08, 0.25, { type: 'bandpass', f0: 700, f1: 400, q: 4 });
+        const B = E + 0.3;
+        x.noise(B, 0.002, 0.95, 0.09, 'bandpass', 1500, 600, 0.8);
+        x.tone('sine', 170, 55, B, 0.002, 0.7, 0.14);
+        for (let i = 0; i < 6; i++) x.noise(B + Math.random() * 0.05, 0.001, 0.4, 0.015, 'highpass', 2600, 0, 0.7);
+        [0.17, 0.34, 0.51].forEach(function (d) {
+          for (let i = 0; i < 5; i++) x.noise(B + d + Math.random() * 0.06, 0.001, 0.3 + Math.random() * 0.25, 0.02, 'highpass', 1800 + Math.random() * 1600, 0, 0.8);
+          x.noise(B + d, 0.004, 0.3, 0.07, 'bandpass', 900, 500, 1.4);
+        });
+        x.tone('sine', 280, 80, B + 0.62, 0.01, 0.4, 0.2);
+        x.noise(B + 0.62, 0.01, 0.2, 0.18, 'lowpass', 600, 150, 1);
+        x.noise(B + 0.55, 0.06, 0.25, 0.28, 'bandpass', 2000, 450, 1.2);
+      }
       // 叫び
       const c = x.c, T = c.currentTime + 0.03 + L;
       try {
@@ -936,7 +978,14 @@
       // 戻ってからの低いうなり声
       x.tone('sawtooth', 68, 58, L + 0.62, 0.12, 0.13, 0.5, { f0: 380, f1: 220, q: 2 });
       x.noise(L + 0.62, 0.12, 0.1, 0.45, 'bandpass', 600, 380, 2);
-      x.keepAwake(4200);
+      x.keepAwake(5600);
+    },
+    // しゅ〜ん：食べられたものが、光を集めながら戻ってくる
+    restore: function (x) {
+      x.noise(0, 0.32, 0.22, 0.32, 'bandpass', 500, 3400, 2);
+      x.tone('sine', 320, 1250, 0, 0.3, 0.12, 0.3);
+      [1568, 2093, 2637].forEach(function (f, i) { x.tone('sine', f, f, 0.5 + i * 0.05, 0.004, 0.1, 0.4); });
+      x.keepAwake(1600);
     },
     rainbow: function (x) {
       [1046.5, 1318.5, 1568, 2093, 2637].forEach(function (f, i) {
@@ -997,7 +1046,7 @@
   // おどかしは暗がりから始まるので、完成の白フラッシュ・紙吹雪・報酬の結晶は、
   // 驚かせ終わってから出したい（index.html がこれを見る）。
   function quiet() { return isEquipped() && !reduced() && pickKind() === 'boo'; }
-  const QUIET_MS = 2200;   // 報酬を出すまでの待ち（index.html が読む）
+  const QUIET_MS = 3800;   // 報酬を出すまでの待ち（index.html が読む。おどかしが戻り終わるころ）
 
   /* キューブの中心が画面のどこにあり、どれくらいの大きさに見えているか。
      R は「キューブの中心から、面の端まで（1.5マス）」が画面で何pxか。 */
@@ -1409,6 +1458,188 @@
     return root;
   }
 
+  /* おどかしの時間割（ms）。EAT で首がのびて画面の何かを食べに行き、LUNGE で飛びかかる */
+  const BOO_T = { EAT: 1400, TENSE: 2600, LUNGE: 2750 };
+
+  /* ---- 画面の何かを食べる ----
+     ねらうのは、いま画面に見えていて指で触れるもの全部（ボタン・タイマー・ベストタイム・
+     シャードの残高・シャッフルのつまみ・回転記号のボタン など）。キューブの場所と、
+     開いていない画面の中身は除く。前回と同じものは続けて選ばない。
+     食べ方は Web Animations で要素そのものを縮めて消すだけ（クラスもスタイルも書き換えない）。
+     戻すときはそのアニメを取り消す＝元どおり。 */
+  const EAT_SEL = 'button, [role="button"], a[href], #timer, #best-time, .wallet-pill, #shuffle-slider, .slot-btn';
+  let lastEaten = null, eaten = null, eatEl = null;
+  function eatCandidates() {
+    const vw = global.innerWidth, vh = global.innerHeight;
+    const list = Array.prototype.filter.call(document.querySelectorAll(EAT_SEL), function (e) {
+      if (!e.getBoundingClientRect || (container && container.contains(e))) return false;
+      const r = e.getBoundingClientRect();
+      if (r.width < 18 || r.height < 14 || r.bottom < 4 || r.right < 4 || r.top > vh - 4 || r.left > vw - 4) return false;
+      if (r.width > vw * 0.95 && r.height > vh * 0.4) return false;
+      const x = Math.min(vw - 1, Math.max(0, r.left + r.width / 2));
+      const y = Math.min(vh - 1, Math.max(0, r.top + r.height / 2));
+      const hit = document.elementFromPoint(x, y);
+      return !!hit && (hit === e || e.contains(hit));
+    });
+    // 入れ子になっているときは外側だけ残す（ボタンの中の文字だけ食べる、を避ける）
+    return list.filter(function (e) { return !list.some(function (o) { return o !== e && o.contains(e); }); });
+  }
+  function pickTarget() {
+    const c = eatCandidates();
+    if (!c.length) return null;
+    let pool = c.filter(function (e) { return e !== lastEaten; });
+    if (!pool.length) pool = c;
+    const t = pool[Math.floor(Math.random() * pool.length)];
+    lastEaten = t;
+    return t;
+  }
+  function swallow(el, mx, my) {
+    if (!el || typeof el.animate !== 'function') return;
+    const r = el.getBoundingClientRect();
+    const dx = (mx - (r.left + r.width / 2)) * 0.3, dy = (my - (r.top + r.height / 2)) * 0.3;
+    try {
+      const a = el.animate([
+        { transform: 'none', opacity: 1, filter: 'none' },
+        { transform: 'translate(' + dx.toFixed(0) + 'px,' + dy.toFixed(0) + 'px) scale(.06) rotate(20deg)', opacity: 0, filter: 'brightness(.35)' }
+      ], { duration: 190, easing: 'cubic-bezier(.6,0,1,.6)', fill: 'forwards' });
+      eaten = { el: el, anim: a };
+    } catch (e) { eaten = null; }
+  }
+  // しゅ〜ん：光の粒が集まって、食べられたものが小さな点から元の大きさへ戻る
+  function restoreEaten(withFx) {
+    if (!eaten) return;
+    const e = eaten;
+    eaten = null;
+    try { e.anim.cancel(); } catch (err) { /* もう消えていれば何もしない */ }
+    if (!withFx || reduced() || !document.body.contains(e.el)) return;
+    try {
+      e.el.animate([
+        { transform: 'scale(.04) rotate(-35deg)', opacity: 0, filter: 'blur(6px) brightness(2.4)' },
+        { transform: 'scale(1.12) rotate(5deg)', opacity: 1, filter: 'blur(0) brightness(1.5)', offset: 0.62 },
+        { transform: 'scale(.97) rotate(-1deg)', opacity: 1, filter: 'brightness(1.12)', offset: 0.82 },
+        { transform: 'none', opacity: 1, filter: 'none' }
+      ], { duration: 780, easing: 'cubic-bezier(.2,.8,.3,1)' });
+    } catch (err) { /* 戻すだけで済ませる */ }
+    const r = e.el.getBoundingClientRect();
+    const fx = document.createElement('div');
+    fx.className = 'hw-back';
+    fx.setAttribute('aria-hidden', 'true');
+    fx.style.transform = 'translate(' + (r.left + r.width / 2).toFixed(0) + 'px,' + (r.top + r.height / 2).toFixed(0) + 'px)';
+    const D = Math.max(r.width, r.height) * 1.25 + 20;
+    const ring = document.createElement('div');
+    ring.className = 'hw-back-ring';
+    ring.style.cssText = 'width:' + D + 'px;height:' + D + 'px;left:' + (-D / 2) + 'px;top:' + (-D / 2) + 'px';
+    fx.appendChild(ring);
+    for (let i = 0; i < 10; i++) {
+      const sp = document.createElement('div');
+      sp.className = 'hw-back-spk';
+      const a = i / 10 * Math.PI * 2, d = D * rnd(0.6, 0.95);
+      sp.style.setProperty('--sx', (Math.cos(a) * d).toFixed(0) + 'px');
+      sp.style.setProperty('--sy', (Math.sin(a) * d).toFixed(0) + 'px');
+      sp.style.setProperty('--d', (i * 0.025).toFixed(3) + 's');
+      fx.appendChild(sp);
+    }
+    document.body.appendChild(fx);
+    setTimeout(function () { if (fx.parentNode) fx.parentNode.removeChild(fx); }, 1000);
+    const x = makeSfx();
+    if (x) SND.restore(x);
+  }
+  function removeEatLayer() {
+    if (eatEl && eatEl.parentNode) eatEl.parentNode.removeChild(eatEl);
+    eatEl = null;
+  }
+
+  // 首がのびて、頭がねらったものへかじりつき、噛んで飲みこんで戻ってくる（約1.1秒）
+  function eatPhase(st, cr, target) {
+    const g = place() || st.geo;
+    const rect = container.getBoundingClientRect();
+    if (!g || !rect.width || !document.body.contains(target)) return;
+    const vw = global.innerWidth;
+    const cx = rect.left + g.cx, cy = rect.top + g.cy, R = g.R;
+    const H0 = CR.HEAD * R;
+    const home = { x: cx, y: cy + CR.HY * R, s: H0, r: 14 };
+    const base = { x: cx, y: cy + (CR.BY + 0.08) * R };
+    const tr = target.getBoundingClientRect();
+    const tx = tr.left + tr.width / 2, ty = tr.top + tr.height / 2;
+    // 口の幅は頭の約6割。ねらったものを口でおおえる大きさまで頭を変える
+    const hs = Math.max(1.25 * R, Math.min(2.8 * R, Math.max(tr.width / 0.55, tr.height / 0.4)));
+    const dest = { x: tx, y: ty - 0.22 * hs, s: hs, r: Math.max(-28, Math.min(28, (tx - cx) / vw * 50)) };
+
+    removeEatLayer();
+    eatEl = document.createElement('div');
+    eatEl.className = 'hw-eat' + (layer.classList.contains('hw-rb') ? ' hw-rb' : '');
+    eatEl.setAttribute('aria-hidden', 'true');
+    const neck = document.createElement('div');
+    neck.className = 'hw-neck';
+    const NW = 0.3 * R;
+    neck.style.width = NW.toFixed(1) + 'px';
+    neck.style.marginLeft = (-NW / 2).toFixed(1) + 'px';
+    const bulge = document.createElement('div');
+    bulge.className = 'hw-bulge';
+    neck.appendChild(bulge);
+    const head = document.createElement('div');
+    head.className = 'hw-eat-head';
+    const inner = document.createElement('div');
+    inner.className = 'hw-eat-in';
+    inner.appendChild(copyOf('scream', 'open'));
+    inner.appendChild(copyOf('headD', 'closed'));
+    inner.appendChild(copyOf('headL', 'closed hw-cr-lit'));
+    head.appendChild(inner);
+    eatEl.appendChild(neck);
+    eatEl.appendChild(head);
+    document.body.appendChild(eatEl);
+    cr.classList.add('headout');
+
+    const ease = function (t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+    const lerp = function (a, b, t) { return a + (b - a) * t; };
+    function draw(p) {
+      const x = lerp(home.x, dest.x, p), y = lerp(home.y, dest.y, p), sz = lerp(home.s, dest.s, p), rot = lerp(home.r, dest.r, p);
+      head.style.width = head.style.height = sz.toFixed(1) + 'px';
+      head.style.transform = 'translate(' + (x - sz / 2).toFixed(1) + 'px,' + (y - sz / 2).toFixed(1) + 'px) rotate(' + rot.toFixed(1) + 'deg)';
+      // 首は付け根から、頭の「付け根に向いた側」のふちまで（頭が下へ行っても頭を突き抜けない）
+      const vx = base.x - x, vy = base.y - y, vl = Math.max(1, Math.hypot(vx, vy));
+      const jx = x + vx / vl * sz * 0.34, jy = y + vy / vl * sz * 0.34;
+      const dx = jx - base.x, dy = jy - base.y;
+      const len = Math.max(1, Math.hypot(dx, dy));
+      const ang = Math.atan2(dy, dx) * 180 / Math.PI - 90;
+      neck.style.transform = 'translate(' + base.x.toFixed(1) + 'px,' + base.y.toFixed(1) + 'px) rotate(' + ang.toFixed(1) + 'deg) scaleY(' + (len / 100).toFixed(3) + ')';
+    }
+    const OUT = 300, HOLD = 520, BACK = 320;
+    const t0 = performance.now();
+    let bitten = false, gulped = false;
+    function step(now) {
+      if (active !== st || !eatEl) return;
+      const t = now - t0;
+      if (t < OUT) {
+        draw(ease(t / OUT));
+      } else if (t < OUT + HOLD) {
+        draw(1);
+        if (!bitten) {
+          bitten = true;
+          head.classList.add('bit', 'chew');
+          swallow(target, dest.x, dest.y + dest.s * 0.24);
+          vib([0, 45, 40, 30, 40, 30]);
+        }
+      } else if (t < OUT + HOLD + BACK) {
+        const p = (t - OUT - HOLD) / BACK;
+        draw(1 - ease(p));
+        if (!gulped) {
+          gulped = true;
+          // ごくん：首のふくらみが、頭から体へ下りていく
+          bulge.animate([{ top: '0%', opacity: 1 }, { top: '92%', opacity: 1 }, { top: '96%', opacity: 0 }], { duration: BACK + 80, easing: 'ease-in' });
+        }
+      } else {
+        removeEatLayer();
+        cr.classList.remove('headout');
+        st.raf = null;
+        return;
+      }
+      st.raf = requestAnimationFrame(step);
+    }
+    draw(0);
+    st.raf = requestAnimationFrame(step);
+  }
+
   function playBoo(st, g) {
     if (REAL.state !== 'ready') { st.kind = 'cool'; playCool(st, g); return; }
     const R = reduced();
@@ -1449,8 +1680,9 @@
       cr.classList.add('grow');
       vib([0, 12, 70, 12, 70, 12, 70, 12, 70, 20]);
     }, 660);
-    later(st, function () { cr.classList.add('tense'); }, 1000);
-    later(st, function () { lunge(st, cr); }, 1150);
+    if (st.target) later(st, function () { cr.classList.remove('grow'); cr.classList.add('full'); eatPhase(st, cr, st.target); }, BOO_T.EAT);
+    later(st, function () { cr.classList.add('tense'); }, BOO_T.TENSE);
+    later(st, function () { lunge(st, cr); }, BOO_T.LUNGE);
   }
 
   // 画面いっぱいに飛びかかってくる。キューブの場所にいるおばけと同じ大きさ・同じ位置に、
@@ -1528,6 +1760,7 @@
       later(st, function () { if (gr.parentNode) gr.parentNode.removeChild(gr); }, 700);
     }
     st.busy = false;
+    later(st, function () { restoreEaten(true); }, 120);
     if (typeof st.onCelebrate === 'function') { try { st.onCelebrate(); } catch (e) { /* 紙吹雪が出なくても続ける */ } }
     if (st.rbPending) { st.rbPending = false; goRainbow(true); }
   }
@@ -1549,9 +1782,10 @@
     if (!g) { active = null; return false; }
     // 画面の向きを変えたときなどに置き直す（位置が変わったときだけ書き換える）
     st.timers.push(setInterval(function () { if (active === st) place(); }, 400));
+    if (k === 'boo' && !reduced() && REAL.state === 'ready') st.target = pickTarget();
     if (!reduced()) {
       st.sfx = makeSfx();
-      if (st.sfx && SND[k]) { try { SND[k](st.sfx); } catch (e) { /* 音なしで続ける */ } }
+      if (st.sfx && SND[k]) { try { SND[k](st.sfx, !!st.target); } catch (e) { /* 音なしで続ける */ } }
     }
     try {
       if (k === 'pop') playPop(st, g);
@@ -1581,6 +1815,8 @@
     }
     if (scareEl && scareEl.parentNode) scareEl.parentNode.removeChild(scareEl);
     scareEl = null;
+    removeEatLayer();
+    restoreEaten(true);
     if (layer) { layer.innerHTML = ''; layer.classList.remove('hw-rb'); }
     anchor = null;
   }
@@ -1591,6 +1827,7 @@
     isActive: function () { return !!active; },
     // 確認用（ブラウザの開発ツールから HalloweenFX._test('boo', true) などで流せる）
     _test: function (k, rb) { const ok = play({ kind: k }); if (ok && rb) setTimeout(jackpot, 600); return ok; },
-    _prepare: prepareReal, _real: REAL
+    _prepare: prepareReal, _real: REAL,
+    _force: function (k) { picked = k; }
   };
 })(window);

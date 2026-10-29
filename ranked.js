@@ -673,6 +673,7 @@
   // 確定演出: 1位 → tier 1、2〜3位 → tier 2、それ以外の自己ベスト → tier 3。終わったら自分の行を燃やしてランキングを開く
   // 大当たり（1%の虹色シャード）が当たった回は、その演出が終わるまで待つ。
   // 報酬の抽選は完成の約0.6秒後なので、それまでは結果が出るのを待つ（出なければ待たない）
+  // ハロウィンのおどかしが出た回は抽選が約3.8秒後になるので、index.html が __rewardWaitMs で待ち時間を伸ばす
   let solvedAt = 0;
   function afterJackpot(cb) {
     const t0 = solvedAt || Date.now();
@@ -680,7 +681,7 @@
       const r = global.__clearReward, now = Date.now();
       if (r && r.at >= t0 - 50) {
         if (r.done) { setTimeout(cb, r.jackpot ? 450 : 0); return; }
-      } else if (now - t0 > 2500 || typeof global.handleClearReward !== 'function') { cb(); return; }
+      } else if (now - t0 > (global.__rewardWaitMs || 2500) || typeof global.handleClearReward !== 'function') { cb(); return; }
       if (now - t0 > 90000) { cb(); return; }      // 念のため（演出が止まってしまったとき）
       setTimeout(tick, 150);
     };
