@@ -13,7 +13,8 @@
        globe（地球儀トロフィー・シアン） bolt（稲妻・パープル）
        cube（ワイヤーキューブ・ブルー）  camera（カメラ・ピンク）
        pause（一時停止ストップウォッチ・アンバー） plane（飛行機・グリーン）
-       undo（戻る矢印・オレンジ）  trophy（トロフィー・金）  spark（きらめき・シアン。未指定や不明な名前のとき）
+       undo（戻る矢印・オレンジ）  trophy（トロフィー・金）  pumpkin（ジャック・オ・ランタン・オレンジ）
+       spark（きらめき・シアン。未指定や不明な名前のとき）
 
    index.html の openNotice() が window.NoticeCards があるときだけ
    ここを使う。この1ファイルの読み込みをやめれば、元の一覧に戻る。
@@ -73,7 +74,10 @@
     '.nc-ico svg .dot{fill:currentColor;stroke:none}',
     '.nc-date{font-size:11px;font-weight:800;letter-spacing:.08em;color:#00f3ff;',
     '  font-variant-numeric:tabular-nums;text-shadow:0 0 8px rgba(0,243,255,.45)}',
-    '.nc-h{margin:0;font-weight:800;color:#f2f5ff;line-height:1.4;word-break:break-word}',
+    // 見出しが2行になるときは、行の長さをそろえて折り返す（「登/場！」のように1〜2文字だけ残らないように）
+    '.nc-h{margin:0;font-weight:800;color:#f2f5ff;line-height:1.4;word-break:break-word;text-wrap:balance}',
+    // 日本語の見出しは、助詞のあと（下の jpPhrase が入れた区切り）でだけ折り返す。「シ/ョップ」のような単語の途中で切らない
+    '.nc-h.nc-jp{word-break:keep-all;overflow-wrap:anywhere}',
     '.nc-body{margin:0;color:#b9c0d4;white-space:pre-line;word-break:break-word}',
     // 詳細ボタン（近未来風のカプセル）
     '#notice-list .nc-card .notice-detail-btn{display:inline-flex;align-items:center;gap:6px;margin-top:10px;',
@@ -194,6 +198,13 @@
       '<path d="M7 5H4.2v1.2A3.4 3.4 0 0 0 7.4 9.6M17 5h2.8v1.2a3.4 3.4 0 0 1-3.2 3.4"/>' +
       '<path d="M12 13.7v3.1M8.6 20.5h6.8l-.7-3.7H9.3z"/>' +
       '<path class="thin" d="M9.4 9.4l1.8-1.8 1.4 1.2 2.2-2.4"/>' },
+    // ジャック・オ・ランタン（ハロウィン）
+    pumpkin: { ac: '255,140,40', al: '#ff9a3c', svg:
+      '<path class="fl2" d="M12 7.6c-4.7 0-8.4 3-8.4 6.8s3.7 6.8 8.4 6.8 8.4-3 8.4-6.8-3.7-6.8-8.4-6.8z"/>' +
+      '<path class="thin" d="M8.7 8.2c-2 1.5-2.9 3.7-2.9 6.2s.9 4.7 2.9 6.2M15.3 8.2c2 1.5 2.9 3.7 2.9 6.2s-.9 4.7-2.9 6.2"/>' +
+      '<path d="M12 7.6c-.1-2 .5-3.5 2.1-4.6"/>' +
+      '<path class="fl" d="M8 12.4l2.6-.9-.6 2.4zM16 12.4l-2.6-.9.6 2.4z"/>' +
+      '<path d="M8.4 16.2l1.3.9 1.1-.8 1.2.9 1.2-.9 1.1.8 1.3-.9"/>' },
     // きらめき（アイコン未指定のとき）
     spark: { ac: '0,243,255', al: '#00f3ff', svg:
       '<path class="fl" d="M12 2.8l2 6.4 6.4 2-6.4 2-2 6.4-2-6.4-6.4-2 6.4-2z"/>' +
@@ -266,6 +277,17 @@
     return { head: stripEmoji(head).trim(), body: stripEmoji(body).trim(), emoji: emoji };
   }
 
+  // 日本語の見出しに、文節の区切り（ゼロ幅スペース）を入れる。助詞・読点・！？のあとだけ。
+  // ひらがなを含まない見出し（英語・中国語など）はそのまま返す。
+  function jpPhrase(s) {
+    if (!/[\u3040-\u309f]/.test(s)) return { text: s, jp: false };
+    return { text: s.replace(/([がにをはでともへ、！？])(?=[^！？。、」』）)\s])/g, '$1\u200B'), jp: true };
+  }
+  function headHtml(text) {
+    const h = jpPhrase(text);
+    return '<h3 class="nc-h' + (h.jp ? ' nc-jp' : '') + '">' + esc(h.text) + '</h3>';
+  }
+
   function detailBtn(item, label) {
     if (!item.guide) return '';
     return '<button type="button" class="notice-detail-btn" data-guide="' + esc(item.guide) + '">' +
@@ -292,7 +314,7 @@
           '<article class="nc-card nc-hero"' + accent + '>' +
             '<div class="nc-top"><span class="nc-new">[ NEW ]</span><span class="nc-date">' + date + '</span></div>' +
             '<div class="nc-head">' + iconHtml(ic) +
-              '<h3 class="nc-h">' + esc(p.head) + '</h3></div>' +
+              headHtml(p.head) + '</div>' +
             (p.body ? '<p class="nc-body">' + esc(p.body) + '</p>' : '') +
             detailBtn(item, detailLabel) +
           '</article>';
@@ -302,7 +324,7 @@
             iconHtml(ic) +
             '<div class="nc-main">' +
               '<div class="nc-date">' + date + '</div>' +
-              '<h3 class="nc-h">' + esc(p.head) + '</h3>' +
+              headHtml(p.head) +
               '<p class="nc-body">' + esc(p.body) + '</p>' +
               detailBtn(item, detailLabel) +
             '</div>' +

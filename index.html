@@ -1576,7 +1576,7 @@
   <script src="ranked.js?v=20261030a"></script>
   <!-- お知らせ一覧をカード型に（最新はハイライト、過去は小さなカード）。
        この1行を消せば、元の文字だけの一覧に戻る。 -->
-  <script src="notice-cards.js?v=20261016a"></script>
+  <script src="notice-cards.js?v=20261030c"></script>
   <!-- 自己ベスト画面をダッシュボードに（タブ ALL PB / SIZE / MOVES・ランクの輪・PBの推移）。
        この1行を消せば、元の自己ベスト画面に戻る。 -->
   <script src="records-dash.js?v=20261017a"></script>
@@ -12256,7 +12256,7 @@ const Shop = (function () {
     { id: 'ember',    hex: '#ff5f6d', cost: 8200,  cur: 'cyan'    },
     { id: 'prism',    hex: '#7cf0ff', cost: 100000000, cur: 'rainbow', cycle: true }
   ];
-  // 期間限定などの追加色（halloween.js）を後ろへ合流させる。
+  // 期間限定などの追加色（halloween.js）を後ろへ合流させる（プリズムは render() がいつも最後尾へ回す）。
   //   blend: [色A, 色B] … 2色のあいだをゆっくり行き来する枠（hex は先出し用の中間色）
   if (Array.isArray(window.SHOP_THEMES_EXTRA)) THEMES.push.apply(THEMES, window.SHOP_THEMES_EXTRA);
 
@@ -12789,7 +12789,11 @@ const Shop = (function () {
     if (cyanEl)    cyanEl.textContent    = fmt(balance('cyan'));
     if (rainbowEl) rainbowEl.textContent = fmt(balance('rainbow'));
     gridEl.innerHTML = '';
-    THEMES.forEach((theme) => gridEl.appendChild(buildCard(theme)));
+    // プリズム（cycle の枠）は、いつもいちばん下。期間限定などの色を THEMES の
+    // 後ろへ足しても、プリズムが最後尾のままになるよう、描くこの場で並べ替える
+    // （スキンの「オリジナル」と同じやり方）。
+    THEMES.filter((th) => !th.cycle).concat(THEMES.filter((th) => th.cycle))
+      .forEach((theme) => gridEl.appendChild(buildCard(theme)));
     if (markGridEl) {
       markGridEl.innerHTML = '';
       // オリジナル（自分の写真の枠）は、いつでもいちばん下。品揃えを

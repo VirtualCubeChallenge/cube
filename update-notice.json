@@ -1,6 +1,19 @@
 {
-  "_note": "items は新しい順。新機能を足したら先頭に1件追加する。言語キーは ja/en/zh-CN/zh-TW/ko/es/id/ru/pt-BR の9つで、LANGS の code とそのまま一致する。無い言語は ja に落ちる（= ja だけは必ず書く）。guide は任意で、付けた項目にだけ「詳細→」ボタンが出る。 icon は任意で、お知らせ一覧のカードに出すネオン線画アイコンの名前（globe / bolt / cube / camera / pause / plane / undo / trophy / spark。無い・不明なら spark）。中身は notice-cards.js の ICONS。",
+  "_note": "items は新しい順。新機能を足したら先頭に1件追加する。言語キーは ja/en/zh-CN/zh-TW/ko/es/id/ru/pt-BR の9つで、LANGS の code とそのまま一致する。無い言語は ja に落ちる（= ja だけは必ず書く）。guide は任意で、付けた項目にだけ「詳細→」ボタンが出る。 icon は任意で、お知らせ一覧のカードに出すネオン線画アイコンの名前（globe / bolt / cube / camera / pause / plane / undo / trophy / pumpkin / spark。無い・不明なら spark）。中身は notice-cards.js の ICONS。",
   "items": [
+    {
+      "date": "2026-10-31",
+      "icon": "pumpkin",
+      "ja": "【アプデ情報】ハロウィンがショップに登場！🎃\nメインカラー・キューブカラー・キューブスキンに「ハロウィン」が追加されました。\nスキンはそろえた瞬間に何かが起こる…？ 何が出るかは、そろえてからのお楽しみ！",
+      "en": "[Update] Halloween arrives in the shop! 🎃\nA Halloween main color, cube color and cube skin have been added.\nSomething happens the moment you solve with the skin… What will it be? Solve and find out!",
+      "zh-CN": "【更新情报】万圣节登陆商店！🎃\n主题色、方块颜色和方块皮肤新增了「万圣节」。\n装上皮肤后，还原的瞬间会发生什么呢…？ 还原后就知道啦！",
+      "zh-TW": "【更新情報】萬聖節登陸商店！🎃\n主題色、方塊顏色和方塊外觀新增了「萬聖節」。\n裝上外觀後，還原的瞬間會發生什麼呢…？ 還原後就知道囉！",
+      "ko": "【업데이트】할로윈이 상점에 등장! 🎃\n메인 컬러, 큐브 컬러, 큐브 스킨에 ‘할로윈’이 추가되었어요.\n스킨을 끼고 맞추는 순간 무슨 일이…? 무엇이 나올지는 맞춰 보고 확인하세요!",
+      "es": "[Novedades] ¡Halloween llega a la tienda! 🎃\nSe añadieron el color principal, el color de cubo y la skin de Halloween.\nCon la skin, algo pasa justo al resolver… ¿Qué será? ¡Resuélvelo y descúbrelo!",
+      "id": "[Pembaruan] Halloween hadir di toko! 🎃\nWarna utama, warna kubus, dan skin kubus Halloween telah ditambahkan.\nDengan skin itu, sesuatu terjadi saat kubus selesai… Apa itu? Selesaikan dan lihat sendiri!",
+      "ru": "[Обновление] Хэллоуин уже в магазине! 🎃\nДобавлены основной цвет, расцветка кубика и скин «Хэллоуин».\nСо скином в момент сборки что-то происходит… Что именно? Соберите и узнаете!",
+      "pt-BR": "[Novidades] O Halloween chegou à loja! 🎃\nForam adicionados a cor principal, a cor do cubo e a skin de Halloween.\nCom a skin, algo acontece na hora em que você resolve… O que será? Resolva e descubra!"
+    },
     {
       "date": "2026-10-16",
       "icon": "trophy",
