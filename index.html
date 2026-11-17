@@ -1573,10 +1573,13 @@
   <script src="ranked-texts.js?v=20261014c"></script>
   <script src="ranked-fx.js?v=20261006b"></script>
   <script src="ranked-replay.js?v=20261009e"></script>
-  <script src="ranked.js?v=20261030a"></script>
+  <!-- 12月の世界ランキング「真冬の停電モード」（回している間だけ明るい）。ranked.js より先に読む。
+       この1行を消せば、停電モードの仕掛けがなくなる（その月はふつうのキューブで遊ぶことになる）。 -->
+  <script src="blackout.js?v=20261118a"></script>
+  <script src="ranked.js?v=20261118a"></script>
   <!-- お知らせ一覧をカード型に（最新はハイライト、過去は小さなカード）。
        この1行を消せば、元の文字だけの一覧に戻る。 -->
-  <script src="notice-cards.js?v=20261030c"></script>
+  <script src="notice-cards.js?v=20261118a"></script>
   <!-- 自己ベスト画面をダッシュボードに（タブ ALL PB / SIZE / MOVES・ランクの輪・PBの推移）。
        この1行を消せば、元の自己ベスト画面に戻る。 -->
   <script src="records-dash.js?v=20261017a"></script>
@@ -7014,10 +7017,17 @@
        ============================================================ */
     const NOTICE_SEEN_KEY = 'rubiks-cube-notice-seen';
 
+    // 日付が日本時間の今日より先のお知らせは、その日が来るまで出さない（予約告知）。
+    // 一覧・未読の点・更新バナー（下の SW のところ）の全部がこれを通る。
+    window.__visibleNotices = function (items) {
+      const today = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);
+      return (items || []).filter((it) => !it || !it.date || String(it.date) <= today);
+    };
+
     function fetchNoticeItems() {
       return fetch('update-notice.json?t=' + Date.now(), { cache: 'no-store' })
         .then((res) => (res.ok ? res.json() : null))
-        .then((data) => (data && Array.isArray(data.items) ? data.items : []))
+        .then((data) => (data && Array.isArray(data.items) ? window.__visibleNotices(data.items) : []))
         .catch(() => []);
     }
 
@@ -7087,6 +7097,8 @@
       });
     }
     refreshNoticeDot();
+    // 予約したお知らせ（日付が来たら出るもの）に気づけるよう、アプリに戻ってきたときも見直す
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshNoticeDot(); });
 
     /* ============================================================
        ホーム画面追加のやり方（機内モード対応の詳細説明）
@@ -16750,7 +16762,9 @@ window.PllTrainer = PllTrainer;
               fetch('update-notice.json?t=' + Date.now(), { cache: 'no-store' })
                 .then((res) => (res.ok ? res.json() : null))
                 .then((data) => {
-                  const latest = data && Array.isArray(data.items) ? data.items[0] : null;
+                  const shown = data && Array.isArray(data.items)
+                    ? (window.__visibleNotices ? window.__visibleNotices(data.items) : data.items) : [];
+                  const latest = shown[0] || null;
                   if (!latest || !noticeEl) return;
                   const lang = (document.documentElement.lang || 'ja');
                   const text = latest[lang] || latest.ja || '';
