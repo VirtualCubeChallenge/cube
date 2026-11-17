@@ -319,6 +319,8 @@
     'body.rk-on #help-btn,body.rk-on #oll-btn,body.rk-on #pll-btn,body.rk-on #zbll-btn{visibility:hidden;pointer-events:none}',
 
     /* 結果などの知らせ */
+    '.rk-res-joke{margin:6px 0 10px;font-size:12.5px;line-height:1.6;font-weight:700;color:#cfe4ff;text-align:center}',
+    '.rk-bo-try{margin-top:8px;border:1px solid rgba(160,210,255,.45)!important;color:#cfe4ff!important}',
     '#rk-toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:10400;',
     '  transform:translateX(-50%);max-width:min(92vw,420px);width:max-content;box-sizing:border-box;',
     '  padding:12px 16px;border-radius:14px;background:#1c1c24;border:1px solid #3a3a48;color:#e6e6ee;',
@@ -396,8 +398,12 @@
   // サーバーの SEASON_MODES と同じ名前。表示の文言と、遊んでいる最中の仕掛けをここに持つ
   const MODES = {
     'random-size': { icon: '🎲', name: 'rkModeRandomSize', desc: 'rkModeRandomSizeDesc' },
+    // 2026年12月：回している間だけ明るい。止まると暗くなる（blackout.js）
+    blackout: { icon: '🕯️', name: 'rkModeBlackout', desc: 'rkModeBlackoutDesc' },
     normal: { icon: '🧊', name: 'rkModeNormal', desc: 'rkModeNormalDesc' }
   };
+  // テスト用のサイト（本番 virtualcubechallenge.github.io 以外）だけ、記録なしで新しいモードを試せる
+  const IS_TEST_SITE = !/(^|\.)virtualcubechallenge\.github\.io$/i.test(global.location && global.location.hostname || '');
   function modeInfo(id) { return MODES[id] || MODES.normal; }
   function monthLabel(season) {
     const m = /^(\d{4})-(\d{2})$/.exec(season || '');
@@ -431,7 +437,30 @@
   function resetModeEffects() {
     const b = global.__rankedBridge;
     if (b && typeof b.setZoom === 'function') b.setZoom(null);
+    if (playMode === 'blackout' && global.Blackout && !boPractice) global.Blackout.stop();
     playMode = 'normal';
+  }
+  // 記録画面に出すため、提出したときのモードを覚えておく
+  let lastMode = 'normal';
+
+  /* 停電モードの試し遊び（テスト用のサイトだけ。サーバーには何も送らない）。
+     ふつうのシャッフルをして、そのソルブのあいだだけ暗くする。揃えるか、崩す・中断すると終わる */
+  let boPractice = false;
+  function startBlackoutPractice() {
+    if (state !== 'idle' || !global.Blackout) return;
+    const bridge = global.__rankedBridge;
+    if (!bridge || typeof bridge.scramble !== 'function') return;
+    closeOverlay();
+    hideResult();
+    applying = true;
+    try { bridge.scramble(); } finally { applying = false; }
+    boPractice = true;
+    global.Blackout.start({ practice: true });
+  }
+  function endBlackoutPractice(restored) {
+    if (!boPractice) return;
+    boPractice = false;
+    if (global.Blackout) global.Blackout.stop({ restored: !!restored });
   }
 
   function rulesHtml() {
@@ -493,6 +522,8 @@
       '<button type="button" class="rk-res-x" data-act="close" aria-label="' + esc(tx('close') || '✕') + '">' +
         '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2 2 12"/></svg></button>' +
       '<div class="rk-res-time">' + esc(fmtTime(r.timeMs)) + '</div>' + sub +
+      // 停電モードの回は、12月らしい一言を添える
+      ((r.mode || lastMode) === 'blackout' && global.Blackout ? '<p class="rk-res-joke">🕯️ ' + esc(global.Blackout.joke()) + '</p>' : '') +
       '<button type="button" class="rk-res-btn view" data-act="view">' + esc(tx('rkViewRanking')) + '</button>' +
       '<button type="button" class="rk-res-btn retry" data-act="retry">' + esc(tx('rkRetry')) + '</button>';
     // 出てくる場所は6通りから毎回ランダム（前回と同じにはしない）
@@ -609,6 +640,7 @@
 
   function startRanked() {
     if (state !== 'idle' || !me) return;
+    endBlackoutPractice(false);
     hideResult();
     const bridge = global.__rankedBridge;
     if (!bridge || typeof bridge.scramble !== 'function') { toast(esc(tx('rkErrOffline'))); return; }
@@ -638,6 +670,8 @@
       moves = [];
       lastT = 0;
       playMode = MODES[r.mode] ? r.mode : 'normal';
+      // 停電モード：インスペクション中は明るいまま。1手目から「止まると暗くなる」
+      if (playMode === 'blackout' && global.Blackout) global.Blackout.start();
       state = 'inspecting';
       document.body.classList.add('rk-on');
       inspectEnd = Date.now() + (r.inspectionMs || INSPECTION_MS);
@@ -648,6 +682,9 @@
   }
 
   function submit(ms) {
+    lastMode = playMode;
+    // 揃えた：停電モードなら「電気が戻った」演出で明るくする
+    if (playMode === 'blackout' && global.Blackout) global.Blackout.stop({ restored: true });
     resetModeEffects();
     state = 'submitting';
     hud(false);
@@ -703,6 +740,8 @@
   // index.html から呼ばれる受け口
   global.RankedHook = {
     onTurn: function (cfg, t) {
+      // 停電モード：1手ごとに明かりを戻す（ランク戦でも、テスト用の試し遊びでも）
+      if (global.Blackout && global.Blackout.isOn()) global.Blackout.turn();
       if (state !== 'inspecting' && state !== 'solving') return;
       if (state === 'inspecting') {
         state = 'solving';
@@ -722,16 +761,23 @@
       applyModeOnTurn();
     },
     onSolved: function (ms, usedAssist) {
+      if (boPractice) {
+        endBlackoutPractice(true);
+        const j = global.Blackout ? global.Blackout.joke() : '';
+        toast('<span class="rk-t-big">🕯️ ' + esc(fmtTime(ms)) + '</span>' + esc(j) +
+          '<br><small style="opacity:.7">' + esc(global.Blackout ? global.Blackout.text('boPracticeDone') : '') + '</small>', 7000);
+        return;
+      }
       if (state !== 'solving') return;
       if (usedAssist) { invalidate('rkAssistUsed'); return; }
       if (!moves.length) { invalidate('rkErrTime'); return; }
       submit(ms);
     },
-    onPause: function () { invalidate('rkPaused'); },
-    onAbort: function () { if (!applying) invalidate('rkCancelled'); }
+    onPause: function () { endBlackoutPractice(false); invalidate('rkPaused'); },
+    onAbort: function () { if (!applying) { endBlackoutPractice(false); invalidate('rkCancelled'); } }
   };
   // シャッフル・リセットは resetTimer() を通るが、念のためイベントでも拾う
-  global.addEventListener('cube-reset', function () { if (!applying) invalidate('rkCancelled'); });
+  global.addEventListener('cube-reset', function () { if (!applying) { endBlackoutPractice(false); invalidate('rkCancelled'); } });
 
   /* ------------------------------------------------------------ 画面 -- */
   let view = 'home';
@@ -857,6 +903,7 @@
         (isPast
           ? '<p class="rk-ended">' + esc(tx('rkSeasonEndedNote')) + '</p>'
           : '<button type="button" class="rk-btn go" id="rk-start"' + (state !== 'idle' ? ' disabled' : '') + '>' + esc(tx('rkStart')) + '</button>' +
+            (IS_TEST_SITE && global.Blackout ? '<button type="button" class="rk-btn sub rk-bo-try" id="rk-bo-try">' + esc(tx('boTry')) + '</button>' : '') +
             rulesHtml()) + '</div>';
 
       html += '<div class="rk-card"><p class="rk-sec"><span>TOP ' + TOP_N + '</span><span>' +
@@ -903,6 +950,7 @@
     const input = $('rk-nick');
     if (input) input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); submitNickname(); } });
     on('rk-start', startRanked);
+    on('rk-bo-try', startBlackoutPractice);
     on('rk-rename', function () { view = 'rename'; render(); });
     on('rk-xshare', shareX);
     const sz = document.querySelector('#rk-overlay .rk-seasons');
