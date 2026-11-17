@@ -1,6 +1,19 @@
 {
-  "_note": "items は新しい順。新機能を足したら先頭に1件追加する。言語キーは ja/en/zh-CN/zh-TW/ko/es/id/ru/pt-BR の9つで、LANGS の code とそのまま一致する。無い言語は ja に落ちる（= ja だけは必ず書く）。guide は任意で、付けた項目にだけ「詳細→」ボタンが出る。 icon は任意で、お知らせ一覧のカードに出すネオン線画アイコンの名前（globe / bolt / cube / camera / pause / plane / undo / trophy / pumpkin / spark。無い・不明なら spark）。中身は notice-cards.js の ICONS。",
+  "_note": "items は新しい順。新機能を足したら先頭に1件追加する。言語キーは ja/en/zh-CN/zh-TW/ko/es/id/ru/pt-BR の9つで、LANGS の code とそのまま一致する。無い言語は ja に落ちる（= ja だけは必ず書く）。guide は任意で、付けた項目にだけ「詳細→」ボタンが出る。 icon は任意で、お知らせ一覧のカードに出すネオン線画アイコンの名前（globe / bolt / cube / camera / pause / plane / undo / trophy / pumpkin / candle / spark。無い・不明なら spark）。中身は notice-cards.js の ICONS。 date が日本時間の今日より先の項目は、その日になるまで一覧にも更新バナーにも出ない（予約告知）。",
   "items": [
+    {
+      "date": "2026-12-01",
+      "icon": "candle",
+      "ja": "【アプデ情報】12月の世界ランキングは「真冬の停電モード」！🕯️\n回している間だけ明かりがつき、手を止めると画面がじわじわ真っ暗に。真っ暗でも手探りで回せば、明かりが戻ります。\nメニューの「🌍 世界ランキング」から挑戦してね！",
+      "en": "[Update] December's World Ranking is Winter Blackout Mode! 🕯️\nThe lights stay on only while you turn. Stop, and the screen slowly goes pitch black. Turn blindly to bring the light back.\nTake it on from “🌍 World Ranking” in the menu!",
+      "zh-CN": "【更新情报】12月的世界排行榜是「严冬停电模式」！🕯️\n只有转动时才有灯光，一停手画面就会慢慢变得漆黑。就算一片漆黑，摸黑转动也能让灯光恢复。\n快从菜单的「🌍 世界排行榜」来挑战吧！",
+      "zh-TW": "【更新情報】12月的世界排行榜是「嚴冬停電模式」！🕯️\n只有轉動時才有燈光，一停手畫面就會慢慢變得漆黑。就算一片漆黑，摸黑轉動也能讓燈光恢復。\n快從選單的「🌍 世界排行榜」來挑戰吧！",
+      "ko": "【업데이트】12월 세계 랭킹은 ‘한겨울 정전 모드’! 🕯️\n돌리는 동안만 불이 켜지고, 손을 멈추면 화면이 서서히 캄캄해져요. 캄캄해도 더듬어 돌리면 불이 돌아와요.\n메뉴의 ‘🌍 세계 랭킹’에서 도전해 보세요!",
+      "es": "[Novedades] ¡El Ranking mundial de diciembre es el Modo apagón invernal! 🕯️\nSolo hay luz mientras giras. Si paras, la pantalla se va quedando a oscuras. Gira a tientas para recuperar la luz.\n¡Atrévete desde «🌍 Ranking mundial» en el menú!",
+      "id": "[Pembaruan] Peringkat Dunia Desember: Mode Mati Lampu Musim Dingin! 🕯️\nLampu hanya menyala selama kamu memutar. Berhenti, layar pelan-pelan gelap gulita. Putar sambil meraba untuk menyalakannya lagi.\nTantang dari “🌍 Peringkat Dunia” di menu!",
+      "ru": "[Обновление] В декабре мировой рейтинг — в режиме зимнего блэкаута! 🕯️\nСвет горит, только пока вы крутите. Остановитесь — экран медленно погрузится во тьму. Крутите на ощупь, чтобы вернуть свет.\nИспытайте себя через «🌍 Мировой рейтинг» в меню!",
+      "pt-BR": "[Novidades] O Ranking mundial de dezembro é o Modo apagão de inverno! 🕯️\nA luz só fica acesa enquanto você gira. Parou, a tela vai escurecendo até ficar breu. Gire no tato para a luz voltar.\nEncare o desafio pelo “🌍 Ranking mundial” no menu!"
+    },
     {
       "date": "2026-10-31",
       "icon": "pumpkin",
